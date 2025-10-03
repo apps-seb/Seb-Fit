@@ -295,7 +295,7 @@
     </template>
     
     <script type="module">
-        // Import the functions you need from the SDKs you need
+        // Importaciones de Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { 
             getAuth, 
@@ -310,27 +310,35 @@
             setDoc,
             getDoc 
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        // *** NUEVA IMPORTACIÓN PARA STORAGE ***
+        import {
+            getStorage,
+            ref,
+            uploadBytesResumable,
+            getDownloadURL
+        } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-        // Your web app's Firebase configuration
+        // Configuración de Firebase (sin cambios)
         const firebaseConfig = {
             apiKey: "AIzaSyASVFAJx1vUN62V3t7VycuTKAehWW8byoM",
             authDomain: "seb-fit-460c4.firebaseapp.com",
             projectId: "seb-fit-460c4",
-            storageBucket: "seb-fit-460c4.firebasestorage.app",
+            storageBucket: "seb-fit-460c4.appspot.com", // Asegúrate que sea el correcto
             messagingSenderId: "906669175939",
             appId: "1:906669175939:web:8fd09b745292c14eb6d7b6"
         };
 
-        // Initialize Firebase
+        // Inicializar Firebase
         const firebaseApp = initializeApp(firebaseConfig);
         
         document.addEventListener('DOMContentLoaded', () => {
             const app = {
-                apiKey: "", // <-- DEJA ESTO VACÍO PARA GITHUB, PON TU CLAVE DE GEMINI SOLO AL DESPLEGAR
+                apiKey: "", // Clave de Gemini para funciones de IA, no para subidas.
                 adminUID: "oyVFC1vKcLhTLJJsjMQDPRL1z2K2", // UID del administrador
                 firebaseApp: firebaseApp,
                 auth: null,
                 db: null,
+                storage: null, // *** NUEVA PROPIEDAD PARA STORAGE ***
                 
                 isAdmin() {
                     return this.state.currentUser && this.state.currentUser.uid === this.adminUID;
@@ -499,13 +507,15 @@
                     this.state = this.getDefaultState();
                     this.auth = getAuth(this.firebaseApp);
                     this.db = getFirestore(this.firebaseApp);
+                    this.storage = getStorage(this.firebaseApp); // *** INICIALIZAR STORAGE ***
                     this.setupAuthListeners();
                     this.setupEventListeners();
                     lucide.createIcons();
                 },
 
-                initAppLogic() {
+                async initAppLogic() {
                     this.audioCtx = new(window.AudioContext || window.webkitAudioContext)(); 
+                    await this.loadExerciseLibraryFromFirestore(); // Cargar librería desde Firestore
                     this.loadTemplates();
                     this.populateNutritionForm();
                     this.renderAll(); 
@@ -535,19 +545,36 @@
                         if (docSnap.exists()) {
                             const data = docSnap.data();
                             this.state = { ...defaultState, currentUser: this.state.currentUser, ...data };
-                            // Asegurarse de que las propiedades anidadas existan
                             this.state.physicalStats = { ...defaultState.physicalStats, ...data.physicalStats };
                             this.state.userGoals = { ...defaultState.userGoals, ...data.userGoals };
-
                         } else {
                             this.state = defaultState;
                             this.state.currentUser = this.auth.currentUser;
-                            this.state.userName = this.auth.currentUser.displayName;
+                            this.state.userName = this.auth.currentUser.displayName || "Nuevo Usuario";
                             await this.saveDataToFirestore();
                         }
                     } catch (error) {
                         console.error("Error loading data from Firestore: ", error);
                         this.showToast("Error al cargar datos.", "error");
+                    }
+                },
+
+                async loadExerciseLibraryFromFirestore() {
+                    const docRef = doc(this.db, "app_data", "exercise_library");
+                    try {
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            this.data.exerciseLibrary = docSnap.data();
+                        } else {
+                            // Si no existe en la BD, la creamos con los datos iniciales (solo el admin debería poder hacer esto la primera vez)
+                            console.log("No exercise library found in DB, seeding initial data...");
+                            if (this.isAdmin()) {
+                                await setDoc(docRef, this.data.exerciseLibrary);
+                            }
+                        }
+                    } catch (error) {
+                        console.error("Error loading exercise library: ", error);
+                        this.showToast("Error al cargar ejercicios.", "error");
                     }
                 },
 
@@ -557,7 +584,7 @@
                             this.state.currentUser = user;
                             await this.loadDataFromFirestore();
                             this.showAppUI();
-                            this.initAppLogic();
+                            await this.initAppLogic();
                         } else {
                             this.state = this.getDefaultState();
                             this.showAuthUI();
@@ -572,112 +599,16 @@
                     });
                 },
 
-                async handleLogin(e) {
-                    e.preventDefault();
-                    const email = document.getElementById('login-email').value;
-                    const password = document.getElementById('login-password').value;
-                    const button = e.target.querySelector('button[type="submit"]');
-                    this.setButtonLoading(button, true);
-                    try {
-                        await signInWithEmailAndPassword(this.auth, email, password);
-                    } catch (error) {
-                        this.showToast(this.getFirebaseAuthErrorMessage(error), 'error');
-                    } finally {
-                        this.setButtonLoading(button, false);
-                    }
-                },
-
-                async handleRegister(e) {
-                    e.preventDefault();
-                    const name = document.getElementById('register-name').value;
-                    const email = document.getElementById('register-email').value;
-                    const password = document.getElementById('register-password').value;
-                    const button = e.target.querySelector('button[type="submit"]');
-                    this.setButtonLoading(button, true);
-
-                    try {
-                        const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
-                        const user = userCredential.user;
-                        const userRef = doc(this.db, "users", user.uid);
-                        const initialData = this.getDefaultState();
-                        initialData.userName = name;
-                        initialData.targetWeight = initialData.physicalStats.weight;
-                        delete initialData.currentUser;
-                        await setDoc(userRef, initialData);
-                    } catch (error) {
-                        this.showToast(this.getFirebaseAuthErrorMessage(error), 'error');
-                    } finally {
-                        this.setButtonLoading(button, false);
-                    }
-                },
-
-                async handleLogout() {
-                    try {
-                        await signOut(this.auth);
-                    } catch (error) {
-                        this.showToast('Error al cerrar sesión.', 'error');
-                    }
-                },
-
-                showAppUI() {
-                    document.getElementById('auth-container').classList.add('hidden');
-                    document.getElementById('app-container').classList.remove('hidden');
-                },
-
-                showAuthUI() {
-                    document.getElementById('app-container').classList.add('hidden');
-                    document.getElementById('auth-container').classList.remove('hidden');
-                    document.getElementById('sections-wrapper').innerHTML = '';
-                },
-
-                toggleAuthForms() {
-                    const loginContainer = document.getElementById('login-form-container');
-                    const registerContainer = document.getElementById('register-form-container');
-                    loginContainer.classList.toggle('form-visible');
-                    loginContainer.classList.toggle('form-hidden');
-                    registerContainer.classList.toggle('form-visible');
-                    registerContainer.classList.toggle('form-hidden');
-                },
-                
-                setButtonLoading(button, isLoading) {
-                    if (isLoading) {
-                        button.disabled = true;
-                        button.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`;
-                        lucide.createIcons();
-                    } else {
-                        button.disabled = false;
-                        button.innerHTML = `<span>${button.closest('form').id === 'login-form' ? 'Iniciar Sesión' : 'Crear Cuenta'}</span>`;
-                    }
-                },
-
-                updateUserInfoUI() {
-                    const name = this.state.userName || 'Usuario';
-                    document.getElementById('welcome-message').textContent = `Hola, ${name.split(' ')[0]}`;
-                    const avatar = document.getElementById('user-avatar').querySelector('span');
-                    avatar.textContent = name.charAt(0).toUpperCase();
-                },
-                
-                getFirebaseAuthErrorMessage(error) {
-                    switch (error.code) {
-                        case 'auth/invalid-email': return 'Email no válido.';
-                        case 'auth/user-not-found': return 'Usuario no encontrado.';
-                        case 'auth/wrong-password': return 'Contraseña incorrecta.';
-                        case 'auth/email-already-in-use': return 'Este email ya está registrado.';
-                        case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.';
-                        case 'auth/invalid-credential': return 'Credenciales inválidas.';
-                        default: return 'Ha ocurrido un error. Inténtalo de nuevo.';
-                    }
-                },
-
-                loadTemplates() { 
-                    const wrapper = document.getElementById('sections-wrapper'); 
-                    if(wrapper.children.length > 0) return;
-                    const templates = document.querySelectorAll('template'); 
-                    templates.forEach(template => { 
-                        const content = template.content.cloneNode(true); 
-                        wrapper.appendChild(content); 
-                    }); 
-                },
+                async handleLogin(e) { e.preventDefault(); const email = document.getElementById('login-email').value; const password = document.getElementById('login-password').value; const button = e.target.querySelector('button[type="submit"]'); this.setButtonLoading(button, true); try { await signInWithEmailAndPassword(this.auth, email, password); } catch (error) { this.showToast(this.getFirebaseAuthErrorMessage(error), 'error'); } finally { this.setButtonLoading(button, false); } },
+                async handleRegister(e) { e.preventDefault(); const name = document.getElementById('register-name').value; const email = document.getElementById('register-email').value; const password = document.getElementById('register-password').value; const button = e.target.querySelector('button[type="submit"]'); this.setButtonLoading(button, true); try { const userCredential = await createUserWithEmailAndPassword(this.auth, email, password); const user = userCredential.user; const userRef = doc(this.db, "users", user.uid); const initialData = this.getDefaultState(); initialData.userName = name; initialData.targetWeight = initialData.physicalStats.weight; delete initialData.currentUser; await setDoc(userRef, initialData); } catch (error) { this.showToast(this.getFirebaseAuthErrorMessage(error), 'error'); } finally { this.setButtonLoading(button, false); } },
+                async handleLogout() { try { await signOut(this.auth); } catch (error) { this.showToast('Error al cerrar sesión.', 'error'); } },
+                showAppUI() { document.getElementById('auth-container').classList.add('hidden'); document.getElementById('app-container').classList.remove('hidden'); },
+                showAuthUI() { document.getElementById('app-container').classList.add('hidden'); document.getElementById('auth-container').classList.remove('hidden'); document.getElementById('sections-wrapper').innerHTML = ''; },
+                toggleAuthForms() { const loginContainer = document.getElementById('login-form-container'); const registerContainer = document.getElementById('register-form-container'); loginContainer.classList.toggle('form-visible'); loginContainer.classList.toggle('form-hidden'); registerContainer.classList.toggle('form-visible'); registerContainer.classList.toggle('form-hidden'); },
+                setButtonLoading(button, isLoading) { if (isLoading) { button.disabled = true; button.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`; lucide.createIcons(); } else { button.disabled = false; button.innerHTML = `<span>${button.closest('form').id === 'login-form' ? 'Iniciar Sesión' : 'Crear Cuenta'}</span>`; } },
+                updateUserInfoUI() { const name = this.state.userName || 'Usuario'; document.getElementById('welcome-message').textContent = `Hola, ${name.split(' ')[0]}`; const avatar = document.getElementById('user-avatar').querySelector('span'); avatar.textContent = name.charAt(0).toUpperCase(); },
+                getFirebaseAuthErrorMessage(error) { switch (error.code) { case 'auth/invalid-email': return 'Email no válido.'; case 'auth/user-not-found': return 'Usuario no encontrado.'; case 'auth/wrong-password': return 'Contraseña incorrecta.'; case 'auth/email-already-in-use': return 'Este email ya está registrado.'; case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.'; case 'auth/invalid-credential': return 'Credenciales inválidas.'; default: return 'Ha ocurrido un error. Inténtalo de nuevo.'; } },
+                loadTemplates() { const wrapper = document.getElementById('sections-wrapper'); if(wrapper.children.length > 0) return; const templates = document.querySelectorAll('template'); templates.forEach(template => { const content = template.content.cloneNode(true); wrapper.appendChild(content); }); },
                 setupEventListeners() {
                     document.body.addEventListener('click', (e) => {
                         const button = e.target.closest('[data-action]');
@@ -695,436 +626,37 @@
                         }
                         const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup } = button.dataset;
                         const actionMap = {
-                            'show-section': () => this.showSection(sectionId),
-                            'handle-workout-action': () => this.handleWorkoutAction(),
-                            'confirm-finish-workout': () => this.confirmFinishWorkout(),
-                            'finish-workout': () => this.finishWorkout(false),
-                            'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)),
-                            'skip-rest': () => this.skipRest(),
-                            'add-rest-time': () => this.addRestTime(),
-                            'save-goals': () => this.saveNutritionGoals(),
-                            'calculate-body-metrics': () => this.calculateBodyMetrics(),
-                            'show-add-food-modal': () => this.showAddFoodModal(parseInt(foodId)),
-                            'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, mealName),
-                            'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(mealName, parseInt(itemIndex)),
-                            'remove-food': () => this.removeFoodFromMeal(mealName, parseInt(itemIndex)),
-                            'generate-plan': () => this.generatePlanWithAI(),
-                            'analyze-food': () => this.analyzeFoodWithAI(),
-                            'get-recipe': () => this.getRecipeForMeal(mealName),
-                            'show-exercise-info': () => this.showExerciseInfoModal(exerciseName),
-                            'hide-modal': () => this.hideModal(),
-                            'routine-create': () => this.routine_enterCreator(),
-                            'routine-show-details': () => this.routine_showDetails(routineId),
-                            'routine-close-view': () => this.routine_closeFullscreenView(),
-                            'routine-creator-next': () => this.routine_handleCreatorNext(),
-                            'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(),
-                            'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(),
-                            'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName),
-                            'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)),
-                            'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex),
-                            'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)),
-                            'routine-creator-save': () => this.routine_save(),
-                            'routine-confirm-delete': () => this.routine_confirmDelete(routineId),
-                            'routine-delete': () => this.routine_delete(routineId),
-                            'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(),
-                            'generate-exercises-ai': () => this.routine_generateExercisesWithAi(),
-                            'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e),
-                            'edit-profile': () => this.showEditProfileModal(),
-                            'save-profile-changes': () => this.handleUpdateProfile(),
-                            'edit-target-weight': () => this.showEditTargetWeightModal(),
-                            'save-target-weight': () => this.handleUpdateTargetWeight(),
-                            'add-weight-log': () => this.handleAddWeightLog(),
-                            'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex),
-                            'admin-save-media': () => this.admin_saveMediaUrl(group, subgroup, exerciseIndex),
-                            'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)),
-                            'routine-creator-add-day': () => this.routine_addDay(),
-                            'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)),
-                            'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)),
-                            'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)),
+                            'show-section': () => this.showSection(sectionId), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-finish-workout': () => this.confirmFinishWorkout(), 'finish-workout': () => this.finishWorkout(false), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(parseInt(foodId)), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, mealName), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(mealName, parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(mealName, parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(mealName), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)),
                         };
                         if (actionMap[action]) actionMap[action](e);
                     });
-                    // Listeners de formularios
-                    document.body.addEventListener('submit', (e) => {
-                        e.preventDefault();
-                        if (e.target.id === 'nutrition-form') { this.calculateNutrition(); }
-                        if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); }
-                        if (e.target.id === '1rm-form') { this.calculate1RM(); }
-                    });
-                    document.body.addEventListener('input', (e) => {
-                        if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); }
-                    });
+                    document.body.addEventListener('submit', (e) => { e.preventDefault(); if (e.target.id === 'nutrition-form') { this.calculateNutrition(); } if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); } if (e.target.id === '1rm-form') { this.calculate1RM(); } });
+                    document.body.addEventListener('input', (e) => { if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); } });
                 },
-                renderAll() { 
-                    this.renderRoutinesSection();
-                    this.renderDietPage(); 
-                    this.renderWeeklyProgress(); 
-                    this.renderProfileSection();
-                    this.renderNutricionSection();
-                    this.updateDashboard(); 
-                    lucide.createIcons(); 
-                },
+                renderAll() { this.renderRoutinesSection(); this.renderDietPage(); this.renderWeeklyProgress(); this.renderProfileSection(); this.renderNutricionSection(); this.updateDashboard(); lucide.createIcons(); },
                 showSection(id, animate=true){this.state.currentSection=id;document.querySelectorAll('.section-content').forEach(s=>s.classList.add('hidden'));const el=document.getElementById(id);if(el){el.classList.remove('hidden');if(animate){el.classList.add('section-fade-in');el.addEventListener('animationend',()=>el.classList.remove('section-fade-in'),{once:true});}}document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.toggle('text-emerald-400',b.dataset.section===id);b.classList.toggle('text-gray-400',b.dataset.section!==id);});if(id==='dieta'){this.renderFoodList();}},
                 renderWeeklyProgress(){const container=document.getElementById('weekly-progress-card');const t=new Date(),d=t.getDay(),s=new Date(t); s.setDate(t.getDate()-(d===0?6:d-1));let weekHTML='', dayLetters=['L','M','X','J','V','S','D'], completedCount=0;for(let i=0;i<7;i++){const cd=new Date(s); cd.setDate(s.getDate()+i);const ds=`${cd.getFullYear()}-${String(cd.getMonth()+1).padStart(2,'0')}-${String(cd.getDate()).padStart(2,'0')}`;const isCompleted=this.state.workoutHistory[ds], isToday=cd.toDateString()===t.toDateString();if(isCompleted) completedCount++;weekHTML+=`<div class="text-center"><p class="text-xs text-gray-400">${dayLetters[i]}</p><div class="w-8 h-8 rounded-full flex items-center justify-center mt-1 ${isCompleted?'bg-emerald-500':'bg-gray-600'} ${isToday?'ring-2 ring-white':''}"></div></div>`;}let statsHtml = '';const historyKeys = this.state.workoutHistory ? Object.keys(this.state.workoutHistory).sort().reverse() : [];if (historyKeys.length > 0) {const lastWorkoutDate = historyKeys[0], lastWorkout = this.state.workoutHistory[lastWorkoutDate];const formattedDate = new Date(lastWorkoutDate + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });statsHtml = `<div class="mt-4 pt-4 border-t border-gray-600/50"><h4 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Último Entrenamiento</h4><div class="flex items-center justify-between bg-gray-900/50 p-3 rounded-lg"><div class="flex items-center space-x-3"><i data-lucide="award" class="text-emerald-400"></i><div><p class="font-bold text-white">${lastWorkout.routineName}</p><p class="text-xs text-gray-400 capitalize">${formattedDate}</p></div></div><div class="text-right"><p class="font-semibold text-white">${this.formatTime(lastWorkout.totalDuration)}</p><p class="text-xs text-gray-400">Duración</p></div></div></div>`;} else { statsHtml = `<div class="mt-4 pt-4 border-t border-gray-600/50 text-center text-gray-500 text-sm"><p>Completa un entrenamiento para ver tus estadísticas aquí.</p></div>`; }container.innerHTML=`<h3 class="font-semibold text-lg mb-3">Progreso Semanal</h3><div class="flex justify-between">${weekHTML}</div><p class="text-right text-xs text-gray-400 mt-2">${completedCount} de 7 días completados</p>${statsHtml}`;},
-                
-                renderProfileSection() {
-                    if (!this.state.currentUser) return;
-                    const { userName, currentUser, physicalStats, userGoals, workoutHistory, targetWeight } = this.state;
-                    
-                    document.getElementById('profile-avatar').querySelector('span').textContent = (userName || 'U').charAt(0).toUpperCase();
-                    document.getElementById('profile-name').textContent = userName || 'Usuario';
-                    document.getElementById('profile-email').textContent = currentUser.email;
-
-                    const historyKeys = Object.keys(workoutHistory);
-                    const totalWorkouts = historyKeys.length;
-                    const totalDurationSeconds = historyKeys.reduce((acc, key) => acc + workoutHistory[key].totalDuration, 0);
-                    const totalHours = (totalDurationSeconds / 3600).toFixed(1);
-                    document.getElementById('profile-stat-workouts').textContent = totalWorkouts;
-                    document.getElementById('profile-stat-hours').textContent = totalHours;
-                    document.getElementById('profile-stat-streak').textContent = this.calculateWorkoutStreak();
-
-                    document.getElementById('profile-info-age').textContent = `${physicalStats.age} años`;
-                    document.getElementById('profile-info-weight').textContent = `${physicalStats.weight} kg`;
-                    document.getElementById('profile-info-height').textContent = `${physicalStats.height} cm`;
-                    
-                    document.getElementById('current-weight-display').textContent = physicalStats.weight.toFixed(1);
-                    document.getElementById('target-weight-display').textContent = targetWeight.toFixed(1);
-                    const diff = (targetWeight - physicalStats.weight).toFixed(1);
-                    document.getElementById('weight-diff-display').textContent = diff;
-                    
-                    const chartContainer = document.getElementById('profile-activity-chart');
-                    const weeklyData = this.getWeeklyActivityData();
-                    const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 1);
-                    chartContainer.innerHTML = weeklyData.map(week => {
-                        const barHeight = (week.count / maxWorkouts) * 100;
-                        return `<div class="flex flex-col items-center justify-end h-full w-1/4"><p class="text-sm font-bold text-white">${week.count}</p><div class="w-3/5 h-full flex items-end"><div class="w-full bg-emerald-500 rounded-t-sm chart-bar" style="height: ${barHeight}%;"></div></div><p class="text-xs text-gray-400 mt-1">${week.label}</p></div>`;
-                    }).join('');
-                    
-                    const historyContainer = document.getElementById('profile-workout-history');
-                    if (historyKeys.length > 0) {
-                        historyContainer.innerHTML = historyKeys.sort().reverse().slice(0, 5).map(dateStr => {
-                            const workout = workoutHistory[dateStr];
-                            const date = new Date(dateStr + 'T00:00:00');
-                            const formattedDate = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-                            return `<div class="bg-gray-700/60 p-3 rounded-lg flex justify-between items-center"><div><p class="font-semibold text-white">${workout.routineName}</p><p class="text-xs text-gray-400">${formattedDate}</p></div><div class="text-sm font-medium text-gray-300">${this.formatTime(workout.totalDuration)}</div></div>`;
-                        }).join('');
-                    } else {
-                        historyContainer.innerHTML = `<p class="text-center text-gray-500 text-sm p-4">No hay entrenamientos registrados.</p>`;
-                    }
-                },
-                calculateWorkoutStreak() {
-                    const dates = Object.keys(this.state.workoutHistory).sort((a, b) => new Date(b) - new Date(a));
-                    if (dates.length === 0) return 0;
-
-                    let streak = 0;
-                    let today = new Date();
-                    today.setHours(0, 0, 0, 0);
-
-                    const firstDateInLog = new Date(dates[0] + 'T00:00:00');
-                    const diffTime = today - firstDateInLog;
-                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-                    if (diffDays > 1) return 0; // Streak is broken if last workout was more than a day ago
-                    
-                    streak = 1;
-                    for (let i = 0; i < dates.length - 1; i++) {
-                        const currentDate = new Date(dates[i] + 'T00:00:00');
-                        const previousDate = new Date(dates[i+1] + 'T00:00:00');
-                        const dayDifference = (currentDate - previousDate) / (1000 * 60 * 60 * 24);
-                        if (dayDifference === 1) {
-                            streak++;
-                        } else {
-                            break;
-                        }
-                    }
-                    return streak;
-                },
-                getWeeklyActivityData() {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    
-                    const weeks = [
-                        { label: 'Hace 3sem', count: 0, start: new Date(today), end: new Date(today) },
-                        { label: 'Hace 2sem', count: 0, start: new Date(today), end: new Date(today) },
-                        { label: 'Sem Pasada', count: 0, start: new Date(today), end: new Date(today) },
-                        { label: 'Esta Sem', count: 0, start: new Date(today), end: new Date(today) },
-                    ];
-
-                    for (let i = 0; i < 4; i++) {
-                        const weekIndex = 3 - i;
-                        const firstDayOfWeek = new Date(today);
-                        const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1; // Monday = 0
-                        firstDayOfWeek.setDate(today.getDate() - dayOfWeek - (i * 7));
-                        
-                        weeks[weekIndex].start = new Date(firstDayOfWeek);
-                        weeks[weekIndex].end = new Date(firstDayOfWeek);
-                        weeks[weekIndex].end.setDate(firstDayOfWeek.getDate() + 6);
-                    }
-                    
-                    Object.keys(this.state.workoutHistory).forEach(dateStr => {
-                        const workoutDate = new Date(dateStr + 'T00:00:00');
-                        for (const week of weeks) {
-                            if (workoutDate >= week.start && workoutDate <= week.end) {
-                                week.count++;
-                                break;
-                            }
-                        }
-                    });
-
-                    return weeks;
-                },
-                showEditProfileModal() {
-                    const { userName, physicalStats } = this.state;
-                    const body = `<form id="edit-profile-form" class="space-y-4"><div><label for="profile-edit-name" class="block text-sm font-medium text-gray-300 mb-1">Nombre</label><input type="text" id="profile-edit-name" value="${userName}" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></div><div class="grid grid-cols-3 gap-3"><div><label for="profile-edit-age" class="block text-sm font-medium text-gray-300 mb-1">Edad</label><input type="number" id="profile-edit-age" value="${physicalStats.age}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="profile-edit-weight" class="block text-sm font-medium text-gray-300 mb-1">Peso (kg)</label><input type="number" step="0.1" id="profile-edit-weight" value="${physicalStats.weight}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="profile-edit-height" class="block text-sm font-medium text-gray-300 mb-1">Altura (cm)</label><input type="number" id="profile-edit-height" value="${physicalStats.height}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div></div><div class="mt-4"><p class="block text-sm font-medium text-gray-300 mb-2">Género</p><div class="grid grid-cols-2 gap-4"><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="profile-edit-gender" value="male" class="sr-only" ${physicalStats.gender === 'male' ? 'checked' : ''}> Hombre</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="profile-edit-gender" value="female" class="sr-only" ${physicalStats.gender === 'female' ? 'checked' : ''}> Mujer</label></div></div></form>`;
-                    const footer = [{ text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },{ text: 'Guardar Cambios', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'save-profile-changes' }];
-                    this.showModal('Editar Perfil', body, footer);
-                },
-                async handleUpdateProfile() {
-                    const name = document.getElementById('profile-edit-name').value.trim();
-                    const age = parseInt(document.getElementById('profile-edit-age').value);
-                    const weight = parseFloat(document.getElementById('profile-edit-weight').value);
-                    const height = parseInt(document.getElementById('profile-edit-height').value);
-                    const gender = document.querySelector('input[name="profile-edit-gender"]:checked').value;
-                    
-                    if (!name || isNaN(age) || isNaN(weight) || isNaN(height)) {
-                        this.showToast("Por favor, rellena todos los campos correctamente.", "error");
-                        return;
-                    }
-
-                    this.state.userName = name;
-                    this.state.physicalStats = { age, weight, height, gender };
-                    
-                    await this.saveDataToFirestore();
-                    this.renderAll();
-                    this.updateUserInfoUI();
-                    this.populateNutritionForm();
-                    this.hideModal();
-                    this.showToast("¡Perfil actualizado con éxito!");
-                },
-
+                renderProfileSection() { if (!this.state.currentUser) return; const { userName, currentUser, physicalStats, workoutHistory, targetWeight } = this.state; document.getElementById('profile-avatar').querySelector('span').textContent = (userName || 'U').charAt(0).toUpperCase(); document.getElementById('profile-name').textContent = userName || 'Usuario'; document.getElementById('profile-email').textContent = currentUser.email; const historyKeys = Object.keys(workoutHistory); const totalWorkouts = historyKeys.length; const totalDurationSeconds = historyKeys.reduce((acc, key) => acc + workoutHistory[key].totalDuration, 0); const totalHours = (totalDurationSeconds / 3600).toFixed(1); document.getElementById('profile-stat-workouts').textContent = totalWorkouts; document.getElementById('profile-stat-hours').textContent = totalHours; document.getElementById('profile-stat-streak').textContent = this.calculateWorkoutStreak(); document.getElementById('profile-info-age').textContent = `${physicalStats.age} años`; document.getElementById('profile-info-weight').textContent = `${physicalStats.weight} kg`; document.getElementById('profile-info-height').textContent = `${physicalStats.height} cm`; document.getElementById('current-weight-display').textContent = physicalStats.weight.toFixed(1); document.getElementById('target-weight-display').textContent = targetWeight.toFixed(1); const diff = (targetWeight - physicalStats.weight).toFixed(1); document.getElementById('weight-diff-display').textContent = diff; const chartContainer = document.getElementById('profile-activity-chart'); const weeklyData = this.getWeeklyActivityData(); const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 1); chartContainer.innerHTML = weeklyData.map(week => { const barHeight = (week.count / maxWorkouts) * 100; return `<div class="flex flex-col items-center justify-end h-full w-1/4"><p class="text-sm font-bold text-white">${week.count}</p><div class="w-3/5 h-full flex items-end"><div class="w-full bg-emerald-500 rounded-t-sm chart-bar" style="height: ${barHeight}%;"></div></div><p class="text-xs text-gray-400 mt-1">${week.label}</p></div>`; }).join(''); const historyContainer = document.getElementById('profile-workout-history'); if (historyKeys.length > 0) { historyContainer.innerHTML = historyKeys.sort().reverse().slice(0, 5).map(dateStr => { const workout = workoutHistory[dateStr]; const date = new Date(dateStr + 'T00:00:00'); const formattedDate = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }); return `<div class="bg-gray-700/60 p-3 rounded-lg flex justify-between items-center"><div><p class="font-semibold text-white">${workout.routineName}</p><p class="text-xs text-gray-400">${formattedDate}</p></div><div class="text-sm font-medium text-gray-300">${this.formatTime(workout.totalDuration)}</div></div>`; }).join(''); } else { historyContainer.innerHTML = `<p class="text-center text-gray-500 text-sm p-4">No hay entrenamientos registrados.</p>`; } },
+                calculateWorkoutStreak() { const dates = Object.keys(this.state.workoutHistory).sort((a, b) => new Date(b) - new Date(a)); if (dates.length === 0) return 0; let streak = 0; let today = new Date(); today.setHours(0, 0, 0, 0); const firstDateInLog = new Date(dates[0] + 'T00:00:00'); const diffTime = today - firstDateInLog; const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); if (diffDays > 1) return 0; streak = 1; for (let i = 0; i < dates.length - 1; i++) { const currentDate = new Date(dates[i] + 'T00:00:00'); const previousDate = new Date(dates[i+1] + 'T00:00:00'); const dayDifference = (currentDate - previousDate) / (1000 * 60 * 60 * 24); if (dayDifference === 1) { streak++; } else { break; } } return streak; },
+                getWeeklyActivityData() { const today = new Date(); today.setHours(0, 0, 0, 0); const weeks = [ { label: 'Hace 3sem', count: 0, start: new Date(today), end: new Date(today) }, { label: 'Hace 2sem', count: 0, start: new Date(today), end: new Date(today) }, { label: 'Sem Pasada', count: 0, start: new Date(today), end: new Date(today) }, { label: 'Esta Sem', count: 0, start: new Date(today), end: new Date(today) }, ]; for (let i = 0; i < 4; i++) { const weekIndex = 3 - i; const firstDayOfWeek = new Date(today); const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1; firstDayOfWeek.setDate(today.getDate() - dayOfWeek - (i * 7)); weeks[weekIndex].start = new Date(firstDayOfWeek); weeks[weekIndex].end = new Date(firstDayOfWeek); weeks[weekIndex].end.setDate(firstDayOfWeek.getDate() + 6); } Object.keys(this.state.workoutHistory).forEach(dateStr => { const workoutDate = new Date(dateStr + 'T00:00:00'); for (const week of weeks) { if (workoutDate >= week.start && workoutDate <= week.end) { week.count++; break; } } }); return weeks; },
+                showEditProfileModal() { const { userName, physicalStats } = this.state; const body = `<form id="edit-profile-form" class="space-y-4"><div><label for="profile-edit-name" class="block text-sm font-medium text-gray-300 mb-1">Nombre</label><input type="text" id="profile-edit-name" value="${userName}" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></div><div class="grid grid-cols-3 gap-3"><div><label for="profile-edit-age" class="block text-sm font-medium text-gray-300 mb-1">Edad</label><input type="number" id="profile-edit-age" value="${physicalStats.age}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="profile-edit-weight" class="block text-sm font-medium text-gray-300 mb-1">Peso (kg)</label><input type="number" step="0.1" id="profile-edit-weight" value="${physicalStats.weight}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="profile-edit-height" class="block text-sm font-medium text-gray-300 mb-1">Altura (cm)</label><input type="number" id="profile-edit-height" value="${physicalStats.height}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div></div><div class="mt-4"><p class="block text-sm font-medium text-gray-300 mb-2">Género</p><div class="grid grid-cols-2 gap-4"><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="profile-edit-gender" value="male" class="sr-only" ${physicalStats.gender === 'male' ? 'checked' : ''}> Hombre</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="profile-edit-gender" value="female" class="sr-only" ${physicalStats.gender === 'female' ? 'checked' : ''}> Mujer</label></div></div></form>`; const footer = [{ text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },{ text: 'Guardar Cambios', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'save-profile-changes' }]; this.showModal('Editar Perfil', body, footer); },
+                async handleUpdateProfile() { const name = document.getElementById('profile-edit-name').value.trim(); const age = parseInt(document.getElementById('profile-edit-age').value); const weight = parseFloat(document.getElementById('profile-edit-weight').value); const height = parseInt(document.getElementById('profile-edit-height').value); const gender = document.querySelector('input[name="profile-edit-gender"]:checked').value; if (!name || isNaN(age) || isNaN(weight) || isNaN(height)) { this.showToast("Por favor, rellena todos los campos correctamente.", "error"); return; } this.state.userName = name; this.state.physicalStats = { age, weight, height, gender }; await this.saveDataToFirestore(); this.renderAll(); this.updateUserInfoUI(); this.populateNutritionForm(); this.hideModal(); this.showToast("¡Perfil actualizado con éxito!"); },
                 updateDashboard() { document.getElementById('dashboard-calories').textContent=`${this.state.userGoals.calories} kcal`; this.updateDietSummary(); },
                 showModal(t,b,f=[]){document.getElementById('custom-modal-title').textContent=t;document.getElementById('custom-modal-body').innerHTML=b;const ft=document.getElementById('custom-modal-footer');ft.innerHTML=f.map(btn=>{const d=Object.entries(btn).filter(([k])=>k!=='text'&&k!=='class').map(([k,v])=>`data-${k}="${v}"`).join(' ');return`<button ${d} class="font-bold py-2 px-4 rounded-lg transition ${btn.class}">${btn.text}</button>`}).join('');document.getElementById('custom-modal').classList.remove('hidden');document.getElementById('custom-modal-panel').classList.remove('modal-fade-out');},
                 hideModal(){const m=document.getElementById('custom-modal'),p=document.getElementById('custom-modal-panel');p.classList.add('modal-fade-out');p.addEventListener('animationend',()=>m.classList.add('hidden'),{once:true});},
                 showToast(m,t='success'){const c=document.getElementById('toast-container'),el=document.createElement('div');el.className=`toast ${t==='success'?'bg-emerald-500':'bg-red-500'} text-white font-bold py-2 px-4 rounded-lg shadow-lg`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.remove(),3000);},
                 formatTime(seconds) { const m = Math.floor(seconds / 60); const s = seconds % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; },
                 playSound(type) { const o=this.audioCtx.createOscillator(),g=this.audioCtx.createGain();o.connect(g);g.connect(this.audioCtx.destination);g.gain.setValueAtTime(0,this.audioCtx.currentTime);g.gain.linearRampToValueAtTime(0.3,this.audioCtx.currentTime+0.01);o.frequency.value=type==='start'?440:880;o.type='sine';o.start(this.audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.00001,this.audioCtx.currentTime+0.5);o.stop(this.audioCtx.currentTime+0.5); },
-
-                // =======================================================
-                // =========== LÓGICA DE LA SECCIÓN DE CÁLCULOS ==========
-                // =======================================================
-                
-                switchCalculatorTab(tabId) {
-                    document.querySelectorAll('.calc-tab-content').forEach(el => el.classList.add('hidden'));
-                    document.getElementById(`tab-content-${tabId}`).classList.remove('hidden');
-
-                    document.querySelectorAll('.calc-tab-btn').forEach(btn => {
-                        if (btn.dataset.tab === tabId) {
-                            btn.classList.add('bg-emerald-500', 'text-gray-900');
-                            btn.classList.remove('text-gray-300');
-                        } else {
-                            btn.classList.remove('bg-emerald-500', 'text-gray-900');
-                            btn.classList.add('text-gray-300');
-                        }
-                    });
-                },
-
-                populateNutritionForm() {
-                    const { age, weight, height, gender } = this.state.physicalStats;
-                    document.getElementById('age').value = age;
-                    document.getElementById('weight').value = weight;
-                    document.getElementById('height').value = height;
-                    const genderRadio = document.querySelector(`#nutrition-form input[name="gender"][value="${gender}"]`);
-                    if (genderRadio) genderRadio.checked = true;
-                },
-
-                renderNutricionSection() {
-                    // Limpia las métricas al cargar la sección para que el usuario las recalcule
-                    this.renderBmiCard(0, 0); // Pasa 0 para mostrar estado inicial
-                    document.getElementById('bodyfat-value').textContent = '--';
-                    document.getElementById('ideal-weight-value').textContent = '--';
-                    document.getElementById('water-intake-value').textContent = '-- L';
-                },
-
-                calculateNutrition() {
-                    const form = document.getElementById('nutrition-form');
-                    const gender = form.querySelector('input[name="gender"]:checked').value;
-                    const age = parseInt(form.age.value);
-                    const weight = parseFloat(form.weight.value);
-                    const height = parseFloat(form.height.value);
-                    const activity = parseFloat(form.activity.value);
-                    const goal = form.querySelector('input[name="goal"]:checked').value;
-                    
-                    if (!age || !weight || !height) {
-                        this.showToast("Rellena todos los campos.", "error");
-                        return;
-                    }
-                    
-                    // Actualizar estado global y guardar
-                    this.state.physicalStats = { age, weight, height, gender };
-                    this.saveDataToFirestore();
-
-                    // Calcular TDEE (Mifflin-St Jeor)
-                    const bmr = (gender === 'male') ? (10 * weight + 6.25 * height - 5 * age + 5) : (10 * weight + 6.25 * height - 5 * age - 161);
-                    const tdee = bmr * activity;
-                    let calories;
-                    if (goal === 'lose') calories = tdee - 500;
-                    else if (goal === 'gain') calories = tdee + 500;
-                    else calories = tdee;
-                    
-                    const results = {
-                        calories: Math.round(calories),
-                        protein: Math.round((calories * 0.3) / 4),
-                        carbs: Math.round((calories * 0.4) / 4),
-                        fats: Math.round((calories * 0.3) / 9)
-                    };
-
-                    document.getElementById('result-calories').textContent = `${results.calories} kcal`;
-                    document.getElementById('result-protein').textContent = `${results.protein}g`;
-                    document.getElementById('result-carbs').textContent = `${results.carbs}g`;
-                    document.getElementById('result-fats').textContent = `${results.fats}g`;
-                    
-                    document.getElementById('nutrition-results').classList.remove('hidden');
-                    this._tempResults = results;
-                    
-                    this.showToast("Cálculos de nutrición actualizados", "success");
-                },
-
-                calculateBodyMetrics() {
-                    const { weight, height, age, gender } = this.state.physicalStats;
-                    if (!weight || !height || !age) {
-                        this.showToast("Completa tus datos en el perfil o en la pestaña de nutrición primero.", "error");
-                        return;
-                    }
-
-                    // 1. BMI
-                    const bmi = this.renderBmiCard(weight, height);
-
-                    // 2. Body Fat %
-                    const genderFactor = (gender === 'male') ? 1 : 0;
-                    const bodyFat = (1.20 * bmi) + (0.23 * age) - (10.8 * genderFactor) - 5.4;
-                    document.getElementById('bodyfat-value').textContent = bodyFat.toFixed(1);
-
-                    // 3. Ideal Weight
-                    const heightInM = height / 100;
-                    const idealMin = 18.5 * (heightInM * heightInM);
-                    const idealMax = 24.9 * (heightInM * heightInM);
-                    document.getElementById('ideal-weight-value').textContent = `${idealMin.toFixed(1)} - ${idealMax.toFixed(1)} kg`;
-
-                    // 4. Water Intake
-                    const waterLiters = (weight * 35) / 1000;
-                    document.getElementById('water-intake-value').textContent = waterLiters.toFixed(1);
-                    
-                    this.showToast("Métricas corporales calculadas.");
-                },
-
-                renderBmiCard(weight, height) {
-                    if(!weight || !height) {
-                        document.getElementById('bmi-value').textContent = '--';
-                        document.getElementById('bmi-category').textContent = 'Sin calcular';
-                        document.getElementById('bmi-category').className = 'font-semibold text-gray-400';
-                        document.getElementById('bmi-marker').style.left = '0%';
-                        return 0;
-                    }
-                    const heightInMeters = height / 100;
-                    const bmi = (weight / (heightInMeters * heightInMeters));
-                    
-                    let category = '', colorClass = '', markerPosition = 0;
-
-                    if (bmi < 18.5) {
-                        category = 'Bajo Peso'; colorClass = 'text-sky-400';
-                        markerPosition = (bmi / 18.5) * 25;
-                    } else if (bmi >= 18.5 && bmi < 25) {
-                        category = 'Normal'; colorClass = 'text-emerald-400';
-                        markerPosition = 25 + ((bmi - 18.5) / (25 - 18.5)) * 30;
-                    } else if (bmi >= 25 && bmi < 30) {
-                        category = 'Sobrepeso'; colorClass = 'text-yellow-400';
-                        markerPosition = 55 + ((bmi - 25) / (30 - 25)) * 25;
-                    } else {
-                        category = 'Obesidad'; colorClass = 'text-red-400';
-                        markerPosition = 80 + ((bmi - 30) / (40 - 30)) * 20;
-                    }
-
-                    markerPosition = Math.max(2, Math.min(98, markerPosition));
-
-                    document.getElementById('bmi-value').textContent = bmi.toFixed(1);
-                    const categoryEl = document.getElementById('bmi-category');
-                    categoryEl.textContent = category;
-                    categoryEl.className = `font-semibold ${colorClass}`;
-                    document.getElementById('bmi-marker').style.left = `${markerPosition}%`;
-                    return bmi;
-                },
-
-                calculate1RM() {
-                    const weight = parseFloat(document.getElementById('1rm-weight').value);
-                    const reps = parseInt(document.getElementById('1rm-reps').value);
-
-                    if(!weight || !reps || weight <= 0 || reps <= 0) {
-                        this.showToast("Ingresa un peso y repeticiones válidos.", "error");
-                        return;
-                    }
-                    if (reps > 12) {
-                        this.showToast("El cálculo es menos preciso con más de 12 reps.", "error");
-                    }
-
-                    // Brzycki formula
-                    const oneRepMax = weight / (1.0278 - 0.0278 * reps);
-                    document.getElementById('1rm-result-value').textContent = `${oneRepMax.toFixed(1)} kg`;
-                    
-                    const projectionsContainer = document.getElementById('1rm-projections');
-                    const repRanges = [3, 5, 8, 10, 12, 15];
-                    projectionsContainer.innerHTML = repRanges.map(r => {
-                        const projectedWeight = oneRepMax * (1.0278 - 0.0278 * r);
-                        return `<div class="bg-gray-800/70 p-2 rounded-lg"><p class="font-bold text-lg text-purple-200">${projectedWeight.toFixed(1)}<span class="text-xs text-gray-400"> kg</span></p><p class="text-xs text-gray-400">${r} RM</p></div>`;
-                    }).join('');
-
-                    document.getElementById('1rm-results').classList.remove('hidden');
-                },
-
-                showEditTargetWeightModal() {
-                    const body = `<p class="text-gray-300 mb-4">Define el peso que quieres alcanzar.</p>
-                                    <input type="number" step="0.1" id="target-weight-input" value="${this.state.targetWeight}" class="w-full bg-gray-700 rounded-lg p-3 text-center text-xl">`;
-                    const footer = [
-                        { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
-                        { text: 'Guardar', class: 'bg-emerald-600 text-gray-900', action: 'save-target-weight' }
-                    ];
-                    this.showModal('Editar Peso Objetivo', body, footer);
-                },
-                async handleUpdateTargetWeight() {
-                    const input = document.getElementById('target-weight-input');
-                    const newTarget = parseFloat(input.value);
-                    if (isNaN(newTarget) || newTarget <= 0) {
-                        this.showToast('Por favor, introduce un peso válido.', 'error');
-                        return;
-                    }
-                    this.state.targetWeight = newTarget;
-                    await this.saveDataToFirestore();
-                    this.renderProfileSection();
-                    this.hideModal();
-                    this.showToast('Objetivo de peso actualizado.');
-                },
-                async handleAddWeightLog() {
-                    const input = document.getElementById('new-weight-input');
-                    const newWeight = parseFloat(input.value);
-                    if (isNaN(newWeight) || newWeight <= 0) {
-                        this.showToast('Por favor, introduce un peso válido.', 'error');
-                        return;
-                    }
-                    const today = new Date().toISOString().split('T')[0];
-                    
-                    const existingIndex = this.state.weightLog.findIndex(entry => entry.date === today);
-                    if (existingIndex > -1) {
-                        this.state.weightLog[existingIndex].weight = newWeight;
-                    } else {
-                        this.state.weightLog.push({ date: today, weight: newWeight });
-                    }
-                    
-                    this.state.physicalStats.weight = newWeight;
-                    input.value = '';
-
-                    await this.saveDataToFirestore();
-                    this.renderAll(); 
-                    this.showToast('Nuevo peso registrado.');
-                },
+                switchCalculatorTab(tabId) { document.querySelectorAll('.calc-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById(`tab-content-${tabId}`).classList.remove('hidden'); document.querySelectorAll('.calc-tab-btn').forEach(btn => { if (btn.dataset.tab === tabId) { btn.classList.add('bg-emerald-500', 'text-gray-900'); btn.classList.remove('text-gray-300'); } else { btn.classList.remove('bg-emerald-500', 'text-gray-900'); btn.classList.add('text-gray-300'); } }); },
+                populateNutritionForm() { const { age, weight, height, gender } = this.state.physicalStats; document.getElementById('age').value = age; document.getElementById('weight').value = weight; document.getElementById('height').value = height; const genderRadio = document.querySelector(`#nutrition-form input[name="gender"][value="${gender}"]`); if (genderRadio) genderRadio.checked = true; },
+                renderNutricionSection() { this.renderBmiCard(0, 0); document.getElementById('bodyfat-value').textContent = '--'; document.getElementById('ideal-weight-value').textContent = '--'; document.getElementById('water-intake-value').textContent = '-- L'; },
+                calculateNutrition() { const form = document.getElementById('nutrition-form'); const gender = form.querySelector('input[name="gender"]:checked').value; const age = parseInt(form.age.value); const weight = parseFloat(form.weight.value); const height = parseInt(form.height.value); const activity = parseFloat(form.activity.value); const goal = form.querySelector('input[name="goal"]:checked').value; if (!age || !weight || !height) { this.showToast("Rellena todos los campos.", "error"); return; } this.state.physicalStats = { age, weight, height, gender }; this.saveDataToFirestore(); const bmr = (gender === 'male') ? (10 * weight + 6.25 * height - 5 * age + 5) : (10 * weight + 6.25 * height - 5 * age - 161); const tdee = bmr * activity; let calories; if (goal === 'lose') calories = tdee - 500; else if (goal === 'gain') calories = tdee + 500; else calories = tdee; const results = { calories: Math.round(calories), protein: Math.round((calories * 0.3) / 4), carbs: Math.round((calories * 0.4) / 4), fats: Math.round((calories * 0.3) / 9) }; document.getElementById('result-calories').textContent = `${results.calories} kcal`; document.getElementById('result-protein').textContent = `${results.protein}g`; document.getElementById('result-carbs').textContent = `${results.carbs}g`; document.getElementById('result-fats').textContent = `${results.fats}g`; document.getElementById('nutrition-results').classList.remove('hidden'); this._tempResults = results; this.showToast("Cálculos de nutrición actualizados", "success"); },
+                calculateBodyMetrics() { const { weight, height, age, gender } = this.state.physicalStats; if (!weight || !height || !age) { this.showToast("Completa tus datos en el perfil o en la pestaña de nutrición primero.", "error"); return; } const bmi = this.renderBmiCard(weight, height); const genderFactor = (gender === 'male') ? 1 : 0; const bodyFat = (1.20 * bmi) + (0.23 * age) - (10.8 * genderFactor) - 5.4; document.getElementById('bodyfat-value').textContent = bodyFat.toFixed(1); const heightInM = height / 100; const idealMin = 18.5 * (heightInM * heightInM); const idealMax = 24.9 * (heightInM * heightInM); document.getElementById('ideal-weight-value').textContent = `${idealMin.toFixed(1)} - ${idealMax.toFixed(1)} kg`; const waterLiters = (weight * 35) / 1000; document.getElementById('water-intake-value').textContent = waterLiters.toFixed(1); this.showToast("Métricas corporales calculadas."); },
+                renderBmiCard(weight, height) { if(!weight || !height) { document.getElementById('bmi-value').textContent = '--'; document.getElementById('bmi-category').textContent = 'Sin calcular'; document.getElementById('bmi-category').className = 'font-semibold text-gray-400'; document.getElementById('bmi-marker').style.left = '0%'; return 0; } const heightInMeters = height / 100; const bmi = (weight / (heightInMeters * heightInMeters)); let category = '', colorClass = '', markerPosition = 0; if (bmi < 18.5) { category = 'Bajo Peso'; colorClass = 'text-sky-400'; markerPosition = (bmi / 18.5) * 25; } else if (bmi >= 18.5 && bmi < 25) { category = 'Normal'; colorClass = 'text-emerald-400'; markerPosition = 25 + ((bmi - 18.5) / (25 - 18.5)) * 30; } else if (bmi >= 25 && bmi < 30) { category = 'Sobrepeso'; colorClass = 'text-yellow-400'; markerPosition = 55 + ((bmi - 25) / (30 - 25)) * 25; } else { category = 'Obesidad'; colorClass = 'text-red-400'; markerPosition = 80 + ((bmi - 30) / (40 - 30)) * 20; } markerPosition = Math.max(2, Math.min(98, markerPosition)); document.getElementById('bmi-value').textContent = bmi.toFixed(1); const categoryEl = document.getElementById('bmi-category'); categoryEl.textContent = category; categoryEl.className = `font-semibold ${colorClass}`; document.getElementById('bmi-marker').style.left = `${markerPosition}%`; return bmi; },
+                calculate1RM() { const weight = parseFloat(document.getElementById('1rm-weight').value); const reps = parseInt(document.getElementById('1rm-reps').value); if(!weight || !reps || weight <= 0 || reps <= 0) { this.showToast("Ingresa un peso y repeticiones válidos.", "error"); return; } if (reps > 12) { this.showToast("El cálculo es menos preciso con más de 12 reps.", "error"); } const oneRepMax = weight / (1.0278 - 0.0278 * reps); document.getElementById('1rm-result-value').textContent = `${oneRepMax.toFixed(1)} kg`; const projectionsContainer = document.getElementById('1rm-projections'); const repRanges = [3, 5, 8, 10, 12, 15]; projectionsContainer.innerHTML = repRanges.map(r => { const projectedWeight = oneRepMax * (1.0278 - 0.0278 * r); return `<div class="bg-gray-800/70 p-2 rounded-lg"><p class="font-bold text-lg text-purple-200">${projectedWeight.toFixed(1)}<span class="text-xs text-gray-400"> kg</span></p><p class="text-xs text-gray-400">${r} RM</p></div>`; }).join(''); document.getElementById('1rm-results').classList.remove('hidden'); },
+                showEditTargetWeightModal() { const body = `<p class="text-gray-300 mb-4">Define el peso que quieres alcanzar.</p><input type="number" step="0.1" id="target-weight-input" value="${this.state.targetWeight}" class="w-full bg-gray-700 rounded-lg p-3 text-center text-xl">`; const footer = [ { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }, { text: 'Guardar', class: 'bg-emerald-600 text-gray-900', action: 'save-target-weight' } ]; this.showModal('Editar Peso Objetivo', body, footer); },
+                async handleUpdateTargetWeight() { const input = document.getElementById('target-weight-input'); const newTarget = parseFloat(input.value); if (isNaN(newTarget) || newTarget <= 0) { this.showToast('Por favor, introduce un peso válido.', 'error'); return; } this.state.targetWeight = newTarget; await this.saveDataToFirestore(); this.renderProfileSection(); this.hideModal(); this.showToast('Objetivo de peso actualizado.'); },
+                async handleAddWeightLog() { const input = document.getElementById('new-weight-input'); const newWeight = parseFloat(input.value); if (isNaN(newWeight) || newWeight <= 0) { this.showToast('Por favor, introduce un peso válido.', 'error'); return; } const today = new Date().toISOString().split('T')[0]; const existingIndex = this.state.weightLog.findIndex(entry => entry.date === today); if (existingIndex > -1) { this.state.weightLog[existingIndex].weight = newWeight; } else { this.state.weightLog.push({ date: today, weight: newWeight }); } this.state.physicalStats.weight = newWeight; input.value = ''; await this.saveDataToFirestore(); this.renderAll(); this.showToast('Nuevo peso registrado.'); },
                 async saveNutritionGoals(){if(this._tempResults){this.state.userGoals={...this._tempResults};await this.saveDataToFirestore();this.renderAll();this.showToast("¡Meta guardada!");this.showSection('dieta');}},
                 renderDietPage(){const{calories,protein,carbs,fats}=this.state.userGoals;document.getElementById('diet-goal-calories').textContent=calories;document.getElementById('diet-goal-protein').textContent=protein;document.getElementById('diet-goal-carbs').textContent=carbs;document.getElementById('diet-goal-fats').textContent=fats;this.renderMealSections();this.updateDietSummary();},
                 getFoodById(foodId) { for (const category in this.data.foodDatabase) { const food = this.data.foodDatabase[category].find(item => item.id === foodId); if (food) return food; } return null; },
@@ -1139,97 +671,13 @@
                 async getDailyTip() {const tipCard = document.getElementById('ai-daily-tip-card');const tipTextEl = document.getElementById('ai-daily-tip-text');if (!tipCard || !tipTextEl) return;tipCard.classList.remove('hidden');const today = new Date().toISOString().split('T')[0];const storedTip = localStorage.getItem('fitTrackDailyTip');if (storedTip) { const tipData = JSON.parse(storedTip); if (tipData.date === today) { tipTextEl.textContent = tipData.tip; lucide.createIcons(); return; } }try {const prompt = "Dame un consejo de fitness corto, motivador e inspirador (menos de 25 palabras) para hoy. Debe ser en español.";const tip = await this.callGeminiAPI(prompt);const newTipData = { date: today, tip: tip.trim() };localStorage.setItem('fitTrackDailyTip', JSON.stringify(newTipData));tipTextEl.textContent = tip.trim();} catch (error) { tipTextEl.textContent = "El esfuerzo de hoy es el éxito de mañana. ¡No te rindas!"; } finally { lucide.createIcons(); }},
                 async analyzeFoodWithAI() {const input = document.getElementById('food-analysis-input');const foodDescription = input.value.trim();if (!foodDescription) { this.showToast("Describe una comida para analizar.", "error"); return; }const button = document.querySelector('button[data-action="analyze-food"]');const prompt = `Estima las calorías y los macronutrientes (proteínas, carbohidratos, grasas) para la siguiente comida: "${foodDescription}". Responde únicamente con un objeto JSON válido con el formato: {"name": "Nombre descriptivo", "cals": numero, "p": numero, "c": numero, "f": numero}. No incluyas unidades (como "g" o "kcal"), comentarios ni explicaciones adicionales, solo el JSON.`;try {const textResponse = await this.callGeminiAPI(prompt, button);const cleanJsonString = textResponse.replace(/```json|```/g, '').trim();const foodData = JSON.parse(cleanJsonString);this.state.dailyDiet['Snacks'].push({ id: `ai-${Date.now()}`, name: foodData.name || foodDescription, amount: 'N/A', totalCals: foodData.cals, totalP: foodData.p, totalC: foodData.c, totalF: foodData.f, });this.showToast(`${foodData.name || 'Comida'} añadida a la dieta.`);input.value = '';await this.saveDataToFirestore(); this.renderAll();} catch (error) {}},
                 async getRecipeForMeal(mealName) {const mealItems = this.state.dailyDiet[mealName];if (!mealItems || mealItems.length === 0) { this.showToast("Añade alimentos a la comida primero.", "error"); return; }const ingredientsList = mealItems.map(item => `${item.name.split('(')[0].trim()} (${item.amount}g)`).join(', ');this.showModal('Generando Receta ✨', '<div class="flex justify-center items-center p-8"><i data-lucide="loader-2" class="w-10 h-10 animate-spin text-purple-400"></i></div>', []);lucide.createIcons();const prompt = `Eres un chef experto en comida saludable. Crea una receta simple y deliciosa usando los siguientes ingredientes: ${ingredientsList}. El objetivo es una comida saludable. Proporciona un nombre creativo para el plato, una lista de ingredientes y las instrucciones paso a paso. Formatea tu respuesta como HTML simple, usando <h2> para el nombre del plato, <h3> para los encabezados (Ingredientes, Instrucciones), y <ul> o <ol> para las listas.`;try {const recipeHtml = await this.callGeminiAPI(prompt);const body = `<div class="text-left prose prose-invert prose-sm max-w-none">${recipeHtml}</div>`;this.showModal(`Receta para ${mealName} ✨`, body, [{ text: 'Cerrar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }]);} catch (error) { this.hideModal(); }},
-                async showExerciseInfoModal(exerciseName) {
-                    const exercise = this.getExerciseByName(exerciseName);
-                    let mediaHtml = '';
-                    if (exercise && exercise.mediaUrl) {
-                        mediaHtml = `<div class="mb-4 rounded-lg overflow-hidden bg-gray-900"><img src="${exercise.mediaUrl}" alt="Demostración de ${exercise.name}" class="w-full h-auto object-cover"></div>`;
-                    } else {
-                        mediaHtml = `<div class="mb-4 p-4 text-center bg-gray-700/50 rounded-lg text-sm text-gray-400">No hay video/GIF disponible para este ejercicio.</div>`;
-                    }
-                    
-                    this.showModal(`Info: ${exerciseName}`, `${mediaHtml}<div id="ai-instructions-container"><div class="flex justify-center items-center p-4"><i data-lucide="loader-2" class="w-8 h-8 animate-spin text-sky-400"></i></div></div>`, [{ text: 'Entendido', class: 'bg-emerald-600 text-gray-900', action: 'hide-modal' }]);
-                    lucide.createIcons();
-
-                    const prompt = `Eres un entrenador personal certificado. Proporciona instrucciones claras y concisas sobre cómo realizar el ejercicio "${exerciseName}". Incluye una sección de "Músculos Principales" y una sección de "Errores Comunes" a evitar. Formatea la respuesta como HTML simple, usando <h3> para los encabezados y <ul> para las listas.`;
-                    try {
-                        const instructionsHtml = await this.callGeminiAPI(prompt);
-                        document.getElementById('ai-instructions-container').innerHTML = `<div class="text-left prose prose-invert prose-sm max-w-none">${instructionsHtml}</div>`;
-                    } catch (error) { 
-                        document.getElementById('ai-instructions-container').innerHTML = `<p class="text-sm text-red-400">No se pudieron cargar las instrucciones.</p>`;
-                    }
-                },
+                async showExerciseInfoModal(exerciseName) { const exercise = this.getExerciseByName(exerciseName); let mediaHtml = ''; if (exercise && exercise.mediaUrl) { const isVideo = exercise.mediaUrl.includes('.mp4') || exercise.mediaUrl.includes('video'); if (isVideo) { mediaHtml = `<div class="mb-4 rounded-lg overflow-hidden bg-gray-900"><video src="${exercise.mediaUrl}" autoplay loop muted playsinline class="w-full h-auto object-cover"></video></div>`; } else { mediaHtml = `<div class="mb-4 rounded-lg overflow-hidden bg-gray-900"><img src="${exercise.mediaUrl}" alt="Demostración de ${exercise.name}" class="w-full h-auto object-cover"></div>`; } } else { mediaHtml = `<div class="mb-4 p-4 text-center bg-gray-700/50 rounded-lg text-sm text-gray-400">No hay video/GIF disponible para este ejercicio.</div>`; } this.showModal(`Info: ${exerciseName}`, `${mediaHtml}<div id="ai-instructions-container"><div class="flex justify-center items-center p-4"><i data-lucide="loader-2" class="w-8 h-8 animate-spin text-sky-400"></i></div></div>`, [{ text: 'Entendido', class: 'bg-emerald-600 text-gray-900', action: 'hide-modal' }]); lucide.createIcons(); const prompt = `Eres un entrenador personal certificado. Proporciona instrucciones claras y concisas sobre cómo realizar el ejercicio "${exerciseName}". Incluye una sección de "Músculos Principales" y una sección de "Errores Comunes" a evitar. Formatea la respuesta como HTML simple, usando <h3> para los encabezados y <ul> para las listas.`; try { const instructionsHtml = await this.callGeminiAPI(prompt); document.getElementById('ai-instructions-container').innerHTML = `<div class="text-left prose prose-invert prose-sm max-w-none">${instructionsHtml}</div>`; } catch (error) { document.getElementById('ai-instructions-container').innerHTML = `<p class="text-sm text-red-400">No se pudieron cargar las instrucciones.</p>`; } },
                 async generatePlanWithAI() {const button = document.querySelector('button[data-action="generate-plan"]');const { calories, protein, carbs, fats } = this.state.userGoals;const prompt = `Crea un plan de comidas de ejemplo para un día completo que cumpla con los siguientes objetivos nutricionales: ${calories} kcal, ${protein}g de proteína, ${carbs}g de carbohidratos y ${fats}g de grasas. El plan debe dividirse en Desayuno, Almuerzo y Cena. Para cada comida, lista los alimentos y sus cantidades aproximadas en gramos. Responde únicamente con un objeto JSON válido con el formato: {"Desayuno": [{"name": "nombre_alimento", "amount": cantidad_gramos}], "Almuerzo": [...], "Cena": [...]}. No incluyas comentarios ni explicaciones adicionales, solo el JSON.`;try {const textResponse = await this.callGeminiAPI(prompt, button);const cleanJsonString = textResponse.replace(/```json|```/g, '').trim();const mealPlan = JSON.parse(cleanJsonString);this.state.dailyDiet = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };const addFoodToDiet = (mealName, foodName, amount) => {const searchTerm = foodName.toLowerCase().split('(')[0].trim().replace(/de|en|con/g, '').trim().split(' ')[0];let dbFood = Object.values(this.data.foodDatabase).flat().find(f => f.name.toLowerCase().includes(searchTerm));let foodEntry;if (dbFood) { const factor = amount / 100; foodEntry = { name: `${foodName}`, amount: amount, totalCals: Math.round(dbFood.cals * factor), totalP: Math.round(dbFood.p * factor), totalC: Math.round(dbFood.c * factor), totalF: Math.round(dbFood.f * factor) }; } else { foodEntry = { name: foodName, amount: amount, totalCals: 150, totalP: 10, totalC: 15, totalF: 5 }; }this.state.dailyDiet[mealName].push(foodEntry);};for (const mealName in mealPlan) { if (this.state.dailyDiet.hasOwnProperty(mealName)) { for (const food of mealPlan[mealName]) { addFoodToDiet(mealName, food.name, food.amount); } } }this.showToast("¡Plan de dieta generado!");await this.saveDataToFirestore(); this.renderAll();} catch (error) {}},
-                async routine_generateExercisesWithAi() {
-                    const goalInput = document.getElementById('ai-goal-input');
-                    const goal = goalInput.value.trim();
-                    if (!goal) { this.showToast("Describe tu objetivo.", "error"); return; }
-                    const button = document.querySelector('button[data-action="generate-exercises-ai"]');
-                    const prompt = `Basado en el siguiente objetivo de entrenamiento: "${goal}", sugiere entre 5 y 7 ejercicios. Responde ÚNICAMENTE con un array JSON de strings, como: ["nombre_ejercicio_1", "nombre_ejercicio_2", ...]. No incluyas texto adicional ni formato markdown. Asegúrate de que los nombres de los ejercicios sean comunes en el gimnasio.`;
-                    try {
-                        const textResponse = await this.callGeminiAPI(prompt, button);
-                        const cleanJsonString = textResponse.replace(/```json|```/g, '').trim();
-                        const exercises = JSON.parse(cleanJsonString);
-                        const currentDayIndex = this._tempRoutine.currentDayIndex;
-
-                        if (Array.isArray(exercises)) { 
-                            exercises.forEach(exName => { 
-                                this._tempRoutine.plan[currentDayIndex].exercises.push({ name: exName, sets: 4, reps: '10', rest: '60s' }); 
-                            }); 
-                            this.hideModal(); 
-                            this.routine_refreshExerciseList(); 
-                            this.showToast('¡Ejercicios sugeridos por IA añadidos!'); 
-                        } else { 
-                            throw new Error('El formato de respuesta de la IA no es válido.'); 
-                        }
-                    } catch (error) { 
-                        this.showToast("No se pudo procesar la sugerencia de la IA. Inténtalo de nuevo.", "error");
-                    }
-                },
+                async routine_generateExercisesWithAi() { const goalInput = document.getElementById('ai-goal-input'); const goal = goalInput.value.trim(); if (!goal) { this.showToast("Describe tu objetivo.", "error"); return; } const button = document.querySelector('button[data-action="generate-exercises-ai"]'); const prompt = `Basado en el siguiente objetivo de entrenamiento: "${goal}", sugiere entre 5 y 7 ejercicios. Responde ÚNICAMENTE con un array JSON de strings, como: ["nombre_ejercicio_1", "nombre_ejercicio_2", ...]. No incluyas texto adicional ni formato markdown. Asegúrate de que los nombres de los ejercicios sean comunes en el gimnasio.`; try { const textResponse = await this.callGeminiAPI(prompt, button); const cleanJsonString = textResponse.replace(/```json|```/g, '').trim(); const exercises = JSON.parse(cleanJsonString); const currentDayIndex = this._tempRoutine.currentDayIndex; if (Array.isArray(exercises)) { exercises.forEach(exName => { this._tempRoutine.plan[currentDayIndex].exercises.push({ name: exName, sets: 4, reps: '10', rest: '60s' }); }); this.hideModal(); this.routine_refreshExerciseList(); this.showToast('¡Ejercicios sugeridos por IA añadidos!'); } else { throw new Error('El formato de respuesta de la IA no es válido.'); } } catch (error) { this.showToast("No se pudo procesar la sugerencia de la IA. Inténtalo de nuevo.", "error"); } },
                 async analyzeWorkoutPerformance(e) {const button = e.target.closest('[data-action="analyze-workout-performance"]');const logDataString = button.dataset.logData;const log = JSON.parse(decodeURIComponent(logDataString));const goal = document.querySelector('#nutrition-form input[name="goal"]:checked')?.value || 'maintain';const goalMap = { lose: 'perder peso', maintain: 'mantenimiento', gain: 'ganar músculo' };const userGoalText = goalMap[goal];const prompt = `Eres un entrenador de fitness positivo y motivador. Mi objetivo principal es ${userGoalText}. Este es mi registro de entrenamiento de hoy: ${JSON.stringify(log)}. Proporciona un análisis breve (menos de 75 palabras), en español, sobre mi rendimiento. Destaca un aspecto positivo y sugiere una mejora simple y específica para mi próxima sesión. Envuelve el aspecto positivo en etiquetas <strong> y la sugerencia en etiquetas <em>.`;try {const analysisText = await this.callGeminiAPI(prompt, button);const container = document.getElementById('ai-analysis-container');if (container) { container.innerHTML = `<div class="mt-4 pt-4 border-t border-gray-700 text-left"><h4 class="font-bold text-gray-200 flex items-center gap-2"><i data-lucide="sparkles" class="w-5 h-5 text-purple-400"></i>Análisis del Coach IA</h4><p class="text-sm text-gray-300 mt-2 bg-gray-900/50 p-3 rounded-lg">${analysisText}</p></div>`; lucide.createIcons(); button.style.display = 'none'; }} catch (error) {}},
                 routine_showAiSuggestionModal() { const body = `<p class="text-gray-300 mb-4">Describe el objetivo para este día de entrenamiento y la IA te sugerirá ejercicios.</p><div><label for="ai-goal-input" class="block text-sm font-medium text-gray-400 mb-1">Objetivo del día</label><input type="text" id="ai-goal-input" class="w-full bg-gray-700 rounded-lg p-2 mt-1 border border-gray-600" placeholder="Ej: Hipertrofia para pecho y hombro"></div>`; const footer = [ {text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal'}, {text: '✨ Generar', class: 'bg-emerald-600 hover:bg-emerald-500 text-gray-900', action: 'generate-exercises-ai'} ]; this.showModal('Sugerencias de la IA', body, footer); setTimeout(() => document.getElementById('ai-goal-input').focus(), 100); },
-                getExerciseByName(name) {
-                    for (const group in this.data.exerciseLibrary) {
-                        for (const subGroup in this.data.exerciseLibrary[group]) {
-                            const exercise = this.data.exerciseLibrary[group][subGroup].find(ex => ex.name === name);
-                            if (exercise) return exercise;
-                        }
-                    }
-                    return null; // Devuelve null si no se encuentra
-                },
-                renderRoutinesSection() {
-                    const userRoutinesContainer = document.getElementById('user-routines-container');
-                    const predefinedRoutinesContainer = document.getElementById('predefined-routines-container');
-                    if (!userRoutinesContainer || !predefinedRoutinesContainer) return;
-
-                    if (this.state.userRoutines.length > 0) {
-                        userRoutinesContainer.innerHTML = this.state.userRoutines.map(r => this.routine_createUserCardHTML(r)).join('');
-                    } else {
-                        userRoutinesContainer.innerHTML = `<div class="flex flex-col items-center justify-center w-64 h-40 text-center p-4 bg-gray-700/50 rounded-2xl border-2 border-dashed border-gray-600"><i data-lucide="folder-plus" class="w-8 h-8 text-gray-500 mb-2"></i><p class="text-gray-400 text-sm">Crea tu primera rutina</p></div>`;
-                    }
-
-                    let predefinedHtml = '';
-                    const categoryTitles = {
-                        "Clásicos de Hipertrofia": "🏆 Clásicos de Hipertrofia",
-                        "Fuerza y Potencia": "⚡ Fuerza y Potencia",
-                        "Enfoque Femenino": "🌸 Enfoque Femenino",
-                        "Alta Intensidad": "🔥 Alta Intensidad",
-                        "Quema de Grasa": "💧 Quema de Grasa"
-                    };
-
-                    for (const category in this.data.predefinedRoutines) {
-                        const title = categoryTitles[category] || category.replace(/_/g, ' ');
-                        predefinedHtml += `<div class="mb-6">
-                            <h4 class="font-bold text-xl mb-3 text-emerald-300 capitalize">${title}</h4>
-                            <div class="space-y-3">`;
-                        const routinesInCategory = this.data.predefinedRoutines[category];
-                        predefinedHtml += routinesInCategory.map(r => this.routine_createPredefinedCardHTML(r)).join('');
-                        predefinedHtml += `</div></div>`;
-                    }
-
-                    predefinedRoutinesContainer.innerHTML = predefinedHtml;
-                    lucide.createIcons();
-                },
+                getExerciseByName(name) { for (const group in this.data.exerciseLibrary) { for (const subGroup in this.data.exerciseLibrary[group]) { const exercise = this.data.exerciseLibrary[group][subGroup].find(ex => ex.name === name); if (exercise) return exercise; } } return null; },
+                renderRoutinesSection() { const userRoutinesContainer = document.getElementById('user-routines-container'); const predefinedRoutinesContainer = document.getElementById('predefined-routines-container'); if (!userRoutinesContainer || !predefinedRoutinesContainer) return; if (this.state.userRoutines.length > 0) { userRoutinesContainer.innerHTML = this.state.userRoutines.map(r => this.routine_createUserCardHTML(r)).join(''); } else { userRoutinesContainer.innerHTML = `<div class="flex flex-col items-center justify-center w-64 h-40 text-center p-4 bg-gray-700/50 rounded-2xl border-2 border-dashed border-gray-600"><i data-lucide="folder-plus" class="w-8 h-8 text-gray-500 mb-2"></i><p class="text-gray-400 text-sm">Crea tu primera rutina</p></div>`; } let predefinedHtml = ''; const categoryTitles = { "Clásicos de Hipertrofia": "🏆 Clásicos de Hipertrofia", "Fuerza y Potencia": "⚡ Fuerza y Potencia", "Enfoque Femenino": "🌸 Enfoque Femenino", "Alta Intensidad": "🔥 Alta Intensidad", "Quema de Grasa": "💧 Quema de Grasa" }; for (const category in this.data.predefinedRoutines) { const title = categoryTitles[category] || category.replace(/_/g, ' '); predefinedHtml += `<div class="mb-6"><h4 class="font-bold text-xl mb-3 text-emerald-300 capitalize">${title}</h4><div class="space-y-3">`; const routinesInCategory = this.data.predefinedRoutines[category]; predefinedHtml += routinesInCategory.map(r => this.routine_createPredefinedCardHTML(r)).join(''); predefinedHtml += `</div></div>`; } predefinedRoutinesContainer.innerHTML = predefinedHtml; lucide.createIcons(); },
                 routine_createUserCardHTML(routine) { const days = routine.plan.length; const totalExercises = routine.plan.reduce((acc, day) => acc + day.exercises.length, 0); return `<button data-action="routine-show-details" data-routine-id="${routine.id}" class="flex-shrink-0 w-64 h-40 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-4 flex flex-col justify-between text-left hover:ring-2 hover:ring-emerald-400 transition-all shadow-lg"><div><h4 class="font-bold text-lg text-white truncate">${routine.name}</h4><p class="text-sm text-gray-400 mt-1 line-clamp-2">${routine.description || 'Sin descripción'}</p></div><div class="flex items-center gap-4 text-xs text-gray-400 font-medium"><div class="flex items-center gap-1.5"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i><span>${days} ${days > 1 ? 'días' : 'día'}</span></div><div class="flex items-center gap-1.5"><i data-lucide="repeat" class="w-3.5 h-3.5"></i><span>${totalExercises} ej.</span></div></div></button>`; },
                 routine_createPredefinedCardHTML(routine) { return `<button data-action="routine-show-details" data-routine-id="${routine.id}" class="w-full bg-gray-700 rounded-2xl p-4 flex items-center space-x-4 text-left hover:bg-gray-600/80 transition-colors"><div class="bg-gray-800 p-3 rounded-lg"><i data-lucide="${routine.icon || 'activity'}" class="text-emerald-400"></i></div><div class="flex-1"><h4 class="font-bold text-white">${routine.name}</h4><p class="text-sm text-gray-400">${routine.description}</p></div><i data-lucide="chevron-right" class="text-gray-500"></i></button>`; },
                 routine_showDetails(routineId) { const allRoutines = [...this.state.userRoutines, ...Object.values(this.data.predefinedRoutines).flat()]; const routine = allRoutines.find(r => r.id === routineId); if (!routine) return; const daysHTML = routine.plan.map((day, dayIndex) => `<div class="bg-gray-900/50 rounded-xl p-4 space-y-3"><h4 class="font-bold text-lg text-emerald-300">${day.day}</h4><ul class="text-gray-300 space-y-2 text-sm divide-y divide-gray-700/50">${day.exercises.map(ex => `<li class="flex justify-between items-center pt-2"><button data-action="show-exercise-info" data-exercise-name="${ex.name}" class="flex items-center gap-2 text-left flex-1 pr-4 group"><i data-lucide="help-circle" class="w-4 h-4 text-gray-500 group-hover:text-sky-400 transition-colors"></i><span class="group-hover:text-white transition-colors">${ex.name}</span></button> <span class="text-gray-400 font-mono bg-gray-700/80 px-2 py-1 text-xs rounded-md">${ex.sets}x${ex.reps}</span></li>`).join('')}</ul><button data-action="start-workout" data-routine-id="${routine.id}" data-day-index="${dayIndex}" class="w-full bg-emerald-600 text-gray-900 font-bold py-2.5 rounded-lg mt-3 hover:bg-emerald-500 transition flex items-center justify-center gap-2"><i data-lucide="play" class="w-5 h-5"></i><span>Comenzar Entrenamiento</span></button></div>`).join(''); const isUserRoutine = routine.id.startsWith('manual-'); const deleteButtonHTML = isUserRoutine ? `<button data-action="routine-confirm-delete" data-routine-id="${routine.id}" class="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-red-500/10"><i data-lucide="trash-2" class="w-5 h-5"></i></button>` : '<div class="w-9 h-9"></div>'; const viewHTML = `<div id="routine-details-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col"><header class="p-4 flex items-center justify-between bg-gray-900/80 backdrop-blur-sm sticky top-0"><button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button><h3 class="text-lg font-bold truncate px-4">${routine.name}</h3>${deleteButtonHTML}</header><div class="flex-grow p-4 overflow-y-auto space-y-4"><p class="text-gray-400 bg-gray-700/50 p-3 rounded-lg text-sm">${routine.description}</p>${daysHTML}</div></div>`; this.routine_openFullscreenView(viewHTML); },
@@ -1255,8 +703,140 @@
                 async routine_delete(routineId) { this.state.userRoutines = this.state.userRoutines.filter(r => r.id !== routineId); await this.saveDataToFirestore(); this.hideModal(); this.routine_closeFullscreenView(); this.renderRoutinesSection(); this.showToast('Rutina eliminada', 'error'); },
                 routine_openFullscreenView(html) { const container = document.getElementById('fullscreen-view-container'); container.innerHTML = html; container.classList.remove('pointer-events-none'); setTimeout(() => { const view = container.querySelector('.fullscreen-view'); if(view) view.classList.add('is-active'); lucide.createIcons(); }, 10); },
                 routine_closeFullscreenView() { const container = document.getElementById('fullscreen-view-container'); const view = container.querySelector('.fullscreen-view'); if (view) { view.classList.remove('is-active'); view.addEventListener('transitionend', () => { container.innerHTML = ''; container.classList.add('pointer-events-none'); }, { once: true }); } },
-                admin_showEditMediaModal(group, subGroup, exerciseIndex) { const exercise = this.data.exerciseLibrary[group][subGroup][exerciseIndex]; const body = `<p class="text-sm text-gray-400 mb-4">Pega la URL de un GIF o imagen para este ejercicio.</p><div><label for="media-url-input" class="block text-sm font-medium text-gray-300 mb-1">URL del Recurso</label><input type="text" id="media-url-input" value="${exercise.mediaUrl || ''}" class="w-full bg-gray-700 rounded-lg p-2 border border-gray-600 focus:ring-emerald-500 focus:outline-none"></div>`; const footer = [{ text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' }, { text: 'Guardar', class: 'bg-emerald-600 text-gray-900', action: 'admin-save-media', group: group, subgroup: subGroup, 'exercise-index': exerciseIndex }]; this.showModal(`Editar Media: ${exercise.name}`, body, footer); },
-                admin_saveMediaUrl(group, subGroup, exerciseIndex) { const url = document.getElementById('media-url-input').value.trim(); this.data.exerciseLibrary[group][subGroup][exerciseIndex].mediaUrl = url || null; this.showToast('URL guardada. La librería se actualizará al recargar.', 'success'); this.hideModal(); this.routine_filterExerciseLibrary(document.getElementById('exercise-search-input').value); }, // Esto es solo una demo, no persiste.
+                
+                // *** NUEVAS FUNCIONES DE SUBIDA PARA EL ADMIN ***
+                admin_showEditMediaModal(group, subGroup, exerciseIndex) {
+                    const exercise = this.data.exerciseLibrary[group][subGroup][exerciseIndex];
+                    const body = `
+                        <p class="text-sm text-gray-400 mb-4">Sube un nuevo GIF, imagen o video para este ejercicio. El archivo anterior será reemplazado.</p>
+                        <div>
+                            <label for="media-file-input" class="w-full cursor-pointer bg-gray-700 hover:bg-gray-600 border-2 border-dashed border-gray-500 rounded-lg p-6 text-center transition">
+                                <i data-lucide="upload-cloud" class="w-10 h-10 mx-auto text-gray-400"></i>
+                                <span id="file-name-display" class="mt-2 block text-sm font-semibold text-gray-300">Seleccionar archivo</span>
+                            </label>
+                            <input type="file" id="media-file-input" class="hidden" accept="image/*,video/*">
+                        </div>
+                        <div id="media-preview-container" class="mt-4 hidden max-h-48 overflow-hidden rounded-lg bg-gray-900 flex justify-center items-center"></div>
+                        <div id="upload-progress-container" class="mt-4 hidden">
+                            <div class="w-full bg-gray-600 rounded-full h-2.5">
+                                <div id="upload-progress-bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                            <p id="upload-progress-text" class="text-center text-xs text-gray-400 mt-1">Subiendo...</p>
+                        </div>
+                    `;
+                    const footer = [
+                        { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                        { text: 'Subir y Guardar', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'admin-upload-media', group: group, subgroup: subGroup, 'exercise-index': exerciseIndex, id: 'admin-upload-btn' }
+                    ];
+                    this.showModal(`Editar Media: ${exercise.name}`, body, footer);
+                    lucide.createIcons();
+
+                    const fileInput = document.getElementById('media-file-input');
+                    const fileNameDisplay = document.getElementById('file-name-display');
+                    const previewContainer = document.getElementById('media-preview-container');
+
+                    fileInput.addEventListener('change', () => {
+                        if (fileInput.files.length > 0) {
+                            const file = fileInput.files[0];
+                            fileNameDisplay.textContent = file.name;
+                            previewContainer.innerHTML = '';
+                            previewContainer.classList.remove('hidden');
+
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                let previewElement;
+                                if (file.type.startsWith('image/')) {
+                                    previewElement = document.createElement('img');
+                                } else if (file.type.startsWith('video/')) {
+                                    previewElement = document.createElement('video');
+                                    previewElement.muted = true;
+                                    previewElement.autoplay = true;
+                                    previewElement.loop = true;
+                                    previewElement.playsInline = true;
+                                }
+                                if (previewElement) {
+                                    previewElement.src = e.target.result;
+                                    previewElement.className = 'w-full h-auto object-contain max-h-48';
+                                    previewContainer.appendChild(previewElement);
+                                }
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            fileNameDisplay.textContent = 'Seleccionar archivo';
+                            previewContainer.classList.add('hidden');
+                            previewContainer.innerHTML = '';
+                        }
+                    });
+                },
+
+                async admin_uploadAndSaveMedia(group, subGroup, exerciseIndex) {
+                    if (!this.isAdmin()) {
+                        this.showToast('Acción no permitida.', 'error');
+                        return;
+                    }
+
+                    const fileInput = document.getElementById('media-file-input');
+                    if (fileInput.files.length === 0) {
+                        this.showToast('Por favor, selecciona un archivo para subir.', 'error');
+                        return;
+                    }
+                    const file = fileInput.files[0];
+
+                    const progressContainer = document.getElementById('upload-progress-container');
+                    const progressBar = document.getElementById('upload-progress-bar');
+                    const progressText = document.getElementById('upload-progress-text');
+                    const uploadButton = document.getElementById('admin-upload-btn');
+                    const modalFooter = document.getElementById('custom-modal-footer');
+
+                    modalFooter.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                    progressContainer.classList.remove('hidden');
+                    
+                    const exerciseName = this.data.exerciseLibrary[group][subGroup][exerciseIndex].name.replace(/\s+/g, '_');
+                    const fileName = `exercise_media/${exerciseName}-${Date.now()}.${file.name.split('.').pop()}`;
+                    const storageRef = ref(this.storage, fileName);
+                    const uploadTask = uploadBytesResumable(storageRef, file);
+
+                    uploadTask.on('state_changed',
+                        (snapshot) => {
+                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            progressBar.style.width = `${progress}%`;
+                            progressText.textContent = `Subiendo... ${Math.round(progress)}%`;
+                        },
+                        (error) => {
+                            console.error("Upload failed:", error);
+                            this.showToast('Error en la subida. Revisa las reglas de Storage.', 'error');
+                            modalFooter.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                        },
+                        async () => {
+                            try {
+                                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                                this.data.exerciseLibrary[group][subGroup][exerciseIndex].mediaUrl = downloadURL;
+                                
+                                const docRef = doc(this.db, "app_data", "exercise_library");
+                                await setDoc(docRef, this.data.exerciseLibrary);
+                                
+                                this.showToast('¡Recurso subido y guardado!', 'success');
+                                this.hideModal();
+
+                                const creatorView = document.getElementById('routine-creator-view');
+                                if (creatorView && creatorView.classList.contains('is-active')) {
+                                    const searchInput = document.getElementById('exercise-search-input').value;
+                                    const newContent = this.routine_getCreatorContent(2);
+                                    creatorView.innerHTML = newContent;
+                                    document.getElementById('exercise-search-input').value = searchInput;
+                                    this.routine_filterExerciseLibrary(searchInput);
+                                    lucide.createIcons();
+                                }
+
+                            } catch(error) {
+                                console.error("Error saving data after upload: ", error);
+                                this.showToast('Error al guardar la nueva URL.', 'error');
+                                modalFooter.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                            }
+                        }
+                    );
+                },
+
                 startWorkout(routineId, dayIndex) { let routine = [...this.state.userRoutines, ...Object.values(this.data.predefinedRoutines).flat()].find(r => r.id === routineId); if (!routine || !routine.plan || !routine.plan[dayIndex]) { this.showToast("No se pudo iniciar la rutina.", "error"); return; } const workoutDay = routine.plan[dayIndex]; this.state.activeWorkout = { routineId, dayIndex, routineName: routine.name, dayName: workoutDay.day, exercises: JSON.parse(JSON.stringify(workoutDay.exercises.map(ex => ({...ex, log: []})))), currentExerciseIndex: 0, currentSet: 1, workoutStartTime: Date.now(), totalRestTime: 0, workoutTimerIntervalId: null, }; this.state.timer = { status: 'idle', timeLeft: 0, intervalId: null }; this.state.activeWorkout.workoutTimerIntervalId = setInterval(() => this.updateWorkoutTimerDisplay(), 1000); this.renderLiveWorkoutView(); },
                 updateWeightInput(amount) { const input = document.getElementById('weight-input'); if (input) { let currentValue = parseFloat(input.value) || 0; input.value = Math.max(0, currentValue + amount); } },
                 renderLiveWorkoutView() { const overlay = document.getElementById('live-workout-overlay'); if (!this.state.activeWorkout) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); return; } const { exercises, currentExerciseIndex, currentSet } = this.state.activeWorkout; const exercise = exercises[currentExerciseIndex]; const totalExercises = exercises.length; const timerStatus = this.state.timer.status; const workoutProgress = ((currentExerciseIndex + 1) / totalExercises) * 100; let setIndicators = ''; for (let i = 1; i <= exercise.sets; i++) { const isCompleted = exercise.log[i-1] !== undefined; const isActive = i === currentSet && timerStatus !== 'resting' && timerStatus !== 'exercise_complete'; let barClass = 'bg-gray-700'; if (isCompleted) barClass = 'bg-emerald-500'; else if (isActive) barClass = 'bg-yellow-500 animate-pulse'; setIndicators += `<div class="flex-1 h-2 rounded ${barClass} transition-colors duration-300"></div>`; } let mainDisplayHtml = ''; switch (timerStatus) { case 'resting': const circumference = 2 * Math.PI * 120; const offset = this.state.timer.initialRestTime > 0 ? circumference - (this.state.timer.timeLeft / this.state.timer.initialRestTime) * circumference : 0; const nextExerciseName = (currentSet > exercise.sets) ? (exercises[currentExerciseIndex + 1] ? exercises[currentExerciseIndex + 1].name : '¡Última Serie!') : exercise.name; mainDisplayHtml = `<div class="relative w-72 h-72 flex items-center justify-center"><svg class="w-full h-full transform -rotate-90" viewBox="0 0 256 256"><circle class="text-gray-800" stroke-width="12" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"/><circle id="timer-progress-ring" class="text-emerald-500" stroke-width="12" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"/></svg><div class="absolute text-center"><span class="text-7xl font-black font-mono tracking-tighter text-white">${this.formatTime(this.state.timer.timeLeft)}</span><div class="text-sm text-gray-400 uppercase font-semibold mt-1">Descanso</div></div></div><p class="text-gray-300 mt-6">Siguiente: <span class="font-bold text-white">${nextExerciseName}</span></p>`; break; case 'logging_weight': const lastWeight = exercise.log[currentSet - 2] || ''; mainDisplayHtml = `<div class="w-full max-w-xs text-center"><p class="text-gray-400">Peso para Serie ${currentSet - 1}</p><div class="flex items-center justify-center gap-4 my-4"><button onclick="app.updateWeightInput(-2.5)" class="bg-gray-700 w-16 h-16 rounded-full text-3xl font-bold hover:bg-gray-600 transition">-</button><input type="number" id="weight-input" inputmode="decimal" class="bg-transparent text-white text-7xl font-black w-48 text-center focus:outline-none" placeholder="0" value="${lastWeight}"><button onclick="app.updateWeightInput(2.5)" class="bg-gray-700 w-16 h-16 rounded-full text-3xl font-bold hover:bg-gray-600 transition">+</button></div><span class="font-bold text-gray-400 text-3xl">kg</span></div>`; break; default: mainDisplayHtml = `<div class="text-center active-workout-state"><p class="text-9xl font-black text-white tracking-tighter">${exercise.reps}</p><p class="text-2xl font-bold text-gray-400 -mt-2">REPS</p></div><p class="text-gray-300 mt-6">Serie ${currentSet} de ${exercise.sets}</p>`; break; } const buttonMap = { idle: { text: `Iniciar Serie ${currentSet}`, class: 'from-emerald-500 to-green-600' }, active: { text: 'Finalizar Serie', class: 'from-yellow-500 to-amber-600' }, logging_weight: { text: `Guardar y Descansar`, class: 'from-sky-500 to-blue-600' }, resting: { text: `Descansando...`, class: 'from-gray-600 to-gray-700', disabled: true }, exercise_complete: { text: 'Siguiente Ejercicio', class: 'from-indigo-500 to-purple-600' }, workout_complete: { text: '¡Rutina Completada!', class: 'from-emerald-500 to-green-600' }}; const buttonState = buttonMap[timerStatus]; const mainButtonHtml = `<button data-action="handle-workout-action" class="w-full font-bold py-5 rounded-xl transition text-xl text-white shadow-lg bg-gradient-to-br ${buttonState.class} hover:opacity-90 disabled:opacity-50" ${buttonState.disabled ? 'disabled' : ''}>${buttonState.text}</button>`; const restControlsHtml = timerStatus === 'resting' ? `<div class="flex justify-center space-x-4"><button data-action="add-rest-time" class="bg-white/10 backdrop-blur-sm hover:bg-white/20 py-2 px-5 rounded-lg text-sm font-semibold">Añadir +15s</button><button data-action="skip-rest" class="bg-white/10 backdrop-blur-sm hover:bg-white/20 py-2 px-5 rounded-lg text-sm font-semibold">Saltar</button></div>` : ''; overlay.innerHTML = `<div class="relative w-full h-full flex flex-col p-4 sm:p-6 bg-gradient-to-b from-gray-900 to-black text-white"><div class="absolute top-5 left-1/2 -translate-x-1/2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-1.5 pointer-events-none"><p id="main-workout-timer" class="text-lg font-mono text-white tracking-wider">00:00</p></div><header class="flex items-center justify-between w-full shrink-0 z-10"><div class="flex-1"><div class="w-full bg-gray-800 rounded-full h-2.5"><div class="bg-emerald-500 h-2.5 rounded-full" style="width: ${workoutProgress}%"></div></div><p class="text-xs text-gray-400 mt-1.5">Ejercicio ${currentExerciseIndex + 1} de ${totalExercises}</p></div><div class="ml-4"><button data-action="confirm-finish-workout" class="bg-gray-800/80 w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition"><i data-lucide="x" class="w-6 h-6"></i></button></div></header><main class="flex-grow flex flex-col items-center justify-center text-center w-full overflow-hidden"><div class="flex items-center gap-2"><h1 class="text-3xl sm:text-4xl font-bold leading-tight px-4">${exercise.name}</h1><button data-action="show-exercise-info" data-exercise-name="${exercise.name}" class="text-gray-500 hover:text-sky-400 transition-colors shrink-0"><i data-lucide="help-circle" class="w-7 h-7"></i></button></div><div class="flex-grow flex items-center justify-center my-4 live-workout-display">${mainDisplayHtml}</div></main><footer class="w-full max-w-md mx-auto shrink-0 z-10"><div class="flex justify-center items-center gap-2 mb-4"><p class="text-sm font-semibold text-gray-400">SERIES</p><div class="flex items-center gap-2 w-40">${setIndicators}</div></div><div class="h-10 mb-4 flex items-center justify-center">${restControlsHtml}</div>${mainButtonHtml}</footer></div>`; overlay.classList.remove('hidden'); overlay.classList.add('flex'); if (timerStatus === 'logging_weight') { const weightInput = document.getElementById('weight-input'); if(weightInput) { weightInput.focus(); weightInput.select(); } } lucide.createIcons(); },
