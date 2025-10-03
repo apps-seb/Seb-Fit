@@ -26,6 +26,7 @@
         @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; translateY(20px); } }
         @keyframes fadeslidein { from { opacity: 0; transform: translateY(15px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
         @keyframes pulse-strong { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+        @keyframes bar-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 
         .section-fade-in { animation: fadeIn 0.5s ease-in-out; }
         .modal-fade-in { animation: fadeIn 0.3s ease-out; }
@@ -46,6 +47,8 @@
         .prose h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
         .prose h3 { font-size: 1.1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.25rem; }
         .prose ul, .prose ol { margin-left: 1rem; }
+        .chart-bar { animation: bar-grow 0.8s cubic-bezier(0.25, 1, 0.5, 1); transform-origin: bottom; }
+        #bmi-marker { transition: left 0.5s ease-in-out; }
         
         /* Estilos para el formulario de autenticación */
         .auth-form-container { transition: all 0.4s ease-in-out; }
@@ -124,7 +127,7 @@
 
         <main class="flex-grow p-4 sm:p-6 overflow-y-auto"><div id="sections-wrapper"></div></main>
         
-        <nav class="fixed bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm max-w-lg mx-auto border-t border-gray-700"><div class="flex justify-around"><button data-section="inicio" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-emerald-400"><i data-lucide="home"></i><span class="text-xs font-medium">Inicio</span></button><button data-section="rutinas" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="clipboard-list"></i><span class="text-xs font-medium">Rutinas</span></button><button data-section="nutricion" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="calculator"></i><span class="text-xs font-medium">Cálculos</span></button><button data-section="dieta" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="utensils"></i><span class="text-xs font-medium">Dieta</span></button></div></nav>
+        <nav class="fixed bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm max-w-lg mx-auto border-t border-gray-700"><div class="flex justify-around"><button data-section="inicio" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-emerald-400"><i data-lucide="home"></i><span class="text-xs font-medium">Inicio</span></button><button data-section="rutinas" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="clipboard-list"></i><span class="text-xs font-medium">Rutinas</span></button><button data-section="nutricion" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="calculator"></i><span class="text-xs font-medium">Cálculos</span></button><button data-section="dieta" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="utensils"></i><span class="text-xs font-medium">Dieta</span></button><button data-section="perfil" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="user"></i><span class="text-xs font-medium">Perfil</span></button></div></nav>
         
         <div id="fullscreen-view-container" class="absolute inset-0 z-30 pointer-events-none"></div>
     </div>
@@ -133,13 +136,151 @@
     <div id="toast-container" class="fixed bottom-24 right-0 left-0 max-w-lg mx-auto p-4 z-50 pointer-events-none"></div>
     <div id="live-workout-overlay" class="fixed inset-0 bg-gray-900 z-50 hidden flex-col transition-opacity duration-300"></div>
 
-    <template id="template-inicio"><section id="inicio" class="section-content"><div class="space-y-6"><div><h2 id="welcome-message" class="text-2xl font-bold">Hola, </h2><p class="text-gray-400">¿Listo para superar tus límites hoy?</p></div><div id="ai-daily-tip-card" class="bg-gray-700/80 p-4 rounded-2xl hidden"><div class="flex items-start space-x-3"><i data-lucide="sparkles" class="text-purple-400 w-5 h-5 flex-shrink-0 mt-1"></i><div><h3 class="font-semibold text-gray-200">Consejo del Día ✨</h3><p id="ai-daily-tip-text" class="text-sm text-gray-300 mt-1">Cargando consejo...</p></div></div></div><div id="weekly-progress-card" class="bg-gray-700/80 p-4 rounded-2xl"></div><div class="bg-gradient-to-br from-emerald-500 to-green-600 p-6 rounded-2xl shadow-lg text-white"><p class="font-medium">Tu Meta Diaria de Calorías</p><p class="text-3xl font-bold" id="dashboard-calories">2,500 kcal</p><div class="mt-4 h-2.5 w-full rounded-full bg-black/20"><div id="dashboard-progress-bar" class="bg-white h-2.5 rounded-full" style="width: 0%"></div></div><p class="text-right text-sm mt-1">Progreso: <span id="dashboard-progress-text">0</span>%</p></div><div class="grid grid-cols-2 gap-4"><button data-action="show-section" data-section-id="rutinas" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="clipboard-list" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Rutinas</span></button><button data-action="show-section" data-section-id="nutricion" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="heart-pulse" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Nutrición</span></button><button data-action="show-section" data-section-id="dieta" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="salad" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Dieta</span></button><div class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2"><i data-lucide="flame" class="text-red-400"></i><span id="dashboard-consumed-calories" class="font-semibold">0 Kcal</span><span class="text-xs text-gray-400">Consumidas</span></div></div></div></section></template>
+    <template id="template-inicio"><section id="inicio" class="section-content"><div class="space-y-6"><div><h2 id="welcome-message" class="text-2xl font-bold">Hola, </h2><p class="text-gray-400">¿Listo para superar tus límites hoy?</p></div><div id="ai-daily-tip-card" class="bg-gray-700/80 p-4 rounded-2xl hidden"><div class="flex items-start space-x-3"><i data-lucide="sparkles" class="text-purple-400 w-5 h-5 flex-shrink-0 mt-1"></i><div><h3 class="font-semibold text-gray-200">Consejo del Día ✨</h3><p id="ai-daily-tip-text" class="text-sm text-gray-300 mt-1">Cargando consejo...</p></div></div></div><div id="weekly-progress-card" class="bg-gray-700/80 p-4 rounded-2xl"></div><div class="bg-gradient-to-br from-emerald-500 to-green-600 p-6 rounded-2xl shadow-lg text-white"><p class="font-medium">Tu Meta Diaria de Calorías</p><p class="text-3xl font-bold" id="dashboard-calories">2,500 kcal</p><div class="mt-4 h-2.5 w-full rounded-full bg-black/20"><div id="dashboard-progress-bar" class="bg-white h-2.5 rounded-full" style="width: 0%"></div></div><p class="text-right text-sm mt-1">Progreso: <span id="dashboard-progress-text">0</span>%</p></div><div class="grid grid-cols-2 gap-4"><button data-action="show-section" data-section-id="rutinas" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="clipboard-list" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Rutinas</span></button><button data-action="show-section" data-section-id="perfil" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="user" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Perfil</span></button><button data-action="show-section" data-section-id="dieta" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="salad" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Dieta</span></button><div class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2"><i data-lucide="flame" class="text-red-400"></i><span id="dashboard-consumed-calories" class="font-semibold">0 Kcal</span><span class="text-xs text-gray-400">Consumidas</span></div></div></div></section></template>
     
     <template id="template-rutinas"><section id="rutinas" class="section-content hidden"><div class="space-y-8"><div class="flex justify-between items-center"><h2 class="text-2xl font-bold">Rutinas</h2><button data-action="routine-create" class="flex items-center gap-2 bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20"><i data-lucide="plus" class="w-5 h-5"></i><span>Crear Rutina</span></button></div><div><h3 class="font-semibold text-lg mb-3 text-gray-300">Mis Rutinas</h3><div id="user-routines-container" class="horizontal-scroll-container flex overflow-x-auto gap-4 -mx-4 px-4 pb-4"></div></div><div><h3 class="font-semibold text-lg mb-3 text-gray-300">Explorar Rutinas</h3><div id="predefined-routines-container" class="space-y-3"></div></div></div></section></template>
     
-    <template id="template-nutricion"><section id="nutricion" class="section-content hidden"><div class="space-y-6"><h2 class="text-2xl font-bold">Calculadora Nutricional</h2><form id="nutrition-form" class="space-y-4"><div class="grid grid-cols-2 gap-4 mt-2"><label class="bg-gray-700 p-4 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="gender" value="male" class="sr-only" checked> Hombre</label><label class="bg-gray-700 p-4 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="gender" value="female" class="sr-only"> Mujer</label></div><div class="grid grid-cols-3 gap-4"><div><label for="age" class="block text-sm font-medium text-gray-300 mb-1">Edad</label><input type="number" id="age" value="25" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="weight" class="block text-sm font-medium text-gray-300 mb-1">Peso (kg)</label><input type="number" id="weight" value="75" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="height" class="block text-sm font-medium text-gray-300 mb-1">Altura (cm)</label><input type="number" id="height" value="180" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div></div><div><label for="activity" class="block text-sm font-medium text-gray-300 mb-1">Nivel de Actividad</label><select id="activity" class="w-full bg-gray-700 rounded-lg p-2"><option value="1.2">Sedentario</option><option value="1.375">Ligero</option><option value="1.55" selected>Moderado</option><option value="1.725">Activo</option><option value="1.9">Muy Activo</option></select></div><div class="grid grid-cols-3 gap-4 mt-2"><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="goal" value="lose" class="sr-only"> Perder</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="goal" value="maintain" class="sr-only" checked> Mantener</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="goal" value="gain" class="sr-only"> Ganar</label></div><button type="submit" class="w-full bg-emerald-500 text-gray-900 font-bold py-3 rounded-lg hover:bg-emerald-400 transition">Calcular</button></form><div id="nutrition-results" class="hidden space-y-4"><h3 class="text-xl font-bold">Tus Resultados</h3><div class="bg-gray-700/80 p-5 rounded-xl"><p class="text-gray-400">Calorías para tu objetivo</p><p id="result-calories" class="text-3xl font-bold text-emerald-400"></p></div><div class="grid grid-cols-3 gap-4 text-center"><div class="bg-blue-500/20 text-blue-300 p-3 rounded-xl"><p class="font-bold text-lg" id="result-protein">188g</p><p class="text-sm">Proteína</p></div><div class="bg-yellow-500/20 text-yellow-300 p-3 rounded-xl"><p class="font-bold text-lg" id="result-carbs">250g</p><p class="text-sm">Carbs</p></div><div class="bg-red-500/20 text-red-300 p-3 rounded-xl"><p class="font-bold text-lg" id="result-fats">83g</p><p class="text-sm">Grasas</p></div></div><button data-action="save-goals" class="w-full bg-gray-600 font-bold py-3 rounded-lg hover:bg-gray-500 transition">Guardar como mi meta</button></div></div></section></template>
-    <template id="template-dieta"><section id="dieta" class="section-content hidden"><div class="space-y-6"><div><h2 class="text-2xl font-bold">Plan de Dieta de Hoy</h2><p class="text-gray-400">Objetivo: <span id="diet-goal-calories" class="font-bold text-emerald-400">2500</span> kcal</p></div><div class="bg-gray-700/80 p-4 rounded-xl space-y-3"><div class="flex justify-between items-center text-sm"><span class="text-gray-300">Consumido</span><span class="font-bold"><span id="diet-total-calories">0</span> kcal</span></div><div class="h-2.5 w-full rounded-full bg-gray-600"><div id="diet-progress-bar" class="bg-emerald-500 h-2.5 rounded-full w-0"></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="space-y-1"><p class="font-semibold text-blue-300">Proteína</p><div class="h-1.5 w-full rounded-full bg-blue-500/20"><div id="diet-protein-bar" class="bg-blue-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-protein">0</span>g / <span id="diet-goal-protein">188</span>g</p></div><div class="space-y-1"><p class="font-semibold text-yellow-300">Carbs</p><div class="h-1.5 w-full rounded-full bg-yellow-500/20"><div id="diet-carbs-bar" class="bg-yellow-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-carbs">0</span>g / <span id="diet-goal-carbs">250</span>g</p></div><div class="space-y-1"><p class="font-semibold text-red-300">Grasas</p><div class="h-1.5 w-full rounded-full bg-red-500/20"><div id="diet-fats-bar" class="bg-red-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-fats">0</span>g / <span id="diet-goal-fats">83</span>g</p></div></div></div><div class="my-4"><button data-action="generate-plan" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 font-bold py-3 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2 shadow-lg"><i data-lucide="sparkles" class="w-5 h-5 p-e-none"></i><span class="p-e-none">✨ Generar Plan con IA</span></button></div><div class="bg-gray-700/50 p-4 rounded-xl space-y-3 mb-6"><h3 class="font-semibold flex items-center gap-2"><i data-lucide="brain-circuit" class="w-5 h-5 text-sky-400"></i>Analizador de Comidas IA</h3><p class="text-sm text-gray-400">Describe una comida y la IA estimará sus macros para añadirla a tu dieta.</p><textarea id="food-analysis-input" placeholder="Ej: un tazón de avena con plátano y nueces" class="w-full bg-gray-700 rounded-lg p-2 h-16 resize-none"></textarea><button data-action="analyze-food" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 font-bold py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2"><span class="p-e-none">✨ Analizar y Añadir</span></button></div><div id="meal-sections" class="space-y-4"></div><div class="space-y-4 mt-4"><h3 class="text-xl font-bold">Añadir Alimentos</h3><div class="relative"><input type="text" id="food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 p-e-none"><i data-lucide="search" class="text-gray-400"></i></div></div><div id="food-list" class="space-y-2 pr-2"></div></div></div></section></template>
+    <template id="template-nutricion">
+        <section id="nutricion" class="section-content hidden">
+            <div class="space-y-8 pb-8">
+                <div class="bg-gray-700/50 p-4 rounded-2xl">
+                    <h2 class="text-xl font-bold">Calculadora de Metas</h2>
+                    <form id="nutrition-form" class="space-y-4 mt-3">
+                        <div class="grid grid-cols-2 gap-4"><label class="bg-gray-700 p-4 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="gender" value="male" class="sr-only" checked> Hombre</label><label class="bg-gray-700 p-4 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="gender" value="female" class="sr-only"> Mujer</label></div>
+                        <div class="grid grid-cols-3 gap-4"><div><label for="age" class="block text-sm font-medium text-gray-300 mb-1">Edad</label><input type="number" id="age" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="weight" class="block text-sm font-medium text-gray-300 mb-1">Peso (kg)</label><input type="number" step="0.1" id="weight" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="height" class="block text-sm font-medium text-gray-300 mb-1">Altura (cm)</label><input type="number" id="height" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div></div>
+                        <div><label for="activity" class="block text-sm font-medium text-gray-300 mb-1">Nivel de Actividad</label><select id="activity" class="w-full bg-gray-700 rounded-lg p-2"><option value="1.2">Sedentario</option><option value="1.375">Ligero</option><option value="1.55" selected>Moderado</option><option value="1.725">Activo</option><option value="1.9">Muy Activo</option></select></div>
+                        <div class="grid grid-cols-3 gap-4"><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="goal" value="lose" class="sr-only"> Perder</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="goal" value="maintain" class="sr-only" checked> Mantener</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="goal" value="gain" class="sr-only"> Ganar</label></div>
+                        <button type="submit" class="w-full bg-emerald-500 text-gray-900 font-bold py-3 rounded-lg hover:bg-emerald-400 transition flex items-center justify-center gap-2"><i data-lucide="refresh-cw" class="w-4 h-4"></i>Calcular y Actualizar</button>
+                    </form>
+                </div>
 
+                <div id="nutrition-results" class="space-y-6 hidden">
+                    <div>
+                        <h3 class="text-xl font-bold mb-3">Tus Resultados</h3>
+                        <div class="bg-gray-700/80 p-5 rounded-xl"><p class="text-gray-400">Calorías para tu objetivo</p><p id="result-calories" class="text-3xl font-bold text-emerald-400"></p></div>
+                        <div class="grid grid-cols-3 gap-4 text-center mt-4"><div class="bg-blue-500/20 text-blue-300 p-3 rounded-xl"><p class="font-bold text-lg" id="result-protein"></p><p class="text-sm">Proteína</p></div><div class="bg-yellow-500/20 text-yellow-300 p-3 rounded-xl"><p class="font-bold text-lg" id="result-carbs"></p><p class="text-sm">Carbs</p></div><div class="bg-red-500/20 text-red-300 p-3 rounded-xl"><p class="font-bold text-lg" id="result-fats"></p><p class="text-sm">Grasas</p></div></div>
+                        <button data-action="save-goals" class="mt-4 w-full bg-gray-600 font-bold py-3 rounded-lg hover:bg-gray-500 transition">Guardar como mi meta</button>
+                    </div>
+
+                    <div class="bg-gray-700/80 p-4 rounded-2xl">
+                        <h3 class="font-semibold text-lg">Índice de Masa Corporal (IMC)</h3>
+                        <div class="flex items-baseline justify-center gap-2 my-3">
+                            <p id="bmi-value" class="text-4xl font-bold">22.5</p>
+                            <p id="bmi-category" class="font-semibold text-emerald-400">Normal</p>
+                        </div>
+                        <div class="relative w-full h-6">
+                            <div class="absolute w-full h-2 top-1/2 -translate-y-1/2 flex rounded-full overflow-hidden">
+                                <div class="w-[25%] bg-sky-500" title="Bajo Peso (<18.5)"></div>
+                                <div class="w-[30%] bg-emerald-500" title="Normal (18.5-24.9)"></div>
+                                <div class="w-[25%] bg-yellow-500" title="Sobrepeso (25-29.9)"></div>
+                                <div class="w-[20%] bg-red-500" title="Obesidad (>30)"></div>
+                            </div>
+                            <div id="bmi-marker" class="absolute top-1/2 w-5 h-5 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full border-4 border-gray-800" style="left: 50%;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-gray-700/80 p-4 rounded-2xl">
+                     <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-semibold text-lg">Seguimiento de Peso</h3>
+                        <button data-action="edit-target-weight" class="flex items-center gap-1.5 text-sm text-emerald-400 font-semibold hover:text-emerald-300"><i data-lucide="edit-3" class="w-4 h-4"></i><span>Editar Objetivo</span></button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-3 text-center">
+                        <div><p class="text-xl font-bold"><span id="current-weight-display"></span> <span class="text-sm font-normal text-gray-400">kg</span></p><p class="text-xs text-gray-400">Actual</p></div>
+                        <div><p class="text-xl font-bold text-emerald-400"><span id="target-weight-display"></span> <span class="text-sm font-normal text-gray-400">kg</span></p><p class="text-xs text-gray-400">Objetivo</p></div>
+                        <div><p class="text-xl font-bold"><span id="weight-diff-display"></span> <span class="text-sm font-normal text-gray-400">kg</span></p><p class="text-xs text-gray-400">Diferencia</p></div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-700/50 p-4 rounded-2xl">
+                    <h3 class="font-semibold text-lg mb-3">Historial de Peso</h3>
+                    <form id="weight-log-form" class="flex gap-3 mb-4">
+                        <input type="number" step="0.1" id="new-weight-input" placeholder="Nuevo peso (kg)" class="w-full bg-gray-700 rounded-lg p-2 text-center" required>
+                        <button type="submit" data-action="add-weight-log" class="bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition">Añadir</button>
+                    </form>
+                    <div id="weight-log-container" class="space-y-2 max-h-60 overflow-y-auto pr-2">
+                        </div>
+                </div>
+            </div>
+        </section>
+    </template>
+    
+    <template id="template-dieta"><section id="dieta" class="section-content hidden"><div class="space-y-6"><div><h2 class="text-2xl font-bold">Plan de Dieta de Hoy</h2><p class="text-gray-400">Objetivo: <span id="diet-goal-calories" class="font-bold text-emerald-400">2500</span> kcal</p></div><div class="bg-gray-700/80 p-4 rounded-xl space-y-3"><div class="flex justify-between items-center text-sm"><span class="text-gray-300">Consumido</span><span class="font-bold"><span id="diet-total-calories">0</span> kcal</span></div><div class="h-2.5 w-full rounded-full bg-gray-600"><div id="diet-progress-bar" class="bg-emerald-500 h-2.5 rounded-full w-0"></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="space-y-1"><p class="font-semibold text-blue-300">Proteína</p><div class="h-1.5 w-full rounded-full bg-blue-500/20"><div id="diet-protein-bar" class="bg-blue-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-protein">0</span>g / <span id="diet-goal-protein">188</span>g</p></div><div class="space-y-1"><p class="font-semibold text-yellow-300">Carbs</p><div class="h-1.5 w-full rounded-full bg-yellow-500/20"><div id="diet-carbs-bar" class="bg-yellow-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-carbs">0</span>g / <span id="diet-goal-carbs">250</span>g</p></div><div class="space-y-1"><p class="font-semibold text-red-300">Grasas</p><div class="h-1.5 w-full rounded-full bg-red-500/20"><div id="diet-fats-bar" class="bg-red-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-fats">0</span>g / <span id="diet-goal-fats">83</span>g</p></div></div></div><div class="my-4"><button data-action="generate-plan" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 font-bold py-3 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2 shadow-lg"><i data-lucide="sparkles" class="w-5 h-5 p-e-none"></i><span class="p-e-none">✨ Generar Plan con IA</span></button></div><div class="bg-gray-700/50 p-4 rounded-xl space-y-3 mb-6"><h3 class="font-semibold flex items-center gap-2"><i data-lucide="brain-circuit" class="w-5 h-5 text-sky-400"></i>Analizador de Comidas IA</h3><p class="text-sm text-gray-400">Describe una comida y la IA estimará sus macros para añadirla a tu dieta.</p><textarea id="food-analysis-input" placeholder="Ej: un tazón de avena con plátano y nueces" class="w-full bg-gray-700 rounded-lg p-2 h-16 resize-none"></textarea><button data-action="analyze-food" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 font-bold py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2"><span class="p-e-none">✨ Analizar y Añadir</span></button></div><div id="meal-sections" class="space-y-4"></div><div class="space-y-4 mt-4"><h3 class="text-xl font-bold">Añadir Alimentos</h3><div class="relative"><input type="text" id="food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 p-e-none"><i data-lucide="search" class="text-gray-400"></i></div></div><div id="food-list" class="space-y-2 pr-2"></div></div></div></section></template>
+    
+    <template id="template-perfil">
+        <section id="perfil" class="section-content hidden">
+            <div class="space-y-6 pb-8">
+                <div class="flex items-center space-x-4">
+                    <div id="profile-avatar" class="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-gray-900 text-3xl flex-shrink-0">
+                        <span></span>
+                    </div>
+                    <div>
+                        <h2 id="profile-name" class="text-2xl font-bold"></h2>
+                        <p id="profile-email" class="text-sm text-gray-400"></p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-3 text-center">
+                    <div class="bg-gray-700/80 p-3 rounded-xl">
+                        <p id="profile-stat-workouts" class="text-xl font-bold">0</p>
+                        <p class="text-xs text-gray-400">Entrenos</p>
+                    </div>
+                    <div class="bg-gray-700/80 p-3 rounded-xl">
+                        <p id="profile-stat-hours" class="text-xl font-bold">0</p>
+                        <p class="text-xs text-gray-400">Horas</p>
+                    </div>
+                    <div class="bg-gray-700/80 p-3 rounded-xl">
+                        <p id="profile-stat-streak" class="text-xl font-bold">0</p>
+                        <p class="text-xs text-gray-400">Racha 🔥</p>
+                    </div>
+                </div>
+
+                <div class="bg-gray-700/80 p-4 rounded-2xl">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-semibold text-lg">Información Personal</h3>
+                        <button data-action="edit-profile" class="flex items-center gap-1.5 text-sm text-emerald-400 font-semibold hover:text-emerald-300">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            <span>Editar</span>
+                        </button>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-400">Edad</span><span id="profile-info-age" class="font-medium"></span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Peso</span><span id="profile-info-weight" class="font-medium"></span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Altura</span><span id="profile-info-height" class="font-medium"></span></div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-700/80 p-4 rounded-2xl">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="font-semibold text-lg">Mis Metas Actuales</h3>
+                        <button data-action="show-section" data-section-id="nutricion" class="flex items-center gap-1.5 text-sm text-emerald-400 font-semibold hover:text-emerald-300">
+                            <i data-lucide="settings-2" class="w-4 h-4"></i>
+                            <span>Ajustar</span>
+                        </button>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-400">Calorías</span><span id="profile-goal-calories" class="font-medium text-emerald-400"></span></div>
+                        <div class="flex justify-between"><span class="text-blue-300">Proteína</span><span id="profile-goal-protein" class="font-medium"></span></div>
+                        <div class="flex justify-between"><span class="text-yellow-300">Carbohidratos</span><span id="profile-goal-carbs" class="font-medium"></span></div>
+                        <div class="flex justify-between"><span class="text-red-300">Grasas</span><span id="profile-goal-fats" class="font-medium"></span></div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-700/80 p-4 rounded-2xl">
+                    <h3 class="font-semibold text-lg mb-4">Actividad Reciente (Últimas 4 Semanas)</h3>
+                    <div id="profile-activity-chart" class="h-32 flex items-end justify-around gap-2 text-center">
+                        </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="font-semibold text-lg">Historial de Entrenamientos</h3>
+                    <div id="profile-workout-history" class="space-y-2">
+                        </div>
+                </div>
+            </div>
+        </section>
+    </template>
+    
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -177,7 +318,6 @@
                 auth: null,
                 db: null,
                 
-                // El estado ahora tiene un estado por defecto para nuevos usuarios
                 getDefaultState() {
                     return {
                         currentUser: null,
@@ -187,6 +327,9 @@
                         dailyDiet: { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] }, 
                         userRoutines: [], 
                         workoutHistory: {}, 
+                        physicalStats: { age: 25, weight: 75, height: 180 },
+                        targetWeight: 75,
+                        weightLog: [],
                         // Estado no persistente
                         activeWorkout: null, 
                         timer: { status: 'idle', timeLeft: 0, intervalId: null, initialRestTime: 0 }
@@ -201,36 +344,30 @@
                     foodDatabase: {"Proteínas":[{"id":1,"name":"Pechuga de Pollo","cals":165,"p":31,"c":0,"f":3.6},{"id":2,"name":"Pechuga de Pavo","cals":135,"p":30,"c":0,"f":1},{"id":3,"name":"Salmón","cals":208,"p":20,"c":0,"f":13},{"id":4,"name":"Atún en lata (agua)","cals":116,"p":26,"c":0,"f":1},{"id":5,"name":"Carne de Res Magra (90%)","cals":198,"p":28,"c":0,"f":9},{"id":6,"name":"Huevo Entero","cals":155,"p":13,"c":1.1,"f":11},{"id":7,"name":"Clara de Huevo","cals":52,"p":11,"c":0.7,"f":0.2},{"id":8,"name":"Lentejas (cocidas)","cals":116,"p":9,"c":20,"f":0.4},{"id":9,"name":"Garbanzos (cocidos)","cals":139,"p":7.6,"c":22,"f":3.8},{"id":10,"name":"Tofu Firme","cals":76,"p":8,"c":1.9,"f":4.8}],"Carbohidratos":[{"id":11,"name":"Arroz Blanco (cocido)","cals":130,"p":2.7,"c":28,"f":0.3},{"id":12,"name":"Arroz Integral (cocido)","cals":111,"p":2.6,"c":23,"f":0.9},{"id":13,"name":"Avena en Hojuelas","cals":389,"p":17,"c":66,"f":7},{"id":14,"name":"Papa/Patata (cocida)","cals":87,"p":2,"c":20,"f":0.1},{"id":15,"name":"Batata/Camote (cocido)","cals":86,"p":1.6,"c":20,"f":0.1},{"id":16,"name":"Pan Integral","cals":265,"p":13,"c":41,"f":4.5},{"id":17,"name":"Pasta Integral (cocida)","cals":124,"p":5,"c":26,"f":0.8},{"id":18,"name":"Quinoa (cocida)","cals":120,"p":4.4,"c":21,"f":1.9},{"id":19,"name":"Maíz/Elote (cocido)","cals":96,"p":3.4,"c":21,"f":1.5}],"Grasas Saludables":[{"id":20,"name":"Aguacate","cals":160,"p":2,"c":9,"f":15},{"id":21,"name":"Aceite de Oliva Extra Virgen","cals":884,"p":0,"c":0,"f":100},{"id":22,"name":"Almendras","cals":579,"p":21,"c":22,"f":49},{"id":23,"name":"Nueces","cals":654,"p":15,"c":14,"f":65},{"id":24,"name":"Semillas de Chía","cals":486,"p":17,"c":42,"f":31},{"id":25,"name":"Mantequilla de Maní Natural","cals":588,"p":25,"c":20,"f":50}],"Frutas y Verduras":[{"id":26,"name":"Brócoli","cals":55,"p":3.7,"c":11,"f":0.6},{"id":27,"name":"Espinaca","cals":23,"p":2.9,"c":3.6,"f":0.4},{"id":28,"name":"Plátano","cals":89,"p":1.1,"c":23,"f":0.3},{"id":29,"name":"Manzana","cals":52,"p":0.3,"c":14,"f":0.2},{"id":30,"name":"Fresa","cals":32,"p":0.7,"c":8,"f":0.3},{"id":31,"name":"Tomate","cals":18,"p":0.9,"c":3.9,"f":0.2},{"id":32,"name":"Zanahoria","cals":41,"p":0.9,"c":10,"f":0.2}],"Lácteos y Derivados":[{"id":33,"name":"Yogur Griego Natural (0%)","cals":59,"p":10,"c":3.6,"f":0.4},{"id":34,"name":"Leche Descremada","cals":34,"p":3.4,"c":5,"f":0.1},{"id":35,"name":"Queso Cottage (bajo en grasa)","cals":72,"p":12,"c":2.7,"f":1},{"id":36,"name":"Queso Mozzarella","cals":280,"p":22,"c":2.2,"f":20}],"Suplementos":[{"id":37,"name":"Proteína Whey (Polvo)","cals":390,"p":75,"c":8,"f":5},{"id":38,"name":"Creatina Monohidratada","cals":0,"p":0,"c":0,"f":0}]}
                 },
                 
-                // Función principal de inicialización
                 init() { 
                     if(typeof lucide === 'undefined'){ setTimeout(() => this.init(), 50); return; } 
                     this.state = this.getDefaultState();
                     this.auth = getAuth(this.firebaseApp);
                     this.db = getFirestore(this.firebaseApp);
                     this.setupAuthListeners();
-                    this.setupEventListeners(); // Listeners generales
-                    lucide.createIcons(); // Iconos de la auth screen
+                    this.setupEventListeners();
+                    lucide.createIcons();
                 },
 
-                // Lógica de la app que se ejecuta DESPUÉS del login
                 initAppLogic() {
                     this.audioCtx = new(window.AudioContext || window.webkitAudioContext)(); 
                     this.loadTemplates();
+                    this.populateNutritionForm();
                     this.renderAll(); 
                     this.getDailyTip();
                     this.showSection(this.state.currentSection, false);
                     this.updateUserInfoUI();
                 },
 
-                // Firebase y Autenticación
                 async saveDataToFirestore() {
                     if (!this.state.currentUser) return;
                     const dataToSave = { ...this.state };
-                    delete dataToSave.currentUser;
-                    delete dataToSave.activeWorkout;
-                    delete dataToSave.timer;
-                    delete dataToSave.currentSection;
-
+                    ['currentUser', 'activeWorkout', 'timer', 'currentSection'].forEach(key => delete dataToSave[key]);
                     const userRef = doc(this.db, "users", this.state.currentUser.uid);
                     try {
                         await setDoc(userRef, dataToSave, { merge: true });
@@ -244,16 +381,19 @@
                     const userRef = doc(this.db, "users", this.state.currentUser.uid);
                     try {
                         const docSnap = await getDoc(userRef);
+                        const defaultState = this.getDefaultState();
                         if (docSnap.exists()) {
                             const data = docSnap.data();
-                            // Fusionar datos de Firestore con el estado por defecto
-                            this.state = { ...this.getDefaultState(), ...data, currentUser: this.state.currentUser };
+                            this.state = { ...defaultState, currentUser: this.state.currentUser, ...data };
+                            // Asegurarse de que las propiedades anidadas existan
+                            this.state.physicalStats = { ...defaultState.physicalStats, ...data.physicalStats };
+                            this.state.userGoals = { ...defaultState.userGoals, ...data.userGoals };
+
                         } else {
-                            // Si no existe, es un usuario nuevo, usamos estado por defecto
-                            this.state = this.getDefaultState();
-                            this.state.currentUser = this.state.currentUser; // Mantener el usuario actual
-                            this.state.userName = this.state.currentUser.displayName;
-                            await this.saveDataToFirestore(); // Guardar el estado inicial
+                            this.state = defaultState;
+                            this.state.currentUser = this.auth.currentUser;
+                            this.state.userName = this.auth.currentUser.displayName;
+                            await this.saveDataToFirestore();
                         }
                     } catch (error) {
                         console.error("Error loading data from Firestore: ", error);
@@ -290,7 +430,6 @@
                     this.setButtonLoading(button, true);
                     try {
                         await signInWithEmailAndPassword(this.auth, email, password);
-                        // onAuthStateChanged se encargará del resto
                     } catch (error) {
                         this.showToast(this.getFirebaseAuthErrorMessage(error), 'error');
                     } finally {
@@ -309,15 +448,12 @@
                     try {
                         const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
                         const user = userCredential.user;
-                        
-                        // Crear documento en Firestore para el nuevo usuario
                         const userRef = doc(this.db, "users", user.uid);
                         const initialData = this.getDefaultState();
                         initialData.userName = name;
-                        delete initialData.currentUser; // No guardar el objeto user en la db
-
+                        initialData.targetWeight = initialData.physicalStats.weight;
+                        delete initialData.currentUser;
                         await setDoc(userRef, initialData);
-                        // onAuthStateChanged se encargará del resto
                     } catch (error) {
                         this.showToast(this.getFirebaseAuthErrorMessage(error), 'error');
                     } finally {
@@ -328,13 +464,11 @@
                 async handleLogout() {
                     try {
                         await signOut(this.auth);
-                        // onAuthStateChanged se encargará del resto
                     } catch (error) {
                         this.showToast('Error al cerrar sesión.', 'error');
                     }
                 },
 
-                // UI
                 showAppUI() {
                     document.getElementById('auth-container').classList.add('hidden');
                     document.getElementById('app-container').classList.remove('hidden');
@@ -343,7 +477,6 @@
                 showAuthUI() {
                     document.getElementById('app-container').classList.add('hidden');
                     document.getElementById('auth-container').classList.remove('hidden');
-                    // Limpiar el contenido de la app para evitar mostrar datos viejos
                     document.getElementById('sections-wrapper').innerHTML = '';
                 },
 
@@ -388,9 +521,7 @@
 
                 loadTemplates() { 
                     const wrapper = document.getElementById('sections-wrapper'); 
-                    // Evitar duplicar templates si ya están cargados
                     if(wrapper.children.length > 0) return;
-
                     const templates = document.querySelectorAll('template'); 
                     templates.forEach(template => { 
                         const content = template.content.cloneNode(true); 
@@ -407,10 +538,18 @@
                         }
                         const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex } = button.dataset;
                         const actionMap = {
-                            'show-section': () => this.showSection(sectionId), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-finish-workout': () => this.confirmFinishWorkout(),
-                            'finish-workout': () => this.finishWorkout(false), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(),
-                            'save-goals': () => this.saveNutritionGoals(), 'show-add-food-modal': () => this.showAddFoodModal(parseInt(foodId)), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, mealName),
-                            'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(mealName, parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(mealName, parseInt(itemIndex)),
+                            'show-section': () => this.showSection(sectionId),
+                            'handle-workout-action': () => this.handleWorkoutAction(),
+                            'confirm-finish-workout': () => this.confirmFinishWorkout(),
+                            'finish-workout': () => this.finishWorkout(false),
+                            'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)),
+                            'skip-rest': () => this.skipRest(),
+                            'add-rest-time': () => this.addRestTime(),
+                            'save-goals': () => this.saveNutritionGoals(),
+                            'show-add-food-modal': () => this.showAddFoodModal(parseInt(foodId)),
+                            'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, mealName),
+                            'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(mealName, parseInt(itemIndex)),
+                            'remove-food': () => this.removeFoodFromMeal(mealName, parseInt(itemIndex)),
                             'generate-plan': () => this.generatePlanWithAI(),
                             'analyze-food': () => this.analyzeFoodWithAI(),
                             'get-recipe': () => this.getRecipeForMeal(mealName),
@@ -431,13 +570,20 @@
                             'routine-delete': () => this.routine_delete(routineId),
                             'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(),
                             'generate-exercises-ai': () => this.routine_generateExercisesWithAi(),
-                            'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e)
+                            'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e),
+                            'edit-profile': () => this.showEditProfileModal(),
+                            'save-profile-changes': () => this.handleUpdateProfile(),
+                            'edit-target-weight': () => this.showEditTargetWeightModal(),
+                            'save-target-weight': () => this.handleUpdateTargetWeight(),
+                            'add-weight-log': () => this.handleAddWeightLog(),
                         };
                         if (actionMap[action]) actionMap[action](e);
                     });
-                    // Listeners específicos de formularios
+                    // Listeners de formularios
                     document.body.addEventListener('submit', (e) => {
-                        if (e.target.id === 'nutrition-form') { e.preventDefault(); this.calculateNutrition(); }
+                        e.preventDefault();
+                        if (e.target.id === 'nutrition-form') { this.calculateNutrition(); }
+                        if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); }
                     });
                     document.body.addEventListener('input', (e) => {
                         if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); }
@@ -447,18 +593,342 @@
                     this.renderRoutinesSection();
                     this.renderDietPage(); 
                     this.renderWeeklyProgress(); 
+                    this.renderProfileSection();
+                    this.renderNutricionSection();
                     this.updateDashboard(); 
                     lucide.createIcons(); 
                 },
                 showSection(id, animate=true){this.state.currentSection=id;document.querySelectorAll('.section-content').forEach(s=>s.classList.add('hidden'));const el=document.getElementById(id);if(el){el.classList.remove('hidden');if(animate){el.classList.add('section-fade-in');el.addEventListener('animationend',()=>el.classList.remove('section-fade-in'),{once:true});}}document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.toggle('text-emerald-400',b.dataset.section===id);b.classList.toggle('text-gray-400',b.dataset.section!==id);});if(id==='dieta'){this.renderFoodList();}},
                 renderWeeklyProgress(){const container=document.getElementById('weekly-progress-card');const t=new Date(),d=t.getDay(),s=new Date(t); s.setDate(t.getDate()-(d===0?6:d-1));let weekHTML='', dayLetters=['L','M','X','J','V','S','D'], completedCount=0;for(let i=0;i<7;i++){const cd=new Date(s); cd.setDate(s.getDate()+i);const ds=`${cd.getFullYear()}-${String(cd.getMonth()+1).padStart(2,'0')}-${String(cd.getDate()).padStart(2,'0')}`;const isCompleted=this.state.workoutHistory[ds], isToday=cd.toDateString()===t.toDateString();if(isCompleted) completedCount++;weekHTML+=`<div class="text-center"><p class="text-xs text-gray-400">${dayLetters[i]}</p><div class="w-8 h-8 rounded-full flex items-center justify-center mt-1 ${isCompleted?'bg-emerald-500':'bg-gray-600'} ${isToday?'ring-2 ring-white':''}"></div></div>`;}let statsHtml = '';const historyKeys = this.state.workoutHistory ? Object.keys(this.state.workoutHistory).sort().reverse() : [];if (historyKeys.length > 0) {const lastWorkoutDate = historyKeys[0], lastWorkout = this.state.workoutHistory[lastWorkoutDate];const formattedDate = new Date(lastWorkoutDate + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });statsHtml = `<div class="mt-4 pt-4 border-t border-gray-600/50"><h4 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Último Entrenamiento</h4><div class="flex items-center justify-between bg-gray-900/50 p-3 rounded-lg"><div class="flex items-center space-x-3"><i data-lucide="award" class="text-emerald-400"></i><div><p class="font-bold text-white">${lastWorkout.routineName}</p><p class="text-xs text-gray-400 capitalize">${formattedDate}</p></div></div><div class="text-right"><p class="font-semibold text-white">${this.formatTime(lastWorkout.totalDuration)}</p><p class="text-xs text-gray-400">Duración</p></div></div></div>`;} else { statsHtml = `<div class="mt-4 pt-4 border-t border-gray-600/50 text-center text-gray-500 text-sm"><p>Completa un entrenamiento para ver tus estadísticas aquí.</p></div>`; }container.innerHTML=`<h3 class="font-semibold text-lg mb-3">Progreso Semanal</h3><div class="flex justify-between">${weekHTML}</div><p class="text-right text-xs text-gray-400 mt-2">${completedCount} de 7 días completados</p>${statsHtml}`;},
+                
+                renderProfileSection() {
+                    if (!this.state.currentUser) return;
+                    const { userName, currentUser, physicalStats, userGoals, workoutHistory } = this.state;
+                    
+                    document.getElementById('profile-avatar').querySelector('span').textContent = (userName || 'U').charAt(0).toUpperCase();
+                    document.getElementById('profile-name').textContent = userName || 'Usuario';
+                    document.getElementById('profile-email').textContent = currentUser.email;
+
+                    const historyKeys = Object.keys(workoutHistory);
+                    const totalWorkouts = historyKeys.length;
+                    const totalDurationSeconds = historyKeys.reduce((acc, key) => acc + workoutHistory[key].totalDuration, 0);
+                    const totalHours = (totalDurationSeconds / 3600).toFixed(1);
+                    document.getElementById('profile-stat-workouts').textContent = totalWorkouts;
+                    document.getElementById('profile-stat-hours').textContent = totalHours;
+                    document.getElementById('profile-stat-streak').textContent = this.calculateWorkoutStreak();
+
+                    document.getElementById('profile-info-age').textContent = `${physicalStats.age} años`;
+                    document.getElementById('profile-info-weight').textContent = `${physicalStats.weight} kg`;
+                    document.getElementById('profile-info-height').textContent = `${physicalStats.height} cm`;
+                    
+                    document.getElementById('profile-goal-calories').textContent = `${userGoals.calories} kcal`;
+                    document.getElementById('profile-goal-protein').textContent = `${userGoals.protein}g`;
+                    document.getElementById('profile-goal-carbs').textContent = `${userGoals.carbs}g`;
+                    document.getElementById('profile-goal-fats').textContent = `${userGoals.fats}g`;
+
+                    const chartContainer = document.getElementById('profile-activity-chart');
+                    const weeklyData = this.getWeeklyActivityData();
+                    const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 1);
+                    chartContainer.innerHTML = weeklyData.map(week => {
+                        const barHeight = (week.count / maxWorkouts) * 100;
+                        return `<div class="flex flex-col items-center justify-end h-full w-1/4"><p class="text-sm font-bold text-white">${week.count}</p><div class="w-3/5 h-full flex items-end"><div class="w-full bg-emerald-500 rounded-t-sm chart-bar" style="height: ${barHeight}%;"></div></div><p class="text-xs text-gray-400 mt-1">${week.label}</p></div>`;
+                    }).join('');
+                    
+                    const historyContainer = document.getElementById('profile-workout-history');
+                    if (historyKeys.length > 0) {
+                        historyContainer.innerHTML = historyKeys.sort().reverse().slice(0, 5).map(dateStr => {
+                            const workout = workoutHistory[dateStr];
+                            const date = new Date(dateStr + 'T00:00:00');
+                            const formattedDate = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+                            return `<div class="bg-gray-700/60 p-3 rounded-lg flex justify-between items-center"><div><p class="font-semibold text-white">${workout.routineName}</p><p class="text-xs text-gray-400">${formattedDate}</p></div><div class="text-sm font-medium text-gray-300">${this.formatTime(workout.totalDuration)}</div></div>`;
+                        }).join('');
+                    } else {
+                        historyContainer.innerHTML = `<p class="text-center text-gray-500 text-sm p-4">No hay entrenamientos registrados.</p>`;
+                    }
+                },
+                calculateWorkoutStreak() {
+                    const dates = Object.keys(this.state.workoutHistory).sort((a, b) => new Date(b) - new Date(a));
+                    if (dates.length === 0) return 0;
+
+                    let streak = 0;
+                    let today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    const firstDateInLog = new Date(dates[0] + 'T00:00:00');
+                    const diffTime = today - firstDateInLog;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays > 1) return 0; // Streak is broken if last workout was more than a day ago
+                    
+                    streak = 1;
+                    for (let i = 0; i < dates.length - 1; i++) {
+                        const currentDate = new Date(dates[i] + 'T00:00:00');
+                        const previousDate = new Date(dates[i+1] + 'T00:00:00');
+                        const dayDifference = (currentDate - previousDate) / (1000 * 60 * 60 * 24);
+                        if (dayDifference === 1) {
+                            streak++;
+                        } else {
+                            break;
+                        }
+                    }
+                    return streak;
+                },
+                getWeeklyActivityData() {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    
+                    const weeks = [
+                        { label: 'Hace 3sem', count: 0, start: new Date(today), end: new Date(today) },
+                        { label: 'Hace 2sem', count: 0, start: new Date(today), end: new Date(today) },
+                        { label: 'Sem Pasada', count: 0, start: new Date(today), end: new Date(today) },
+                        { label: 'Esta Sem', count: 0, start: new Date(today), end: new Date(today) },
+                    ];
+
+                    for (let i = 0; i < 4; i++) {
+                        const weekIndex = 3 - i;
+                        const firstDayOfWeek = new Date(today);
+                        const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1; // Monday = 0
+                        firstDayOfWeek.setDate(today.getDate() - dayOfWeek - (i * 7));
+                        
+                        weeks[weekIndex].start = new Date(firstDayOfWeek);
+                        weeks[weekIndex].end = new Date(firstDayOfWeek);
+                        weeks[weekIndex].end.setDate(firstDayOfWeek.getDate() + 6);
+                    }
+                    
+                    Object.keys(this.state.workoutHistory).forEach(dateStr => {
+                        const workoutDate = new Date(dateStr + 'T00:00:00');
+                        for (const week of weeks) {
+                            if (workoutDate >= week.start && workoutDate <= week.end) {
+                                week.count++;
+                                break;
+                            }
+                        }
+                    });
+
+                    return weeks;
+                },
+                showEditProfileModal() {
+                    const { userName, physicalStats } = this.state;
+                    const body = `<form id="edit-profile-form" class="space-y-4"><div><label for="profile-edit-name" class="block text-sm font-medium text-gray-300 mb-1">Nombre</label><input type="text" id="profile-edit-name" value="${userName}" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></div><div class="grid grid-cols-3 gap-3"><div><label for="profile-edit-age" class="block text-sm font-medium text-gray-300 mb-1">Edad</label><input type="number" id="profile-edit-age" value="${physicalStats.age}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="profile-edit-weight" class="block text-sm font-medium text-gray-300 mb-1">Peso (kg)</label><input type="number" step="0.1" id="profile-edit-weight" value="${physicalStats.weight}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="profile-edit-height" class="block text-sm font-medium text-gray-300 mb-1">Altura (cm)</label><input type="number" id="profile-edit-height" value="${physicalStats.height}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div></div></form>`;
+                    const footer = [{ text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },{ text: 'Guardar Cambios', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'save-profile-changes' }];
+                    this.showModal('Editar Perfil', body, footer);
+                },
+                async handleUpdateProfile() {
+                    const name = document.getElementById('profile-edit-name').value.trim();
+                    const age = parseInt(document.getElementById('profile-edit-age').value);
+                    const weight = parseFloat(document.getElementById('profile-edit-weight').value);
+                    const height = parseInt(document.getElementById('profile-edit-height').value);
+                    
+                    if (!name || isNaN(age) || isNaN(weight) || isNaN(height)) {
+                        this.showToast("Por favor, rellena todos los campos correctamente.", "error");
+                        return;
+                    }
+
+                    this.state.userName = name;
+                    this.state.physicalStats = { age, weight, height };
+                    
+                    await this.saveDataToFirestore();
+                    this.renderAll();
+                    this.updateUserInfoUI();
+                    this.hideModal();
+                    this.showToast("¡Perfil actualizado con éxito!");
+                },
+
                 updateDashboard() { document.getElementById('dashboard-calories').textContent=`${this.state.userGoals.calories} kcal`; this.updateDietSummary(); },
                 showModal(t,b,f=[]){document.getElementById('custom-modal-title').textContent=t;document.getElementById('custom-modal-body').innerHTML=b;const ft=document.getElementById('custom-modal-footer');ft.innerHTML=f.map(btn=>{const d=Object.entries(btn).filter(([k])=>k!=='text'&&k!=='class').map(([k,v])=>`data-${k}="${v}"`).join(' ');return`<button ${d} class="font-bold py-2 px-4 rounded-lg transition ${btn.class}">${btn.text}</button>`}).join('');document.getElementById('custom-modal').classList.remove('hidden');document.getElementById('custom-modal-panel').classList.remove('modal-fade-out');},
                 hideModal(){const m=document.getElementById('custom-modal'),p=document.getElementById('custom-modal-panel');p.classList.add('modal-fade-out');p.addEventListener('animationend',()=>m.classList.add('hidden'),{once:true});},
                 showToast(m,t='success'){const c=document.getElementById('toast-container'),el=document.createElement('div');el.className=`toast ${t==='success'?'bg-emerald-500':'bg-red-500'} text-white font-bold py-2 px-4 rounded-lg shadow-lg`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.remove(),3000);},
                 formatTime(seconds) { const m = Math.floor(seconds / 60); const s = seconds % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; },
                 playSound(type) { const o=this.audioCtx.createOscillator(),g=this.audioCtx.createGain();o.connect(g);g.connect(this.audioCtx.destination);g.gain.setValueAtTime(0,this.audioCtx.currentTime);g.gain.linearRampToValueAtTime(0.3,this.audioCtx.currentTime+0.01);o.frequency.value=type==='start'?440:880;o.type='sine';o.start(this.audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.00001,this.audioCtx.currentTime+0.5);o.stop(this.audioCtx.currentTime+0.5); },
-                calculateNutrition(){const f=document.getElementById('nutrition-form'),g=f.querySelector('input[name="gender"]:checked').value,a=parseInt(f.age.value),w=parseFloat(f.weight.value),h=parseFloat(f.height.value),act=parseFloat(f.activity.value),goal=f.querySelector('input[name="goal"]:checked').value;if(!a||!w||!h){this.showToast("Rellena todos los campos.","error");return;}const bmr=(g==='male')?(10*w+6.25*h-5*a+5):(10*w+6.25*h-5*a-161),tdee=bmr*act;let cal;if(goal==='lose')cal=tdee-500;else if(goal==='gain')cal=tdee+500;else cal=tdee;const res={calories:Math.round(cal),protein:Math.round((cal*0.3)/4),carbs:Math.round((cal*0.4)/4),fats:Math.round((cal*0.3)/9)};document.getElementById('result-calories').textContent=`${res.calories} kcal`;document.getElementById('result-protein').textContent=`${res.protein}g`;document.getElementById('result-carbs').textContent=`${res.carbs}g`;document.getElementById('result-fats').textContent=`${res.fats}g`;document.getElementById('nutrition-results').classList.remove('hidden');this._tempResults=res;},
+
+                // =======================================================
+                // =========== LÓGICA DE LA SECCIÓN DE CÁLCULOS ==========
+                // =======================================================
+                
+                populateNutritionForm() {
+                    const { age, weight, height } = this.state.physicalStats;
+                    document.getElementById('age').value = age;
+                    document.getElementById('weight').value = weight;
+                    document.getElementById('height').value = height;
+                },
+
+                renderNutricionSection() {
+                    this.renderWeightTracking();
+                    // Ejecuta un cálculo inicial para mostrar el IMC si los datos existen
+                    if(this.state.physicalStats.weight > 0 && this.state.physicalStats.height > 0) {
+                        this.renderBmiCard(this.state.physicalStats.weight, this.state.physicalStats.height);
+                        document.getElementById('nutrition-results').classList.remove('hidden');
+                    }
+                },
+
+                calculateNutrition() {
+                    const form = document.getElementById('nutrition-form');
+                    const gender = form.querySelector('input[name="gender"]:checked').value;
+                    const age = parseInt(form.age.value);
+                    const weight = parseFloat(form.weight.value);
+                    const height = parseFloat(form.height.value);
+                    const activity = parseFloat(form.activity.value);
+                    const goal = form.querySelector('input[name="goal"]:checked').value;
+                    
+                    if (!age || !weight || !height) {
+                        this.showToast("Rellena todos los campos.", "error");
+                        return;
+                    }
+                    
+                    // Actualizar estado global y guardar
+                    this.state.physicalStats = { age, weight, height };
+                    this.saveDataToFirestore();
+
+                    // Calcular TDEE
+                    const bmr = (gender === 'male') ? (10 * weight + 6.25 * height - 5 * age + 5) : (10 * weight + 6.25 * height - 5 * age - 161);
+                    const tdee = bmr * activity;
+                    let calories;
+                    if (goal === 'lose') calories = tdee - 500;
+                    else if (goal === 'gain') calories = tdee + 500;
+                    else calories = tdee;
+                    
+                    const results = {
+                        calories: Math.round(calories),
+                        protein: Math.round((calories * 0.3) / 4),
+                        carbs: Math.round((calories * 0.4) / 4),
+                        fats: Math.round((calories * 0.3) / 9)
+                    };
+
+                    document.getElementById('result-calories').textContent = `${results.calories} kcal`;
+                    document.getElementById('result-protein').textContent = `${results.protein}g`;
+                    document.getElementById('result-carbs').textContent = `${results.carbs}g`;
+                    document.getElementById('result-fats').textContent = `${results.fats}g`;
+                    
+                    document.getElementById('nutrition-results').classList.remove('hidden');
+                    this._tempResults = results;
+                    
+                    this.renderBmiCard(weight, height);
+                    this.renderWeightTracking(); // Actualizar el peso actual en la tarjeta de seguimiento
+                    this.showToast("Cálculos actualizados", "success");
+                },
+                renderBmiCard(weight, height) {
+                    const heightInMeters = height / 100;
+                    const bmi = (weight / (heightInMeters * heightInMeters)).toFixed(1);
+                    
+                    let category = '';
+                    let colorClass = '';
+                    let markerPosition = 0; // en porcentaje
+
+                    if (bmi < 18.5) {
+                        category = 'Bajo Peso';
+                        colorClass = 'text-sky-400';
+                        markerPosition = (bmi / 18.5) * 25;
+                    } else if (bmi >= 18.5 && bmi < 25) {
+                        category = 'Normal';
+                        colorClass = 'text-emerald-400';
+                        markerPosition = 25 + ((bmi - 18.5) / (25 - 18.5)) * 30;
+                    } else if (bmi >= 25 && bmi < 30) {
+                        category = 'Sobrepeso';
+                        colorClass = 'text-yellow-400';
+                        markerPosition = 55 + ((bmi - 25) / (30 - 25)) * 25;
+                    } else {
+                        category = 'Obesidad';
+                        colorClass = 'text-red-400';
+                        markerPosition = 80 + ((bmi - 30) / (40 - 30)) * 20; // Cap at BMI 40 for visualization
+                    }
+
+                    markerPosition = Math.max(2, Math.min(98, markerPosition)); // Clamp between 2% and 98%
+
+                    document.getElementById('bmi-value').textContent = bmi;
+                    const categoryEl = document.getElementById('bmi-category');
+                    categoryEl.textContent = category;
+                    categoryEl.className = `font-semibold ${colorClass}`;
+                    document.getElementById('bmi-marker').style.left = `${markerPosition}%`;
+                },
+                renderWeightTracking() {
+                    const { weight } = this.state.physicalStats;
+                    const { targetWeight, weightLog } = this.state;
+                    
+                    document.getElementById('current-weight-display').textContent = weight.toFixed(1);
+                    document.getElementById('target-weight-display').textContent = targetWeight.toFixed(1);
+                    
+                    const diff = (targetWeight - weight).toFixed(1);
+                    document.getElementById('weight-diff-display').textContent = diff;
+
+                    const logContainer = document.getElementById('weight-log-container');
+                    if(weightLog.length === 0) {
+                        logContainer.innerHTML = `<p class="text-center text-gray-500 text-sm p-4">Añade tu primer registro de peso para empezar.</p>`;
+                        return;
+                    }
+
+                    // Ordenar el log por fecha descendente
+                    const sortedLog = [...weightLog].sort((a,b) => new Date(b.date) - new Date(a.date));
+
+                    logContainer.innerHTML = sortedLog.map((entry, index) => {
+                        const prevEntry = sortedLog[index + 1];
+                        let changeHtml = '<span class="text-gray-500">—</span>';
+                        if (prevEntry) {
+                            const change = (entry.weight - prevEntry.weight).toFixed(1);
+                            if (change > 0) {
+                                changeHtml = `<span class="font-semibold text-red-400">+${change} kg</span>`;
+                            } else if (change < 0) {
+                                changeHtml = `<span class="font-semibold text-emerald-400">${change} kg</span>`;
+                            } else {
+                                changeHtml = `<span>${change} kg</span>`;
+                            }
+                        }
+                        const formattedDate = new Date(entry.date).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+
+                        return `
+                            <div class="bg-gray-800/60 p-2 rounded-lg flex justify-between items-center text-sm">
+                                <span class="text-gray-300">${formattedDate}</span>
+                                <span class="font-bold text-lg">${entry.weight.toFixed(1)} kg</span>
+                                ${changeHtml}
+                            </div>
+                        `;
+                    }).join('');
+                },
+                showEditTargetWeightModal() {
+                    const body = `<p class="text-gray-300 mb-4">Define el peso que quieres alcanzar.</p>
+                                  <input type="number" step="0.1" id="target-weight-input" value="${this.state.targetWeight}" class="w-full bg-gray-700 rounded-lg p-3 text-center text-xl">`;
+                    const footer = [
+                        { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                        { text: 'Guardar', class: 'bg-emerald-600 text-gray-900', action: 'save-target-weight' }
+                    ];
+                    this.showModal('Editar Peso Objetivo', body, footer);
+                },
+                async handleUpdateTargetWeight() {
+                    const input = document.getElementById('target-weight-input');
+                    const newTarget = parseFloat(input.value);
+                    if (isNaN(newTarget) || newTarget <= 0) {
+                        this.showToast('Por favor, introduce un peso válido.', 'error');
+                        return;
+                    }
+                    this.state.targetWeight = newTarget;
+                    await this.saveDataToFirestore();
+                    this.renderWeightTracking();
+                    this.hideModal();
+                    this.showToast('Objetivo de peso actualizado.');
+                },
+                async handleAddWeightLog() {
+                    const input = document.getElementById('new-weight-input');
+                    const newWeight = parseFloat(input.value);
+                    if (isNaN(newWeight) || newWeight <= 0) {
+                        this.showToast('Por favor, introduce un peso válido.', 'error');
+                        return;
+                    }
+                    const today = new Date().toISOString().split('T')[0];
+                    
+                    // Comprobar si ya existe un registro para hoy y reemplazarlo
+                    const existingIndex = this.state.weightLog.findIndex(entry => entry.date === today);
+                    if (existingIndex > -1) {
+                        this.state.weightLog[existingIndex].weight = newWeight;
+                    } else {
+                        this.state.weightLog.push({ date: today, weight: newWeight });
+                    }
+                    
+                    this.state.physicalStats.weight = newWeight;
+                    input.value = '';
+
+                    await this.saveDataToFirestore();
+                    this.renderAll(); // Re-render todo para que el peso actual se actualice en todas partes
+                    this.showToast('Nuevo peso registrado.');
+                },
                 async saveNutritionGoals(){if(this._tempResults){this.state.userGoals={...this._tempResults};await this.saveDataToFirestore();this.renderAll();this.showToast("¡Meta guardada!");this.showSection('dieta');}},
                 renderDietPage(){const{calories,protein,carbs,fats}=this.state.userGoals;document.getElementById('diet-goal-calories').textContent=calories;document.getElementById('diet-goal-protein').textContent=protein;document.getElementById('diet-goal-carbs').textContent=carbs;document.getElementById('diet-goal-fats').textContent=fats;this.renderMealSections();this.updateDietSummary();},
                 getFoodById(foodId) { for (const category in this.data.foodDatabase) { const food = this.data.foodDatabase[category].find(item => item.id === foodId); if (food) return food; } return null; },
@@ -492,7 +962,7 @@
                 routine_editExercise(index) { this._tempRoutine.editingIndex = parseInt(index); this.routine_refreshExerciseList(); },
                 routine_saveExerciseDetails(index) { const exercise = this._tempRoutine.plan[0].exercises[index]; if (!exercise) return; const setsInput = document.getElementById(`sets-input-${index}`); const repsInput = document.getElementById(`reps-input-${index}`); if (setsInput && repsInput) { exercise.sets = parseInt(setsInput.value) || exercise.sets; exercise.reps = repsInput.value.trim() || exercise.reps; } this._tempRoutine.editingIndex = -1; this.routine_refreshExerciseList(); },
                 routine_removeExercise(index) { this._tempRoutine.plan[0].exercises.splice(index, 1); this.routine_refreshExerciseList(); },
-                routine_refreshExerciseList() { const container = document.getElementById('exercise-list-container'); if (!container) return; const exercises = this._tempRoutine.plan[0].exercises; if (exercises.length === 0) { container.innerHTML = `<div id="empty-exercises-placeholder" class="text-center text-gray-500 p-8 m-4 border-2 border-dashed border-gray-700 rounded-xl flex flex-col items-center justify-center h-full"><i data-lucide="list-plus" class="w-12 h-12 mx-auto mb-3 text-gray-600"></i><p class="font-semibold text-lg">Tu rutina está vacía</p><p class="text-sm">Usa el botón de abajo para añadir ejercicios o...</p><button data-action="routine-creator-suggest-ai" class="mt-4 flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition"><i data-lucide="sparkles" class="w-5 h-5"></i><span>✨ Sugerir con IA</span></button></div>`; }  else { container.innerHTML = exercises.map((ex, index) => { if(this._tempRoutine.editingIndex === index) { return `<div class="bg-gray-700 p-4 rounded-lg space-y-3 section-fade-in" data-exercise-index="${index}"><p class="font-bold text-lg text-white">${ex.name}</p><div class="grid grid-cols-2 gap-4"><div><label class="text-xs text-gray-400">Series</label><input id="sets-input-${index}" type="number" value="${ex.sets}" class="w-full bg-gray-800 p-2 rounded-md text-center"></div><div><label class="text-xs text-gray-400">Repeticiones</label><input id="reps-input-${index}" type="text" value="${ex.reps}" class="w-full bg-gray-800 p-2 rounded-md text-center"></div></div><button data-action="routine-creator-save-exercise-details" data-exercise-index="${index}" class="w-full bg-emerald-500 text-gray-900 font-bold py-2 rounded-lg">Guardar Cambios</button></div>`; } else { return `<div class="bg-gray-800 p-3 rounded-lg flex items-center gap-4 section-fade-in" data-exercise-index="${index}"><div class="bg-gray-700 w-12 h-12 rounded-md flex items-center justify-center font-bold text-emerald-400 text-lg">${index + 1}</div><div class="flex-grow"><p class="font-semibold text-white">${ex.name}</p><p class="text-sm text-gray-400">${ex.sets} series de ${ex.reps} reps</p></div><div class="flex items-center gap-1"><button data-action="routine-creator-edit-exercise" class="p-2 text-gray-400 hover:text-white"><i data-lucide="edit" class="w-5 h-5"></i></button><button data-action="routine-creator-remove-exercise" data-exercise-index="${index}" class="p-2 text-red-500 hover:text-red-400"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div></div>`; } }).join(''); } lucide.createIcons(); },
+                routine_refreshExerciseList() { const container = document.getElementById('exercise-list-container'); if (!container) return; const exercises = this._tempRoutine.plan[0].exercises; if (exercises.length === 0) { container.innerHTML = `<div id="empty-exercises-placeholder" class="text-center text-gray-500 p-8 m-4 border-2 border-dashed border-gray-700 rounded-xl flex flex-col items-center justify-center h-full"><i data-lucide="list-plus" class="w-12 h-12 mx-auto mb-3 text-gray-600"></i><p class="font-semibold text-lg">Tu rutina está vacía</p><p class="text-sm">Usa el botón de abajo para añadir ejercicios o...</p><button data-action="routine-creator-suggest-ai" class="mt-4 flex items-center gap-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-2 px-4 rounded-lg hover:opacity-90 transition"><i data-lucide="sparkles" class="w-5 h-5"></i><span>✨ Sugerir con IA</span></button></div>`; }  else { container.innerHTML = exercises.map((ex, index) => { if(this._tempRoutine.editingIndex === index) { return `<div class="bg-gray-700 p-4 rounded-lg space-y-3 section-fade-in" data-exercise-index="${index}"><p class="font-bold text-lg text-white">${ex.name}</p><div class="grid grid-cols-2 gap-4"><div><label class="text-xs text-gray-400">Series</label><input id="sets-input-${index}" type="number" value="${ex.sets}" class="w-full bg-gray-800 p-2 rounded-md text-center"></div><div><label class="text-xs text-gray-400">Repeticiones</label><input id="reps-input-${index}" type="text" value="${ex.reps}" class="w-full bg-gray-800 p-2 rounded-md text-center"></div></div><button data-action="routine-creator-save-exercise-details" data-exercise-index="${index}" class="w-full bg-emerald-500 text-gray-900 font-bold py-2 rounded-lg">Guardar Cambios</button></div>`; } else { return `<div class="bg-gray-800 p-3 rounded-lg flex items-center gap-4 section-fade-in" data-exercise-index="${index}"><div class="bg-gray-700 w-12 h-12 rounded-md flex items-center justify-center font-bold text-emerald-400 text-lg">${index + 1}</div><div class="flex-grow"><p class="font-semibold text-white">${ex.name}</p><p class="text-sm text-gray-400">${ex.sets} series de ${ex.reps} reps</p></div><div class="flex items-center gap-1"><button data-action="routine-creator-edit-exercise" class="p-2 text-gray-400 hover:text-white"><i data-lucide="edit" class="w-5 h-5"></i></button><button data-action="routine-creator-remove-exercise" data-exercise-index="${index}" class="p-2 text-red-500 hover:text-red-400"><i data-lucide="trash-2" class="w-5 h-5"></i></button></div></div>`; } }).join(''); } lucide.createIcons(); },
                 async routine_save() { if (this._tempRoutine.plan[0].exercises.length === 0) { this.showToast('Añade al menos un ejercicio', 'error'); return; } this._tempRoutine.editingIndex = -1; this.state.userRoutines.unshift(this._tempRoutine); await this.saveDataToFirestore(); this.showToast('Rutina guardada con éxito'); this.routine_closeFullscreenView(); this.renderRoutinesSection(); },
                 routine_confirmDelete(routineId) { this.showModal('Eliminar Rutina', '¿Estás seguro? Esta acción no se puede deshacer.', [ {text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal'}, {text: 'Eliminar', class: 'bg-red-600 hover:bg-red-500', action: 'routine-delete', 'routine-id': routineId} ]); },
                 async routine_delete(routineId) { this.state.userRoutines = this.state.userRoutines.filter(r => r.id !== routineId); await this.saveDataToFirestore(); this.hideModal(); this.routine_closeFullscreenView(); this.renderRoutinesSection(); this.showToast('Rutina eliminada', 'error'); },
@@ -502,7 +972,7 @@
                 updateWeightInput(amount) { const input = document.getElementById('weight-input'); if (input) { let currentValue = parseFloat(input.value) || 0; input.value = Math.max(0, currentValue + amount); } },
                 renderLiveWorkoutView() { const overlay = document.getElementById('live-workout-overlay'); if (!this.state.activeWorkout) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); return; } const { exercises, currentExerciseIndex, currentSet } = this.state.activeWorkout; const exercise = exercises[currentExerciseIndex]; const totalExercises = exercises.length; const timerStatus = this.state.timer.status; const workoutProgress = ((currentExerciseIndex + 1) / totalExercises) * 100; let setIndicators = ''; for (let i = 1; i <= exercise.sets; i++) { const isCompleted = exercise.log[i-1] !== undefined; const isActive = i === currentSet && timerStatus !== 'resting' && timerStatus !== 'exercise_complete'; let barClass = 'bg-gray-700'; if (isCompleted) barClass = 'bg-emerald-500'; else if (isActive) barClass = 'bg-yellow-500 animate-pulse'; setIndicators += `<div class="flex-1 h-2 rounded ${barClass} transition-colors duration-300"></div>`; } let mainDisplayHtml = ''; switch (timerStatus) { case 'resting': const circumference = 2 * Math.PI * 120; const offset = this.state.timer.initialRestTime > 0 ? circumference - (this.state.timer.timeLeft / this.state.timer.initialRestTime) * circumference : 0; const nextExerciseName = (currentSet > exercise.sets) ? (exercises[currentExerciseIndex + 1] ? exercises[currentExerciseIndex + 1].name : '¡Última Serie!') : exercise.name; mainDisplayHtml = `<div class="relative w-72 h-72 flex items-center justify-center"><svg class="w-full h-full transform -rotate-90" viewBox="0 0 256 256"><circle class="text-gray-800" stroke-width="12" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"/><circle id="timer-progress-ring" class="text-emerald-500" stroke-width="12" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"/></svg><div class="absolute text-center"><span class="text-7xl font-black font-mono tracking-tighter text-white">${this.formatTime(this.state.timer.timeLeft)}</span><div class="text-sm text-gray-400 uppercase font-semibold mt-1">Descanso</div></div></div><p class="text-gray-300 mt-6">Siguiente: <span class="font-bold text-white">${nextExerciseName}</span></p>`; break; case 'logging_weight': const lastWeight = exercise.log[currentSet - 2] || ''; mainDisplayHtml = `<div class="w-full max-w-xs text-center"><p class="text-gray-400">Peso para Serie ${currentSet - 1}</p><div class="flex items-center justify-center gap-4 my-4"><button onclick="app.updateWeightInput(-2.5)" class="bg-gray-700 w-16 h-16 rounded-full text-3xl font-bold hover:bg-gray-600 transition">-</button><input type="number" id="weight-input" inputmode="decimal" class="bg-transparent text-white text-7xl font-black w-48 text-center focus:outline-none" placeholder="0" value="${lastWeight}"><button onclick="app.updateWeightInput(2.5)" class="bg-gray-700 w-16 h-16 rounded-full text-3xl font-bold hover:bg-gray-600 transition">+</button></div><span class="font-bold text-gray-400 text-3xl">kg</span></div>`; break; default: mainDisplayHtml = `<div class="text-center active-workout-state"><p class="text-9xl font-black text-white tracking-tighter">${exercise.reps}</p><p class="text-2xl font-bold text-gray-400 -mt-2">REPS</p></div><p class="text-gray-300 mt-6">Serie ${currentSet} de ${exercise.sets}</p>`; break; } const buttonMap = { idle: { text: `Iniciar Serie ${currentSet}`, class: 'from-emerald-500 to-green-600' }, active: { text: 'Finalizar Serie', class: 'from-yellow-500 to-amber-600' }, logging_weight: { text: `Guardar y Descansar`, class: 'from-sky-500 to-blue-600' }, resting: { text: `Descansando...`, class: 'from-gray-600 to-gray-700', disabled: true }, exercise_complete: { text: 'Siguiente Ejercicio', class: 'from-indigo-500 to-purple-600' }, workout_complete: { text: '¡Rutina Completada!', class: 'from-emerald-500 to-green-600' }}; const buttonState = buttonMap[timerStatus]; const mainButtonHtml = `<button data-action="handle-workout-action" class="w-full font-bold py-5 rounded-xl transition text-xl text-white shadow-lg bg-gradient-to-br ${buttonState.class} hover:opacity-90 disabled:opacity-50" ${buttonState.disabled ? 'disabled' : ''}>${buttonState.text}</button>`; const restControlsHtml = timerStatus === 'resting' ? `<div class="flex justify-center space-x-4"><button data-action="add-rest-time" class="bg-white/10 backdrop-blur-sm hover:bg-white/20 py-2 px-5 rounded-lg text-sm font-semibold">Añadir +15s</button><button data-action="skip-rest" class="bg-white/10 backdrop-blur-sm hover:bg-white/20 py-2 px-5 rounded-lg text-sm font-semibold">Saltar</button></div>` : ''; overlay.innerHTML = `<div class="relative w-full h-full flex flex-col p-4 sm:p-6 bg-gradient-to-b from-gray-900 to-black text-white"><div class="absolute top-5 left-1/2 -translate-x-1/2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-1.5 pointer-events-none"><p id="main-workout-timer" class="text-lg font-mono text-white tracking-wider">00:00</p></div><header class="flex items-center justify-between w-full shrink-0 z-10"><div class="flex-1"><div class="w-full bg-gray-800 rounded-full h-2.5"><div class="bg-emerald-500 h-2.5 rounded-full" style="width: ${workoutProgress}%"></div></div><p class="text-xs text-gray-400 mt-1.5">Ejercicio ${currentExerciseIndex + 1} de ${totalExercises}</p></div><div class="ml-4"><button data-action="confirm-finish-workout" class="bg-gray-800/80 w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition"><i data-lucide="x" class="w-6 h-6"></i></button></div></header><main class="flex-grow flex flex-col items-center justify-center text-center w-full overflow-hidden"><h1 class="text-3xl sm:text-4xl font-bold leading-tight px-4">${exercise.name}</h1><div class="flex-grow flex items-center justify-center my-4 live-workout-display">${mainDisplayHtml}</div></main><footer class="w-full max-w-md mx-auto shrink-0 z-10"><div class="flex justify-center items-center gap-2 mb-4"><p class="text-sm font-semibold text-gray-400">SERIES</p><div class="flex items-center gap-2 w-40">${setIndicators}</div></div><div class="h-10 mb-4 flex items-center justify-center">${restControlsHtml}</div>${mainButtonHtml}</footer></div>`; overlay.classList.remove('hidden'); overlay.classList.add('flex'); if (timerStatus === 'logging_weight') { const weightInput = document.getElementById('weight-input'); if(weightInput) { weightInput.focus(); weightInput.select(); } } lucide.createIcons(); },
                 updateWorkoutTimerDisplay() { if(!this.state.activeWorkout||!this.state.activeWorkout.workoutStartTime)return;const t=document.getElementById('main-workout-timer');if(t){const e=Math.floor((Date.now()-this.state.activeWorkout.workoutStartTime)/1000);t.textContent=this.formatTime(e);}},
-                handleWorkoutAction() { const status = this.state.timer.status; if (status === 'idle') { this.state.timer.status = 'active'; }  else if (status === 'active') { this.state.timer.status = 'logging_weight'; }  else if (status === 'logging_weight') { const weightInput = document.getElementById('weight-input'); const weightValue = parseFloat(weightInput.value); const weightToLog = !isNaN(weightValue) && weightValue >= 0 ? weightValue : 0; const { exercises, currentExerciseIndex, currentSet } = this.state.activeWorkout; exercises[currentExerciseIndex].log[currentSet - 1] = weightToLog; this.state.activeWorkout.currentSet++; if (this.state.activeWorkout.currentSet <= exercises[currentExerciseIndex].sets) { this.startRestTimer(); } else { if (this.state.activeWorkout.currentExerciseIndex >= this.state.activeWorkout.exercises.length - 1) { this.state.timer.status = 'workout_complete'; } else { this.state.timer.status = 'exercise_complete'; } } } else if (status === 'exercise_complete') { this.startRestTimer(true); this.state.activeWorkout.currentExerciseIndex++; this.state.activeWorkout.currentSet = 1; this.state.timer.status = 'resting'; } else if (status === 'workout_complete') { this.finishWorkout(true); return; } this.renderLiveWorkoutView(); },
+                handleWorkoutAction() { const status = this.state.timer.status; if (status === 'idle') { this.state.timer.status = 'active'; }  else if (status === 'active') { this.state.timer.status = 'logging_weight'; }  else if (status === 'logging_weight') { const weightInput = document.getElementById('weight-input'); const weightValue = parseFloat(weightInput.value); const weightToLog = !isNaN(weightValue) && weightValue >= 0 ? weightValue : 0; const { exercises, currentExerciseIndex, currentSet } = this.state.activeWorkout; exercises[currentExerciseIndex].log[currentSet - 1] = weightToLog; this.state.activeWorkout.currentSet++; if (this.state.activeWorkout.currentSet <= exercises[currentExerciseIndex].sets) { this.startRestTimer(); } else { if (this.state.activeWorkout.currentExerciseIndex >= this.state.activeWorkout.exercises.length - 1) { this.state.timer.status = 'workout_complete'; } else { this.state.timer.status = 'exercise_complete'; } } } else if (status === 'exercise_complete') { this.startRestTimer(true); this.state.activeWorkout.currentExerciseIndex++; this.state.activeWorkout.currentSet = 1; this.state.timer.status = 'resting'; } else if (status === 'workout_complete') { this.finishWorkout(true); return; } this.renderLiveWorkoutView(); },
                 startRestTimer(isBetweenExercises = false) { clearInterval(this.state.timer.intervalId); const { exercises, currentExerciseIndex } = this.state.activeWorkout; let restSeconds; if (isBetweenExercises) { restSeconds = 90; } else { const restString = exercises[currentExerciseIndex].rest || '60s'; restSeconds = parseInt(restString.match(/\d+/)[0] || 60); } this.state.activeWorkout.totalRestTime += restSeconds; this.state.timer = { ...this.state.timer, status: 'resting', timeLeft: restSeconds, initialRestTime: restSeconds }; this.playSound('start'); this.state.timer.intervalId = setInterval(() => { if(!this.state.timer) return clearInterval(this.state.timer.intervalId); this.state.timer.timeLeft--; if (this.state.timer.timeLeft <= 0) { this.playSound('end'); this.skipRest(); } else { this.renderLiveWorkoutView(); } }, 1000); },
                 addRestTime() { if (this.state.timer.status === 'resting') { this.state.timer.timeLeft += 15; this.state.timer.initialRestTime += 15; this.state.activeWorkout.totalRestTime += 15; this.showToast("+15 segundos añadidos"); this.renderLiveWorkoutView(); } },
                 skipRest() { if (this.state.timer.status === 'resting') { clearInterval(this.state.timer.intervalId); this.state.timer.status = 'idle'; this.renderLiveWorkoutView(); } },
