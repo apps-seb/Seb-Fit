@@ -355,7 +355,9 @@
             where,
             getDocs,
             addDoc,
-            updateDoc
+            updateDoc,
+            deleteDoc,
+            writeBatch
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import {
             getStorage,
@@ -379,6 +381,7 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             const app = {
+                // IMPORTANTE: Reemplaza "" con tu propia clave de API de Google AI Studio.
                 apiKey: "", // Tu clave de API de Google AI Studio aquí
                 adminUID: "oyVFC1vKcLhTLJJsjMQDPRL1z2K2",
                 firebaseApp: firebaseApp,
@@ -391,6 +394,7 @@
                 },
 
                 getDefaultState() {
+                    const now = new Date();
                     return {
                         currentUser: null,
                         userName: '',
@@ -398,11 +402,15 @@
                         coachId: null,
                         currentSection: 'inicio', 
                         userGoals: { calories: 2500, protein: 188, carbs: 250, fats: 83 }, 
-                        dailyDiet: { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] }, 
+                        dailyDiet: [
+                            { id: `meal-${now.getTime()}`, name: 'Desayuno', time: '08:00', items: [] },
+                            { id: `meal-${now.getTime() + 1}`, name: 'Almuerzo', time: '13:00', items: [] },
+                            { id: `meal-${now.getTime() + 2}`, name: 'Cena', time: '20:00', items: [] }
+                        ], 
                         userRoutines: [], 
                         workoutHistory: {}, 
                         dietLog: {},
-                        physicalStats: { age: 25, weight: 75, height: 180, gender: 'male' },
+                        physicalStats: { age: 25, weight: 75, height: 180, gender: 'male', activity: 1.55 },
                         targetWeight: 75,
                         weightLog: [],
                         asesorados: [],
@@ -549,7 +557,8 @@
                             ]
                         }
                     },
-                    foodDatabase: {"Proteínas":[{"id":1,"name":"Pechuga de Pollo","cals":165,"p":31,"c":0,"f":3.6},{"id":2,"name":"Pechuga de Pavo","cals":135,"p":30,"c":0,"f":1},{"id":3,"name":"Salmón","cals":208,"p":20,"c":0,"f":13},{"id":4,"name":"Atún en lata (agua)","cals":116,"p":26,"c":0,"f":1},{"id":5,"name":"Carne de Res Magra (90%)","cals":198,"p":28,"c":0,"f":9},{"id":6,"name":"Huevo Entero","cals":155,"p":13,"c":1.1,"f":11},{"id":7,"name":"Clara de Huevo","cals":52,"p":11,"c":0.7,"f":0.2},{"id":8,"name":"Lentejas (cocidas)","cals":116,"p":9,"c":20,"f":0.4},{"id":9,"name":"Garbanzos (cocidos)","cals":139,"p":7.6,"c":22,"f":3.8},{"id":10,"name":"Tofu Firme","cals":76,"p":8,"c":1.9,"f":4.8}],"Carbohidratos":[{"id":11,"name":"Arroz Blanco (cocido)","cals":130,"p":2.7,"c":28,"f":0.3},{"id":12,"name":"Arroz Integral (cocido)","cals":111,"p":2.6,"c":23,"f":0.9},{"id":13,"name":"Avena en Hojuelas","cals":389,"p":17,"c":66,"f":7},{"id":14,"name":"Papa/Patata (cocida)","cals":87,"p":2,"c":20,"f":0.1},{"id":15,"name":"Batata/Camote (cocido)","cals":86,"p":1.6,"c":20,"f":0.1},{"id":16,"name":"Pan Integral","cals":265,"p":13,"c":41,"f":4.5},{"id":17,"name":"Pasta Integral (cocida)","cals":124,"p":5,"c":26,"f":0.8},{"id":18,"name":"Quinoa (cocida)","cals":120,"p":4.4,"c":21,"f":1.9},{"id":19,"name":"Maíz/Elote (cocido)","cals":96,"p":3.4,"c":21,"f":1.5}],"Grasas Saludables":[{"id":20,"name":"Aguacate","cals":160,"p":2,"c":9,"f":15},{"id":21,"name":"Aceite de Oliva Extra Virgen","cals":884,"p":0,"c":0,"f":100},{"id":22,"name":"Almendras","cals":579,"p":21,"c":22,"f":49},{"id":23,"name":"Nueces","cals":654,"p":15,"c":14,"f":65},{"id":24,"name":"Semillas de Chía","cals":486,"p":17,"c":42,"f":31},{"id":25,"name":"Mantequilla de Maní Natural","cals":588,"p":25,"c":20,"f":50}],"Frutas y Verduras":[{"id":26,"name":"Brócoli","cals":55,"p":3.7,"c":11,"f":0.6},{"id":27,"name":"Espinaca","cals":23,"p":2.9,"c":3.6,"f":0.4},{"id":28,"name":"Plátano","cals":89,"p":1.1,"c":23,"f":0.3},{"id":29,"name":"Manzana","cals":52,"p":0.3,"c":14,"f":0.2},{"id":30,"name":"Fresa","cals":32,"p":0.7,"c":8,"f":0.3},{"id":31,"name":"Tomate","cals":18,"p":0.9,"c":3.9,"f":0.2},{"id":32,"name":"Zanahoria","cals":41,"p":0.9,"c":10,"f":0.2}],"Lácteos y Derivados":[{"id":33,"name":"Yogur Griego Natural (0%)","cals":59,"p":10,"c":3.6,"f":0.4},{"id":34,"name":"Leche Descremada","cals":34,"p":3.4,"c":5,"f":0.1},{"id":35,"name":"Queso Cottage (bajo en grasa)","cals":72,"p":12,"c":2.7,"f":1},{"id":36,"name":"Queso Mozzarella","cals":280,"p":22,"c":2.2,"f":20}],"Suplementos":[{"id":37,"name":"Proteína Whey (Polvo)","cals":390,"p":75,"c":8,"f":5},{"id":38,"name":"Creatina Monohidratada","cals":0,"p":0,"c":0,"f":0}]}
+                    foodDatabase: {"Proteínas":[{"id":1,"name":"Pechuga de Pollo","cals":165,"p":31,"c":0,"f":3.6},{"id":2,"name":"Pechuga de Pavo","cals":135,"p":30,"c":0,"f":1},{"id":3,"name":"Salmón","cals":208,"p":20,"c":0,"f":13},{"id":4,"name":"Atún en lata (agua)","cals":116,"p":26,"c":0,"f":1},{"id":5,"name":"Carne de Res Magra (90%)","cals":198,"p":28,"c":0,"f":9},{"id":6,"name":"Huevo Entero","cals":155,"p":13,"c":1.1,"f":11},{"id":7,"name":"Clara de Huevo","cals":52,"p":11,"c":0.7,"f":0.2},{"id":8,"name":"Lentejas (cocidas)","cals":116,"p":9,"c":20,"f":0.4},{"id":9,"name":"Garbanzos (cocidos)","cals":139,"p":7.6,"c":22,"f":3.8},{"id":10,"name":"Tofu Firme","cals":76,"p":8,"c":1.9,"f":4.8}],"Carbohidratos":[{"id":11,"name":"Arroz Blanco (cocido)","cals":130,"p":2.7,"c":28,"f":0.3},{"id":12,"name":"Arroz Integral (cocido)","cals":111,"p":2.6,"c":23,"f":0.9},{"id":13,"name":"Avena en Hojuelas","cals":389,"p":17,"c":66,"f":7},{"id":14,"name":"Papa/Patata (cocida)","cals":87,"p":2,"c":20,"f":0.1},{"id":15,"name":"Batata/Camote (cocido)","cals":86,"p":1.6,"c":20,"f":0.1},{"id":16,"name":"Pan Integral","cals":265,"p":13,"c":41,"f":4.5},{"id":17,"name":"Pasta Integral (cocida)","cals":124,"p":5,"c":26,"f":0.8},{"id":18,"name":"Quinoa (cocida)","cals":120,"p":4.4,"c":21,"f":1.9},{"id":19,"name":"Maíz/Elote (cocido)","cals":96,"p":3.4,"c":21,"f":1.5}],"Grasas Saludables":[{"id":20,"name":"Aguacate","cals":160,"p":2,"c":9,"f":15},{"id":21,"name":"Aceite de Oliva Extra Virgen","cals":884,"p":0,"c":0,"f":100},{"id":22,"name":"Almendras","cals":579,"p":21,"c":22,"f":49},{"id":23,"name":"Nueces","cals":654,"p":15,"c":14,"f":65},{"id":24,"name":"Semillas de Chía","cals":486,"p":17,"c":42,"f":31},{"id":25,"name":"Mantequilla de Maní Natural","cals":588,"p":25,"c":20,"f":50}],"Frutas y Verduras":[{"id":26,"name":"Brócoli","cals":55,"p":3.7,"c":11,"f":0.6},{"id":27,"name":"Espinaca","cals":23,"p":2.9,"c":3.6,"f":0.4},{"id":28,"name":"Plátano","cals":89,"p":1.1,"c":23,"f":0.3},{"id":29,"name":"Manzana","cals":52,"p":0.3,"c":14,"f":0.2},{"id":30,"name":"Fresa","cals":32,"p":0.7,"c":8,"f":0.3},{"id":31,"name":"Tomate","cals":18,"p":0.9,"c":3.9,"f":0.2},{"id":32,"name":"Zanahoria","cals":41,"p":0.9,"c":10,"f":0.2}],"Lácteos y Derivados":[{"id":33,"name":"Yogur Griego Natural (0%)","cals":59,"p":10,"c":3.6,"f":0.4},{"id":34,"name":"Leche Descremada","cals":34,"p":3.4,"c":5,"f":0.1},{"id":35,"name":"Queso Cottage (bajo en grasa)","cals":72,"p":12,"c":2.7,"f":1},{"id":36,"name":"Queso Mozzarella","cals":280,"p":22,"c":2.2,"f":20}],"Suplementos":[{"id":37,"name":"Proteína Whey (Polvo)","cals":390,"p":75,"c":8,"f":5},{"id":38,"name":"Creatina Monohidratada","cals":0,"p":0,"c":0,"f":0}]},
+                    foodLibrary: [], // Se llenará con la base de datos + alimentos personalizados
                 },
                 
                 init() { 
@@ -566,6 +575,7 @@
                 async initAppLogic() {
                     this.audioCtx = new(window.AudioContext || window.webkitAudioContext)(); 
                     await this.loadExerciseLibraryFromFirestore();
+                    await this.loadAndMergeFoodData(); // Cargar alimentos
                     this.loadTemplates();
                     this.populateNutritionForm();
                     this.adjustUIForRole();
@@ -628,6 +638,10 @@
                             this.state = { ...defaultState, currentUser: this.state.currentUser, ...data };
                             this.state.physicalStats = { ...defaultState.physicalStats, ...data.physicalStats };
                             this.state.userGoals = { ...defaultState.userGoals, ...data.userGoals };
+                            // Compatibilidad hacia atrás para la estructura de dieta
+                            if (data.dailyDiet && !Array.isArray(data.dailyDiet)) {
+                                this.state.dailyDiet = defaultState.dailyDiet;
+                            }
                         } else {
                             this.state = defaultState;
                             this.state.currentUser = this.auth.currentUser;
@@ -639,6 +653,21 @@
                         console.error("Error loading data from Firestore: ", error);
                         this.showToast("Error al cargar datos.", "error");
                     }
+                },
+
+                async loadAndMergeFoodData() {
+                    const predefinedFoods = Object.values(this.data.foodDatabase).flat();
+                    let customFoods = [];
+                    if (this.isAsesor()) {
+                        try {
+                            const q = query(collection(this.db, "users", this.state.currentUser.uid, "customFoods"));
+                            const querySnapshot = await getDocs(q);
+                            customFoods = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        } catch (error) {
+                            console.error("Error fetching custom foods:", error);
+                        }
+                    }
+                    this.data.foodLibrary = [...predefinedFoods, ...customFoods];
                 },
 
                 async loadExerciseLibraryFromFirestore() {
@@ -764,19 +793,24 @@
                             return; 
                         }
                         
-                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId } = button.dataset;
+                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex } = button.dataset;
                         const actionMap = {
-                            'show-section': () => this.showSection(sectionId), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-finish-workout': () => this.confirmFinishWorkout(), 'finish-workout': () => this.finishWorkout(false), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(parseInt(foodId)), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, mealName), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(mealName, parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(mealName, parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(mealName), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)),
+                            'show-section': () => this.showSection(sectionId), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-finish-workout': () => this.confirmFinishWorkout(), 'finish-workout': () => this.finishWorkout(false), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
                             'routine-creator-switch-group': () => this.routine_creator_switchGroup(groupTarget),
                             'manage-client': () => this.showClientManager(clientId),
                             'edit-client-routine': () => this.editClientRoutine(clientId),
                             'edit-client-diet': () => this.editClientDiet(clientId),
                             'save-client-diet': () => this.saveClientDiet(clientId),
-                            'toggle-food-completion': () => this.toggleFoodCompletion(mealName, parseInt(itemIndex)),
+                            'toggle-food-completion': () => this.toggleFoodCompletion(parseInt(mealIndex), parseInt(itemIndex)),
+                            'client-diet-add-meal': () => this._addMealToClientDietTemp(),
+                            'client-diet-remove-meal': () => this._removeMealFromClientDietTemp(parseInt(mealIndex)),
                             'client-diet-add-food-modal': () => this._showAddFoodToClientModal(foodId),
-                            'client-diet-add-food-to-meal': () => this._addFoodToClientDietTemp(foodId, mealName),
-                            'client-diet-remove-food': () => this._handleRemoveFoodFromClientDiet(mealName, parseInt(itemIndex))
+                            'client-diet-add-food-to-meal': () => this._addFoodToClientDietTemp(foodId, parseInt(mealIndex)),
+                            'client-diet-remove-food': () => this._handleRemoveFoodFromClientDiet(parseInt(mealIndex), parseInt(itemIndex)),
+                            'client-diet-show-calculator': () => this._showClientCalculatorModal(clientId),
+                            'client-diet-create-food-modal': () => this._showCreateFoodModal(),
+                            'client-diet-save-custom-food': () => this._saveCustomFood(),
                         };
                         
                         // Prevenir que el checkbox dispare el evento del label padre
@@ -789,7 +823,7 @@
                         }
                     });
                     document.body.addEventListener('submit', (e) => { e.preventDefault(); if (e.target.id === 'nutrition-form') { this.calculateNutrition(); } if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); } if (e.target.id === '1rm-form') { this.calculate1RM(); } if (e.target.id === 'invite-form') { this.handleInviteClient(e); } });
-                    document.body.addEventListener('input', (e) => { if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); } if (e.target.id === 'exercise-search-input') { this.routine_filterExerciseLibrary(e.target.value); } if (e.target.id === 'client-food-search') { this.renderFoodList(e.target.value, 'client-food-list'); } });
+                    document.body.addEventListener('input', (e) => { if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); } if (e.target.id === 'exercise-search-input') { this.routine_filterExerciseLibrary(e.target.value); } if (e.target.id === 'client-food-search') { this.renderFoodList(e.target.value, 'client-food-list'); } if (e.target.closest('#client-diet-editor')) { const mealIndex = e.target.dataset.mealIndex; if (mealIndex) { this._updateMealDataFromUI(parseInt(mealIndex)); } } });
                     document.body.addEventListener('change', (e) => { if (e.target.closest('#client-diet-goals-form')) { this._handleUpdateClientGoalsFromUI(); } });
                 },
 
@@ -904,8 +938,8 @@
                             <div class="w-9 h-9"></div>
                         </header>
                         <div class="flex-grow p-4 overflow-y-auto space-y-4">
-                           ${routineHTML}
-                           ${dietHTML}
+                            ${routineHTML}
+                            ${dietHTML}
                         </div>
                     </div>`;
 
@@ -934,23 +968,20 @@
                     this.routine_enterCreator(2);
                 },
 
-                // Resto del código...
-                // ... (Incluir el código existente desde `renderWeeklyProgress` hasta el final) ...
-                
-                // **** NUEVAS FUNCIONES Y MODIFICACIONES ****
+                // --- NUEVAS FUNCIONES DE EDICIÓN DE DIETA ---
 
                 async editClientDiet(clientId) {
                     const client = this.state.asesorados.find(c => c.id === clientId);
-                    if (!client) {
-                        this.showToast("Cliente no encontrado.", "error");
-                        return;
-                    }
-                    // Crear una copia profunda para edición temporal
+                    if (!client) return this.showToast("Cliente no encontrado.", "error");
+
+                    // Crear una copia profunda para edición temporal, asegurando que los datos por defecto existan.
+                    const defaultData = this.getDefaultState();
                     this._tempClientData = JSON.parse(JSON.stringify({
                         id: client.id,
                         userName: client.userName,
-                        userGoals: client.userGoals || this.getDefaultState().userGoals,
-                        dailyDiet: client.dailyDiet || this.getDefaultState().dailyDiet
+                        userGoals: client.userGoals || defaultData.userGoals,
+                        physicalStats: client.physicalStats || defaultData.physicalStats,
+                        dailyDiet: Array.isArray(client.dailyDiet) && client.dailyDiet.length > 0 ? client.dailyDiet : defaultData.dailyDiet
                     }));
 
                     const editorHTML = this.renderClientDietEditor();
@@ -972,9 +1003,14 @@
                             <button data-action="save-client-diet" data-client-id="${client.id}" class="font-bold text-emerald-400 px-4 py-2 rounded-lg hover:bg-emerald-500/10">Guardar</button>
                         </header>
 
-                        <div class="flex-grow p-4 overflow-y-auto space-y-4">
-                            <div class="bg-gray-800 p-4 rounded-xl">
-                                <h3 class="font-semibold text-lg mb-3">Metas Diarias</h3>
+                        <div class="flex-grow p-4 overflow-y-auto space-y-6">
+                            <div class="bg-gray-800 p-4 rounded-xl space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <h3 class="font-semibold text-lg">Metas Diarias</h3>
+                                    <button data-action="client-diet-show-calculator" data-client-id="${client.id}" class="flex items-center gap-1.5 text-sm bg-sky-500/20 text-sky-300 font-semibold py-1 px-3 rounded-lg hover:bg-sky-500/40">
+                                        <i data-lucide="calculator" class="w-4 h-4"></i>Calcular Metas
+                                    </button>
+                                </div>
                                 <form id="client-diet-goals-form" class="grid grid-cols-2 md:grid-cols-4 gap-3">
                                     <div><label class="text-xs text-gray-400">Calorías (kcal)</label><input type="number" id="client-cals-goal" value="${goals.calories}" class="w-full bg-gray-700 p-2 rounded-lg text-center font-bold"></div>
                                     <div><label class="text-xs text-gray-400">Proteína (g)</label><input type="number" id="client-prot-goal" value="${goals.protein}" class="w-full bg-gray-700 p-2 rounded-lg text-center font-bold"></div>
@@ -984,11 +1020,19 @@
                             </div>
 
                             <div id="client-meal-sections-editor" class="space-y-4">
-                                ${Object.entries(client.dailyDiet).map(([mealName, mealItems]) => this._renderClientMealSection(mealName, mealItems)).join('')}
+                                ${client.dailyDiet.map((meal, index) => this._renderClientMealSectionEditor(meal, index)).join('')}
                             </div>
+                            <button data-action="client-diet-add-meal" class="w-full bg-gray-700/80 font-bold py-2.5 rounded-lg hover:bg-gray-700 transition flex items-center justify-center gap-2 text-emerald-400">
+                                <i data-lucide="plus"></i>Añadir Comida
+                            </button>
 
                             <div class="bg-gray-800 p-4 rounded-xl">
-                                <h3 class="text-xl font-bold mb-3">Añadir Alimentos</h3>
+                                <div class="flex justify-between items-center mb-3">
+                                    <h3 class="text-xl font-bold">Librería de Alimentos</h3>
+                                    <button data-action="client-diet-create-food-modal" class="flex items-center gap-1.5 text-sm bg-emerald-500/20 text-emerald-300 font-semibold py-1 px-3 rounded-lg hover:bg-emerald-500/40">
+                                        <i data-lucide="plus-circle" class="w-4 h-4"></i>Crear Alimento
+                                    </button>
+                                </div>
                                 <div class="relative"><input type="text" id="client-food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"><i data-lucide="search" class="text-gray-400"></i></div></div>
                                 <div id="client-food-list" class="space-y-2 pr-2 mt-3 max-h-96 overflow-y-auto"></div>
                             </div>
@@ -996,77 +1040,182 @@
                     </div>`;
                 },
 
-                _renderClientMealSection(mealName, mealItems) {
-                    const totalCals = mealItems.reduce((sum, item) => sum + item.totalCals, 0);
-                    const itemsHTML = mealItems.length > 0
-                        ? mealItems.map((item, index) => `
-                            <div class="bg-gray-800 p-2 rounded-md flex justify-between items-center text-sm">
+                _renderClientMealSectionEditor(meal, mealIndex) {
+                    const totalCals = meal.items.reduce((sum, item) => sum + item.totalCals, 0);
+                    const itemsHTML = meal.items.length > 0
+                        ? meal.items.map((item, itemIndex) => `
+                            <div class="bg-gray-900/50 p-2 rounded-md flex justify-between items-center text-sm">
                                 <div>
                                     <p>${item.name} <span class="text-gray-400">(${item.amount || 'N/A'}g)</span></p>
                                     <p class="text-xs text-gray-400">P:${item.totalP}g C:${item.totalC}g G:${item.totalF}g</p>
                                 </div>
                                 <div class="flex items-center space-x-2">
                                     <span class="font-semibold text-emerald-400">${item.totalCals} kcal</span>
-                                    <button data-action="client-diet-remove-food" data-meal-name="${mealName}" data-item-index="${index}" class="text-red-400 hover:text-red-300 text-xl leading-none p-1">&times;</button>
+                                    <button data-action="client-diet-remove-food" data-meal-index="${mealIndex}" data-item-index="${itemIndex}" class="text-red-400 hover:text-red-300 text-xl leading-none p-1">&times;</button>
                                 </div>
                             </div>`).join('')
                         : `<p class="text-sm text-center text-gray-500 py-2">No hay alimentos en esta comida.</p>`;
 
                     return `
-                    <div class="bg-gray-700/50 p-4 rounded-xl">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-lg">${mealName}</h3>
-                            <p class="text-sm text-gray-400">Total: <span class="font-bold text-white">${Math.round(totalCals)} kcal</span></p>
+                    <div class="bg-gray-700/50 p-4 rounded-xl" data-meal-id="${meal.id}">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="grid grid-cols-2 gap-x-4 gap-y-2 flex-grow">
+                                <div>
+                                    <label class="text-xs text-gray-400">Nombre de la Comida</label>
+                                    <input type="text" data-field="name" data-meal-index="${mealIndex}" value="${meal.name}" class="w-full bg-gray-800 p-2 rounded-lg font-bold text-lg">
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-400">Hora</label>
+                                    <input type="time" data-field="time" data-meal-index="${mealIndex}" value="${meal.time}" class="w-full bg-gray-800 p-2 rounded-lg font-bold text-lg">
+                                </div>
+                            </div>
+                            <button data-action="client-diet-remove-meal" data-meal-index="${mealIndex}" class="ml-2 mt-5 p-2 text-red-500 hover:bg-red-500/10 rounded-full"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
                         </div>
-                        <div class="space-y-2">${itemsHTML}</div>
+                        <div class="space-y-2 mt-4 border-t border-gray-600/50 pt-3">${itemsHTML}</div>
+                        <p class="text-right text-sm text-gray-400 mt-2">Total Comida: <span class="font-bold text-white">${Math.round(totalCals)} kcal</span></p>
                     </div>`;
                 },
 
+                _rerenderClientMealEditor() {
+                    const container = document.getElementById('client-meal-sections-editor');
+                    if (container) {
+                        container.innerHTML = this._tempClientData.dailyDiet.map((meal, index) => this._renderClientMealSectionEditor(meal, index)).join('');
+                        lucide.createIcons();
+                    }
+                },
+                _addMealToClientDietTemp() {
+                    const newMeal = {
+                        id: `meal-${Date.now()}`,
+                        name: `Comida ${this._tempClientData.dailyDiet.length + 1}`,
+                        time: '17:00',
+                        items: []
+                    };
+                    this._tempClientData.dailyDiet.push(newMeal);
+                    this._rerenderClientMealEditor();
+                },
+                _removeMealFromClientDietTemp(mealIndex) {
+                    this._tempClientData.dailyDiet.splice(mealIndex, 1);
+                    this._rerenderClientMealEditor();
+                },
+                _updateMealDataFromUI(mealIndex) {
+                    const mealDiv = document.querySelector(`#client-diet-editor [data-meal-index="${mealIndex}"]`).closest('[data-meal-id]');
+                    const nameInput = mealDiv.querySelector('input[data-field="name"]');
+                    const timeInput = mealDiv.querySelector('input[data-field="time"]');
+                    this._tempClientData.dailyDiet[mealIndex].name = nameInput.value;
+                    this._tempClientData.dailyDiet[mealIndex].time = timeInput.value;
+                },
                 _showAddFoodToClientModal(foodId) {
-                    const food = this.getFoodById(parseInt(foodId));
+                    const food = this.getFoodById(foodId);
                     if (!food) return;
+
+                    const mealOptions = this._tempClientData.dailyDiet.map((meal, index) => 
+                        `<button data-action="client-diet-add-food-to-meal" data-food-id="${food.id}" data-meal-index="${index}" class="bg-gray-600 p-2 rounded-lg hover:bg-gray-500">${meal.name}</button>`
+                    ).join('');
+
                     const body = `
                         <p class="mb-4">Añadir <strong>${food.name}</strong> a una comida.</p>
                         <div><label for="food-amount-client" class="block text-sm font-medium text-gray-300 mb-1">Cantidad (g)</label><input type="number" id="food-amount-client" value="100" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div>
-                        <div class="mt-4"><label class="block text-sm font-medium text-gray-300 mb-2">Selecciona la comida</label><div class="grid grid-cols-2 gap-2">
-                            ${Object.keys(this._tempClientData.dailyDiet).map(m => `<button data-action="client-diet-add-food-to-meal" data-food-id="${food.id}" data-meal-name="${m}" class="bg-gray-600 p-2 rounded-lg hover:bg-gray-500">${m}</button>`).join('')}
-                        </div></div>`;
+                        <div class="mt-4"><label class="block text-sm font-medium text-gray-300 mb-2">Selecciona la comida</label><div class="grid grid-cols-2 gap-2">${mealOptions}</div></div>`;
                     this.showModal(`Añadir a Dieta de ${this._tempClientData.userName.split(' ')[0]}`, body, [{ text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' }]);
                 },
-
-                _addFoodToClientDietTemp(foodId, mealName) {
+                _addFoodToClientDietTemp(foodId, mealIndex) {
                     const amount = parseInt(document.getElementById('food-amount-client').value);
                     if (isNaN(amount) || amount <= 0) { this.showToast("Cantidad inválida.", "error"); return; }
-                    const food = this.getFoodById(parseInt(foodId));
+                    const food = this.getFoodById(foodId);
                     if (!food) { this.showToast("Alimento no encontrado.", "error"); return; }
                     
                     const factor = amount / 100;
-                    this._tempClientData.dailyDiet[mealName].push({
+                    this._tempClientData.dailyDiet[mealIndex].items.push({
                         ...food, amount: amount,
-                        totalCals: Math.round(food.cals * factor),
-                        totalP: Math.round(food.p * factor),
-                        totalC: Math.round(food.c * factor),
-                        totalF: Math.round(food.f * factor)
+                        totalCals: Math.round((food.cals || 0) * factor),
+                        totalP: Math.round((food.p || 0) * factor),
+                        totalC: Math.round((food.c || 0) * factor),
+                        totalF: Math.round((food.f || 0) * factor)
                     });
                     
-                    document.getElementById('client-meal-sections-editor').innerHTML = Object.entries(this._tempClientData.dailyDiet).map(([mName, mItems]) => this._renderClientMealSection(mName, mItems)).join('');
+                    this._rerenderClientMealEditor();
                     this.hideModal();
-                    this.showToast(`${food.name} añadido a ${mealName}.`);
+                    this.showToast(`${food.name} añadido a ${this._tempClientData.dailyDiet[mealIndex].name}.`);
                 },
-
-                _handleRemoveFoodFromClientDiet(mealName, index) {
-                    this._tempClientData.dailyDiet[mealName].splice(index, 1);
-                    document.getElementById('client-meal-sections-editor').innerHTML = Object.entries(this._tempClientData.dailyDiet).map(([mName, mItems]) => this._renderClientMealSection(mName, mItems)).join('');
+                _handleRemoveFoodFromClientDiet(mealIndex, itemIndex) {
+                    this._tempClientData.dailyDiet[mealIndex].items.splice(itemIndex, 1);
+                    this._rerenderClientMealEditor();
                     this.showToast('Alimento eliminado.', 'error');
                 },
-
                 _handleUpdateClientGoalsFromUI() {
                     this._tempClientData.userGoals.calories = parseInt(document.getElementById('client-cals-goal').value) || 0;
                     this._tempClientData.userGoals.protein = parseInt(document.getElementById('client-prot-goal').value) || 0;
                     this._tempClientData.userGoals.carbs = parseInt(document.getElementById('client-carb-goal').value) || 0;
                     this._tempClientData.userGoals.fats = parseInt(document.getElementById('client-fat-goal').value) || 0;
                 },
+                _showClientCalculatorModal(clientId) {
+                    const client = this._tempClientData;
+                    const stats = client.physicalStats || this.getDefaultState().physicalStats;
+                    const body = `
+                        <p class="text-sm text-gray-400 mb-4">Calcula las metas basadas en los datos de ${client.userName}.</p>
+                        <form id="client-calc-form" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4"><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="gender" value="male" class="sr-only" ${stats.gender === 'male' ? 'checked' : ''}> Hombre</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="gender" value="female" class="sr-only" ${stats.gender === 'female' ? 'checked' : ''}> Mujer</label></div>
+                            <div class="grid grid-cols-3 gap-3"><div><label class="text-xs">Edad</label><input type="number" name="age" value="${stats.age}" class="w-full bg-gray-700 rounded p-2 text-center"></div><div><label class="text-xs">Peso (kg)</label><input type="number" step="0.1" name="weight" value="${stats.weight}" class="w-full bg-gray-700 rounded p-2 text-center"></div><div><label class="text-xs">Altura (cm)</label><input type="number" name="height" value="${stats.height}" class="w-full bg-gray-700 rounded p-2 text-center"></div></div>
+                            <div><label class="text-xs">Nivel de Actividad</label><select name="activity" class="w-full bg-gray-700 rounded p-2 mt-1"><option value="1.2" ${stats.activity == 1.2 ? 'selected' : ''}>Sedentario</option><option value="1.375" ${stats.activity == 1.375 ? 'selected' : ''}>Ligero</option><option value="1.55" ${stats.activity == 1.55 ? 'selected' : ''}>Moderado</option><option value="1.725" ${stats.activity == 1.725 ? 'selected' : ''}>Activo</option><option value="1.9" ${stats.activity == 1.9 ? 'selected' : ''}>Muy Activo</option></select></div>
+                            <div class="grid grid-cols-3 gap-2"><label class="bg-gray-700 p-2 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="goal" value="lose" class="sr-only"> Perder</label><label class="bg-gray-700 p-2 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="goal" value="maintain" class="sr-only" checked> Mantener</label><label class="bg-gray-700 p-2 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="goal" value="gain" class="sr-only"> Ganar</label></div>
+                        </form>
+                    `;
+                    const footer = [{ text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' }, { text: 'Calcular y Aplicar', class: 'bg-emerald-600 text-gray-900', action: 'none' }];
+                    this.showModal('Calcular Metas', body, footer);
 
+                    document.querySelector('#custom-modal-footer button[data-action="none"]').onclick = () => {
+                        const form = document.getElementById('client-calc-form');
+                        const results = this.calculateNutrition(form, false);
+                        if (results) {
+                            document.getElementById('client-cals-goal').value = results.calories;
+                            document.getElementById('client-prot-goal').value = results.protein;
+                            document.getElementById('client-carb-goal').value = results.carbs;
+                            document.getElementById('client-fat-goal').value = results.fats;
+                            this._handleUpdateClientGoalsFromUI();
+                            this.hideModal();
+                        }
+                    };
+                },
+                _showCreateFoodModal() {
+                    const body = `
+                        <p class="text-sm text-gray-400 mb-4">Añade un nuevo alimento a tu librería personal. Los valores deben ser por cada 100g.</p>
+                        <form id="create-food-form" class="space-y-3">
+                            <div><label class="text-xs text-gray-300">Nombre del Alimento</label><input type="text" name="name" required class="w-full bg-gray-700 p-2 rounded-lg mt-1"></div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div><label class="text-xs text-gray-300">Calorías (kcal)</label><input type="number" name="cals" required class="w-full bg-gray-700 p-2 rounded-lg mt-1"></div>
+                                <div><label class="text-xs text-gray-300">Proteína (g)</label><input type="number" name="p" required class="w-full bg-gray-700 p-2 rounded-lg mt-1"></div>
+                                <div><label class="text-xs text-gray-300">Carbs (g)</label><input type="number" name="c" required class="w-full bg-gray-700 p-2 rounded-lg mt-1"></div>
+                                <div><label class="text-xs text-gray-300">Grasas (g)</label><input type="number" name="f" required class="w-full bg-gray-700 p-2 rounded-lg mt-1"></div>
+                            </div>
+                        </form>
+                    `;
+                    const footer = [{ text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' }, { text: 'Crear Alimento', class: 'bg-emerald-600 text-gray-900', action: 'client-diet-save-custom-food' }];
+                    this.showModal('Crear Nuevo Alimento', body, footer);
+                },
+                async _saveCustomFood() {
+                    const form = document.getElementById('create-food-form');
+                    const name = form.name.value.trim();
+                    const cals = parseFloat(form.cals.value);
+                    const p = parseFloat(form.p.value);
+                    const c = parseFloat(form.c.value);
+                    const f = parseFloat(form.f.value);
+
+                    if (!name || isNaN(cals) || isNaN(p) || isNaN(c) || isNaN(f)) {
+                        return this.showToast("Todos los campos son obligatorios y deben ser números.", "error");
+                    }
+                    const newFood = { name, cals, p, c, f };
+                    try {
+                        const customFoodsRef = collection(this.db, "users", this.state.currentUser.uid, "customFoods");
+                        await addDoc(customFoodsRef, newFood);
+                        this.showToast("Alimento creado y guardado en tu librería.", "success");
+                        await this.loadAndMergeFoodData();
+                        this.renderFoodList(document.getElementById('client-food-search').value, 'client-food-list');
+                        this.hideModal();
+                    } catch (error) {
+                        console.error("Error creating custom food:", error);
+                        this.showToast("No se pudo guardar el alimento.", "error");
+                    }
+                },
                 async saveClientDiet(clientId) {
                     this._handleUpdateClientGoalsFromUI();
                     const clientRef = doc(this.db, "users", clientId);
@@ -1085,37 +1234,27 @@
                         this.showToast("Error al guardar la dieta.", "error");
                     }
                 },
+
+                // --- FIN DE NUEVAS FUNCIONES ---
                 
                 updateDietSummary() {
-                    let plannedTotals = { cals: 0, p: 0, c: 0, f: 0 };
-                    if (this.state.dailyDiet) {
-                        Object.values(this.state.dailyDiet).flat().forEach(i => {
-                            if (i.totalCals) plannedTotals.cals += i.totalCals;
-                            if (i.totalP) plannedTotals.p += i.totalP;
-                            if (i.totalC) plannedTotals.c += i.totalC;
-                            if (i.totalF) plannedTotals.f += i.totalF;
-                        });
-                    }
-
                     let consumedTotals = { cals: 0, p: 0, c: 0, f: 0 };
-                    if (this.isAsesor()) {
-                        consumedTotals = { ...plannedTotals };
-                    } else {
-                        const today = new Date().toISOString().split('T')[0];
-                        const todayLog = this.state.dietLog ? (this.state.dietLog[today] || {}) : {};
-                        if (this.state.dailyDiet) {
-                            Object.entries(this.state.dailyDiet).forEach(([mealName, mealItems]) => {
-                                const mealLog = todayLog[mealName] || [];
-                                mealItems.forEach((item, index) => {
-                                    if (mealLog[index] === true) {
-                                        if (item.totalCals) consumedTotals.cals += item.totalCals;
-                                        if (item.totalP) consumedTotals.p += item.totalP;
-                                        if (item.totalC) consumedTotals.c += item.totalC;
-                                        if (item.totalF) consumedTotals.f += item.totalF;
-                                    }
-                                });
+                    
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayLog = this.state.dietLog ? (this.state.dietLog[today] || {}) : {};
+                    
+                    if (this.state.dailyDiet && Array.isArray(this.state.dailyDiet)) {
+                        this.state.dailyDiet.forEach((meal, mealIndex) => {
+                            const mealLog = todayLog[meal.id] || [];
+                            meal.items.forEach((item, itemIndex) => {
+                                if (mealLog[itemIndex] === true || this.isAsesor()) { // Asesor ve el 100% como "consumido"
+                                    if (item.totalCals) consumedTotals.cals += item.totalCals;
+                                    if (item.totalP) consumedTotals.p += item.totalP;
+                                    if (item.totalC) consumedTotals.c += item.totalC;
+                                    if (item.totalF) consumedTotals.f += item.totalF;
+                                }
                             });
-                        }
+                        });
                     }
 
                     const { calories, protein, carbs, fats } = this.state.userGoals;
@@ -1149,26 +1288,33 @@
                     const term = searchTerm.toLowerCase().trim();
                     const renderFoodItem = (item) => `<div class="bg-gray-700 p-3 rounded-lg flex justify-between items-center"><div><p class="font-semibold text-white">${item.name}</p><p class="text-xs text-gray-400">${item.cals} kcal por 100g</p></div><button data-action="${action}" data-food-id="${item.id}" class="bg-emerald-500 rounded-full w-8 h-8 flex items-center justify-center text-gray-900 font-bold text-xl">+</button></div>`;
                     
+                    const foodSource = this.data.foodLibrary || [];
                     if (term) {
-                        const results = Object.values(this.data.foodDatabase).flat().filter(item => item.name.toLowerCase().includes(term));
-                        if (results.length === 0) {
-                            container.innerHTML = `<p class="text-gray-400 text-center p-4">No se encontraron alimentos.</p>`;
-                        } else {
-                            container.innerHTML = results.map(renderFoodItem).join('');
-                        }
+                        const results = foodSource.filter(item => item.name.toLowerCase().includes(term));
+                        container.innerHTML = results.length > 0 ? results.map(renderFoodItem).join('') : `<p class="text-gray-400 text-center p-4">No se encontraron alimentos.</p>`;
                     } else {
-                        container.innerHTML = Object.entries(this.data.foodDatabase).map(([category, items]) => `<details class="bg-gray-700/50 rounded-lg open:bg-gray-700/80 transition-colors"><summary class="p-3 font-semibold cursor-pointer list-none flex justify-between items-center">${category}<i data-lucide="chevron-down" class="w-5 h-5 transition-transform transform details-open:rotate-180"></i></summary><div class="p-3 border-t border-gray-600/50 space-y-2">${items.map(renderFoodItem).join('')}</div></details>`).join('');
+                        const grouped = {
+                            'Mis Alimentos': foodSource.filter(f => typeof f.id === 'string'),
+                            ...Object.entries(this.data.foodDatabase).reduce((acc, [cat, items]) => {
+                                acc[cat] = items;
+                                return acc;
+                            }, {})
+                        };
+                        
+                        container.innerHTML = Object.entries(grouped).map(([category, items]) => {
+                            if (items.length === 0) return '';
+                            return `<details class="bg-gray-700/50 rounded-lg open:bg-gray-700/80 transition-colors" ${category === 'Mis Alimentos' ? 'open' : ''}><summary class="p-3 font-semibold cursor-pointer list-none flex justify-between items-center">${category}<i data-lucide="chevron-down" class="w-5 h-5 transition-transform transform details-open:rotate-180"></i></summary><div class="p-3 border-t border-gray-600/50 space-y-2">${items.map(renderFoodItem).join('')}</div></details>`;
+                        }).join('');
                     }
                     lucide.createIcons();
                 },
                 
-                // **** CONTINÚA EL CÓDIGO RESTANTE SIN MODIFICACIONES DESDE AQUÍ... ****
                 renderWeeklyProgress(){const container=document.getElementById('weekly-progress-card');if(!container)return;const t=new Date(),d=t.getDay(),s=new Date(t); s.setDate(t.getDate()-(d===0?6:d-1));let weekHTML='', dayLetters=['L','M','X','J','V','S','D'], completedCount=0;for(let i=0;i<7;i++){const cd=new Date(s); cd.setDate(s.getDate()+i);const ds=`${cd.getFullYear()}-${String(cd.getMonth()+1).padStart(2,'0')}-${String(cd.getDate()).padStart(2,'0')}`;const isCompleted=this.state.workoutHistory && this.state.workoutHistory[ds], isToday=cd.toDateString()===t.toDateString();if(isCompleted) completedCount++;weekHTML+=`<div class="text-center"><p class="text-xs text-gray-400">${dayLetters[i]}</p><div class="w-8 h-8 rounded-full flex items-center justify-center mt-1 ${isCompleted?'bg-emerald-500':'bg-gray-600'} ${isToday?'ring-2 ring-white':''}"></div></div>`;}let statsHtml = '';const historyKeys = this.state.workoutHistory ? Object.keys(this.state.workoutHistory).sort().reverse() : [];if (historyKeys.length > 0) {const lastWorkoutDate = historyKeys[0], lastWorkout = this.state.workoutHistory[lastWorkoutDate];const formattedDate = new Date(lastWorkoutDate + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });statsHtml = `<div class="mt-4 pt-4 border-t border-gray-600/50"><h4 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Último Entrenamiento</h4><div class="flex items-center justify-between bg-gray-900/50 p-3 rounded-lg"><div class="flex items-center space-x-3"><i data-lucide="award" class="text-emerald-400"></i><div><p class="font-bold text-white">${lastWorkout.routineName}</p><p class="text-xs text-gray-400 capitalize">${formattedDate}</p></div></div><div class="text-right"><p class="font-semibold text-white">${this.formatTime(lastWorkout.totalDuration)}</p><p class="text-xs text-gray-400">Duración</p></div></div></div>`;} else { statsHtml = `<div class="mt-4 pt-4 border-t border-gray-600/50 text-center text-gray-500 text-sm"><p>Completa un entrenamiento para ver tus estadísticas aquí.</p></div>`; }container.innerHTML=`<h3 class="font-semibold text-lg mb-3">Progreso Semanal</h3><div class="flex justify-between">${weekHTML}</div><p class="text-right text-xs text-gray-400 mt-2">${completedCount} de 7 días completados</p>${statsHtml}`;},
                 renderProfileSection() { if (!this.state.currentUser) return; const { userName, currentUser, physicalStats, workoutHistory, targetWeight } = this.state; document.getElementById('profile-avatar').querySelector('span').textContent = (userName || 'U').charAt(0).toUpperCase(); document.getElementById('profile-name').textContent = userName || 'Usuario'; document.getElementById('profile-email').textContent = currentUser.email; const historyKeys = workoutHistory ? Object.keys(workoutHistory) : []; const totalWorkouts = historyKeys.length; const totalDurationSeconds = historyKeys.reduce((acc, key) => acc + workoutHistory[key].totalDuration, 0); const totalHours = (totalDurationSeconds / 3600).toFixed(1); document.getElementById('profile-stat-workouts').textContent = totalWorkouts; document.getElementById('profile-stat-hours').textContent = totalHours; document.getElementById('profile-stat-streak').textContent = this.calculateWorkoutStreak(); document.getElementById('profile-info-age').textContent = `${physicalStats.age} años`; document.getElementById('profile-info-weight').textContent = `${physicalStats.weight} kg`; document.getElementById('profile-info-height').textContent = `${physicalStats.height} cm`; document.getElementById('current-weight-display').textContent = physicalStats.weight.toFixed(1); document.getElementById('target-weight-display').textContent = targetWeight.toFixed(1); const diff = (targetWeight - physicalStats.weight).toFixed(1); document.getElementById('weight-diff-display').textContent = diff; const chartContainer = document.getElementById('profile-activity-chart'); const weeklyData = this.getWeeklyActivityData(); const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 1); chartContainer.innerHTML = weeklyData.map(week => { const barHeight = (week.count / maxWorkouts) * 100; return `<div class="flex flex-col items-center justify-end h-full w-1/4"><p class="text-sm font-bold text-white">${week.count}</p><div class="w-3/5 h-full flex items-end"><div class="w-full bg-emerald-500 rounded-t-sm chart-bar" style="height: ${barHeight}%;"></div></div><p class="text-xs text-gray-400 mt-1">${week.label}</p></div>`; }).join(''); const historyContainer = document.getElementById('profile-workout-history'); if (historyKeys.length > 0) { historyContainer.innerHTML = historyKeys.sort().reverse().slice(0, 5).map(dateStr => { const workout = workoutHistory[dateStr]; const date = new Date(dateStr + 'T00:00:00'); const formattedDate = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }); return `<div class="bg-gray-700/60 p-3 rounded-lg flex justify-between items-center"><div><p class="font-semibold text-white">${workout.routineName}</p><p class="text-xs text-gray-400">${formattedDate}</p></div><div class="text-sm font-medium text-gray-300">${this.formatTime(workout.totalDuration)}</div></div>`; }).join(''); } else { historyContainer.innerHTML = `<p class="text-center text-gray-500 text-sm p-4">No hay entrenamientos registrados.</p>`; } },
                 calculateWorkoutStreak() { const dates = this.state.workoutHistory ? Object.keys(this.state.workoutHistory).sort((a, b) => new Date(b) - new Date(a)) : []; if (dates.length === 0) return 0; let streak = 0; let today = new Date(); today.setHours(0, 0, 0, 0); const firstDateInLog = new Date(dates[0] + 'T00:00:00'); const diffTime = today - firstDateInLog; const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); if (diffDays > 1) return 0; streak = 1; for (let i = 0; i < dates.length - 1; i++) { const currentDate = new Date(dates[i] + 'T00:00:00'); const previousDate = new Date(dates[i+1] + 'T00:00:00'); const dayDifference = (currentDate - previousDate) / (1000 * 60 * 60 * 24); if (dayDifference === 1) { streak++; } else { break; } } return streak; },
                 getWeeklyActivityData() { const today = new Date(); today.setHours(0, 0, 0, 0); const weeks = [ { label: 'Hace 3sem', count: 0, start: new Date(today), end: new Date(today) }, { label: 'Hace 2sem', count: 0, start: new Date(today), end: new Date(today) }, { label: 'Sem Pasada', count: 0, start: new Date(today), end: new Date(today) }, { label: 'Esta Sem', count: 0, start: new Date(today), end: new Date(today) }, ]; for (let i = 0; i < 4; i++) { const weekIndex = 3 - i; const firstDayOfWeek = new Date(today); const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1; firstDayOfWeek.setDate(today.getDate() - dayOfWeek - (i * 7)); weeks[weekIndex].start = new Date(firstDayOfWeek); weeks[weekIndex].end = new Date(firstDayOfWeek); weeks[weekIndex].end.setDate(firstDayOfWeek.getDate() + 6); } if(this.state.workoutHistory) { Object.keys(this.state.workoutHistory).forEach(dateStr => { const workoutDate = new Date(dateStr + 'T00:00:00'); for (const week of weeks) { if (workoutDate >= week.start && workoutDate <= week.end) { week.count++; break; } } }); } return weeks; },
                 showEditProfileModal() { const { userName, physicalStats } = this.state; const body = `<form id="edit-profile-form" class="space-y-4"><div><label for="profile-edit-name" class="block text-sm font-medium text-gray-300 mb-1">Nombre</label><input type="text" id="profile-edit-name" value="${userName}" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></div><div class="grid grid-cols-3 gap-3"><div><label for="profile-edit-age" class="block text-sm font-medium text-gray-300 mb-1">Edad</label><input type="number" id="profile-edit-age" value="${physicalStats.age}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="profile-edit-weight" class="block text-sm font-medium text-gray-300 mb-1">Peso (kg)</label><input type="number" step="0.1" id="profile-edit-weight" value="${physicalStats.weight}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="profile-edit-height" class="block text-sm font-medium text-gray-300 mb-1">Altura (cm)</label><input type="number" id="profile-edit-height" value="${physicalStats.height}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div></div><div class="mt-4"><p class="block text-sm font-medium text-gray-300 mb-2">Género</p><div class="grid grid-cols-2 gap-4"><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="profile-edit-gender" value="male" class="sr-only" ${physicalStats.gender === 'male' ? 'checked' : ''}> Hombre</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="profile-edit-gender" value="female" class="sr-only" ${physicalStats.gender === 'female' ? 'checked' : ''}> Mujer</label></div></div></form>`; const footer = [{ text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },{ text: 'Guardar Cambios', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'save-profile-changes' }]; this.showModal('Editar Perfil', body, footer); },
-                async handleUpdateProfile() { const name = document.getElementById('profile-edit-name').value.trim(); const age = parseInt(document.getElementById('profile-edit-age').value); const weight = parseFloat(document.getElementById('profile-edit-weight').value); const height = parseInt(document.getElementById('profile-edit-height').value); const gender = document.querySelector('input[name="profile-edit-gender"]:checked').value; if (!name || isNaN(age) || isNaN(weight) || isNaN(height)) { this.showToast("Por favor, rellena todos los campos correctamente.", "error"); return; } this.state.userName = name; this.state.physicalStats = { age, weight, height, gender }; await this.saveDataToFirestore(); this.renderAll(); this.updateUserInfoUI(); this.populateNutritionForm(); this.hideModal(); this.showToast("¡Perfil actualizado con éxito!"); },
+                async handleUpdateProfile() { const name = document.getElementById('profile-edit-name').value.trim(); const age = parseInt(document.getElementById('profile-edit-age').value); const weight = parseFloat(document.getElementById('profile-edit-weight').value); const height = parseInt(document.getElementById('profile-edit-height').value); const gender = document.querySelector('input[name="profile-edit-gender"]:checked').value; if (!name || isNaN(age) || isNaN(weight) || isNaN(height)) { this.showToast("Por favor, rellena todos los campos correctamente.", "error"); return; } this.state.userName = name; this.state.physicalStats = { ...this.state.physicalStats, age, weight, height, gender }; await this.saveDataToFirestore(); this.renderAll(); this.updateUserInfoUI(); this.populateNutritionForm(); this.hideModal(); this.showToast("¡Perfil actualizado con éxito!"); },
                 updateDashboard() { document.getElementById('dashboard-calories').textContent=`${this.state.userGoals.calories} kcal`; this.updateDietSummary(); },
                 showModal(t,b,f=[]){document.getElementById('custom-modal-title').textContent=t;document.getElementById('custom-modal-body').innerHTML=b;const ft=document.getElementById('custom-modal-footer');ft.innerHTML=f.map(btn=>{const d=Object.entries(btn).filter(([k])=>k!=='text'&&k!=='class').map(([k,v])=>`data-${k}="${v}"`).join(' ');return`<button ${d} class="font-bold py-2 px-4 rounded-lg transition ${btn.class}">${btn.text}</button>`}).join('');document.getElementById('custom-modal').classList.remove('hidden');document.getElementById('custom-modal-panel').classList.remove('modal-fade-out');},
                 hideModal(){const m=document.getElementById('custom-modal'),p=document.getElementById('custom-modal-panel');p.classList.add('modal-fade-out');p.addEventListener('animationend',()=>m.classList.add('hidden'),{once:true});},
@@ -1178,7 +1324,7 @@
                 switchCalculatorTab(tabId) { document.querySelectorAll('.calc-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById(`tab-content-${tabId}`).classList.remove('hidden'); document.querySelectorAll('.calc-tab-btn').forEach(btn => { if (btn.dataset.tab === tabId) { btn.classList.add('bg-emerald-500', 'text-gray-900'); btn.classList.remove('text-gray-300'); } else { btn.classList.remove('bg-emerald-500', 'text-gray-900'); btn.classList.add('text-gray-300'); } }); },
                 populateNutritionForm() { const { age, weight, height, gender } = this.state.physicalStats; document.getElementById('age').value = age; document.getElementById('weight').value = weight; document.getElementById('height').value = height; const genderRadio = document.querySelector(`#nutrition-form input[name="gender"][value="${gender}"]`); if (genderRadio) genderRadio.checked = true; },
                 renderNutricionSection() { this.renderBmiCard(0, 0); document.getElementById('bodyfat-value').textContent = '--'; document.getElementById('ideal-weight-value').textContent = '--'; document.getElementById('water-intake-value').textContent = '-- L'; },
-                calculateNutrition() { const form = document.getElementById('nutrition-form'); const gender = form.querySelector('input[name="gender"]:checked').value; const age = parseInt(form.age.value); const weight = parseFloat(form.weight.value); const height = parseInt(form.height.value); const activity = parseFloat(form.activity.value); const goal = form.querySelector('input[name="goal"]:checked').value; if (!age || !weight || !height) { this.showToast("Rellena todos los campos.", "error"); return; } this.state.physicalStats = { age, weight, height, gender }; this.saveDataToFirestore(); const bmr = (gender === 'male') ? (10 * weight + 6.25 * height - 5 * age + 5) : (10 * weight + 6.25 * height - 5 * age - 161); const tdee = bmr * activity; let calories; if (goal === 'lose') calories = tdee - 500; else if (goal === 'gain') calories = tdee + 500; else calories = tdee; const results = { calories: Math.round(calories), protein: Math.round((calories * 0.3) / 4), carbs: Math.round((calories * 0.4) / 4), fats: Math.round((calories * 0.3) / 9) }; document.getElementById('result-calories').textContent = `${results.calories} kcal`; document.getElementById('result-protein').textContent = `${results.protein}g`; document.getElementById('result-carbs').textContent = `${results.carbs}g`; document.getElementById('result-fats').textContent = `${results.fats}g`; document.getElementById('nutrition-results').classList.remove('hidden'); this._tempResults = results; this.showToast("Cálculos de nutrición actualizados", "success"); },
+                calculateNutrition(formElement = document.getElementById('nutrition-form'), showUI = true) { const gender = formElement.querySelector('input[name="gender"]:checked').value; const age = parseInt(formElement.age.value); const weight = parseFloat(formElement.weight.value); const height = parseInt(formElement.height.value); const activity = parseFloat(formElement.activity.value); const goal = formElement.querySelector('input[name="goal"]:checked').value; if (!age || !weight || !height) { this.showToast("Rellena todos los campos.", "error"); return null; } this.state.physicalStats = { ...this.state.physicalStats, age, weight, height, gender, activity }; this.saveDataToFirestore(); const bmr = (gender === 'male') ? (10 * weight + 6.25 * height - 5 * age + 5) : (10 * weight + 6.25 * height - 5 * age - 161); const tdee = bmr * activity; let calories; if (goal === 'lose') calories = tdee - 500; else if (goal === 'gain') calories = tdee + 500; else calories = tdee; const results = { calories: Math.round(calories), protein: Math.round((calories * 0.3) / 4), carbs: Math.round((calories * 0.4) / 4), fats: Math.round((calories * 0.3) / 9) }; if (showUI) { document.getElementById('result-calories').textContent = `${results.calories} kcal`; document.getElementById('result-protein').textContent = `${results.protein}g`; document.getElementById('result-carbs').textContent = `${results.carbs}g`; document.getElementById('result-fats').textContent = `${results.fats}g`; document.getElementById('nutrition-results').classList.remove('hidden'); this.showToast("Cálculos de nutrición actualizados", "success"); } this._tempResults = results; return results; },
                 calculateBodyMetrics() { const { weight, height, age, gender } = this.state.physicalStats; if (!weight || !height || !age) { this.showToast("Completa tus datos en el perfil o en la pestaña de nutrición primero.", "error"); return; } const bmi = this.renderBmiCard(weight, height); const genderFactor = (gender === 'male') ? 1 : 0; const bodyFat = (1.20 * bmi) + (0.23 * age) - (10.8 * genderFactor) - 5.4; document.getElementById('bodyfat-value').textContent = bodyFat.toFixed(1); const heightInM = height / 100; const idealMin = 18.5 * (heightInM * heightInM); const idealMax = 24.9 * (heightInM * heightInM); document.getElementById('ideal-weight-value').textContent = `${idealMin.toFixed(1)} - ${idealMax.toFixed(1)} kg`; const waterLiters = (weight * 35) / 1000; document.getElementById('water-intake-value').textContent = waterLiters.toFixed(1); this.showToast("Métricas corporales calculadas."); },
                 renderBmiCard(weight, height) { if(!weight || !height) { document.getElementById('bmi-value').textContent = '--'; document.getElementById('bmi-category').textContent = 'Sin calcular'; document.getElementById('bmi-category').className = 'font-semibold text-gray-400'; document.getElementById('bmi-marker').style.left = '0%'; return 0; } const heightInMeters = height / 100; const bmi = (weight / (heightInMeters * heightInMeters)); let category = '', colorClass = '', markerPosition = 0; if (bmi < 18.5) { category = 'Bajo Peso'; colorClass = 'text-sky-400'; markerPosition = (bmi / 18.5) * 25; } else if (bmi >= 18.5 && bmi < 25) { category = 'Normal'; colorClass = 'text-emerald-400'; markerPosition = 25 + ((bmi - 18.5) / (25 - 18.5)) * 30; } else if (bmi >= 25 && bmi < 30) { category = 'Sobrepeso'; colorClass = 'text-yellow-400'; markerPosition = 55 + ((bmi - 25) / (30 - 25)) * 25; } else { category = 'Obesidad'; colorClass = 'text-red-400'; markerPosition = 80 + ((bmi - 30) / (40 - 30)) * 20; } markerPosition = Math.max(2, Math.min(98, markerPosition)); document.getElementById('bmi-value').textContent = bmi.toFixed(1); const categoryEl = document.getElementById('bmi-category'); categoryEl.textContent = category; categoryEl.className = `font-semibold ${colorClass}`; document.getElementById('bmi-marker').style.left = `${markerPosition}%`; return bmi; },
                 calculate1RM() { const weight = parseFloat(document.getElementById('1rm-weight').value); const reps = parseInt(document.getElementById('1rm-reps').value); if(!weight || !reps || weight <= 0 || reps <= 0) { this.showToast("Ingresa un peso y repeticiones válidos.", "error"); return; } if (reps > 12) { this.showToast("El cálculo es menos preciso con más de 12 reps.", "error"); } const oneRepMax = weight / (1.0278 - 0.0278 * reps); document.getElementById('1rm-result-value').textContent = `${oneRepMax.toFixed(1)} kg`; const projectionsContainer = document.getElementById('1rm-projections'); const repRanges = [3, 5, 8, 10, 12, 15]; projectionsContainer.innerHTML = repRanges.map(r => { const projectedWeight = oneRepMax * (1.0278 - 0.0278 * r); return `<div class="bg-gray-800/70 p-2 rounded-lg"><p class="font-bold text-lg text-purple-200">${projectedWeight.toFixed(1)}<span class="text-xs text-gray-400"> kg</span></p><p class="text-xs text-gray-400">${r} RM</p></div>`; }).join(''); document.getElementById('1rm-results').classList.remove('hidden'); },
@@ -1187,21 +1333,25 @@
                 async handleAddWeightLog() { const input = document.getElementById('new-weight-input'); const newWeight = parseFloat(input.value); if (isNaN(newWeight) || newWeight <= 0) { this.showToast('Por favor, introduce un peso válido.', 'error'); return; } const today = new Date().toISOString().split('T')[0]; if(!this.state.weightLog) this.state.weightLog = []; const existingIndex = this.state.weightLog.findIndex(entry => entry.date === today); if (existingIndex > -1) { this.state.weightLog[existingIndex].weight = newWeight; } else { this.state.weightLog.push({ date: today, weight: newWeight }); } this.state.physicalStats.weight = newWeight; input.value = ''; await this.saveDataToFirestore(); this.renderAll(); this.showToast('Nuevo peso registrado.'); },
                 async saveNutritionGoals(){if(this._tempResults){this.state.userGoals={...this._tempResults};await this.saveDataToFirestore();this.renderAll();this.showToast("¡Meta guardada!");this.showSection('dieta');}},
                 renderDietPage(){if(!this.state.userGoals) return; const{calories,protein,carbs,fats}=this.state.userGoals;document.getElementById('diet-goal-calories').textContent=calories;document.getElementById('diet-goal-protein').textContent=protein;document.getElementById('diet-goal-carbs').textContent=carbs;document.getElementById('diet-goal-fats').textContent=fats;this.renderMealSections();this.updateDietSummary();},
-                getFoodById(foodId) { for (const category in this.data.foodDatabase) { const food = this.data.foodDatabase[category].find(item => item.id === foodId); if (food) return food; } return null; },
+                getFoodById(foodId) { return this.data.foodLibrary.find(item => item.id == foodId) || null; },
                 
                 renderMealSections(){
                     const container = document.getElementById('meal-sections');
                     const today = new Date().toISOString().split('T')[0];
                     const todayLog = this.state.dietLog ? (this.state.dietLog[today] || {}) : {};
 
-                    container.innerHTML = Object.keys(this.state.dailyDiet).map(mealName => {
-                        const mealItems = this.state.dailyDiet[mealName];
-                        const totalCals = mealItems.reduce((sum, item) => sum + item.totalCals, 0);
-                        const mealLog = todayLog[mealName] || [];
+                    if (!Array.isArray(this.state.dailyDiet)) {
+                        container.innerHTML = `<p class="text-center text-gray-500">Formato de dieta no válido.</p>`;
+                        return;
+                    }
 
-                        const itemsHTML = mealItems.length > 0
-                            ? mealItems.map((item, index) => {
-                                const isCompleted = mealLog[index] === true;
+                    container.innerHTML = this.state.dailyDiet.map((meal, mealIndex) => {
+                        const totalCals = meal.items.reduce((sum, item) => sum + item.totalCals, 0);
+                        const mealLog = todayLog[meal.id] || [];
+
+                        const itemsHTML = meal.items.length > 0
+                            ? meal.items.map((item, itemIndex) => {
+                                const isCompleted = mealLog[itemIndex] === true;
                                 const textClasses = isCompleted ? 'line-through text-gray-500' : 'text-white';
                                 
                                 if (this.isAsesor()) {
@@ -1212,14 +1362,14 @@
                                         </div>
                                         <div class="flex items-center space-x-2">
                                             <span class="font-semibold text-emerald-400">${item.totalCals} kcal</span>
-                                            <button data-action="confirm-remove-food" data-meal-name="${mealName}" data-item-index="${index}" class="text-red-400 hover:text-red-300 text-xl leading-none p-1">&times;</button>
+                                            <button data-action="confirm-remove-food" data-meal-index="${mealIndex}" data-item-index="${itemIndex}" class="text-red-400 hover:text-red-300 text-xl leading-none p-1">&times;</button>
                                         </div>
                                     </div>`;
                                 }
                                 
                                 return `<div class="bg-gray-800/50 p-2 rounded-md flex justify-between items-center text-sm">
                                     <label class="flex items-center space-x-3 flex-grow cursor-pointer">
-                                        <input type="checkbox" data-action="toggle-food-completion" data-meal-name="${mealName}" data-item-index="${index}" class="w-5 h-5 bg-gray-700 border-gray-600 rounded text-emerald-500 focus:ring-emerald-500/50" ${isCompleted ? 'checked' : ''}>
+                                        <input type="checkbox" data-action="toggle-food-completion" data-meal-index="${mealIndex}" data-item-index="${itemIndex}" class="w-5 h-5 bg-gray-700 border-gray-600 rounded text-emerald-500 focus:ring-emerald-500/50" ${isCompleted ? 'checked' : ''}>
                                         <div>
                                             <p class="${textClasses}">${item.name} <span class="text-gray-400">(${item.amount || 'N/A'}g)</span></p>
                                             <p class="text-xs text-gray-400">P:${item.totalP}g C:${item.totalC}g G:${item.totalF}g</p>
@@ -1227,14 +1377,17 @@
                                     </label>
                                     <span class="font-semibold text-emerald-400 ml-2">${item.totalCals} kcal</span>
                                 </div>`;
-                            }).join('')
+                              }).join('')
                             : `<p class="text-sm text-gray-500">${this.isAsesor() ? 'Añade alimentos a esta comida.' : 'No hay alimentos asignados.'}</p>`;
 
-                        const recipeButton = mealItems.length > 0 && this.isAsesor() ? `<button data-action="get-recipe" data-meal-name="${mealName}" class="text-xs bg-purple-600/50 hover:bg-purple-600/80 text-purple-200 font-semibold py-1 px-2 rounded-md flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3"></i>Receta</button>` : '';
+                        const recipeButton = meal.items.length > 0 && this.isAsesor() ? `<button data-action="get-recipe" data-meal-index="${mealIndex}" class="text-xs bg-purple-600/50 hover:bg-purple-600/80 text-purple-200 font-semibold py-1 px-2 rounded-md flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3"></i>Receta</button>` : '';
                         
                         return `<div class="bg-gray-700/50 p-4 rounded-xl">
                             <div class="flex justify-between items-center">
-                                <h3 class="font-bold text-lg text-white">${mealName}</h3>
+                                <div>
+                                    <h3 class="font-bold text-lg text-white">${meal.name}</h3>
+                                    <p class="text-xs text-gray-400 font-mono"><i data-lucide="clock" class="w-3 h-3 inline-block -mt-0.5"></i> ${meal.time}</p>
+                                </div>
                                 <div class="flex items-center gap-3">
                                     ${recipeButton}
                                     <p class="text-sm text-gray-400">Total: <span class="font-bold text-white">${Math.round(totalCals)} kcal</span></p>
@@ -1247,34 +1400,36 @@
                     lucide.createIcons();
                 },
 
-                async toggleFoodCompletion(mealName, itemIndex) {
+                async toggleFoodCompletion(mealIndex, itemIndex) {
+                    const meal = this.state.dailyDiet[mealIndex];
+                    if (!meal) return;
+                    
                     const today = new Date().toISOString().split('T')[0];
                     if (!this.state.dietLog) { this.state.dietLog = {}; }
-                    if (!this.state.dietLog[today]) {
-                        this.state.dietLog[today] = {};
-                        Object.keys(this.state.dailyDiet).forEach(mName => {
-                            this.state.dietLog[today][mName] = this.state.dailyDiet[mName].map(() => false);
-                        });
+                    if (!this.state.dietLog[today]) { this.state.dietLog[today] = {}; }
+                    
+                    if (!this.state.dietLog[today][meal.id]) {
+                        this.state.dietLog[today][meal.id] = meal.items.map(() => false);
                     }
                     
-                    const currentStatus = this.state.dietLog[today][mealName][itemIndex];
-                    this.state.dietLog[today][mealName][itemIndex] = !currentStatus;
+                    const currentStatus = this.state.dietLog[today][meal.id][itemIndex];
+                    this.state.dietLog[today][meal.id][itemIndex] = !currentStatus;
 
                     await this.saveDataToFirestore();
                     this.renderMealSections();
-                    this.updateDietSummary(); // Actualizar el progreso
+                    this.updateDietSummary();
                 },
 
-                showAddFoodModal(foodId){const f = this.getFoodById(parseInt(foodId));if(!f)return;const b=`<p class="mb-4">Añadir <strong>${f.name}</strong> a una comida.</p><div><label for="food-amount" class="block text-sm font-medium text-gray-300 mb-1">Cantidad (g)</label><input type="number" id="food-amount" value="100" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div class="mt-4"><label class="block text-sm font-medium text-gray-300 mb-2">Selecciona la comida</label><div class="grid grid-cols-2 gap-2">${Object.keys(this.state.dailyDiet).map(m=>`<button data-action="add-food-to-meal" data-food-id="${f.id}" data-meal-name="${m}" class="bg-gray-600 p-2 rounded-lg hover:bg-gray-500">${m}</button>`).join('')}</div></div>`;this.showModal('Añadir Alimento',b,[{text:'Cancelar',class:'bg-gray-600 hover:bg-gray-500',action:'hide-modal'}]);},
-                async addFoodToMealFromModal(foodId,mealName){const a=parseInt(document.getElementById('food-amount').value);if(isNaN(a)||a<=0){this.showToast("Cantidad inválida.","error");return;}const f = this.getFoodById(parseInt(foodId));if (!f) { this.showToast("Alimento no encontrado.", "error"); return; }const fac=a/100;this.state.dailyDiet[mealName].push({...f,amount:a,totalCals:Math.round(f.cals*fac),totalP:Math.round(f.p*fac),totalC:Math.round(f.c*fac),totalF:Math.round(f.f*fac)});await this.saveDataToFirestore();this.renderAll();this.hideModal();this.showToast(`${f.name} añadido a ${mealName}.`);},
-                confirmRemoveFoodFromMeal(mealName,index){this.showModal('Confirmar Eliminación','¿Seguro que quieres eliminar este alimento?',[{text:'Cancelar',class:'bg-gray-600 hover:bg-gray-500',action:'hide-modal'},{text:'Eliminar',class:'bg-red-600 hover:bg-red-500',action:'remove-food','meal-name':mealName,'item-index':index}]);},
-                async removeFoodFromMeal(mealName,index){this.state.dailyDiet[mealName].splice(index,1);await this.saveDataToFirestore();this.renderAll();this.hideModal();this.showToast('Alimento eliminado.','error');},
+                showAddFoodModal(foodId){const f = this.getFoodById(foodId);if(!f)return;const b=`<p class="mb-4">Añadir <strong>${f.name}</strong> a una comida.</p><div><label for="food-amount" class="block text-sm font-medium text-gray-300 mb-1">Cantidad (g)</label><input type="number" id="food-amount" value="100" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div class="mt-4"><label class="block text-sm font-medium text-gray-300 mb-2">Selecciona la comida</label><div class="grid grid-cols-2 gap-2">${this.state.dailyDiet.map((m,i)=>`<button data-action="add-food-to-meal" data-food-id="${f.id}" data-meal-index="${i}" class="bg-gray-600 p-2 rounded-lg hover:bg-gray-500">${m.name}</button>`).join('')}</div></div>`;this.showModal('Añadir Alimento',b,[{text:'Cancelar',class:'bg-gray-600 hover:bg-gray-500',action:'hide-modal'}]);},
+                async addFoodToMealFromModal(foodId,mealIndex){const a=parseInt(document.getElementById('food-amount').value);if(isNaN(a)||a<=0){this.showToast("Cantidad inválida.","error");return;}const f = this.getFoodById(foodId);if (!f) { this.showToast("Alimento no encontrado.", "error"); return; }const fac=a/100;this.state.dailyDiet[mealIndex].items.push({...f,amount:a,totalCals:Math.round((f.cals || 0)*fac),totalP:Math.round((f.p || 0)*fac),totalC:Math.round((f.c || 0)*fac),totalF:Math.round((f.f || 0)*fac)});await this.saveDataToFirestore();this.renderAll();this.hideModal();this.showToast(`${f.name} añadido a ${this.state.dailyDiet[mealIndex].name}.`);},
+                confirmRemoveFoodFromMeal(mealIndex,itemIndex){this.showModal('Confirmar Eliminación','¿Seguro que quieres eliminar este alimento?',[{text:'Cancelar',class:'bg-gray-600 hover:bg-gray-500',action:'hide-modal'},{text:'Eliminar',class:'bg-red-600 hover:bg-red-500',action:'remove-food','meal-index':mealIndex,'item-index':itemIndex}]);},
+                async removeFoodFromMeal(mealIndex,itemIndex){this.state.dailyDiet[mealIndex].items.splice(itemIndex,1);await this.saveDataToFirestore();this.renderAll();this.hideModal();this.showToast('Alimento eliminado.','error');},
                 async callGeminiAPI(prompt, button = null) {if (!this.apiKey) { this.showToast("API Key de Gemini no configurada.", "error"); throw new Error("API Key is missing."); }let originalButtonHTML;if(button) { originalButtonHTML = button.innerHTML; button.disabled = true; button.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`; lucide.createIcons(); }try {const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });if (!response.ok) throw new Error('Error en la respuesta de la API.');const result = await response.json();if (!result.candidates || result.candidates.length === 0) throw new Error('Respuesta inválida de la API.');return result.candidates[0].content.parts[0].text;} catch (error) { console.error("Error en llamada a Gemini:", error); this.showToast(error.message || "Error al contactar la IA.", "error"); throw error;} finally { if (button) { button.disabled = false; button.innerHTML = originalButtonHTML; lucide.createIcons(); } }},
                 async getDailyTip() {const tipCard = document.getElementById('ai-daily-tip-card');const tipTextEl = document.getElementById('ai-daily-tip-text');if (!tipCard || !tipTextEl) return;tipCard.classList.remove('hidden');const today = new Date().toISOString().split('T')[0];const storedTip = localStorage.getItem('fitTrackDailyTip');if (storedTip) { const tipData = JSON.parse(storedTip); if (tipData.date === today) { tipTextEl.textContent = tipData.tip; lucide.createIcons(); return; } }try {const prompt = "Dame un consejo de fitness corto, motivador e inspirador (menos de 25 palabras) para hoy. Debe ser en español.";const tip = await this.callGeminiAPI(prompt);const newTipData = { date: today, tip: tip.trim() };localStorage.setItem('fitTrackDailyTip', JSON.stringify(newTipData));tipTextEl.textContent = tip.trim();} catch (error) { tipTextEl.textContent = "El esfuerzo de hoy es el éxito de mañana. ¡No te rindas!"; } finally { lucide.createIcons(); }},
-                async analyzeFoodWithAI() {const input = document.getElementById('food-analysis-input');const foodDescription = input.value.trim();if (!foodDescription) { this.showToast("Describe una comida para analizar.", "error"); return; }const button = document.querySelector('button[data-action="analyze-food"]');const prompt = `Estima las calorías y los macronutrientes (proteínas, carbohidratos, grasas) para la siguiente comida: "${foodDescription}". Responde únicamente con un objeto JSON válido con el formato: {"name": "Nombre descriptivo", "cals": numero, "p": numero, "c": numero, "f": numero}. No incluyas unidades (como "g" o "kcal"), comentarios ni explicaciones adicionales, solo el JSON.`;try {const textResponse = await this.callGeminiAPI(prompt, button);const cleanJsonString = textResponse.replace(/```json|```/g, '').trim();const foodData = JSON.parse(cleanJsonString);this.state.dailyDiet['Snacks'].push({ id: `ai-${Date.now()}`, name: foodData.name || foodDescription, amount: 'N/A', totalCals: foodData.cals, totalP: foodData.p, totalC: foodData.c, totalF: foodData.f, });this.showToast(`${foodData.name || 'Comida'} añadida a la dieta.`);input.value = '';await this.saveDataToFirestore(); this.renderAll();} catch (error) {}},
-                async getRecipeForMeal(mealName) {const mealItems = this.state.dailyDiet[mealName];if (!mealItems || mealItems.length === 0) { this.showToast("Añade alimentos a la comida primero.", "error"); return; }const ingredientsList = mealItems.map(item => `${item.name.split('(')[0].trim()} (${item.amount}g)`).join(', ');this.showModal('Generando Receta ✨', '<div class="flex justify-center items-center p-8"><i data-lucide="loader-2" class="w-10 h-10 animate-spin text-purple-400"></i></div>', []);lucide.createIcons();const prompt = `Eres un chef experto en comida saludable. Crea una receta simple y deliciosa usando los siguientes ingredientes: ${ingredientsList}. El objetivo es una comida saludable. Proporciona un nombre creativo para el plato, una lista de ingredientes y las instrucciones paso a paso. Formatea tu respuesta como HTML simple, usando <h2> para el nombre del plato, <h3> para los encabezados (Ingredientes, Instrucciones), y <ul> o <ol> para las listas.`;try {const recipeHtml = await this.callGeminiAPI(prompt);const body = `<div class="text-left prose prose-invert prose-sm max-w-none">${recipeHtml}</div>`;this.showModal(`Receta para ${mealName} ✨`, body, [{ text: 'Cerrar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }]);} catch (error) { this.hideModal(); }},
+                async analyzeFoodWithAI() {const input = document.getElementById('food-analysis-input');const foodDescription = input.value.trim();if (!foodDescription) { this.showToast("Describe una comida para analizar.", "error"); return; }const button = document.querySelector('button[data-action="analyze-food"]');const prompt = `Estima las calorías y los macronutrientes (proteínas, carbohidratos, grasas) para la siguiente comida: "${foodDescription}". Responde únicamente con un objeto JSON válido con el formato: {"name": "Nombre descriptivo", "cals": numero, "p": numero, "c": numero, "f": numero}. No incluyas unidades (como "g" o "kcal"), comentarios ni explicaciones adicionales, solo el JSON.`;try {const textResponse = await this.callGeminiAPI(prompt, button);const cleanJsonString = textResponse.replace(/```json|```/g, '').trim();const foodData = JSON.parse(cleanJsonString);const targetMealIndex = this.state.dailyDiet.length - 1; if (targetMealIndex >= 0) {this.state.dailyDiet[targetMealIndex].items.push({ id: `ai-${Date.now()}`, name: foodData.name || foodDescription, amount: 'N/A', totalCals: foodData.cals, totalP: foodData.p, totalC: foodData.c, totalF: foodData.f, });this.showToast(`${foodData.name || 'Comida'} añadida a la dieta.`);input.value = '';await this.saveDataToFirestore(); this.renderAll();} else { this.showToast("No hay comidas para añadir el alimento.", "error"); }} catch (error) {}},
+                async getRecipeForMeal(mealIndex) {const meal = this.state.dailyDiet[mealIndex];if (!meal || meal.items.length === 0) { this.showToast("Añade alimentos a la comida primero.", "error"); return; }const ingredientsList = meal.items.map(item => `${item.name.split('(')[0].trim()} (${item.amount}g)`).join(', ');this.showModal('Generando Receta ✨', '<div class="flex justify-center items-center p-8"><i data-lucide="loader-2" class="w-10 h-10 animate-spin text-purple-400"></i></div>', []);lucide.createIcons();const prompt = `Eres un chef experto en comida saludable. Crea una receta simple y deliciosa usando los siguientes ingredientes: ${ingredientsList}. El objetivo es una comida saludable. Proporciona un nombre creativo para el plato, una lista de ingredientes y las instrucciones paso a paso. Formatea tu respuesta como HTML simple, usando <h2> para el nombre del plato, <h3> para los encabezados (Ingredientes, Instrucciones), y <ul> o <ol> para las listas.`;try {const recipeHtml = await this.callGeminiAPI(prompt);const body = `<div class="text-left prose prose-invert prose-sm max-w-none">${recipeHtml}</div>`;this.showModal(`Receta para ${meal.name} ✨`, body, [{ text: 'Cerrar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }]);} catch (error) { this.hideModal(); }},
                 async showExerciseInfoModal(exerciseName) { const exercise = this.getExerciseByName(exerciseName); let mediaHtml = ''; if (exercise && exercise.mediaUrl) { const isVideo = exercise.mediaUrl.includes('.mp4') || exercise.mediaUrl.includes('video'); if (isVideo) { mediaHtml = `<div class="mb-4 rounded-lg overflow-hidden bg-gray-900"><video src="${exercise.mediaUrl}" autoplay loop muted playsinline class="w-full h-auto object-cover"></video></div>`; } else { mediaHtml = `<div class="mb-4 rounded-lg overflow-hidden bg-gray-900"><img src="${exercise.mediaUrl}" alt="Demostración de ${exercise.name}" class="w-full h-auto object-cover"></div>`; } } else { mediaHtml = `<div class="mb-4 p-4 text-center bg-gray-700/50 rounded-lg text-sm text-gray-400">No hay video/GIF disponible para este ejercicio.</div>`; } this.showModal(`Info: ${exerciseName}`, `${mediaHtml}<div id="ai-instructions-container"><div class="flex justify-center items-center p-4"><i data-lucide="loader-2" class="w-8 h-8 animate-spin text-sky-400"></i></div></div>`, [{ text: 'Entendido', class: 'bg-emerald-600 text-gray-900', action: 'hide-modal' }]); lucide.createIcons(); const prompt = `Eres un entrenador personal certificado. Proporciona instrucciones claras y concisas sobre cómo realizar el ejercicio "${exerciseName}". Incluye una sección de "Músculos Principales" y una sección de "Errores Comunes" a evitar. Formatea la respuesta como HTML simple, usando <h3> para los encabezados y <ul> para las listas.`; try { const instructionsHtml = await this.callGeminiAPI(prompt); document.getElementById('ai-instructions-container').innerHTML = `<div class="text-left prose prose-invert prose-sm max-w-none">${instructionsHtml}</div>`; } catch (error) { document.getElementById('ai-instructions-container').innerHTML = `<p class="text-sm text-red-400">No se pudieron cargar las instrucciones.</p>`; } },
-                async generatePlanWithAI() {const button = document.querySelector('button[data-action="generate-plan"]');const { calories, protein, carbs, fats } = this.state.userGoals;const prompt = `Crea un plan de comidas de ejemplo para un día completo que cumpla con los siguientes objetivos nutricionales: ${calories} kcal, ${protein}g de proteína, ${carbs}g de carbohidratos y ${fats}g de grasas. El plan debe dividirse en Desayuno, Almuerzo y Cena. Para cada comida, lista los alimentos y sus cantidades aproximadas en gramos. Responde únicamente con un objeto JSON válido con el formato: {"Desayuno": [{"name": "nombre_alimento", "amount": cantidad_gramos}], "Almuerzo": [...], "Cena": [...]}. No incluyas comentarios ni explicaciones adicionales, solo el JSON.`;try {const textResponse = await this.callGeminiAPI(prompt, button);const cleanJsonString = textResponse.replace(/```json|```/g, '').trim();const mealPlan = JSON.parse(cleanJsonString);this.state.dailyDiet = { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] };const addFoodToDiet = (mealName, foodName, amount) => {const searchTerm = foodName.toLowerCase().split('(')[0].trim().replace(/de|en|con/g, '').trim().split(' ')[0];let dbFood = Object.values(this.data.foodDatabase).flat().find(f => f.name.toLowerCase().includes(searchTerm));let foodEntry;if (dbFood) { const factor = amount / 100; foodEntry = { name: `${foodName}`, amount: amount, totalCals: Math.round(dbFood.cals * factor), totalP: Math.round(dbFood.p * factor), totalC: Math.round(dbFood.c * factor), totalF: Math.round(dbFood.f * factor) }; } else { foodEntry = { name: foodName, amount: amount, totalCals: 150, totalP: 10, totalC: 15, totalF: 5 }; }this.state.dailyDiet[mealName].push(foodEntry);};for (const mealName in mealPlan) { if (this.state.dailyDiet.hasOwnProperty(mealName)) { for (const food of mealPlan[mealName]) { addFoodToDiet(mealName, food.name, food.amount); } } }this.showToast("¡Plan de dieta generado!");await this.saveDataToFirestore(); this.renderAll();} catch (error) {}},
+                async generatePlanWithAI() {const button = document.querySelector('button[data-action="generate-plan"]');const { calories, protein, carbs, fats } = this.state.userGoals;const prompt = `Crea un plan de comidas de ejemplo para un día completo que cumpla con los siguientes objetivos nutricionales: ${calories} kcal, ${protein}g de proteína, ${carbs}g de carbohidratos y ${fats}g de grasas. El plan debe dividirse en 3 comidas: Desayuno, Almuerzo y Cena. Para cada comida, lista los alimentos y sus cantidades aproximadas en gramos. Responde únicamente con un objeto JSON válido con el formato: {"Desayuno": [{"name": "nombre_alimento", "amount": cantidad_gramos}], "Almuerzo": [...], "Cena": [...]}. No incluyas comentarios ni explicaciones adicionales, solo el JSON.`;try {const textResponse = await this.callGeminiAPI(prompt, button);const cleanJsonString = textResponse.replace(/```json|```/g, '').trim();const mealPlan = JSON.parse(cleanJsonString); this.state.dailyDiet = []; const mealNames = Object.keys(mealPlan);const timeMap = {'Desayuno': '08:00', 'Almuerzo': '13:00', 'Cena': '20:00'}; mealNames.forEach((mealName, index) => {const mealData = {id: `meal-${Date.now() + index}`, name: mealName, time: timeMap[mealName] || '12:00', items: []}; mealPlan[mealName].forEach(food => {const searchTerm = food.name.toLowerCase().split('(')[0].trim().replace(/de|en|con/g, '').trim().split(' ')[0];let dbFood = this.data.foodLibrary.find(f => f.name.toLowerCase().includes(searchTerm)); let foodEntry; if (dbFood) { const factor = food.amount / 100; foodEntry = { ...dbFood, name: `${food.name}`, amount: food.amount, totalCals: Math.round((dbFood.cals||0) * factor), totalP: Math.round((dbFood.p||0) * factor), totalC: Math.round((dbFood.c||0) * factor), totalF: Math.round((dbFood.f||0) * factor) }; } else { foodEntry = { name: food.name, amount: food.amount, totalCals: 150, totalP: 10, totalC: 15, totalF: 5 }; } mealData.items.push(foodEntry);}); this.state.dailyDiet.push(mealData); });this.showToast("¡Plan de dieta generado!");await this.saveDataToFirestore(); this.renderAll();} catch (error) {}},
                 async routine_generateExercisesWithAi() { const goalInput = document.getElementById('ai-goal-input'); const goal = goalInput.value.trim(); if (!goal) { this.showToast("Describe tu objetivo.", "error"); return; } const button = document.querySelector('button[data-action="generate-exercises-ai"]'); const prompt = `Basado en el siguiente objetivo de entrenamiento: "${goal}", sugiere entre 5 y 7 ejercicios. Responde ÚNICAMENTE con un array JSON de strings, como: ["nombre_ejercicio_1", "nombre_ejercicio_2", ...]. No incluyas texto adicional ni formato markdown. Asegúrate de que los nombres de los ejercicios sean comunes en el gimnasio.`; try { const textResponse = await this.callGeminiAPI(prompt, button); const cleanJsonString = textResponse.replace(/```json|```/g, '').trim(); const exercises = JSON.parse(cleanJsonString); const currentDayIndex = this._tempRoutine.currentDayIndex; if (Array.isArray(exercises)) { exercises.forEach(exName => { this._tempRoutine.plan[currentDayIndex].exercises.push({ name: exName, sets: 4, reps: '10', rest: '60s' }); }); this.hideModal(); this.routine_refreshExerciseList(); this.showToast('¡Ejercicios sugeridos por IA añadidos!'); } else { throw new Error('El formato de respuesta de la IA no es válido.'); } } catch (error) { this.showToast("No se pudo procesar la sugerencia de la IA. Inténtalo de nuevo.", "error"); } },
                 async analyzeWorkoutPerformance(e) {const button = e.target.closest('[data-action="analyze-workout-performance"]');const logDataString = button.dataset.logData;const log = JSON.parse(decodeURIComponent(logDataString));const goal = document.querySelector('#nutrition-form input[name="goal"]:checked')?.value || 'maintain';const goalMap = { lose: 'perder peso', maintain: 'mantenimiento', gain: 'ganar músculo' };const userGoalText = goalMap[goal];const prompt = `Eres un entrenador de fitness positivo y motivador. Mi objetivo principal es ${userGoalText}. Este es mi registro de entrenamiento de hoy: ${JSON.stringify(log)}. Proporciona un análisis breve (menos de 75 palabras), en español, sobre mi rendimiento. Destaca un aspecto positivo y sugiere una mejora simple y específica para mi próxima sesión. Envuelve el aspecto positivo en etiquetas <strong> y la sugerencia en etiquetas <em>.`;try {const analysisText = await this.callGeminiAPI(prompt, button);const container = document.getElementById('ai-analysis-container');if (container) { container.innerHTML = `<div class="mt-4 pt-4 border-t border-gray-700 text-left"><h4 class="font-bold text-gray-200 flex items-center gap-2"><i data-lucide="sparkles" class="w-5 h-5 text-purple-400"></i>Análisis del Coach IA</h4><p class="text-sm text-gray-300 mt-2 bg-gray-900/50 p-3 rounded-lg">${analysisText}</p></div>`; lucide.createIcons(); button.style.display = 'none'; }} catch (error) {}},
                 routine_showAiSuggestionModal() { const body = `<p class="text-gray-300 mb-4">Describe el objetivo para este día de entrenamiento y la IA te sugerirá ejercicios.</p><div><label for="ai-goal-input" class="block text-sm font-medium text-gray-400 mb-1">Objetivo del día</label><input type="text" id="ai-goal-input" class="w-full bg-gray-700 rounded-lg p-2 mt-1 border border-gray-600" placeholder="Ej: Hipertrofia para pecho y hombro"></div>`; const footer = [ {text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal'}, {text: '✨ Generar', class: 'bg-emerald-600 hover:bg-emerald-500 text-gray-900', action: 'generate-exercises-ai'} ]; this.showModal('Sugerencias de la IA', body, footer); setTimeout(() => document.getElementById('ai-goal-input').focus(), 100); },
@@ -1430,6 +1585,7 @@
                         `;
                     }
                 },
+                
                 routine_handleCreatorNext() { const name = document.getElementById('routine-name-input').value.trim(); const desc = document.getElementById('routine-desc-input').value.trim(); if (!name) { this.showToast('El nombre es obligatorio', 'error'); return; } this._tempRoutine.name = name; this._tempRoutine.description = desc; this.routine_enterCreator(2); },
                 routine_showAddExerciseDrawer() { const drawer = document.getElementById('exercise-drawer'); if (drawer) { drawer.classList.add('is-active'); document.getElementById('exercise-search-input').focus(); } },
                 routine_closeAddExerciseDrawer() { const drawer = document.getElementById('exercise-drawer'); if (drawer) drawer.classList.remove('is-active'); },
