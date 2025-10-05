@@ -811,6 +811,8 @@
                             'client-diet-show-calculator': () => this._showClientCalculatorModal(clientId),
                             'client-diet-create-food-modal': () => this._showCreateFoodModal(),
                             'client-diet-save-custom-food': () => this._saveCustomFood(),
+                            'confirm-delete-custom-food': () => this._confirmDeleteCustomFood(foodId),
+                            'delete-custom-food': () => this._deleteCustomFood(foodId),
                         };
                         
                         // Prevenir que el checkbox dispare el evento del label padre
@@ -1216,6 +1218,34 @@
                         this.showToast("No se pudo guardar el alimento.", "error");
                     }
                 },
+                _confirmDeleteCustomFood(foodId) {
+                    const food = this.getFoodById(foodId);
+                    if (!food) return this.showToast('Alimento no encontrado', 'error');
+                    const body = `¿Estás seguro de que quieres eliminar permanentemente el alimento "<strong>${food.name}</strong>"? Esta acción no se puede deshacer.`;
+                    const footer = [
+                        { text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' },
+                        { text: 'Eliminar', class: 'bg-red-600', action: 'delete-custom-food', 'food-id': foodId }
+                    ];
+                    this.showModal('Confirmar Eliminación', body, footer);
+                },
+                async _deleteCustomFood(foodId) {
+                    try {
+                        const foodRef = doc(this.db, "users", this.state.currentUser.uid, "customFoods", foodId);
+                        await deleteDoc(foodRef);
+                        this.showToast('Alimento eliminado con éxito.', 'success');
+                        this.hideModal();
+                        await this.loadAndMergeFoodData();
+                        const clientSearchInput = document.getElementById('client-food-search');
+                        if (clientSearchInput) {
+                            this.renderFoodList(clientSearchInput.value, 'client-food-list');
+                        } else {
+                            this.renderFoodList();
+                        }
+                    } catch (error) {
+                        console.error("Error deleting custom food:", error);
+                        this.showToast('No se pudo eliminar el alimento.', 'error');
+                    }
+                },
                 async saveClientDiet(clientId) {
                     this._handleUpdateClientGoalsFromUI();
                     const clientRef = doc(this.db, "users", clientId);
@@ -1280,14 +1310,36 @@
 
                 renderFoodList(searchTerm = '', containerId = 'food-list') {
                     const container = document.getElementById(containerId);
-                    if(!container) return;
+                    if (!container) return;
 
                     const isClientEditor = containerId === 'client-food-list';
                     const action = isClientEditor ? 'client-diet-add-food-modal' : 'show-add-food-modal';
 
-                    const term = searchTerm.toLowerCase().trim();
-                    const renderFoodItem = (item) => `<div class="bg-gray-700 p-3 rounded-lg flex justify-between items-center"><div><p class="font-semibold text-white">${item.name}</p><p class="text-xs text-gray-400">${item.cals} kcal por 100g</p></div><button data-action="${action}" data-food-id="${item.id}" class="bg-emerald-500 rounded-full w-8 h-8 flex items-center justify-center text-gray-900 font-bold text-xl">+</button></div>`;
+                    const renderFoodItem = (item) => {
+                        let deleteButton = '';
+                        // Los alimentos personalizados tienen un ID de texto, los predefinidos tienen números.
+                        if (this.isAsesor() && typeof item.id === 'string') {
+                            deleteButton = `
+                                <button data-action="confirm-delete-custom-food" data-food-id="${item.id}" title="Eliminar Alimento Personalizado" class="text-red-500 hover:text-red-400 p-2 rounded-full hover:bg-red-500/10 transition-colors">
+                                    <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
+                                </button>
+                            `;
+                        }
+
+                        return `
+                        <div class="bg-gray-700 p-3 rounded-lg flex justify-between items-center">
+                            <div>
+                                <p class="font-semibold text-white">${item.name}</p>
+                                <p class="text-xs text-gray-400">${item.cals} kcal por 100g</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                ${deleteButton}
+                                <button data-action="${action}" data-food-id="${item.id}" class="bg-emerald-500 rounded-full w-8 h-8 flex-shrink-0 flex items-center justify-center text-gray-900 font-bold text-xl">+</button>
+                            </div>
+                        </div>`;
+                    };
                     
+                    const term = searchTerm.toLowerCase().trim();
                     const foodSource = this.data.foodLibrary || [];
                     if (term) {
                         const results = foodSource.filter(item => item.name.toLowerCase().includes(term));
@@ -1485,40 +1537,40 @@
                 routine_getCreatorContent(step) {
                     if (step === 1) {
                         return `
-                        <header class="p-4 flex items-center bg-gray-800/80 backdrop-blur-sm shrink-0">
-                            <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="x"></i></button>
-                            <div class="flex-grow text-center"><p class="font-bold text-white">Crear Rutina</p></div>
-                            <div class="w-9 h-9"></div>
-                        </header>
-                        <div class="p-4 pt-0 w-full bg-gray-800/80">
-                            <div class="w-full h-1 bg-gray-700/50 rounded-full"><div class="w-1/2 h-1 bg-emerald-500 rounded-full"></div></div>
-                            <p class="text-center text-sm text-gray-400 mt-2">Paso 1: Detalles de la Rutina</p>
-                        </div>
-                        <div class="flex-grow p-6 overflow-y-auto space-y-6">
-                            <div class="text-center">
-                                <i data-lucide="file-pen-line" class="w-16 h-16 mx-auto text-emerald-400/50"></i>
-                                <h2 class="text-3xl font-bold text-white mt-4">Detalles de la Rutina</h2>
-                                <p class="text-gray-400 mt-1">Dale una identidad a tu nuevo plan de entrenamiento.</p>
+                            <header class="p-4 flex items-center bg-gray-800/80 backdrop-blur-sm shrink-0">
+                                <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="x"></i></button>
+                                <div class="flex-grow text-center"><p class="font-bold text-white">Crear Rutina</p></div>
+                                <div class="w-9 h-9"></div>
+                            </header>
+                            <div class="p-4 pt-0 w-full bg-gray-800/80">
+                                <div class="w-full h-1 bg-gray-700/50 rounded-full"><div class="w-1/2 h-1 bg-emerald-500 rounded-full"></div></div>
+                                <p class="text-center text-sm text-gray-400 mt-2">Paso 1: Detalles de la Rutina</p>
                             </div>
-                            <div class="bg-gray-800 rounded-xl p-4">
-                                <label for="routine-name-input" class="flex items-center gap-2 text-lg font-semibold text-gray-300 mb-2">
-                                    <i data-lucide="type" class="w-5 h-5 text-emerald-400"></i>
-                                    <span>Nombre de la Rutina</span>
-                                </label>
-                                <input id="routine-name-input" type="text" value="${this._tempRoutine.name || ''}" class="w-full bg-gray-700/50 rounded-lg p-3 text-white text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Empuje Explosivo">
+                            <div class="flex-grow p-6 overflow-y-auto space-y-6">
+                                <div class="text-center">
+                                    <i data-lucide="file-pen-line" class="w-16 h-16 mx-auto text-emerald-400/50"></i>
+                                    <h2 class="text-3xl font-bold text-white mt-4">Detalles de la Rutina</h2>
+                                    <p class="text-gray-400 mt-1">Dale una identidad a tu nuevo plan de entrenamiento.</p>
+                                </div>
+                                <div class="bg-gray-800 rounded-xl p-4">
+                                    <label for="routine-name-input" class="flex items-center gap-2 text-lg font-semibold text-gray-300 mb-2">
+                                        <i data-lucide="type" class="w-5 h-5 text-emerald-400"></i>
+                                        <span>Nombre de la Rutina</span>
+                                    </label>
+                                    <input id="routine-name-input" type="text" value="${this._tempRoutine.name || ''}" class="w-full bg-gray-700/50 rounded-lg p-3 text-white text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Empuje Explosivo">
+                                </div>
+                                <div class="bg-gray-800 rounded-xl p-4">
+                                    <label for="routine-desc-input" class="flex items-center gap-2 text-lg font-semibold text-gray-300 mb-2">
+                                        <i data-lucide="notebook-text" class="w-5 h-5 text-emerald-400"></i>
+                                        <span>Descripción (Opcional)</span>
+                                    </label>
+                                    <textarea id="routine-desc-input" class="w-full bg-gray-700/50 rounded-lg p-3 h-24 resize-none text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Enfocado en hipertrofia de pecho y hombro">${this._tempRoutine.description || ''}</textarea>
+                                </div>
                             </div>
-                            <div class="bg-gray-800 rounded-xl p-4">
-                                <label for="routine-desc-input" class="flex items-center gap-2 text-lg font-semibold text-gray-300 mb-2">
-                                    <i data-lucide="notebook-text" class="w-5 h-5 text-emerald-400"></i>
-                                    <span>Descripción (Opcional)</span>
-                                </label>
-                                <textarea id="routine-desc-input" class="w-full bg-gray-700/50 rounded-lg p-3 h-24 resize-none text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Enfocado en hipertrofia de pecho y hombro">${this._tempRoutine.description || ''}</textarea>
-                            </div>
-                        </div>
-                        <footer class="p-4 bg-gray-900/80 backdrop-blur-sm shrink-0">
-                            <button data-action="routine-creator-next" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition text-gray-900 flex items-center justify-center gap-2">Siguiente: Añadir Ejercicios <i data-lucide="arrow-right"></i></button>
-                        </footer>
-                        `;
+                            <footer class="p-4 bg-gray-900/80 backdrop-blur-sm shrink-0">
+                                <button data-action="routine-creator-next" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition text-gray-900 flex items-center justify-center gap-2">Siguiente: Añadir Ejercicios <i data-lucide="arrow-right"></i></button>
+                            </footer>
+                            `;
                     }
                     if (step === 2) {
                         const isAdmin = this.isAsesor();
@@ -1555,34 +1607,34 @@
                             `).join('')}
                         </main>`;
                         return `
-                        <header class="p-4 flex items-center justify-between bg-gray-800/80 backdrop-blur-sm shrink-0">
-                            <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button>
-                            <div class="text-center">
-                                <h3 class="text-lg font-bold truncate">${this._tempRoutine.name}</h3>
-                                <p class="text-xs text-gray-400">Paso 2: Añadir Ejercicios</p>
-                            </div>
-                            <button data-action="routine-creator-save" class="font-bold text-emerald-400 px-4 py-2 rounded-lg hover:bg-emerald-500/10">Guardar</button>
-                        </header>
-                        <div class="shrink-0">
-                            <div id="routine-day-tabs" class="horizontal-scroll-container flex overflow-x-auto gap-2 p-4 border-b border-gray-800"></div>
-                        </div>
-                        <div class="flex-grow p-4 overflow-y-auto space-y-3 bg-gray-900/50" id="exercise-list-container"></div>
-                        <footer class="p-4 bg-gray-900/80 backdrop-blur-sm shrink-0">
-                            <button data-action="routine-creator-add-exercise" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition flex items-center justify-center gap-2 text-gray-900">
-                                <i data-lucide="plus"></i><span>Añadir Ejercicio</span>
-                            </button>
-                        </footer>
-                        <div id="exercise-drawer" class="absolute inset-0 bg-gray-800 flex flex-col z-10">
-                            <header class="p-4 flex items-center bg-gray-900/80 backdrop-blur-sm sticky top-0 shrink-0">
-                                <div class="relative flex-grow">
-                                    <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500"></i>
-                                    <input id="exercise-search-input" type="search" placeholder="Buscar ejercicio..." class="w-full bg-gray-700/80 rounded-lg pl-10 pr-4 py-2 text-white border border-transparent focus:bg-gray-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                            <header class="p-4 flex items-center justify-between bg-gray-800/80 backdrop-blur-sm shrink-0">
+                                <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button>
+                                <div class="text-center">
+                                    <h3 class="text-lg font-bold truncate">${this._tempRoutine.name}</h3>
+                                    <p class="text-xs text-gray-400">Paso 2: Añadir Ejercicios</p>
                                 </div>
-                                <button data-action="routine-creator-close-drawer" class="p-2 ml-2 text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+                                <button data-action="routine-creator-save" class="font-bold text-emerald-400 px-4 py-2 rounded-lg hover:bg-emerald-500/10">Guardar</button>
                             </header>
-                            <div class="flex-grow flex flex-col md:flex-row overflow-hidden">${groupsNav}${exercisesPanel}</div>
-                        </div>
-                        `;
+                            <div class="shrink-0">
+                                <div id="routine-day-tabs" class="horizontal-scroll-container flex overflow-x-auto gap-2 p-4 border-b border-gray-800"></div>
+                            </div>
+                            <div class="flex-grow p-4 overflow-y-auto space-y-3 bg-gray-900/50" id="exercise-list-container"></div>
+                            <footer class="p-4 bg-gray-900/80 backdrop-blur-sm shrink-0">
+                                <button data-action="routine-creator-add-exercise" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition flex items-center justify-center gap-2 text-gray-900">
+                                    <i data-lucide="plus"></i><span>Añadir Ejercicio</span>
+                                </button>
+                            </footer>
+                            <div id="exercise-drawer" class="absolute inset-0 bg-gray-800 flex flex-col z-10">
+                                <header class="p-4 flex items-center bg-gray-900/80 backdrop-blur-sm sticky top-0 shrink-0">
+                                    <div class="relative flex-grow">
+                                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500"></i>
+                                        <input id="exercise-search-input" type="search" placeholder="Buscar ejercicio..." class="w-full bg-gray-700/80 rounded-lg pl-10 pr-4 py-2 text-white border border-transparent focus:bg-gray-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                    </div>
+                                    <button data-action="routine-creator-close-drawer" class="p-2 ml-2 text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
+                                </header>
+                                <div class="flex-grow flex flex-col md:flex-row overflow-hidden">${groupsNav}${exercisesPanel}</div>
+                            </div>
+                            `;
                     }
                 },
                 
@@ -1668,6 +1720,7 @@
                     }
                     lucide.createIcons();
                 },
+                
                 routine_addDay() { const dayCount = this._tempRoutine.plan.length + 1; this._tempRoutine.plan.push({ day: `Día ${dayCount}`, exercises: [] }); this._tempRoutine.currentDayIndex = dayCount - 1; this.routine_refreshDayTabs(); this.routine_refreshExerciseList(); },
                 routine_switchDay(index) { this._tempRoutine.currentDayIndex = index; this.routine_refreshDayTabs(); this.routine_refreshExerciseList(); },
                 routine_refreshDayTabs() { const container = document.getElementById('routine-day-tabs'); if(!container) return; const tabsHtml = this._tempRoutine.plan.map((day, index) => { const isActive = index === this._tempRoutine.currentDayIndex; return `<button data-action="routine-creator-switch-day" data-day-index="${index}" class="relative group flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-lg ${isActive ? 'bg-emerald-500 text-gray-900' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'} transition-colors"><span ondblclick="app.routine_showRenameDayModal(${index})">${day.day}</span><button data-action="routine-creator-confirm-delete-day" data-day-index="${index}" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">&times;</button></button>`; }).join(''); const addButton = `<button data-action="routine-creator-add-day" class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"><i data-lucide="plus"></i></button>`; container.innerHTML = tabsHtml + addButton; lucide.createIcons(); container.scrollLeft = container.scrollWidth; },
