@@ -127,7 +127,16 @@
 
         <main class="flex-grow p-4 sm:p-6 overflow-y-auto"><div id="sections-wrapper"></div></main>
         
-        <nav class="fixed bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm max-w-lg mx-auto border-t border-gray-700"><div class="flex justify-around"><button data-section="inicio" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-emerald-400"><i data-lucide="home"></i><span class="text-xs font-medium">Inicio</span></button><button data-section="rutinas" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="clipboard-list"></i><span class="text-xs font-medium">Rutinas</span></button><button data-section="nutricion" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="calculator"></i><span class="text-xs font-medium">Cálculos</span></button><button data-section="dieta" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="utensils"></i><span class="text-xs font-medium">Dieta</span></button><button data-section="perfil" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="user"></i><span class="text-xs font-medium">Perfil</span></button></div></nav>
+        <nav class="fixed bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm max-w-lg mx-auto border-t border-gray-700">
+            <div id="main-nav-bar" class="flex justify-around">
+                <button data-section="inicio" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-emerald-400"><i data-lucide="home"></i><span class="text-xs font-medium">Inicio</span></button>
+                <button id="nav-rutinas" data-section="rutinas" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="clipboard-list"></i><span class="text-xs font-medium">Rutinas</span></button>
+                <button id="nav-asesorados" data-section="asesorados" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="users"></i><span class="text-xs font-medium">Asesorados</span></button>
+                <button id="nav-nutricion" data-section="nutricion" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="calculator"></i><span class="text-xs font-medium">Cálculos</span></button>
+                <button id="nav-dieta" data-section="dieta" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="utensils"></i><span class="text-xs font-medium">Dieta</span></button>
+                <button data-section="perfil" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="user"></i><span class="text-xs font-medium">Perfil</span></button>
+            </div>
+        </nav>
         
         <div id="fullscreen-view-container" class="absolute inset-0 z-30 pointer-events-none"></div>
     </div>
@@ -142,8 +151,37 @@
 
     <template id="template-inicio"><section id="inicio" class="section-content"><div class="space-y-6"><div><h2 id="welcome-message" class="text-2xl font-bold">Hola, </h2><p class="text-gray-400">¿Listo para superar tus límites hoy?</p></div><div id="ai-daily-tip-card" class="bg-gray-700/80 p-4 rounded-2xl hidden"><div class="flex items-start space-x-3"><i data-lucide="sparkles" class="text-purple-400 w-5 h-5 flex-shrink-0 mt-1"></i><div><h3 class="font-semibold text-gray-200">Consejo del Día ✨</h3><p id="ai-daily-tip-text" class="text-sm text-gray-300 mt-1">Cargando consejo...</p></div></div></div><div id="weekly-progress-card" class="bg-gray-700/80 p-4 rounded-2xl"></div><div class="bg-gradient-to-br from-emerald-500 to-green-600 p-6 rounded-2xl shadow-lg text-white"><p class="font-medium">Tu Meta Diaria de Calorías</p><p class="text-3xl font-bold" id="dashboard-calories">2,500 kcal</p><div class="mt-4 h-2.5 w-full rounded-full bg-black/20"><div id="dashboard-progress-bar" class="bg-white h-2.5 rounded-full" style="width: 0%"></div></div><p class="text-right text-sm mt-1">Progreso: <span id="dashboard-progress-text">0</span>%</p></div><div class="grid grid-cols-2 gap-4"><button data-action="show-section" data-section-id="rutinas" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="clipboard-list" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Rutinas</span></button><button data-action="show-section" data-section-id="perfil" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="user" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Perfil</span></button><button data-action="show-section" data-section-id="dieta" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="salad" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Dieta</span></button><div class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2"><i data-lucide="flame" class="text-red-400"></i><span id="dashboard-consumed-calories" class="font-semibold">0 Kcal</span><span class="text-xs text-gray-400">Consumidas</span></div></div></div></section></template>
     
-    <template id="template-rutinas"><section id="rutinas" class="section-content hidden"><div class="space-y-8"><div class="flex justify-between items-center"><h2 class="text-2xl font-bold">Rutinas</h2><button data-action="routine-create" class="flex items-center gap-2 bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20"><i data-lucide="plus" class="w-5 h-5"></i><span>Crear Rutina</span></button></div><div><h3 class="font-semibold text-lg mb-3 text-gray-300">Mis Rutinas</h3><div id="user-routines-container" class="horizontal-scroll-container flex overflow-x-auto gap-4 -mx-4 px-4 pb-4"></div></div><div><h3 class="font-semibold text-lg mb-3 text-gray-300">Explorar Rutinas</h3><div id="predefined-routines-container" class="space-y-3"></div></div></div></section></template>
+    <template id="template-rutinas"><section id="rutinas" class="section-content hidden"><div class="space-y-8"><div class="flex justify-between items-center"><h2 class="text-2xl font-bold">Rutinas</h2><button id="create-routine-btn" data-action="routine-create" class="flex items-center gap-2 bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20"><i data-lucide="plus" class="w-5 h-5"></i><span>Crear Rutina</span></button></div><div id="user-routines-section">
+        <h3 class="font-semibold text-lg mb-3 text-gray-300">Mis Rutinas</h3>
+        <div id="user-routines-container" class="horizontal-scroll-container flex overflow-x-auto gap-4 -mx-4 px-4 pb-4"></div>
+    </div><div id="predefined-routines-section"><h3 class="font-semibold text-lg mb-3 text-gray-300">Explorar Rutinas</h3><div id="predefined-routines-container" class="space-y-3"></div></div></div></section></template>
     
+    <template id="template-asesorados">
+        <section id="asesorados" class="section-content hidden">
+            <div class="space-y-6">
+                <div>
+                    <h2 class="text-2xl font-bold">Gestión de Asesorados</h2>
+                    <p class="text-gray-400">Invita y gestiona los planes de tus clientes.</p>
+                </div>
+                
+                <div class="bg-gray-700/50 p-4 rounded-2xl">
+                    <h3 class="font-semibold text-lg mb-3">Invitar a un Nuevo Cliente</h3>
+                    <form id="invite-form" class="flex gap-3">
+                        <input type="email" id="invite-email" placeholder="email@cliente.com" required class="w-full bg-gray-700 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                        <button type="submit" class="bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition">Invitar</button>
+                    </form>
+                </div>
+
+                <div>
+                    <h3 class="font-semibold text-lg mb-3">Mis Clientes</h3>
+                    <div id="asesorados-list" class="space-y-3">
+                        <p class="text-gray-500 text-center p-4">Aún no tienes clientes.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
     <template id="template-nutricion">
         <section id="nutricion" class="section-content hidden">
             <div class="space-y-6 pb-8">
@@ -222,7 +260,7 @@
         </section>
     </template>
     
-    <template id="template-dieta"><section id="dieta" class="section-content hidden"><div class="space-y-6"><div><h2 class="text-2xl font-bold">Plan de Dieta de Hoy</h2><p class="text-gray-400">Objetivo: <span id="diet-goal-calories" class="font-bold text-emerald-400">2500</span> kcal</p></div><div class="bg-gray-700/80 p-4 rounded-xl space-y-3"><div class="flex justify-between items-center text-sm"><span class="text-gray-300">Consumido</span><span class="font-bold"><span id="diet-total-calories">0</span> kcal</span></div><div class="h-2.5 w-full rounded-full bg-gray-600"><div id="diet-progress-bar" class="bg-emerald-500 h-2.5 rounded-full w-0"></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="space-y-1"><p class="font-semibold text-blue-300">Proteína</p><div class="h-1.5 w-full rounded-full bg-blue-500/20"><div id="diet-protein-bar" class="bg-blue-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-protein">0</span>g / <span id="diet-goal-protein">188</span>g</p></div><div class="space-y-1"><p class="font-semibold text-yellow-300">Carbs</p><div class="h-1.5 w-full rounded-full bg-yellow-500/20"><div id="diet-carbs-bar" class="bg-yellow-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-carbs">0</span>g / <span id="diet-goal-carbs">250</span>g</p></div><div class="space-y-1"><p class="font-semibold text-red-300">Grasas</p><div class="h-1.5 w-full rounded-full bg-red-500/20"><div id="diet-fats-bar" class="bg-red-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-fats">0</span>g / <span id="diet-goal-fats">83</span>g</p></div></div></div><div class="my-4"><button data-action="generate-plan" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 font-bold py-3 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2 shadow-lg"><i data-lucide="sparkles" class="w-5 h-5 p-e-none"></i><span class="p-e-none">✨ Generar Plan con IA</span></button></div><div class="bg-gray-700/50 p-4 rounded-xl space-y-3 mb-6"><h3 class="font-semibold flex items-center gap-2"><i data-lucide="brain-circuit" class="w-5 h-5 text-sky-400"></i>Analizador de Comidas IA</h3><p class="text-sm text-gray-400">Describe una comida y la IA estimará sus macros para añadirla a tu dieta.</p><textarea id="food-analysis-input" placeholder="Ej: un tazón de avena con plátano y nueces" class="w-full bg-gray-700 rounded-lg p-2 h-16 resize-none"></textarea><button data-action="analyze-food" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 font-bold py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2"><span class="p-e-none">✨ Analizar y Añadir</span></button></div><div id="meal-sections" class="space-y-4"></div><div class="space-y-4 mt-4"><h3 class="text-xl font-bold">Añadir Alimentos</h3><div class="relative"><input type="text" id="food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 p-e-none"><i data-lucide="search" class="text-gray-400"></i></div></div><div id="food-list" class="space-y-2 pr-2"></div></div></div></section></template>
+    <template id="template-dieta"><section id="dieta" class="section-content hidden"><div class="space-y-6"><div><h2 class="text-2xl font-bold">Plan de Dieta de Hoy</h2><p class="text-gray-400">Objetivo: <span id="diet-goal-calories" class="font-bold text-emerald-400">2500</span> kcal</p></div><div class="bg-gray-700/80 p-4 rounded-xl space-y-3"><div class="flex justify-between items-center text-sm"><span class="text-gray-300">Consumido</span><span class="font-bold"><span id="diet-total-calories">0</span> kcal</span></div><div class="h-2.5 w-full rounded-full bg-gray-600"><div id="diet-progress-bar" class="bg-emerald-500 h-2.5 rounded-full w-0"></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="space-y-1"><p class="font-semibold text-blue-300">Proteína</p><div class="h-1.5 w-full rounded-full bg-blue-500/20"><div id="diet-protein-bar" class="bg-blue-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-protein">0</span>g / <span id="diet-goal-protein">188</span>g</p></div><div class="space-y-1"><p class="font-semibold text-yellow-300">Carbs</p><div class="h-1.5 w-full rounded-full bg-yellow-500/20"><div id="diet-carbs-bar" class="bg-yellow-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-carbs">0</span>g / <span id="diet-goal-carbs">250</span>g</p></div><div class="space-y-1"><p class="font-semibold text-red-300">Grasas</p><div class="h-1.5 w-full rounded-full bg-red-500/20"><div id="diet-fats-bar" class="bg-red-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-fats">0</span>g / <span id="diet-goal-fats">83</span>g</p></div></div></div><div id="diet-management-tools"><div class="my-4"><button data-action="generate-plan" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 font-bold py-3 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2 shadow-lg"><i data-lucide="sparkles" class="w-5 h-5 p-e-none"></i><span class="p-e-none">✨ Generar Plan con IA</span></button></div><div class="bg-gray-700/50 p-4 rounded-xl space-y-3 mb-6"><h3 class="font-semibold flex items-center gap-2"><i data-lucide="brain-circuit" class="w-5 h-5 text-sky-400"></i>Analizador de Comidas IA</h3><p class="text-sm text-gray-400">Describe una comida y la IA estimará sus macros para añadirla a tu dieta.</p><textarea id="food-analysis-input" placeholder="Ej: un tazón de avena con plátano y nueces" class="w-full bg-gray-700 rounded-lg p-2 h-16 resize-none"></textarea><button data-action="analyze-food" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 font-bold py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2"><span class="p-e-none">✨ Analizar y Añadir</span></button></div></div><div id="meal-sections" class="space-y-4"></div><div id="add-food-section" class="space-y-4 mt-4"><h3 class="text-xl font-bold">Añadir Alimentos</h3><div class="relative"><input type="text" id="food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 p-e-none"><i data-lucide="search" class="text-gray-400"></i></div></div><div id="food-list" class="space-y-2 pr-2"></div></div></div></section></template>
     
     <template id="template-perfil">
         <section id="perfil" class="section-content hidden">
@@ -278,9 +316,9 @@
                         <div><p class="text-xl font-bold"><span id="weight-diff-display"></span> <span class="text-sm font-normal text-gray-400">kg</span></p><p class="text-xs text-gray-400">Diferencia</p></div>
                     </div>
                      <form id="weight-log-form" class="flex gap-3 mt-4">
-                        <input type="number" step="0.1" id="new-weight-input" placeholder="Añadir peso de hoy (kg)" class="w-full bg-gray-700 rounded-lg p-2 text-center" required>
-                        <button type="submit" data-action="add-weight-log" class="bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition">Añadir</button>
-                    </form>
+                         <input type="number" step="0.1" id="new-weight-input" placeholder="Añadir peso de hoy (kg)" class="w-full bg-gray-700 rounded-lg p-2 text-center" required>
+                         <button type="submit" data-action="add-weight-log" class="bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition">Añadir</button>
+                     </form>
                 </div>
 
                 <div class="bg-gray-700/80 p-4 rounded-2xl">
@@ -312,9 +350,14 @@
             getFirestore,
             doc,
             setDoc,
-            getDoc 
+            getDoc,
+            collection, // NUEVO
+            query,      // NUEVO
+            where,      // NUEVO
+            getDocs,    // NUEVO
+            addDoc,     // NUEVO
+            updateDoc   // NUEVO
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        // *** NUEVA IMPORTACIÓN PARA STORAGE ***
         import {
             getStorage,
             ref,
@@ -327,7 +370,7 @@
             apiKey: "AIzaSyASVFAJx1vUN62V3t7VycuTKAehWW8byoM",
             authDomain: "seb-fit-460c4.firebaseapp.com",
             projectId: "seb-fit-460c4",
-            storageBucket: "seb-fit-460c4.firebasestorage.app",
+            storageBucket: "seb-fit-460c4.appspot.com",
             messagingSenderId: "906669175939",
             appId: "1:906669175939:web:8fd09b745292c14eb6d7b6"
         };
@@ -337,21 +380,23 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             const app = {
-                apiKey: "", // Clave de Gemini para funciones de IA, no para subidas.
-                adminUID: "oyVFC1vKcLhTLJJsjMQDPRL1z2K2", // UID del administrador
+                apiKey: "", // Clave de Gemini para funciones de IA.
+                adminUID: "oyVFC1vKcLhTLJJsjMQDPRL1z2K2", // UID del administrador/asesor principal
                 firebaseApp: firebaseApp,
                 auth: null,
                 db: null,
-                storage: null, // *** NUEVA PROPIEDAD PARA STORAGE ***
+                storage: null, 
                 
-                isAdmin() {
-                    return this.state.currentUser && this.state.currentUser.uid === this.adminUID;
+                isAsesor() {
+                    return this.state.role === 'asesor';
                 },
 
                 getDefaultState() {
                     return {
                         currentUser: null,
                         userName: '',
+                        role: 'asesor', // Rol por defecto
+                        coachId: null,
                         currentSection: 'inicio', 
                         userGoals: { calories: 2500, protein: 188, carbs: 250, fats: 83 }, 
                         dailyDiet: { Desayuno: [], Almuerzo: [], Cena: [], Snacks: [] }, 
@@ -361,6 +406,7 @@
                         targetWeight: 75,
                         weightLog: [],
                         // Estado no persistente
+                        asesorados: [],
                         activeWorkout: null, 
                         timer: { status: 'idle', timeLeft: 0, intervalId: null, initialRestTime: 0 }
                     };
@@ -511,7 +557,7 @@
                     this.state = this.getDefaultState();
                     this.auth = getAuth(this.firebaseApp);
                     this.db = getFirestore(this.firebaseApp);
-                    this.storage = getStorage(this.firebaseApp); // *** INICIALIZAR STORAGE ***
+                    this.storage = getStorage(this.firebaseApp);
                     this.setupAuthListeners();
                     this.setupEventListeners();
                     lucide.createIcons();
@@ -519,19 +565,49 @@
 
                 async initAppLogic() {
                     this.audioCtx = new(window.AudioContext || window.webkitAudioContext)(); 
-                    await this.loadExerciseLibraryFromFirestore(); // Cargar librería desde Firestore
+                    await this.loadExerciseLibraryFromFirestore();
                     this.loadTemplates();
                     this.populateNutritionForm();
+                    this.adjustUIForRole(); // <-- NUEVO: Ajustar UI según el rol
                     this.renderAll(); 
                     this.getDailyTip();
                     this.showSection(this.state.currentSection, false);
                     this.updateUserInfoUI();
                 },
 
+                adjustUIForRole() {
+                    const navAsesorados = document.getElementById('nav-asesorados');
+                    const navNutricion = document.getElementById('nav-nutricion');
+                    const createRoutineBtn = document.getElementById('create-routine-btn');
+                    const predefinedRoutines = document.getElementById('predefined-routines-section');
+                    const dietManagementTools = document.getElementById('diet-management-tools');
+                    const addFoodSection = document.getElementById('add-food-section');
+
+                    if (this.isAsesor()) {
+                        // VISTA ASESOR (ADMIN)
+                        navAsesorados.style.display = 'flex';
+                        navNutricion.style.display = 'flex';
+                        if (createRoutineBtn) createRoutineBtn.style.display = 'flex';
+                        if (predefinedRoutines) predefinedRoutines.style.display = 'block';
+                        if (dietManagementTools) dietManagementTools.style.display = 'block';
+                        if (addFoodSection) addFoodSection.style.display = 'block';
+                        document.querySelector('#nav-rutinas .text-xs').textContent = 'Rutinas';
+                    } else {
+                        // VISTA ASESORADO (CLIENTE)
+                        navAsesorados.style.display = 'none';
+                        navNutricion.style.display = 'none';
+                        if (createRoutineBtn) createRoutineBtn.style.display = 'none';
+                        if (predefinedRoutines) predefinedRoutines.style.display = 'none';
+                        if (dietManagementTools) dietManagementTools.style.display = 'none';
+                        if (addFoodSection) addFoodSection.style.display = 'none';
+                        document.querySelector('#nav-rutinas .text-xs').textContent = 'Mi Rutina';
+                    }
+                },
+
                 async saveDataToFirestore() {
                     if (!this.state.currentUser) return;
                     const dataToSave = { ...this.state };
-                    ['currentUser', 'activeWorkout', 'timer', 'currentSection'].forEach(key => delete dataToSave[key]);
+                    ['currentUser', 'activeWorkout', 'timer', 'currentSection', 'asesorados'].forEach(key => delete dataToSave[key]);
                     const userRef = doc(this.db, "users", this.state.currentUser.uid);
                     try {
                         await setDoc(userRef, dataToSave, { merge: true });
@@ -552,9 +628,11 @@
                             this.state.physicalStats = { ...defaultState.physicalStats, ...data.physicalStats };
                             this.state.userGoals = { ...defaultState.userGoals, ...data.userGoals };
                         } else {
+                            // Este caso es para un usuario que se registró pero no se le crearon los datos iniciales (improbable con el flujo actual)
                             this.state = defaultState;
                             this.state.currentUser = this.auth.currentUser;
                             this.state.userName = this.auth.currentUser.displayName || "Nuevo Usuario";
+                            this.state.role = this.auth.currentUser.uid === this.adminUID ? 'asesor' : 'asesorado'; // Asignar rol por defecto
                             await this.saveDataToFirestore();
                         }
                     } catch (error) {
@@ -570,9 +648,8 @@
                         if (docSnap.exists()) {
                             this.data.exerciseLibrary = docSnap.data();
                         } else {
-                            // Si no existe en la BD, la creamos con los datos iniciales (solo el admin debería poder hacer esto la primera vez)
                             console.log("No exercise library found in DB, seeding initial data...");
-                            if (this.isAdmin()) {
+                            if (this.state.currentUser.uid === this.adminUID) {
                                 await setDoc(docRef, this.data.exerciseLibrary);
                             }
                         }
@@ -604,14 +681,77 @@
                 },
 
                 async handleLogin(e) { e.preventDefault(); const email = document.getElementById('login-email').value; const password = document.getElementById('login-password').value; const button = e.target.querySelector('button[type="submit"]'); this.setButtonLoading(button, true); try { await signInWithEmailAndPassword(this.auth, email, password); } catch (error) { this.showToast(this.getFirebaseAuthErrorMessage(error), 'error'); } finally { this.setButtonLoading(button, false); } },
-                async handleRegister(e) { e.preventDefault(); const name = document.getElementById('register-name').value; const email = document.getElementById('register-email').value; const password = document.getElementById('register-password').value; const button = e.target.querySelector('button[type="submit"]'); this.setButtonLoading(button, true); try { const userCredential = await createUserWithEmailAndPassword(this.auth, email, password); const user = userCredential.user; const userRef = doc(this.db, "users", user.uid); const initialData = this.getDefaultState(); initialData.userName = name; initialData.targetWeight = initialData.physicalStats.weight; delete initialData.currentUser; await setDoc(userRef, initialData); } catch (error) { this.showToast(this.getFirebaseAuthErrorMessage(error), 'error'); } finally { this.setButtonLoading(button, false); } },
+                
+                // --- LÓGICA DE REGISTRO MODIFICADA ---
+                async handleRegister(e) {
+                    e.preventDefault();
+                    const name = document.getElementById('register-name').value;
+                    const email = document.getElementById('register-email').value.toLowerCase();
+                    const password = document.getElementById('register-password').value;
+                    const button = e.target.querySelector('button[type="submit"]');
+                    this.setButtonLoading(button, true);
+
+                    try {
+                        // 1. Revisar si hay una invitación pendiente para este email
+                        const invitationsRef = collection(this.db, "invitations");
+                        const q = query(invitationsRef, where("clientEmail", "==", email), where("status", "==", "pending"));
+                        const querySnapshot = await getDocs(q);
+
+                        let role = 'asesor'; // Rol por defecto si no hay invitación
+                        let coachId = null;
+                        let invitationDocId = null;
+
+                        if (!querySnapshot.empty) {
+                            const invitationDoc = querySnapshot.docs[0];
+                            const invitationData = invitationDoc.data();
+                            role = 'asesorado';
+                            coachId = invitationData.coachId;
+                            invitationDocId = invitationDoc.id;
+                            this.showToast("¡Bienvenido! Has aceptado una invitación.", "success");
+                        } else {
+                            // Solo el admin puede crear una cuenta de asesor
+                            if (this.adminUID) {
+                                this.showToast("Registro no autorizado sin invitación.", "error");
+                                throw new Error("Unauthorized registration");
+                            }
+                        }
+
+                        // 2. Crear el usuario en Auth
+                        const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+                        const user = userCredential.user;
+
+                        // 3. Crear el documento del usuario en Firestore
+                        const userRef = doc(this.db, "users", user.uid);
+                        const initialData = this.getDefaultState();
+                        initialData.userName = name;
+                        initialData.role = role;
+                        initialData.coachId = coachId;
+                        initialData.targetWeight = initialData.physicalStats.weight;
+                        delete initialData.currentUser;
+                        delete initialData.asesorados;
+                        await setDoc(userRef, initialData);
+
+                        // 4. Actualizar el estado de la invitación si aplica
+                        if (invitationDocId) {
+                            const invitationRef = doc(this.db, "invitations", invitationDocId);
+                            await updateDoc(invitationRef, { status: "accepted", acceptedAt: new Date(), clientId: user.uid });
+                        }
+
+                    } catch (error) {
+                        this.showToast(this.getFirebaseAuthErrorMessage(error), 'error');
+                        console.error("Registration error:", error);
+                    } finally {
+                        this.setButtonLoading(button, false);
+                    }
+                },
+
                 async handleLogout() { try { await signOut(this.auth); } catch (error) { this.showToast('Error al cerrar sesión.', 'error'); } },
                 showAppUI() { document.getElementById('auth-container').classList.add('hidden'); document.getElementById('app-container').classList.remove('hidden'); },
                 showAuthUI() { document.getElementById('app-container').classList.add('hidden'); document.getElementById('auth-container').classList.remove('hidden'); document.getElementById('sections-wrapper').innerHTML = ''; },
                 toggleAuthForms() { const loginContainer = document.getElementById('login-form-container'); const registerContainer = document.getElementById('register-form-container'); loginContainer.classList.toggle('form-visible'); loginContainer.classList.toggle('form-hidden'); registerContainer.classList.toggle('form-visible'); registerContainer.classList.toggle('form-hidden'); },
                 setButtonLoading(button, isLoading) { if (isLoading) { button.disabled = true; button.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`; lucide.createIcons(); } else { button.disabled = false; button.innerHTML = `<span>${button.closest('form').id === 'login-form' ? 'Iniciar Sesión' : 'Crear Cuenta'}</span>`; } },
                 updateUserInfoUI() { const name = this.state.userName || 'Usuario'; document.getElementById('welcome-message').textContent = `Hola, ${name.split(' ')[0]}`; const avatar = document.getElementById('user-avatar').querySelector('span'); avatar.textContent = name.charAt(0).toUpperCase(); },
-                getFirebaseAuthErrorMessage(error) { switch (error.code) { case 'auth/invalid-email': return 'Email no válido.'; case 'auth/user-not-found': return 'Usuario no encontrado.'; case 'auth/wrong-password': return 'Contraseña incorrecta.'; case 'auth/email-already-in-use': return 'Este email ya está registrado.'; case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.'; case 'auth/invalid-credential': return 'Credenciales inválidas.'; default: return 'Ha ocurrido un error. Inténtalo de nuevo.'; } },
+                getFirebaseAuthErrorMessage(error) { switch (error.code) { case 'auth/invalid-email': return 'Email no válido.'; case 'auth/user-not-found': return 'Usuario no encontrado.'; case 'auth/wrong-password': return 'Contraseña incorrecta.'; case 'auth/email-already-in-use': return 'Este email ya está registrado.'; case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.'; case 'auth/invalid-credential': return 'Credenciales inválidas.'; default: return error.message || 'Ha ocurrido un error. Inténtalo de nuevo.'; } },
                 loadTemplates() { const wrapper = document.getElementById('sections-wrapper'); if(wrapper.children.length > 0) return; const templates = document.querySelectorAll('template'); templates.forEach(template => { const content = template.content.cloneNode(true); wrapper.appendChild(content); }); },
                 setupEventListeners() {
                     document.body.addEventListener('click', (e) => {
@@ -628,20 +768,138 @@
                             if (navBtn) this.showSection(navBtn.dataset.section); 
                             return; 
                         }
-                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget } = button.dataset;
+                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId } = button.dataset;
                         const actionMap = {
                             'show-section': () => this.showSection(sectionId), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-finish-workout': () => this.confirmFinishWorkout(), 'finish-workout': () => this.finishWorkout(false), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(parseInt(foodId)), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, mealName), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(mealName, parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(mealName, parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(mealName), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)),
-                            'show-media-viewer': () => this.showMediaViewer(mediaUrl), // *** NUEVA ACCIÓN ***
-                            'routine-creator-switch-group': () => this.routine_creator_switchGroup(groupTarget), // *** NUEVA ACCIÓN ***
+                            'show-media-viewer': () => this.showMediaViewer(mediaUrl),
+                            'routine-creator-switch-group': () => this.routine_creator_switchGroup(groupTarget),
+                            'manage-client': () => this.showClientManager(clientId) // NUEVO
                         };
                         if (actionMap[action]) actionMap[action](e);
                     });
-                    document.body.addEventListener('submit', (e) => { e.preventDefault(); if (e.target.id === 'nutrition-form') { this.calculateNutrition(); } if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); } if (e.target.id === '1rm-form') { this.calculate1RM(); } });
+                    document.body.addEventListener('submit', (e) => { e.preventDefault(); if (e.target.id === 'nutrition-form') { this.calculateNutrition(); } if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); } if (e.target.id === '1rm-form') { this.calculate1RM(); } if (e.target.id === 'invite-form') { this.handleInviteClient(e); } });
                     document.body.addEventListener('input', (e) => { if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); } if (e.target.id === 'exercise-search-input') { this.routine_filterExerciseLibrary(e.target.value); } });
                 },
-                renderAll() { this.renderRoutinesSection(); this.renderDietPage(); this.renderWeeklyProgress(); this.renderProfileSection(); this.renderNutricionSection(); this.updateDashboard(); lucide.createIcons(); },
+                renderAll() { this.renderRoutinesSection(); this.renderDietPage(); this.renderWeeklyProgress(); this.renderProfileSection(); this.renderNutricionSection(); if (this.isAsesor()){ this.renderAsesoradosSection();} this.updateDashboard(); lucide.createIcons(); },
                 showSection(id, animate=true){this.state.currentSection=id;document.querySelectorAll('.section-content').forEach(s=>s.classList.add('hidden'));const el=document.getElementById(id);if(el){el.classList.remove('hidden');if(animate){el.classList.add('section-fade-in');el.addEventListener('animationend',()=>el.classList.remove('section-fade-in'),{once:true});}}document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.toggle('text-emerald-400',b.dataset.section===id);b.classList.toggle('text-gray-400',b.dataset.section!==id);});if(id==='dieta'){this.renderFoodList();}},
-                renderWeeklyProgress(){const container=document.getElementById('weekly-progress-card');const t=new Date(),d=t.getDay(),s=new Date(t); s.setDate(t.getDate()-(d===0?6:d-1));let weekHTML='', dayLetters=['L','M','X','J','V','S','D'], completedCount=0;for(let i=0;i<7;i++){const cd=new Date(s); cd.setDate(s.getDate()+i);const ds=`${cd.getFullYear()}-${String(cd.getMonth()+1).padStart(2,'0')}-${String(cd.getDate()).padStart(2,'0')}`;const isCompleted=this.state.workoutHistory[ds], isToday=cd.toDateString()===t.toDateString();if(isCompleted) completedCount++;weekHTML+=`<div class="text-center"><p class="text-xs text-gray-400">${dayLetters[i]}</p><div class="w-8 h-8 rounded-full flex items-center justify-center mt-1 ${isCompleted?'bg-emerald-500':'bg-gray-600'} ${isToday?'ring-2 ring-white':''}"></div></div>`;}let statsHtml = '';const historyKeys = this.state.workoutHistory ? Object.keys(this.state.workoutHistory).sort().reverse() : [];if (historyKeys.length > 0) {const lastWorkoutDate = historyKeys[0], lastWorkout = this.state.workoutHistory[lastWorkoutDate];const formattedDate = new Date(lastWorkoutDate + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });statsHtml = `<div class="mt-4 pt-4 border-t border-gray-600/50"><h4 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Último Entrenamiento</h4><div class="flex items-center justify-between bg-gray-900/50 p-3 rounded-lg"><div class="flex items-center space-x-3"><i data-lucide="award" class="text-emerald-400"></i><div><p class="font-bold text-white">${lastWorkout.routineName}</p><p class="text-xs text-gray-400 capitalize">${formattedDate}</p></div></div><div class="text-right"><p class="font-semibold text-white">${this.formatTime(lastWorkout.totalDuration)}</p><p class="text-xs text-gray-400">Duración</p></div></div></div>`;} else { statsHtml = `<div class="mt-4 pt-4 border-t border-gray-600/50 text-center text-gray-500 text-sm"><p>Completa un entrenamiento para ver tus estadísticas aquí.</p></div>`; }container.innerHTML=`<h3 class="font-semibold text-lg mb-3">Progreso Semanal</h3><div class="flex justify-between">${weekHTML}</div><p class="text-right text-xs text-gray-400 mt-2">${completedCount} de 7 días completados</p>${statsHtml}`;},
+                
+                // --- SECCIÓN ASESORADOS ---
+                async renderAsesoradosSection() {
+                    const listContainer = document.getElementById('asesorados-list');
+                    if (!listContainer) return;
+                    await this.fetchAsesorados();
+                    if (this.state.asesorados.length > 0) {
+                        listContainer.innerHTML = this.state.asesorados.map(client => `
+                            <button data-action="manage-client" data-client-id="${client.id}" class="w-full bg-gray-700 rounded-2xl p-4 flex items-center space-x-4 text-left hover:bg-gray-600/80 transition-colors">
+                                <div class="w-10 h-10 rounded-full bg-emerald-500/50 flex items-center justify-center font-bold text-white flex-shrink-0">${client.userName.charAt(0).toUpperCase()}</div>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-white">${client.userName}</h4>
+                                    <p class="text-sm text-gray-400">${client.email}</p>
+                                </div>
+                                <i data-lucide="chevron-right" class="text-gray-500"></i>
+                            </button>
+                        `).join('');
+                    } else {
+                        listContainer.innerHTML = `<p class="text-gray-500 text-center p-4">Aún no tienes clientes. ¡Invita a alguien!</p>`;
+                    }
+                    lucide.createIcons();
+                },
+                async fetchAsesorados() {
+                    const usersRef = collection(this.db, "users");
+                    const q = query(usersRef, where("coachId", "==", this.state.currentUser.uid));
+                    const querySnapshot = await getDocs(q);
+                    this.state.asesorados = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                },
+                async handleInviteClient(e) {
+                    const button = e.target.querySelector('button[type="submit"]');
+                    button.disabled = true;
+                    const emailInput = document.getElementById('invite-email');
+                    const email = emailInput.value.toLowerCase().trim();
+                    if (!email) {
+                        this.showToast("Ingresa un email válido.", "error");
+                        button.disabled = false;
+                        return;
+                    }
+
+                    try {
+                        const invitationsRef = collection(this.db, "invitations");
+                        const q = query(invitationsRef, where("clientEmail", "==", email), where("status", "==", "pending"));
+                        const existingInvite = await getDocs(q);
+                        if (!existingInvite.empty) {
+                            this.showToast("Ya existe una invitación pendiente para este email.", "error");
+                            return;
+                        }
+
+                        await addDoc(invitationsRef, {
+                            coachId: this.state.currentUser.uid,
+                            clientEmail: email,
+                            status: "pending",
+                            sentAt: new Date()
+                        });
+
+                        this.showToast(`¡Invitación enviada a ${email}!`, "success");
+                        emailInput.value = '';
+                    } catch (error) {
+                        console.error("Error sending invitation:", error);
+                        this.showToast("No se pudo enviar la invitación.", "error");
+                    } finally {
+                        button.disabled = false;
+                    }
+                },
+                
+                async showClientManager(clientId) {
+                    const client = this.state.asesorados.find(c => c.id === clientId);
+                    if (!client) {
+                        this.showToast("Cliente no encontrado.", "error");
+                        return;
+                    }
+
+                    const clientRoutine = client.userRoutines && client.userRoutines.length > 0 ? client.userRoutines[0] : null;
+
+                    const routineHTML = `
+                        <div class="bg-gray-900/50 rounded-xl p-4">
+                            <h4 class="font-bold text-lg text-emerald-300 mb-3">Plan de Entrenamiento</h4>
+                            ${clientRoutine ? `
+                                <div class="bg-gray-700 p-3 rounded-lg">
+                                    <p class="font-semibold text-white">${clientRoutine.name}</p>
+                                    <p class="text-xs text-gray-400">${clientRoutine.plan.length} día(s) | ${clientRoutine.plan.reduce((acc, d) => acc + d.exercises.length, 0)} ejercicios</p>
+                                </div>
+                            ` : `<p class="text-sm text-gray-500">Aún no se ha asignado una rutina.</p>`}
+                            <button data-action="edit-client-routine" data-client-id="${clientId}" class="w-full bg-emerald-600/80 font-bold py-2 rounded-lg mt-3 hover:bg-emerald-600 transition">
+                                ${clientRoutine ? 'Editar Rutina' : 'Crear Rutina'}
+                            </button>
+                        </div>
+                    `;
+                    
+                    const dietHTML = `
+                        <div class="bg-gray-900/50 rounded-xl p-4">
+                           <h4 class="font-bold text-lg text-emerald-300 mb-3">Plan de Alimentación</h4>
+                           <div class="text-sm text-gray-400">Objetivo: <span class="font-bold text-white">${client.userGoals.calories} kcal</span></div>
+                           <button data-action="edit-client-diet" data-client-id="${clientId}" class="w-full bg-emerald-600/80 font-bold py-2 rounded-lg mt-3 hover:bg-emerald-600 transition">
+                                Editar Dieta
+                            </button>
+                        </div>
+                    `;
+
+                    const viewHTML = `<div id="client-manager-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col">
+                        <header class="p-4 flex items-center bg-gray-900/80 backdrop-blur-sm sticky top-0">
+                            <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button>
+                            <div class="flex-grow text-center">
+                                <h3 class="text-lg font-bold truncate">${client.userName}</h3>
+                                <p class="text-xs text-gray-400">${client.email}</p>
+                            </div>
+                            <div class="w-9 h-9"></div>
+                        </header>
+                        <div class="flex-grow p-4 overflow-y-auto space-y-4">
+                           ${routineHTML}
+                           ${dietHTML}
+                        </div>
+                    </div>`;
+
+                    this.routine_openFullscreenView(viewHTML);
+                },
+
+                renderWeeklyProgress(){const container=document.getElementById('weekly-progress-card');if(!container)return;const t=new Date(),d=t.getDay(),s=new Date(t); s.setDate(t.getDate()-(d===0?6:d-1));let weekHTML='', dayLetters=['L','M','X','J','V','S','D'], completedCount=0;for(let i=0;i<7;i++){const cd=new Date(s); cd.setDate(s.getDate()+i);const ds=`${cd.getFullYear()}-${String(cd.getMonth()+1).padStart(2,'0')}-${String(cd.getDate()).padStart(2,'0')}`;const isCompleted=this.state.workoutHistory[ds], isToday=cd.toDateString()===t.toDateString();if(isCompleted) completedCount++;weekHTML+=`<div class="text-center"><p class="text-xs text-gray-400">${dayLetters[i]}</p><div class="w-8 h-8 rounded-full flex items-center justify-center mt-1 ${isCompleted?'bg-emerald-500':'bg-gray-600'} ${isToday?'ring-2 ring-white':''}"></div></div>`;}let statsHtml = '';const historyKeys = this.state.workoutHistory ? Object.keys(this.state.workoutHistory).sort().reverse() : [];if (historyKeys.length > 0) {const lastWorkoutDate = historyKeys[0], lastWorkout = this.state.workoutHistory[lastWorkoutDate];const formattedDate = new Date(lastWorkoutDate + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });statsHtml = `<div class="mt-4 pt-4 border-t border-gray-600/50"><h4 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-2">Último Entrenamiento</h4><div class="flex items-center justify-between bg-gray-900/50 p-3 rounded-lg"><div class="flex items-center space-x-3"><i data-lucide="award" class="text-emerald-400"></i><div><p class="font-bold text-white">${lastWorkout.routineName}</p><p class="text-xs text-gray-400 capitalize">${formattedDate}</p></div></div><div class="text-right"><p class="font-semibold text-white">${this.formatTime(lastWorkout.totalDuration)}</p><p class="text-xs text-gray-400">Duración</p></div></div></div>`;} else { statsHtml = `<div class="mt-4 pt-4 border-t border-gray-600/50 text-center text-gray-500 text-sm"><p>Completa un entrenamiento para ver tus estadísticas aquí.</p></div>`; }container.innerHTML=`<h3 class="font-semibold text-lg mb-3">Progreso Semanal</h3><div class="flex justify-between">${weekHTML}</div><p class="text-right text-xs text-gray-400 mt-2">${completedCount} de 7 días completados</p>${statsHtml}`;},
                 renderProfileSection() { if (!this.state.currentUser) return; const { userName, currentUser, physicalStats, workoutHistory, targetWeight } = this.state; document.getElementById('profile-avatar').querySelector('span').textContent = (userName || 'U').charAt(0).toUpperCase(); document.getElementById('profile-name').textContent = userName || 'Usuario'; document.getElementById('profile-email').textContent = currentUser.email; const historyKeys = Object.keys(workoutHistory); const totalWorkouts = historyKeys.length; const totalDurationSeconds = historyKeys.reduce((acc, key) => acc + workoutHistory[key].totalDuration, 0); const totalHours = (totalDurationSeconds / 3600).toFixed(1); document.getElementById('profile-stat-workouts').textContent = totalWorkouts; document.getElementById('profile-stat-hours').textContent = totalHours; document.getElementById('profile-stat-streak').textContent = this.calculateWorkoutStreak(); document.getElementById('profile-info-age').textContent = `${physicalStats.age} años`; document.getElementById('profile-info-weight').textContent = `${physicalStats.weight} kg`; document.getElementById('profile-info-height').textContent = `${physicalStats.height} cm`; document.getElementById('current-weight-display').textContent = physicalStats.weight.toFixed(1); document.getElementById('target-weight-display').textContent = targetWeight.toFixed(1); const diff = (targetWeight - physicalStats.weight).toFixed(1); document.getElementById('weight-diff-display').textContent = diff; const chartContainer = document.getElementById('profile-activity-chart'); const weeklyData = this.getWeeklyActivityData(); const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 1); chartContainer.innerHTML = weeklyData.map(week => { const barHeight = (week.count / maxWorkouts) * 100; return `<div class="flex flex-col items-center justify-end h-full w-1/4"><p class="text-sm font-bold text-white">${week.count}</p><div class="w-3/5 h-full flex items-end"><div class="w-full bg-emerald-500 rounded-t-sm chart-bar" style="height: ${barHeight}%;"></div></div><p class="text-xs text-gray-400 mt-1">${week.label}</p></div>`; }).join(''); const historyContainer = document.getElementById('profile-workout-history'); if (historyKeys.length > 0) { historyContainer.innerHTML = historyKeys.sort().reverse().slice(0, 5).map(dateStr => { const workout = workoutHistory[dateStr]; const date = new Date(dateStr + 'T00:00:00'); const formattedDate = date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' }); return `<div class="bg-gray-700/60 p-3 rounded-lg flex justify-between items-center"><div><p class="font-semibold text-white">${workout.routineName}</p><p class="text-xs text-gray-400">${formattedDate}</p></div><div class="text-sm font-medium text-gray-300">${this.formatTime(workout.totalDuration)}</div></div>`; }).join(''); } else { historyContainer.innerHTML = `<p class="text-center text-gray-500 text-sm p-4">No hay entrenamientos registrados.</p>`; } },
                 calculateWorkoutStreak() { const dates = Object.keys(this.state.workoutHistory).sort((a, b) => new Date(b) - new Date(a)); if (dates.length === 0) return 0; let streak = 0; let today = new Date(); today.setHours(0, 0, 0, 0); const firstDateInLog = new Date(dates[0] + 'T00:00:00'); const diffTime = today - firstDateInLog; const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); if (diffDays > 1) return 0; streak = 1; for (let i = 0; i < dates.length - 1; i++) { const currentDate = new Date(dates[i] + 'T00:00:00'); const previousDate = new Date(dates[i+1] + 'T00:00:00'); const dayDifference = (currentDate - previousDate) / (1000 * 60 * 60 * 24); if (dayDifference === 1) { streak++; } else { break; } } return streak; },
                 getWeeklyActivityData() { const today = new Date(); today.setHours(0, 0, 0, 0); const weeks = [ { label: 'Hace 3sem', count: 0, start: new Date(today), end: new Date(today) }, { label: 'Hace 2sem', count: 0, start: new Date(today), end: new Date(today) }, { label: 'Sem Pasada', count: 0, start: new Date(today), end: new Date(today) }, { label: 'Esta Sem', count: 0, start: new Date(today), end: new Date(today) }, ]; for (let i = 0; i < 4; i++) { const weekIndex = 3 - i; const firstDayOfWeek = new Date(today); const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1; firstDayOfWeek.setDate(today.getDate() - dayOfWeek - (i * 7)); weeks[weekIndex].start = new Date(firstDayOfWeek); weeks[weekIndex].end = new Date(firstDayOfWeek); weeks[weekIndex].end.setDate(firstDayOfWeek.getDate() + 6); } Object.keys(this.state.workoutHistory).forEach(dateStr => { const workoutDate = new Date(dateStr + 'T00:00:00'); for (const week of weeks) { if (workoutDate >= week.start && workoutDate <= week.end) { week.count++; break; } } }); return weeks; },
@@ -652,7 +910,7 @@
                 hideModal(){const m=document.getElementById('custom-modal'),p=document.getElementById('custom-modal-panel');p.classList.add('modal-fade-out');p.addEventListener('animationend',()=>m.classList.add('hidden'),{once:true});},
                 showToast(m,t='success'){const c=document.getElementById('toast-container'),el=document.createElement('div');el.className=`toast ${t==='success'?'bg-emerald-500':'bg-red-500'} text-white font-bold py-2 px-4 rounded-lg shadow-lg`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.remove(),3000);},
                 formatTime(seconds) { const m = Math.floor(seconds / 60); const s = seconds % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; },
-                playSound(type) { const o=this.audioCtx.createOscillator(),g=this.audioCtx.createGain();o.connect(g);g.connect(this.audioCtx.destination);g.gain.setValueAtTime(0,this.audioCtx.currentTime);g.gain.linearRampToValueAtTime(0.3,this.audioCtx.currentTime+0.01);o.frequency.value=type==='start'?440:880;o.type='sine';o.start(this.audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.00001,this.audioCtx.currentTime+0.5);o.stop(this.audioCtx.currentTime+0.5); },
+                playSound(type) { if(!this.audioCtx) return; const o=this.audioCtx.createOscillator(),g=this.audioCtx.createGain();o.connect(g);g.connect(this.audioCtx.destination);g.gain.setValueAtTime(0,this.audioCtx.currentTime);g.gain.linearRampToValueAtTime(0.3,this.audioCtx.currentTime+0.01);o.frequency.value=type==='start'?440:880;o.type='sine';o.start(this.audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.00001,this.audioCtx.currentTime+0.5);o.stop(this.audioCtx.currentTime+0.5); },
                 switchCalculatorTab(tabId) { document.querySelectorAll('.calc-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById(`tab-content-${tabId}`).classList.remove('hidden'); document.querySelectorAll('.calc-tab-btn').forEach(btn => { if (btn.dataset.tab === tabId) { btn.classList.add('bg-emerald-500', 'text-gray-900'); btn.classList.remove('text-gray-300'); } else { btn.classList.remove('bg-emerald-500', 'text-gray-900'); btn.classList.add('text-gray-300'); } }); },
                 populateNutritionForm() { const { age, weight, height, gender } = this.state.physicalStats; document.getElementById('age').value = age; document.getElementById('weight').value = weight; document.getElementById('height').value = height; const genderRadio = document.querySelector(`#nutrition-form input[name="gender"][value="${gender}"]`); if (genderRadio) genderRadio.checked = true; },
                 renderNutricionSection() { this.renderBmiCard(0, 0); document.getElementById('bodyfat-value').textContent = '--'; document.getElementById('ideal-weight-value').textContent = '--'; document.getElementById('water-intake-value').textContent = '-- L'; },
@@ -667,7 +925,7 @@
                 renderDietPage(){const{calories,protein,carbs,fats}=this.state.userGoals;document.getElementById('diet-goal-calories').textContent=calories;document.getElementById('diet-goal-protein').textContent=protein;document.getElementById('diet-goal-carbs').textContent=carbs;document.getElementById('diet-goal-fats').textContent=fats;this.renderMealSections();this.updateDietSummary();},
                 getFoodById(foodId) { for (const category in this.data.foodDatabase) { const food = this.data.foodDatabase[category].find(item => item.id === foodId); if (food) return food; } return null; },
                 renderFoodList(searchTerm = '') { const container = document.getElementById('food-list'); const term = searchTerm.toLowerCase().trim(); const renderFoodItem = (item) => `<div class="bg-gray-700 p-3 rounded-lg flex justify-between items-center"><div><p class="font-semibold text-white">${item.name}</p><p class="text-xs text-gray-400">${item.cals} kcal por 100g</p></div><button data-action="show-add-food-modal" data-food-id="${item.id}" class="bg-emerald-500 rounded-full w-8 h-8 flex items-center justify-center text-gray-900 font-bold text-xl">+</button></div>`; if (term) { const results = Object.values(this.data.foodDatabase).flat().filter(item => item.name.toLowerCase().includes(term)); if (results.length === 0) { container.innerHTML = `<p class="text-gray-400 text-center p-4">No se encontraron alimentos.</p>`; } else { container.innerHTML = results.map(renderFoodItem).join(''); } } else { container.innerHTML = Object.entries(this.data.foodDatabase).map(([category, items]) => `<details class="bg-gray-700/50 rounded-lg open:bg-gray-700/80 transition-colors"><summary class="p-3 font-semibold cursor-pointer list-none flex justify-between items-center">${category}<i data-lucide="chevron-down" class="w-5 h-5 transition-transform transform details-open:rotate-180"></i></summary><div class="p-3 border-t border-gray-600/50 space-y-2">${items.map(renderFoodItem).join('')}</div></details>`).join(''); } lucide.createIcons(); },
-                renderMealSections(){const c=document.getElementById('meal-sections');c.innerHTML=Object.keys(this.state.dailyDiet).map(m=>{const i=this.state.dailyDiet[m],t=i.reduce((s,it)=>s+it.totalCals,0),h=i.length>0?i.map((it,idx)=>`<div class="bg-gray-800/50 p-2 rounded-md flex justify-between items-center text-sm"><div><p class="text-white">${it.name} <span class="text-gray-400">(${it.amount||'N/A'}g)</span></p><p class="text-xs text-gray-400">P:${it.totalP}g C:${it.totalC}g G:${it.totalF}g</p></div><div class="flex items-center space-x-2"><span class="font-semibold text-emerald-400">${it.totalCals} kcal</span><button data-action="confirm-remove-food" data-meal-name="${m}" data-item-index="${idx}" class="text-red-400 hover:text-red-300 text-xl leading-none p-1">&times;</button></div></div>`).join(''):`<p class="text-sm text-gray-500">Añade alimentos a esta comida.</p>`;const recipeButton=i.length>0?`<button data-action="get-recipe" data-meal-name="${m}" class="text-xs bg-purple-600/50 hover:bg-purple-600/80 text-purple-200 font-semibold py-1 px-2 rounded-md flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3"></i>Receta</button>`:'';return`<div class="bg-gray-700/50 p-4 rounded-xl"><div class="flex justify-between items-center"><h3 class="font-bold text-lg text-white">${m}</h3><div class="flex items-center gap-3">${recipeButton}<p class="text-sm text-gray-400">Total: <span class="font-bold text-white">${Math.round(t)} kcal</span></p></div></div><div class="mt-2 space-y-2">${h}</div></div>`}).join('');lucide.createIcons();},
+                renderMealSections(){const c=document.getElementById('meal-sections');c.innerHTML=Object.keys(this.state.dailyDiet).map(m=>{const i=this.state.dailyDiet[m],t=i.reduce((s,it)=>s+it.totalCals,0),h=i.length>0?i.map((it,idx)=>`<div class="bg-gray-800/50 p-2 rounded-md flex justify-between items-center text-sm"><div><p class="text-white">${it.name} <span class="text-gray-400">(${it.amount||'N/A'}g)</span></p><p class="text-xs text-gray-400">P:${it.totalP}g C:${it.totalC}g G:${it.totalF}g</p></div><div class="flex items-center space-x-2"><span class="font-semibold text-emerald-400">${it.totalCals} kcal</span><button data-action="confirm-remove-food" data-meal-name="${m}" data-item-index="${idx}" class="text-red-400 hover:text-red-300 text-xl leading-none p-1">&times;</button></div></div>`).join(''):`<p class="text-sm text-gray-500">Añade alimentos a esta comida.</p>`;const recipeButton=i.length>0 && this.isAsesor() ?`<button data-action="get-recipe" data-meal-name="${m}" class="text-xs bg-purple-600/50 hover:bg-purple-600/80 text-purple-200 font-semibold py-1 px-2 rounded-md flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3"></i>Receta</button>`:'';return`<div class="bg-gray-700/50 p-4 rounded-xl"><div class="flex justify-between items-center"><h3 class="font-bold text-lg text-white">${m}</h3><div class="flex items-center gap-3">${recipeButton}<p class="text-sm text-gray-400">Total: <span class="font-bold text-white">${Math.round(t)} kcal</span></p></div></div><div class="mt-2 space-y-2">${h}</div></div>`}).join('');lucide.createIcons();},
                 updateDietSummary(){let t={cals:0,p:0,c:0,f:0};Object.values(this.state.dailyDiet).flat().forEach(i=>{t.cals+=i.totalCals;t.p+=i.totalP;t.c+=i.totalC;t.f+=i.totalF;});document.getElementById('diet-total-calories').textContent=Math.round(t.cals);document.getElementById('diet-total-protein').textContent=Math.round(t.p);document.getElementById('diet-total-carbs').textContent=Math.round(t.c);document.getElementById('diet-total-fats').textContent=Math.round(t.f);const p=(c,g)=>Math.min(100,(g>0?c/g:0)*100);const{calories,protein,carbs,fats}=this.state.userGoals;const cp=p(t.cals,calories);document.getElementById('diet-progress-bar').style.width=`${cp}%`;document.getElementById('diet-protein-bar').style.width=`${p(t.p,protein)}%`;document.getElementById('diet-carbs-bar').style.width=`${p(t.c,carbs)}%`;document.getElementById('diet-fats-bar').style.width=`${p(t.f,fats)}%`;document.getElementById('dashboard-consumed-calories').textContent=`${Math.round(t.cals)} Kcal`;document.getElementById('dashboard-progress-bar').style.width=`${cp}%`;document.getElementById('dashboard-progress-text').textContent=`${Math.round(cp)}`;},
                 showAddFoodModal(foodId){const f = this.getFoodById(foodId);if(!f)return;const b=`<p class="mb-4">Añadir <strong>${f.name}</strong> a una comida.</p><div><label for="food-amount" class="block text-sm font-medium text-gray-300 mb-1">Cantidad (g)</label><input type="number" id="food-amount" value="100" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div class="mt-4"><label class="block text-sm font-medium text-gray-300 mb-2">Selecciona la comida</label><div class="grid grid-cols-2 gap-2">${Object.keys(this.state.dailyDiet).map(m=>`<button data-action="add-food-to-meal" data-food-id="${f.id}" data-meal-name="${m}" class="bg-gray-600 p-2 rounded-lg hover:bg-gray-500">${m}</button>`).join('')}</div></div>`;this.showModal('Añadir Alimento',b,[{text:'Cancelar',class:'bg-gray-600 hover:bg-gray-500',action:'hide-modal'}]);},
                 async addFoodToMealFromModal(foodId,mealName){const a=parseInt(document.getElementById('food-amount').value);if(isNaN(a)||a<=0){this.showToast("Cantidad inválida.","error");return;}const f = this.getFoodById(parseInt(foodId));if (!f) { this.showToast("Alimento no encontrado.", "error"); return; }const fac=a/100;this.state.dailyDiet[mealName].push({...f,amount:a,totalCals:Math.round(f.cals*fac),totalP:Math.round(f.p*fac),totalC:Math.round(f.c*fac),totalF:Math.round(f.f*fac)});await this.saveDataToFirestore();this.renderAll();this.hideModal();this.showToast(`${f.name} añadido a ${mealName}.`);},
@@ -683,10 +941,10 @@
                 async analyzeWorkoutPerformance(e) {const button = e.target.closest('[data-action="analyze-workout-performance"]');const logDataString = button.dataset.logData;const log = JSON.parse(decodeURIComponent(logDataString));const goal = document.querySelector('#nutrition-form input[name="goal"]:checked')?.value || 'maintain';const goalMap = { lose: 'perder peso', maintain: 'mantenimiento', gain: 'ganar músculo' };const userGoalText = goalMap[goal];const prompt = `Eres un entrenador de fitness positivo y motivador. Mi objetivo principal es ${userGoalText}. Este es mi registro de entrenamiento de hoy: ${JSON.stringify(log)}. Proporciona un análisis breve (menos de 75 palabras), en español, sobre mi rendimiento. Destaca un aspecto positivo y sugiere una mejora simple y específica para mi próxima sesión. Envuelve el aspecto positivo en etiquetas <strong> y la sugerencia en etiquetas <em>.`;try {const analysisText = await this.callGeminiAPI(prompt, button);const container = document.getElementById('ai-analysis-container');if (container) { container.innerHTML = `<div class="mt-4 pt-4 border-t border-gray-700 text-left"><h4 class="font-bold text-gray-200 flex items-center gap-2"><i data-lucide="sparkles" class="w-5 h-5 text-purple-400"></i>Análisis del Coach IA</h4><p class="text-sm text-gray-300 mt-2 bg-gray-900/50 p-3 rounded-lg">${analysisText}</p></div>`; lucide.createIcons(); button.style.display = 'none'; }} catch (error) {}},
                 routine_showAiSuggestionModal() { const body = `<p class="text-gray-300 mb-4">Describe el objetivo para este día de entrenamiento y la IA te sugerirá ejercicios.</p><div><label for="ai-goal-input" class="block text-sm font-medium text-gray-400 mb-1">Objetivo del día</label><input type="text" id="ai-goal-input" class="w-full bg-gray-700 rounded-lg p-2 mt-1 border border-gray-600" placeholder="Ej: Hipertrofia para pecho y hombro"></div>`; const footer = [ {text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal'}, {text: '✨ Generar', class: 'bg-emerald-600 hover:bg-emerald-500 text-gray-900', action: 'generate-exercises-ai'} ]; this.showModal('Sugerencias de la IA', body, footer); setTimeout(() => document.getElementById('ai-goal-input').focus(), 100); },
                 getExerciseByName(name) { for (const group in this.data.exerciseLibrary) { for (const subGroup in this.data.exerciseLibrary[group]) { const exercise = this.data.exerciseLibrary[group][subGroup].find(ex => ex.name === name); if (exercise) return exercise; } } return null; },
-                renderRoutinesSection() { const userRoutinesContainer = document.getElementById('user-routines-container'); const predefinedRoutinesContainer = document.getElementById('predefined-routines-container'); if (!userRoutinesContainer || !predefinedRoutinesContainer) return; if (this.state.userRoutines.length > 0) { userRoutinesContainer.innerHTML = this.state.userRoutines.map(r => this.routine_createUserCardHTML(r)).join(''); } else { userRoutinesContainer.innerHTML = `<div class="flex flex-col items-center justify-center w-64 h-40 text-center p-4 bg-gray-700/50 rounded-2xl border-2 border-dashed border-gray-600"><i data-lucide="folder-plus" class="w-8 h-8 text-gray-500 mb-2"></i><p class="text-gray-400 text-sm">Crea tu primera rutina</p></div>`; } let predefinedHtml = ''; const categoryTitles = { "Clásicos de Hipertrofia": "🏆 Clásicos de Hipertrofia", "Fuerza y Potencia": "⚡ Fuerza y Potencia", "Enfoque Femenino": "🌸 Enfoque Femenino", "Alta Intensidad": "🔥 Alta Intensidad", "Quema de Grasa": "💧 Quema de Grasa" }; for (const category in this.data.predefinedRoutines) { const title = categoryTitles[category] || category.replace(/_/g, ' '); predefinedHtml += `<div class="mb-6"><h4 class="font-bold text-xl mb-3 text-emerald-300 capitalize">${title}</h4><div class="space-y-3">`; const routinesInCategory = this.data.predefinedRoutines[category]; predefinedHtml += routinesInCategory.map(r => this.routine_createPredefinedCardHTML(r)).join(''); predefinedHtml += `</div></div>`; } predefinedRoutinesContainer.innerHTML = predefinedHtml; lucide.createIcons(); },
+                renderRoutinesSection() { const userRoutinesContainer = document.getElementById('user-routines-container'); const predefinedRoutinesContainer = document.getElementById('predefined-routines-container'); if (!userRoutinesContainer || !predefinedRoutinesContainer) return; if (this.state.userRoutines.length > 0) { userRoutinesContainer.innerHTML = this.state.userRoutines.map(r => this.routine_createUserCardHTML(r)).join(''); } else { userRoutinesContainer.innerHTML = `<div class="flex flex-col items-center justify-center w-64 h-40 text-center p-4 bg-gray-700/50 rounded-2xl border-2 border-dashed border-gray-600"><i data-lucide="folder-plus" class="w-8 h-8 text-gray-500 mb-2"></i><p class="text-gray-400 text-sm">${this.isAsesor() ? 'Crea tu primera rutina' : 'No tienes una rutina asignada.'}</p></div>`; } let predefinedHtml = ''; const categoryTitles = { "Clásicos de Hipertrofia": "🏆 Clásicos de Hipertrofia", "Fuerza y Potencia": "⚡ Fuerza y Potencia", "Enfoque Femenino": "🌸 Enfoque Femenino", "Alta Intensidad": "🔥 Alta Intensidad", "Quema de Grasa": "💧 Quema de Grasa" }; for (const category in this.data.predefinedRoutines) { const title = categoryTitles[category] || category.replace(/_/g, ' '); predefinedHtml += `<div class="mb-6"><h4 class="font-bold text-xl mb-3 text-emerald-300 capitalize">${title}</h4><div class="space-y-3">`; const routinesInCategory = this.data.predefinedRoutines[category]; predefinedHtml += routinesInCategory.map(r => this.routine_createPredefinedCardHTML(r)).join(''); predefinedHtml += `</div></div>`; } predefinedRoutinesContainer.innerHTML = predefinedHtml; lucide.createIcons(); },
                 routine_createUserCardHTML(routine) { const days = routine.plan.length; const totalExercises = routine.plan.reduce((acc, day) => acc + day.exercises.length, 0); return `<button data-action="routine-show-details" data-routine-id="${routine.id}" class="flex-shrink-0 w-64 h-40 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-4 flex flex-col justify-between text-left hover:ring-2 hover:ring-emerald-400 transition-all shadow-lg"><div><h4 class="font-bold text-lg text-white truncate">${routine.name}</h4><p class="text-sm text-gray-400 mt-1 line-clamp-2">${routine.description || 'Sin descripción'}</p></div><div class="flex items-center gap-4 text-xs text-gray-400 font-medium"><div class="flex items-center gap-1.5"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i><span>${days} ${days > 1 ? 'días' : 'día'}</span></div><div class="flex items-center gap-1.5"><i data-lucide="repeat" class="w-3.5 h-3.5"></i><span>${totalExercises} ej.</span></div></div></button>`; },
                 routine_createPredefinedCardHTML(routine) { return `<button data-action="routine-show-details" data-routine-id="${routine.id}" class="w-full bg-gray-700 rounded-2xl p-4 flex items-center space-x-4 text-left hover:bg-gray-600/80 transition-colors"><div class="bg-gray-800 p-3 rounded-lg"><i data-lucide="${routine.icon || 'activity'}" class="text-emerald-400"></i></div><div class="flex-1"><h4 class="font-bold text-white">${routine.name}</h4><p class="text-sm text-gray-400">${routine.description}</p></div><i data-lucide="chevron-right" class="text-gray-500"></i></button>`; },
-                routine_showDetails(routineId) { const allRoutines = [...this.state.userRoutines, ...Object.values(this.data.predefinedRoutines).flat()]; const routine = allRoutines.find(r => r.id === routineId); if (!routine) return; const daysHTML = routine.plan.map((day, dayIndex) => `<div class="bg-gray-900/50 rounded-xl p-4 space-y-3"><h4 class="font-bold text-lg text-emerald-300">${day.day}</h4><ul class="text-gray-300 space-y-2 text-sm divide-y divide-gray-700/50">${day.exercises.map(ex => `<li class="flex justify-between items-center pt-2"><button data-action="show-exercise-info" data-exercise-name="${ex.name}" class="flex items-center gap-2 text-left flex-1 pr-4 group"><i data-lucide="help-circle" class="w-4 h-4 text-gray-500 group-hover:text-sky-400 transition-colors"></i><span class="group-hover:text-white transition-colors">${ex.name}</span></button> <span class="text-gray-400 font-mono bg-gray-700/80 px-2 py-1 text-xs rounded-md">${ex.sets}x${ex.reps}</span></li>`).join('')}</ul><button data-action="start-workout" data-routine-id="${routine.id}" data-day-index="${dayIndex}" class="w-full bg-emerald-600 text-gray-900 font-bold py-2.5 rounded-lg mt-3 hover:bg-emerald-500 transition flex items-center justify-center gap-2"><i data-lucide="play" class="w-5 h-5"></i><span>Comenzar Entrenamiento</span></button></div>`).join(''); const isUserRoutine = routine.id.startsWith('manual-'); const deleteButtonHTML = isUserRoutine ? `<button data-action="routine-confirm-delete" data-routine-id="${routine.id}" class="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-red-500/10"><i data-lucide="trash-2" class="w-5 h-5"></i></button>` : '<div class="w-9 h-9"></div>'; const viewHTML = `<div id="routine-details-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col"><header class="p-4 flex items-center justify-between bg-gray-900/80 backdrop-blur-sm sticky top-0"><button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button><h3 class="text-lg font-bold truncate px-4">${routine.name}</h3>${deleteButtonHTML}</header><div class="flex-grow p-4 overflow-y-auto space-y-4"><p class="text-gray-400 bg-gray-700/50 p-3 rounded-lg text-sm">${routine.description}</p>${daysHTML}</div></div>`; this.routine_openFullscreenView(viewHTML); },
+                routine_showDetails(routineId) { const allRoutines = [...this.state.userRoutines, ...Object.values(this.data.predefinedRoutines).flat()]; const routine = allRoutines.find(r => r.id === routineId); if (!routine) return; const daysHTML = routine.plan.map((day, dayIndex) => `<div class="bg-gray-900/50 rounded-xl p-4 space-y-3"><h4 class="font-bold text-lg text-emerald-300">${day.day}</h4><ul class="text-gray-300 space-y-2 text-sm divide-y divide-gray-700/50">${day.exercises.map(ex => `<li class="flex justify-between items-center pt-2"><button data-action="show-exercise-info" data-exercise-name="${ex.name}" class="flex items-center gap-2 text-left flex-1 pr-4 group"><i data-lucide="help-circle" class="w-4 h-4 text-gray-500 group-hover:text-sky-400 transition-colors"></i><span class="group-hover:text-white transition-colors">${ex.name}</span></button> <span class="text-gray-400 font-mono bg-gray-700/80 px-2 py-1 text-xs rounded-md">${ex.sets}x${ex.reps}</span></li>`).join('')}</ul><button data-action="start-workout" data-routine-id="${routine.id}" data-day-index="${dayIndex}" class="w-full bg-emerald-600 text-gray-900 font-bold py-2.5 rounded-lg mt-3 hover:bg-emerald-500 transition flex items-center justify-center gap-2"><i data-lucide="play" class="w-5 h-5"></i><span>Comenzar Entrenamiento</span></button></div>`).join(''); const isUserRoutine = routine.id.startsWith('manual-'); const deleteButtonHTML = isUserRoutine && this.isAsesor() ? `<button data-action="routine-confirm-delete" data-routine-id="${routine.id}" class="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-red-500/10"><i data-lucide="trash-2" class="w-5 h-5"></i></button>` : '<div class="w-9 h-9"></div>'; const viewHTML = `<div id="routine-details-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col"><header class="p-4 flex items-center justify-between bg-gray-900/80 backdrop-blur-sm sticky top-0"><button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button><h3 class="text-lg font-bold truncate px-4">${routine.name}</h3>${deleteButtonHTML}</header><div class="flex-grow p-4 overflow-y-auto space-y-4"><p class="text-gray-400 bg-gray-700/50 p-3 rounded-lg text-sm">${routine.description}</p>${daysHTML}</div></div>`; this.routine_openFullscreenView(viewHTML); },
                 routine_enterCreator(step = 1) { if (step === 1) { this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1 }; } const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(step)}</div>`; this.routine_openFullscreenView(viewHTML); if(step === 2) { this.routine_refreshDayTabs(); this.routine_refreshExerciseList(); this.routine_creator_switchGroup(Object.keys(this.data.exerciseLibrary)[0]); } },
                 routine_getCreatorContent(step) {
                     if (step === 1) {
@@ -727,7 +985,7 @@
                         `;
                     }
                     if (step === 2) {
-                        const isAdmin = this.isAdmin();
+                        const isAdmin = this.state.currentUser.uid === this.adminUID;
                         const groupsNav = `<nav id="exercise-group-nav" class="w-full md:w-1/3 shrink-0 p-2 overflow-y-auto border-b md:border-b-0 md:border-r border-gray-800 space-y-1">${Object.keys(this.data.exerciseLibrary).map(group => `<button data-action="routine-creator-switch-group" data-group-target="${group}" class="w-full text-left font-semibold p-3 rounded-lg text-gray-300 hover:bg-gray-700/50 transition-colors data-[active=true]:bg-emerald-500/20 data-[active=true]:text-emerald-300">${group}</button>`).join('')}</nav>`;
                         const exercisesPanel = `
                         <main id="exercise-list-panel" class="flex-grow p-4 overflow-y-auto">
@@ -885,7 +1143,6 @@
                 routine_openFullscreenView(html) { const container = document.getElementById('fullscreen-view-container'); container.innerHTML = html; container.classList.remove('pointer-events-none'); setTimeout(() => { const view = container.querySelector('.fullscreen-view'); if(view) view.classList.add('is-active'); lucide.createIcons(); }, 10); },
                 routine_closeFullscreenView() { const container = document.getElementById('fullscreen-view-container'); const view = container.querySelector('.fullscreen-view'); if (view) { view.classList.remove('is-active'); view.addEventListener('transitionend', () => { container.innerHTML = ''; container.classList.add('pointer-events-none'); }, { once: true }); } },
                 
-                // *** NUEVAS FUNCIONES ***
                 showMediaViewer(url) {
                     if (!url) {
                         this.showToast('No hay multimedia para este ejercicio.', 'error');
@@ -979,7 +1236,7 @@
                 },
 
                 async admin_uploadAndSaveMedia(group, subGroup, exerciseIndex) {
-                    if (!this.isAdmin()) {
+                    if (this.state.currentUser.uid !== this.adminUID) {
                         this.showToast('Acción no permitida.', 'error');
                         return;
                     }
@@ -1026,10 +1283,9 @@
                                 this.showToast('¡Recurso subido y guardado!', 'success');
                                 this.hideModal();
                                 
-                                // Recargar el contenido del creador si está abierto para reflejar el cambio
                                 const creatorView = document.getElementById('routine-creator-view');
                                 if (creatorView) {
-                                   this.routine_enterCreator(2); // Esto re-renderizará todo
+                                   this.routine_enterCreator(2);
                                 }
 
                             } catch(error) {
