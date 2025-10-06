@@ -382,7 +382,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             const app = {
                 // IMPORTANTE: Reemplaza "" con tu propia clave de API de Google AI Studio.
-                apiKey: "AIzaSyAFMrHQBsCdraul2_mZIUHBdv1YUMAuKDk", // Tu clave de API de Google AI Studio aquí
+                apiKey: "", // Tu clave de API de Google AI Studio aquí
                 adminUID: "oyVFC1vKcLhTLJJsjMQDPRL1z2K2",
                 firebaseApp: firebaseApp,
                 auth: null,
@@ -1487,7 +1487,59 @@
                 routine_showAiSuggestionModal() { const body = `<p class="text-gray-300 mb-4">Describe el objetivo para este día de entrenamiento y la IA te sugerirá ejercicios.</p><div><label for="ai-goal-input" class="block text-sm font-medium text-gray-400 mb-1">Objetivo del día</label><input type="text" id="ai-goal-input" class="w-full bg-gray-700 rounded-lg p-2 mt-1 border border-gray-600" placeholder="Ej: Hipertrofia para pecho y hombro"></div>`; const footer = [ {text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal'}, {text: '✨ Generar', class: 'bg-emerald-600 hover:bg-emerald-500 text-gray-900', action: 'generate-exercises-ai'} ]; this.showModal('Sugerencias de la IA', body, footer); setTimeout(() => document.getElementById('ai-goal-input').focus(), 100); },
                 getExerciseByName(name) { for (const group in this.data.exerciseLibrary) { for (const subGroup in this.data.exerciseLibrary[group]) { const exercise = this.data.exerciseLibrary[group][subGroup].find(ex => ex.name === name); if (exercise) return exercise; } } return null; },
                 renderRoutinesSection() { const userRoutinesContainer = document.getElementById('user-routines-container'); const predefinedRoutinesContainer = document.getElementById('predefined-routines-section'); if (!userRoutinesContainer || !predefinedRoutinesContainer) return; if (this.state.userRoutines && this.state.userRoutines.length > 0) { userRoutinesContainer.innerHTML = this.state.userRoutines.map(r => this.routine_createUserCardHTML(r)).join(''); } else { userRoutinesContainer.innerHTML = `<div class="flex flex-col items-center justify-center w-64 h-40 text-center p-4 bg-gray-700/50 rounded-2xl border-2 border-dashed border-gray-600"><i data-lucide="folder-plus" class="w-8 h-8 text-gray-500 mb-2"></i><p class="text-gray-400 text-sm">${this.isAsesor() ? 'Crea tu primera rutina' : 'No tienes una rutina asignada.'}</p></div>`; } let predefinedHtml = ''; const categoryTitles = { "Clásicos de Hipertrofia": "🏆 Clásicos de Hipertrofia", "Fuerza y Potencia": "⚡ Fuerza y Potencia", "Enfoque Femenino": "🌸 Enfoque Femenino", "Alta Intensidad": "🔥 Alta Intensidad", "Quema de Grasa": "💧 Quema de Grasa" }; for (const category in this.data.predefinedRoutines) { const title = categoryTitles[category] || category.replace(/_/g, ' '); predefinedHtml += `<div class="mb-6"><h4 class="font-bold text-xl mb-3 text-emerald-300 capitalize">${title}</h4><div class="space-y-3">`; const routinesInCategory = this.data.predefinedRoutines[category]; predefinedHtml += routinesInCategory.map(r => this.routine_createPredefinedCardHTML(r)).join(''); predefinedHtml += `</div></div>`; } predefinedRoutinesContainer.innerHTML = predefinedHtml; lucide.createIcons(); },
-                routine_createUserCardHTML(routine) { const days = routine.plan.length; const totalExercises = routine.plan.reduce((acc, day) => acc + day.exercises.length, 0); return `<button data-action="routine-show-details" data-routine-id="${routine.id}" class="flex-shrink-0 w-64 h-40 bg-gradient-to-br from-gray-700 to-gray-800 rounded-2xl p-4 flex flex-col justify-between text-left hover:ring-2 hover:ring-emerald-400 transition-all shadow-lg"><div><h4 class="font-bold text-lg text-white truncate">${routine.name}</h4><p class="text-sm text-gray-400 mt-1 line-clamp-2">${routine.description || 'Sin descripción'}</p></div><div class="flex items-center gap-4 text-xs text-gray-400 font-medium"><div class="flex items-center gap-1.5"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i><span>${days} ${days > 1 ? 'días' : 'día'}</span></div><div class="flex items-center gap-1.5"><i data-lucide="repeat" class="w-3.5 h-3.5"></i><span>${totalExercises} ej.</span></div></div></button>`; },
+                //
+// ESTE ES EL NUEVO BLOQUE QUE DEBES PEGAR EN SU LUGAR
+//
+routine_createUserCardHTML(routine) {
+    const days = routine.plan.length;
+    const totalExercises = routine.plan.reduce((acc, day) => acc + day.exercises.length, 0);
+
+    // --- LA LÓGICA NUEVA COMIENZA AQUÍ ---
+
+    // 1. Verificamos si la rutina tiene una URL de imagen guardada.
+    //    Esto devuelve 'true' si hay una URL, y 'false' si no.
+    const hasCover = routine.coverImageUrl;
+    
+    // 2. Si 'hasCover' es true, preparamos un atributo 'style' para el HTML
+    //    que establecerá la imagen como fondo. Si no, dejamos el string vacío.
+    const backgroundStyle = hasCover 
+        ? `style="background-image: url('${routine.coverImageUrl}');"`
+        : '';
+    
+    // 3. Hacemos lo mismo para las clases de Tailwind CSS. Si hay imagen,
+    //    usamos clases para que la imagen cubra el área y se centre.
+    //    Si no, usamos las clases del gradiente original.
+    const backgroundClasses = hasCover
+        ? 'bg-cover bg-center'
+        : 'bg-gradient-to-br from-gray-700 to-gray-800';
+    
+    // 4. ¡MUY IMPORTANTE! Si hay una imagen de fondo, el texto puede no leerse bien.
+    //    Esta línea crea un 'div' que actúa como una capa oscura semitransparente
+    //    (bg-black/60) que se pondrá ENTRE la imagen de fondo y el texto,
+    //    asegurando que el texto siempre sea legible.
+    const overlayHTML = hasCover ? '<div class="absolute inset-0 bg-black/60 rounded-2xl"></div>' : '';
+
+    // 5. Finalmente, construimos el HTML del botón. Observa cómo usamos las
+    //    variables que acabamos de crear para insertar dinámicamente
+    //    las clases, el estilo y la capa de superposición.
+    return `
+        <button data-action="routine-show-details" data-routine-id="${routine.id}" 
+                class="relative flex-shrink-0 w-64 h-40 ${backgroundClasses} rounded-2xl p-4 flex flex-col justify-between text-left hover:ring-2 hover:ring-emerald-400 transition-all shadow-lg overflow-hidden" 
+                ${backgroundStyle}>
+            
+            ${overlayHTML}
+            
+            <div class="relative z-10">
+                <h4 class="font-bold text-lg text-white truncate">${routine.name}</h4>
+                <p class="text-sm text-gray-300 mt-1 line-clamp-2">${routine.description || 'Sin descripción'}</p>
+            </div>
+            <div class="relative z-10 flex items-center gap-4 text-xs text-gray-300 font-medium">
+                <div class="flex items-center gap-1.5"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i><span>${days} ${days > 1 ? 'días' : 'día'}</span></div>
+                <div class="flex items-center gap-1.5"><i data-lucide="repeat" class="w-3.5 h-3.5"></i><span>${totalExercises} ej.</span></div>
+            </div>
+        </button>
+    `;
+},
                 routine_createPredefinedCardHTML(routine) { return `<button data-action="routine-show-details" data-routine-id="${routine.id}" class="w-full bg-gray-700 rounded-2xl p-4 flex items-center space-x-4 text-left hover:bg-gray-600/80 transition-colors"><div class="bg-gray-800 p-3 rounded-lg"><i data-lucide="${routine.icon || 'activity'}" class="text-emerald-400"></i></div><div class="flex-1"><h4 class="font-bold text-white">${routine.name}</h4><p class="text-sm text-gray-400">${routine.description}</p></div><i data-lucide="chevron-right" class="text-gray-500"></i></button>`; },
                 
                 routine_showDetails(routineId) {
@@ -1533,7 +1585,12 @@
                     this.routine_openFullscreenView(viewHTML); 
                 },
 
-                routine_enterCreator(step = 1) { if (step === 1) { this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null }; } const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(step)}</div>`; this.routine_openFullscreenView(viewHTML); if(step === 2) { this.routine_refreshDayTabs(); this.routine_refreshExerciseList(); this.routine_creator_switchGroup(Object.keys(this.data.exerciseLibrary)[0]); } },
+                if (step === 1) { 
+    this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null }; 
+}
+                const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(step)}</div>`; this.routine_openFullscreenView(viewHTML); // Pega esta línea justo después de routine_openFullscreenView(viewHTML);
+document.getElementById('routine-cover-image-input')?.addEventListener('change', (e) => this.routine_handleCoverImageSelect(e));
+            if(step === 2) { this.routine_refreshDayTabs(); this.routine_refreshExerciseList(); this.routine_creator_switchGroup(Object.keys(this.data.exerciseLibrary)[0]); } },
                 routine_getCreatorContent(step) {
                     if (step === 1) {
                         return `
@@ -1567,6 +1624,32 @@
                                     <textarea id="routine-desc-input" class="w-full bg-gray-700/50 rounded-lg p-3 h-24 resize-none text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Enfocado en hipertrofia de pecho y hombro">${this._tempRoutine.description || ''}</textarea>
                                 </div>
                             </div>
+                            <div class="bg-gray-800 rounded-xl p-4">
+    <label for="routine-cover-image-input" class="flex items-center gap-2 text-lg font-semibold text-gray-300 mb-2 cursor-pointer">
+        <i data-lucide="image" class="w-5 h-5 text-emerald-400"></i>
+        <span>Imagen de Portada (Opcional)</span>
+    </label>
+
+    <input type="file" id="routine-cover-image-input" class="hidden" accept="image/png, image/jpeg, image/webp">
+
+    <div id="cover-image-preview-wrapper" class="mt-2 aspect-video bg-gray-700/50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-600 relative overflow-hidden">
+
+        <img id="routine-cover-preview" src="#" alt="Vista previa de la portada" class="hidden w-full h-full object-cover">
+
+        <div id="cover-image-placeholder" class="text-center text-gray-500">
+            <i data-lucide="image-plus" class="w-10 h-10 mx-auto"></i>
+            <p class="text-sm mt-1">Clic para subir imagen</p>
+        </div>
+
+        <div id="cover-upload-progress-container" class="absolute inset-0 bg-black/70 flex-col items-center justify-center hidden">
+            <div class="w-3/4 bg-gray-600 rounded-full h-2">
+                <div id="cover-upload-progress-bar" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
+            </div>
+            <p id="cover-upload-progress-text" class="text-xs text-white mt-2">Subiendo...</p>
+        </div>
+    </div>
+</div>
+                        
                             <footer class="p-4 bg-gray-900/80 backdrop-blur-sm shrink-0">
                                 <button data-action="routine-creator-next" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition text-gray-900 flex items-center justify-center gap-2">Siguiente: Añadir Ejercicios <i data-lucide="arrow-right"></i></button>
                             </footer>
@@ -1637,7 +1720,86 @@
                             `;
                     }
                 },
-                
+                // Pega estas dos nuevas funciones en tu código
+
+/**
+ * Se activa cuando el usuario selecciona un archivo.
+ * Lee el archivo, lo muestra como vista previa y llama a la función de subida.
+ */
+routine_handleCoverImageSelect(event) {
+    // 1. Obtiene el primer archivo seleccionado.
+    const file = event.target.files[0];
+    if (!file) return; // Si el usuario cancela, no hace nada.
+
+    // 2. Obtiene referencias a los elementos de la interfaz.
+    const preview = document.getElementById('routine-cover-preview');
+    const placeholder = document.getElementById('cover-image-placeholder');
+
+    // 3. Usa FileReader para leer el archivo del disco del usuario.
+    const reader = new FileReader();
+
+    // 4. Define qué hacer cuando el archivo se haya cargado en memoria.
+    reader.onload = (e) => {
+        preview.src = e.target.result; // Asigna los datos de la imagen al <img>
+        preview.classList.remove('hidden'); // Muestra la imagen
+        placeholder.classList.add('hidden'); // Oculta el texto "Clic para subir"
+    };
+
+    // 5. Inicia la lectura del archivo.
+    reader.readAsDataURL(file);
+
+    // 6. Llama a la función que subirá el archivo a Firebase.
+    this.routine_uploadCoverImage(file);
+},
+
+/**
+ * Sube el archivo a Firebase Storage y guarda la URL de descarga.
+ */
+async routine_uploadCoverImage(file) {
+    if (!file) return;
+
+    // 1. Obtiene referencias a los elementos de la barra de progreso.
+    const progressContainer = document.getElementById('cover-upload-progress-container');
+    const progressBar = document.getElementById('cover-upload-progress-bar');
+    const progressText = document.getElementById('cover-upload-progress-text');
+
+    // 2. Muestra el contenedor de progreso.
+    progressContainer.style.display = 'flex';
+
+    // 3. Define una ruta única para el archivo en Firebase Storage.
+    const filePath = `routine_covers/${this._tempRoutine.id}-${file.name}`;
+    const storageRef = ref(this.storage, filePath);
+
+    // 4. Inicia la tarea de subida.
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    // 5. Monitorea el progreso de la subida.
+    uploadTask.on('state_changed',
+        (snapshot) => { // Callback de progreso
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            progressBar.style.width = progress + '%';
+            progressText.textContent = `Subiendo... ${Math.round(progress)}%`;
+        },
+        (error) => { // Callback de error
+            console.error("Upload failed:", error);
+            this.showToast('Error al subir la imagen.', 'error');
+            progressText.textContent = 'Error en la subida';
+        },
+        async () => { // Callback de éxito (cuando la subida termina)
+            // 6. Obtiene la URL pública del archivo recién subido.
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+
+            // 7. ¡CRÍTICO! Guarda la URL en el objeto de la rutina temporal.
+            this._tempRoutine.coverImageUrl = downloadURL;
+
+            // 8. Informa al usuario y oculta la barra de progreso.
+            progressText.textContent = '¡Subido con éxito!';
+            document.getElementById('routine-cover-image-input').disabled = true;
+            setTimeout(() => { progressContainer.style.display = 'none'; }, 2000);
+        }
+    );
+},
+// Fin de las funciones a pegar
                 routine_handleCreatorNext() { const name = document.getElementById('routine-name-input').value.trim(); const desc = document.getElementById('routine-desc-input').value.trim(); if (!name) { this.showToast('El nombre es obligatorio', 'error'); return; } this._tempRoutine.name = name; this._tempRoutine.description = desc; this.routine_enterCreator(2); },
                 routine_showAddExerciseDrawer() { const drawer = document.getElementById('exercise-drawer'); if (drawer) { drawer.classList.add('is-active'); document.getElementById('exercise-search-input').focus(); } },
                 routine_closeAddExerciseDrawer() { const drawer = document.getElementById('exercise-drawer'); if (drawer) drawer.classList.remove('is-active'); },
