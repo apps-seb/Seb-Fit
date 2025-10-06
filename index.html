@@ -1567,11 +1567,11 @@
         this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null }; 
     } 
                     const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(step)}</div>`; this.routine_openFullscreenView(viewHTML);
-                    // ▼▼▼ CÓDIGO A INSERTAR ▼▼▼
+                
         if (step === 1) {
             document.getElementById('routine-cover-image-input')?.addEventListener('change', (e) => this.routine_handleCoverImageSelect(e));
         }
-        // ▲▲▲ FIN DEL CÓDIGO A INSERTAR ▲▲▲
+       
                     if(step === 2)
                     { this.routine_refreshDayTabs(); this.routine_refreshExerciseList(); this.routine_creator_switchGroup(Object.keys(this.data.exerciseLibrary)[0]); } },
                 routine_getCreatorContent(step) {
