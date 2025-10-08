@@ -201,7 +201,7 @@
             </div>
         </div>
 
-        <div id="fullscreen-view-container" class="absolute inset-0 z-30 pointer-events-none"></div>
+        <div id="fullscreen-view-container" class="fixed inset-0 z-40 pointer-events-none"></div>
     </div>
 
     <div id="custom-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"><div id="custom-modal-panel" class="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-xl border border-gray-700 modal-fade-in"><h3 id="custom-modal-title" class="text-xl font-bold"></h3><div id="custom-modal-body" class="text-gray-300 mt-4 max-h-[70vh] overflow-y-auto"></div><div id="custom-modal-footer" class="mt-6 flex justify-end space-x-3"></div></div></div>
@@ -1950,7 +1950,7 @@
                         const totalDays = this._tempRoutine.plan.length;
                         const totalExercises = currentDay.exercises.length;
                         const groupImages = this.data.exerciseGroupImages || {};
-                        const groupsNav = `<aside id="exercise-group-nav" class="w-full shrink-0 border-b border-white/5 bg-gray-950/80 md:w-80 md:border-b-0 md:border-r">
+                        const groupsNav = `<aside id="exercise-group-nav" class="w-full shrink-0 border-b border-white/5 bg-gray-950/80 md:w-80 md:border-b-0 md:border-r md:max-h-[calc(100vh-8rem)] md:overflow-y-auto">
                             <div class="grid gap-4 p-5">
                                 ${Object.keys(this.data.exerciseLibrary).map(group => {
                                     const rawUrl = groupImages[group] || '';
@@ -1964,11 +1964,13 @@
                                     return `
                                         <button type="button" data-action="routine-creator-switch-group" data-group-target="${group}" class="group relative flex h-36 w-full flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-white/5 text-left shadow-[0_25px_60px_-40px_rgba(16,185,129,0.75)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300/60 data-[active=true]:border-emerald-300 data-[active=true]:shadow-emerald-400/40">
                                             <div class="absolute inset-0 bg-cover bg-center" style="${backgroundStyle}"></div>
-                                            <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/45 to-transparent"></div>
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
                                             ${editButton}
-                                            <div class="relative z-10 flex flex-col gap-1 p-4">
-                                                <span class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Grupo</span>
-                                                <span class="text-lg font-semibold text-white">${group}</span>
+                                            <div class="relative z-10 w-full p-4">
+                                                <div class="rounded-2xl bg-black/45 px-4 py-3 backdrop-blur-sm">
+                                                    <span class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Grupo muscular</span>
+                                                    <p class="mt-1 text-lg font-semibold text-white leading-tight">${group}</p>
+                                                </div>
                                             </div>
                                         </button>
                                     `;
@@ -2078,7 +2080,7 @@
                                     </div>
                                     <button data-action="routine-creator-close-drawer" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white"><i data-lucide="x"></i></button>
                                 </header>
-                                <div class="flex flex-1 flex-col overflow-hidden md:flex-row">${groupsNav}${exercisesPanel}</div>
+                                <div class="flex flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden">${groupsNav}${exercisesPanel}</div>
                             </div>
                         `;
                     }
