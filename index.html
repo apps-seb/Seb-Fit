@@ -201,7 +201,7 @@
             </div>
         </div>
 
-        <div id="fullscreen-view-container" class="fixed inset-0 z-40 pointer-events-none"></div>
+        <div id="fullscreen-view-container" class="fixed inset-0 z-40 pointer-events-none opacity-0 transition-opacity duration-300 bg-gray-950/95"></div>
     </div>
 
     <div id="custom-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"><div id="custom-modal-panel" class="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-xl border border-gray-700 modal-fade-in"><h3 id="custom-modal-title" class="text-xl font-bold"></h3><div id="custom-modal-body" class="text-gray-300 mt-4 max-h-[70vh] overflow-y-auto"></div><div id="custom-modal-footer" class="mt-6 flex justify-end space-x-3"></div></div></div>
@@ -2476,8 +2476,32 @@
 
                 routine_confirmDelete(routineId) { this.showModal('Eliminar Rutina', '¿Estás seguro? Esta acción no se puede deshacer.', [ {text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal'}, {text: 'Eliminar', class: 'bg-red-600 hover:bg-red-500', action: 'routine-delete', 'routine-id': routineId} ]); },
                 async routine_delete(routineId) { this.state.userRoutines = this.state.userRoutines.filter(r => r.id !== routineId); await this.saveDataToFirestore(); this.hideModal(); this.routine_closeFullscreenView(); this.renderRoutinesSection(); this.showToast('Rutina eliminada', 'error'); },
-                routine_openFullscreenView(html) { const container = document.getElementById('fullscreen-view-container'); container.innerHTML = html; container.classList.remove('pointer-events-none'); setTimeout(() => { const view = container.querySelector('.fullscreen-view'); if(view) view.classList.add('is-active'); lucide.createIcons(); }, 10); },
-                routine_closeFullscreenView() { const container = document.getElementById('fullscreen-view-container'); const view = container.querySelector('.fullscreen-view'); if (view) { view.classList.remove('is-active'); view.addEventListener('transitionend', () => { container.innerHTML = ''; container.classList.add('pointer-events-none'); this.renderAsesoradosSection(); }, { once: true }); } },
+                routine_openFullscreenView(html) {
+                    const container = document.getElementById('fullscreen-view-container');
+                    container.innerHTML = html;
+                    container.classList.remove('pointer-events-none');
+                    container.classList.remove('opacity-0');
+                    container.style.opacity = '1';
+                    setTimeout(() => {
+                        const view = container.querySelector('.fullscreen-view');
+                        if (view) view.classList.add('is-active');
+                        lucide.createIcons();
+                    }, 10);
+                },
+                routine_closeFullscreenView() {
+                    const container = document.getElementById('fullscreen-view-container');
+                    const view = container.querySelector('.fullscreen-view');
+                    if (view) {
+                        view.classList.remove('is-active');
+                        container.style.opacity = '0';
+                        container.classList.add('opacity-0');
+                        view.addEventListener('transitionend', () => {
+                            container.innerHTML = '';
+                            container.classList.add('pointer-events-none');
+                            this.renderAsesoradosSection();
+                        }, { once: true });
+                    }
+                },
                 
                 showMediaViewer(url) {
                     if (!url) {
