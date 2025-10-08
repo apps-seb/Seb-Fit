@@ -1018,6 +1018,7 @@
                         };
                     }
                     this._tempRoutine.editingClientId = clientId;
+                    this._tempRoutine.assignedClientId = clientId;
                     this.routine_enterCreator(2);
                 },
 
@@ -1615,7 +1616,7 @@
                 routine_enterCreator(step = 1) { 
     if (step === 1) { 
         // ▼▼▼ CAMBIO: Añadir la propiedad 'coverImageUrl' ▼▼▼
-        this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null }; 
+        this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null, assignedClientId: '' };
     } 
                     const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(step)}</div>`; this.routine_openFullscreenView(viewHTML);
                 
@@ -1637,54 +1638,78 @@
                                 <div class="w-full h-1 bg-gray-700/50 rounded-full"><div class="w-1/2 h-1 bg-emerald-500 rounded-full"></div></div>
                                 <p class="text-center text-sm text-gray-400 mt-2">Paso 1: Detalles de la Rutina</p>
                             </div>
-                            <div class="flex-grow p-6 overflow-y-auto space-y-6">
-                                <div class="text-center">
-                                    <i data-lucide="file-pen-line" class="w-16 h-16 mx-auto text-emerald-400/50"></i>
-                                    <h2 class="text-3xl font-bold text-white mt-4">Detalles de la Rutina</h2>
-                                    <p class="text-gray-400 mt-1">Dale una identidad a tu nuevo plan de entrenamiento.</p>
-                                </div>
-                                <div class="bg-gray-800 rounded-xl p-4">
-                                    <label for="routine-name-input" class="flex items-center gap-2 text-lg font-semibold text-gray-300 mb-2">
-                                        <i data-lucide="type" class="w-5 h-5 text-emerald-400"></i>
-                                        <span>Nombre de la Rutina</span>
-                                    </label>
-                                    <input id="routine-name-input" type="text" value="${this._tempRoutine.name || ''}" class="w-full bg-gray-700/50 rounded-lg p-3 text-white text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Empuje Explosivo">
-                                </div>
-                                <div class="bg-gray-800 rounded-xl p-4">
-                                    <label for="routine-desc-input" class="flex items-center gap-2 text-lg font-semibold text-gray-300 mb-2">
-                                        <i data-lucide="notebook-text" class="w-5 h-5 text-emerald-400"></i>
-                                        <span>Descripción (Opcional)</span>
-                                    </label>
-                                    <textarea id="routine-desc-input" class="w-full bg-gray-700/50 rounded-lg p-3 h-24 resize-none text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Enfocado en hipertrofia de pecho y hombro">${this._tempRoutine.description || ''}</textarea>
-                                </div>
-                                <div class="bg-gray-800 rounded-xl p-4">
-                                    <label for="routine-cover-image-input" class="flex items-center gap-2 text-lg font-semibold text-gray-300 mb-2 cursor-pointer">
-                                        <i data-lucide="image" class="w-5 h-5 text-emerald-400"></i>
-                                        <span>Imagen de Portada (Opcional)</span>
-                                    </label>
-                                    <input type="file" id="routine-cover-image-input" class="hidden" accept="image/png, image/jpeg, image/webp">
-                                    <div id="cover-image-preview-wrapper" class="mt-2 aspect-video bg-gray-700/50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-600 relative overflow-hidden">
-                                        <img id="routine-cover-preview" src="#" alt="Vista previa de la portada" class="hidden w-full h-full object-cover">
-                                        <div id="cover-image-placeholder" class="text-center text-gray-500">
-                                            <i data-lucide="image-plus" class="w-10 h-10 mx-auto"></i>
-                                            <p class="text-sm mt-1">Clic para subir imagen</p>
+                            <div class="flex-grow overflow-y-auto px-4 pb-6">
+                                <div class="space-y-5 max-w-2xl mx-auto">
+                                    <div class="text-center space-y-2">
+                                        <i data-lucide="file-pen-line" class="w-14 h-14 mx-auto text-emerald-400/60"></i>
+                                        <div>
+                                            <h2 class="text-2xl font-bold text-white">Detalles de la Rutina</h2>
+                                            <p class="text-sm text-gray-400">Define la información esencial sin desplazamientos innecesarios.</p>
                                         </div>
-                                        <div id="cover-upload-progress-container" class="absolute inset-0 bg-black/70 flex-col items-center justify-center hidden">
-                                            <div class="w-3/4 bg-gray-600 rounded-full h-2">
-                                                <div id="cover-upload-progress-bar" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
+                                    </div>
+                                    <div class="bg-gray-800 rounded-xl p-4">
+                                        <label for="routine-name-input" class="flex items-center gap-2 text-base font-semibold text-gray-300 mb-2">
+                                            <i data-lucide="type" class="w-5 h-5 text-emerald-400"></i>
+                                            <span>Nombre de la Rutina</span>
+                                        </label>
+                                        <input id="routine-name-input" type="text" value="${this._tempRoutine.name || ''}" class="w-full bg-gray-700/50 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Empuje Explosivo">
+                                    </div>
+                                    <div class="bg-gray-800 rounded-xl p-4">
+                                        <label for="routine-desc-input" class="flex items-center gap-2 text-base font-semibold text-gray-300 mb-2">
+                                            <i data-lucide="notebook-text" class="w-5 h-5 text-emerald-400"></i>
+                                            <span>Descripción (Opcional)</span>
+                                        </label>
+                                        <textarea id="routine-desc-input" class="w-full bg-gray-700/50 rounded-lg p-3 h-28 resize-none text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Enfocado en hipertrofia de pecho y hombro">${this._tempRoutine.description || ''}</textarea>
+                                    </div>
+                                    ${(this.state.asesorados && this.state.asesorados.length > 0) ? `
+                                    <div class="bg-gray-800 rounded-xl p-4 space-y-2">
+                                        <label for="routine-client-select" class="flex items-center gap-2 text-base font-semibold text-gray-300">
+                                            <i data-lucide="users" class="w-5 h-5 text-emerald-400"></i>
+                                            <span>Asignar a un asesorado</span>
+                                        </label>
+                                        <select id="routine-client-select" class="w-full bg-gray-700/50 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+                                            <option value="">No asignar</option>
+                                            ${this.state.asesorados.map(client => `
+                                                <option value="${client.id}" ${this._tempRoutine.assignedClientId === client.id ? 'selected' : ''}>${client.userName}</option>
+                                            `).join('')}
+                                        </select>
+                                        <p class="text-xs text-gray-400">La rutina se guardará automáticamente en el perfil del asesorado seleccionado.</p>
+                                    </div>
+                                    ` : ''}
+                                    <div class="bg-gray-800 rounded-xl p-4">
+                                        <label for="routine-cover-image-input" class="flex items-center gap-2 text-base font-semibold text-gray-300 mb-2 cursor-pointer">
+                                            <i data-lucide="image" class="w-5 h-5 text-emerald-400"></i>
+                                            <span>Imagen de Portada (Opcional)</span>
+                                        </label>
+                                        <input type="file" id="routine-cover-image-input" class="hidden" accept="image/png, image/jpeg, image/webp">
+                                        <div id="cover-image-preview-wrapper" class="mt-2 aspect-video bg-gray-700/50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-600 relative overflow-hidden">
+                                            <img id="routine-cover-preview" src="#" alt="Vista previa de la portada" class="hidden w-full h-full object-cover">
+                                            <div id="cover-image-placeholder" class="text-center text-gray-500">
+                                                <i data-lucide="image-plus" class="w-10 h-10 mx-auto"></i>
+                                                <p class="text-sm mt-1">Clic para subir imagen</p>
                                             </div>
-                                            <p id="cover-upload-progress-text" class="text-xs text-white mt-2">Subiendo...</p>
+                                            <div id="cover-upload-progress-container" class="absolute inset-0 bg-black/70 flex-col items-center justify-center hidden">
+                                                <div class="w-3/4 bg-gray-600 rounded-full h-2">
+                                                    <div id="cover-upload-progress-bar" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
+                                                </div>
+                                                <p id="cover-upload-progress-text" class="text-xs text-white mt-2">Subiendo...</p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <footer class="p-4 bg-gray-900/80 backdrop-blur-sm shrink-0">
-                                <button data-action="routine-creator-next" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition text-gray-900 flex items-center justify-center gap-2">Siguiente: Añadir Ejercicios <i data-lucide="arrow-right"></i></button>
+                                <div class="max-w-2xl mx-auto">
+                                    <button data-action="routine-creator-next" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition text-gray-900 flex items-center justify-center gap-2">Siguiente: Añadir Ejercicios <i data-lucide="arrow-right"></i></button>
+                                </div>
                             </footer>
                             `;
                     }
                     if (step === 2) {
                         const isAdmin = this.isAsesor();
+                        const assignedClientId = this._tempRoutine.assignedClientId || this._tempRoutine.editingClientId;
+                        const assignedClient = assignedClientId ? (this.state.asesorados || []).find(c => c.id === assignedClientId) : null;
+                        const assignmentInfo = assignedClient ? `<p class="text-[11px] text-emerald-300 mt-1">Asignada a ${assignedClient.userName}</p>` : '';
                         const groupImages = this.data.exerciseGroupImages || {};
                         const groupsNav = `<nav id="exercise-group-nav" class="w-full md:w-1/3 shrink-0 p-4 overflow-y-auto border-b md:border-b-0 md:border-r border-gray-800">
                             <div class="grid gap-3">
@@ -1748,17 +1773,22 @@
                                 <div class="text-center">
                                     <h3 class="text-lg font-bold truncate">${this._tempRoutine.name}</h3>
                                     <p class="text-xs text-gray-400">Paso 2: Añadir Ejercicios</p>
+                                    ${assignmentInfo}
                                 </div>
                                 <button data-action="routine-creator-save" class="font-bold text-emerald-400 px-4 py-2 rounded-lg hover:bg-emerald-500/10">Guardar</button>
                             </header>
-                            <div class="shrink-0">
-                                <div id="routine-day-tabs" class="horizontal-scroll-container flex overflow-x-auto gap-2 p-4 border-b border-gray-800"></div>
+                            <div class="shrink-0 bg-gray-900/60 border-b border-gray-800">
+                                <div id="routine-day-tabs" class="horizontal-scroll-container flex overflow-x-auto gap-2 px-4 py-3 max-w-5xl mx-auto"></div>
                             </div>
-                            <div class="flex-grow p-4 overflow-y-auto space-y-3 bg-gray-900/50" id="exercise-list-container"></div>
+                            <div class="flex-grow overflow-y-auto">
+                                <div id="exercise-list-container" class="px-4 py-4 space-y-3 max-w-5xl mx-auto"></div>
+                            </div>
                             <footer class="p-4 bg-gray-900/80 backdrop-blur-sm shrink-0">
-                                <button data-action="routine-creator-add-exercise" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition flex items-center justify-center gap-2 text-gray-900">
-                                    <i data-lucide="plus"></i><span>Añadir Ejercicio</span>
-                                </button>
+                                <div class="max-w-5xl mx-auto">
+                                    <button data-action="routine-creator-add-exercise" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition flex items-center justify-center gap-2 text-gray-900">
+                                        <i data-lucide="plus"></i><span>Añadir Ejercicio</span>
+                                    </button>
+                                </div>
                             </footer>
                             <div id="exercise-drawer" class="absolute inset-0 bg-gray-800 flex flex-col z-10">
                                 <header class="p-4 flex items-center bg-gray-900/80 backdrop-blur-sm sticky top-0 shrink-0">
@@ -1828,7 +1858,17 @@
                 },
                 // ▲▲▲ FIN DEL CÓDIGO A INSERTAR ▲▲▲
                 
-                routine_handleCreatorNext() { const name = document.getElementById('routine-name-input').value.trim(); const desc = document.getElementById('routine-desc-input').value.trim(); if (!name) { this.showToast('El nombre es obligatorio', 'error'); return; } this._tempRoutine.name = name; this._tempRoutine.description = desc; this.routine_enterCreator(2); },
+                routine_handleCreatorNext() {
+                    const name = document.getElementById('routine-name-input').value.trim();
+                    const desc = document.getElementById('routine-desc-input').value.trim();
+                    if (!name) { this.showToast('El nombre es obligatorio', 'error'); return; }
+                    const clientSelect = document.getElementById('routine-client-select');
+                    const assignedClientId = clientSelect ? clientSelect.value : (this._tempRoutine.assignedClientId || '');
+                    this._tempRoutine.name = name;
+                    this._tempRoutine.description = desc;
+                    this._tempRoutine.assignedClientId = assignedClientId;
+                    this.routine_enterCreator(2);
+                },
                 routine_showAddExerciseDrawer() { const drawer = document.getElementById('exercise-drawer'); if (drawer) { drawer.classList.add('is-active'); document.getElementById('exercise-search-input').focus(); } },
                 routine_closeAddExerciseDrawer() { const drawer = document.getElementById('exercise-drawer'); if (drawer) drawer.classList.remove('is-active'); },
                 routine_creator_switchGroup(targetGroup) {
@@ -2099,30 +2139,61 @@
                     }
                     this._tempRoutine.editingIndex = -1;
 
-                    const clientId = this._tempRoutine.editingClientId;
-                    delete this._tempRoutine.editingClientId;
+                    const editingClientId = this._tempRoutine.editingClientId;
+                    const assignedClientId = this._tempRoutine.assignedClientId || '';
+                    const routinePayload = JSON.parse(JSON.stringify(this._tempRoutine));
+                    delete routinePayload.editingClientId;
+                    if (!assignedClientId) delete routinePayload.assignedClientId;
 
-                    if (clientId) {
-                        const clientRef = doc(this.db, "users", clientId);
-                        try {
-                            await updateDoc(clientRef, {
-                                userRoutines: [this._tempRoutine]
-                            });
+                    try {
+                        if (editingClientId) {
+                            const clientRef = doc(this.db, "users", editingClientId);
+                            const clientData = (this.state.asesorados || []).find(c => c.id === editingClientId);
+                            const existingRoutines = Array.isArray(clientData?.userRoutines) ? [...clientData.userRoutines] : [];
+                            const routineIndex = existingRoutines.findIndex(r => r.id === routinePayload.id);
+                            if (routineIndex >= 0) {
+                                existingRoutines[routineIndex] = routinePayload;
+                            } else {
+                                existingRoutines.push(routinePayload);
+                            }
+                            await updateDoc(clientRef, { userRoutines: existingRoutines });
                             this.showToast('Rutina del cliente guardada con éxito');
                             await this.fetchAsesorados();
-                        } catch (error) {
-                            console.error("Error updating client routine:", error);
-                            this.showToast('Error al guardar la rutina del cliente.', 'error');
+                            if (Array.isArray(this.state.userRoutines)) {
+                                const localIndex = this.state.userRoutines.findIndex(r => r.id === routinePayload.id);
+                                if (localIndex >= 0) {
+                                    this.state.userRoutines[localIndex] = routinePayload;
+                                    await this.saveDataToFirestore();
+                                    this.renderRoutinesSection();
+                                }
+                            }
+                        } else if (assignedClientId) {
+                            const clientRef = doc(this.db, "users", assignedClientId);
+                            const clientData = (this.state.asesorados || []).find(c => c.id === assignedClientId);
+                            const existingRoutines = Array.isArray(clientData?.userRoutines) ? [...clientData.userRoutines] : [];
+                            existingRoutines.push(routinePayload);
+                            await updateDoc(clientRef, { userRoutines: existingRoutines });
+                            this.showToast('Rutina asignada al asesorado con éxito');
+                            await this.fetchAsesorados();
+
+                            if (!this.state.userRoutines) this.state.userRoutines = [];
+                            this.state.userRoutines.unshift(routinePayload);
+                            await this.saveDataToFirestore();
+                            this.renderRoutinesSection();
+                        } else {
+                            if (!this.state.userRoutines) this.state.userRoutines = [];
+                            this.state.userRoutines.unshift(routinePayload);
+                            await this.saveDataToFirestore();
+                            this.showToast('Rutina guardada con éxito');
+                            this.renderRoutinesSection();
                         }
-                    } else {
-                        if(!this.state.userRoutines) this.state.userRoutines = [];
-                        this.state.userRoutines.unshift(this._tempRoutine);
-                        await this.saveDataToFirestore();
-                        this.showToast('Rutina guardada con éxito');
-                        this.renderRoutinesSection();
+
+                        this.routine_closeFullscreenView();
+                    } catch (error) {
+                        console.error('Error saving routine:', error);
+                        const isClientAction = Boolean(editingClientId || assignedClientId);
+                        this.showToast(isClientAction ? 'Error al guardar la rutina del cliente.' : 'Error al guardar la rutina.', 'error');
                     }
-                    
-                    this.routine_closeFullscreenView();
                 },
 
                 routine_confirmDelete(routineId) { this.showModal('Eliminar Rutina', '¿Estás seguro? Esta acción no se puede deshacer.', [ {text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal'}, {text: 'Eliminar', class: 'bg-red-600 hover:bg-red-500', action: 'routine-delete', 'routine-id': routineId} ]); },
