@@ -124,7 +124,7 @@
             </div>
         </header>
 
-        <main class="flex-grow p-4 sm:p-6 overflow-y-auto"><div id="sections-wrapper"></div></main>
+        <main class="flex-grow px-4 sm:px-6 pt-20 pb-28 overflow-y-auto"><div id="sections-wrapper"></div></main>
         
         <nav class="fixed bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm max-w-lg mx-auto border-t border-gray-700">
             <div id="main-nav-bar" class="flex justify-around">
@@ -1684,7 +1684,7 @@
         // ▼▼▼ CAMBIO: Añadir la propiedad 'coverImageUrl' ▼▼▼
         this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null, assignedClientId: '' };
     } 
-        const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col">${this.routine_getCreatorContent(step)}</div>`; this.routine_openFullscreenView(viewHTML);
+        const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full overflow-y-auto">${this.routine_getCreatorContent(step)}</div>`; this.routine_openFullscreenView(viewHTML);
                 
         if (step === 1) {
             document.getElementById('routine-cover-image-input')?.addEventListener('change', (e) => this.routine_handleCoverImageSelect(e));
@@ -1695,73 +1695,69 @@
                 routine_getCreatorContent(step) {
                     if (step === 1) {
                         return `
-                            <header class="p-4 flex items-center bg-gray-800/80 backdrop-blur-sm shrink-0 sticky top-0 z-20">
-                                <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="x"></i></button>
-                                <div class="flex-grow text-center">
-                                    <p class="font-bold text-white">Crear Rutina</p>
-                                    <p class="text-xs text-gray-400 mt-1">Paso 1: Detalles de la Rutina</p>
-                                </div>
-                                <div class="w-9 h-9"></div>
-                            </header>
-                            <div class="px-4 py-3 bg-gray-900/60 border-b border-gray-800">
-                                <div class="max-w-4xl mx-auto">
-                                    <div class="w-full h-1 bg-gray-700/50 rounded-full">
-                                        <div class="w-1/2 h-1 bg-emerald-500 rounded-full"></div>
+                            <div class="min-h-full flex flex-col">
+                                <header class="p-4 bg-gray-900/80 backdrop-blur-sm border-b border-gray-800">
+                                    <div class="flex items-center justify-between gap-3">
+                                        <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="x"></i></button>
+                                        <div class="flex-grow text-center">
+                                            <p class="font-bold text-white">Crear Rutina</p>
+                                            <p class="text-xs text-gray-400 mt-1">Paso 1: Detalles de la Rutina</p>
+                                        </div>
+                                        <div class="w-9 h-9"></div>
                                     </div>
-                                </div>
-                            </div>
-                            <div class="flex-grow overflow-y-auto px-4 pb-6">
-                                <div class="max-w-4xl mx-auto space-y-6">
-                                    <div class="bg-gray-800/70 border border-gray-700/60 rounded-2xl p-4 md:p-6">
-                                        <div class="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start">
-                                            <div class="space-y-5">
-                                                <div>
-                                                    <label for="routine-name-input" class="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
-                                                        <i data-lucide="type" class="w-5 h-5 text-emerald-400"></i>
-                                                        <span>Nombre de la Rutina</span>
-                                                    </label>
-                                                    <input id="routine-name-input" type="text" value="${this._tempRoutine.name || ''}" class="w-full bg-gray-900/40 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Empuje Explosivo">
-                                                </div>
-                                                <div>
-                                                    <label for="routine-desc-input" class="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
-                                                        <i data-lucide="notebook-text" class="w-5 h-5 text-emerald-400"></i>
-                                                        <span>Descripción (Opcional)</span>
-                                                    </label>
-                                                    <textarea id="routine-desc-input" class="w-full bg-gray-900/40 rounded-xl px-4 py-3 min-h-[130px] resize-none text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Enfocado en hipertrofia de pecho y hombro">${this._tempRoutine.description || ''}</textarea>
-                                                </div>
-                                            </div>
-                                            <div class="bg-gray-900/40 border border-gray-700/60 rounded-xl p-4 flex flex-col gap-3">
-                                                <div>
-                                                    <p class="text-sm font-semibold text-gray-300 flex items-center gap-2">
-                                                        <i data-lucide="image" class="w-5 h-5 text-emerald-400"></i>
-                                                        Imagen de Portada (Opcional)
-                                                    </p>
-                                                    <p class="text-xs text-gray-500 mt-1">Se mostrará en la tarjeta de la rutina.</p>
-                                                </div>
-                                                <label for="routine-cover-image-input" class="relative block aspect-video w-full rounded-xl border-2 border-dashed border-gray-700/60 bg-gray-800/50 hover:border-emerald-400 hover:bg-gray-800 transition cursor-pointer overflow-hidden">
-                                                    <input type="file" id="routine-cover-image-input" class="hidden" accept="image/png, image/jpeg, image/webp">
-                                                    <img id="routine-cover-preview" src="#" alt="Vista previa de la portada" class="hidden w-full h-full object-cover">
-                                                    <div id="cover-image-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
-                                                        <i data-lucide="image-plus" class="w-9 h-9"></i>
-                                                        <p class="text-xs mt-1">Toca para subir</p>
+                                    <div class="w-full h-1 bg-gray-800 rounded-full mt-4">
+                                        <div class="w-1/2 h-full bg-emerald-500 rounded-full"></div>
+                                    </div>
+                                </header>
+                                <div class="px-4 pb-10 pt-6">
+                                    <div class="max-w-4xl mx-auto space-y-6">
+                                        <div class="bg-gray-800/70 border border-gray-700/60 rounded-2xl p-4 sm:p-6">
+                                            <div class="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:items-start">
+                                                <div class="space-y-5">
+                                                    <div>
+                                                        <label for="routine-name-input" class="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
+                                                            <i data-lucide="type" class="w-5 h-5 text-emerald-400"></i>
+                                                            <span>Nombre de la Rutina</span>
+                                                        </label>
+                                                        <input id="routine-name-input" type="text" value="${this._tempRoutine.name || ''}" class="w-full bg-gray-900/40 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Empuje Explosivo">
                                                     </div>
-                                                    <div id="cover-upload-progress-container" class="absolute inset-0 bg-black/70 flex flex-col items-center justify-center hidden">
-                                                        <div class="w-3/4 bg-gray-600 rounded-full h-2">
-                                                            <div id="cover-upload-progress-bar" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
+                                                    <div>
+                                                        <label for="routine-desc-input" class="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
+                                                            <i data-lucide="notebook-text" class="w-5 h-5 text-emerald-400"></i>
+                                                            <span>Descripción (Opcional)</span>
+                                                        </label>
+                                                        <textarea id="routine-desc-input" class="w-full bg-gray-900/40 rounded-xl px-4 py-3 min-h-[120px] resize-none text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Enfocado en hipertrofia de pecho y hombro">${this._tempRoutine.description || ''}</textarea>
+                                                    </div>
+                                                </div>
+                                                <div class="bg-gray-900/40 border border-gray-700/60 rounded-xl p-4 flex flex-col gap-3">
+                                                    <div>
+                                                        <p class="text-sm font-semibold text-gray-300 flex items-center gap-2">
+                                                            <i data-lucide="image" class="w-5 h-5 text-emerald-400"></i>
+                                                            Imagen de Portada (Opcional)
+                                                        </p>
+                                                        <p class="text-xs text-gray-500 mt-1">Se mostrará en la tarjeta de la rutina.</p>
+                                                    </div>
+                                                    <label for="routine-cover-image-input" class="relative block aspect-video w-full rounded-xl border-2 border-dashed border-gray-700/60 bg-gray-800/50 hover:border-emerald-400 hover:bg-gray-800 transition cursor-pointer overflow-hidden">
+                                                        <input type="file" id="routine-cover-image-input" class="hidden" accept="image/png, image/jpeg, image/webp">
+                                                        <img id="routine-cover-preview" src="#" alt="Vista previa de la portada" class="hidden w-full h-full object-cover">
+                                                        <div id="cover-image-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
+                                                            <i data-lucide="image-plus" class="w-9 h-9"></i>
+                                                            <p class="text-xs mt-1">Toca para subir</p>
                                                         </div>
-                                                        <p id="cover-upload-progress-text" class="text-xs text-white mt-2">Subiendo...</p>
-                                                    </div>
-                                                </label>
+                                                        <div id="cover-upload-progress-container" class="absolute inset-0 bg-black/70 flex flex-col items-center justify-center hidden">
+                                                            <div class="w-3/4 bg-gray-600 rounded-full h-2">
+                                                                <div id="cover-upload-progress-bar" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
+                                                            </div>
+                                                            <p id="cover-upload-progress-text" class="text-xs text-white mt-2">Subiendo...</p>
+                                                        </div>
+                                                    </label>
+                                                </div>
                                             </div>
                                         </div>
+                                        <button data-action="routine-creator-next" class="w-full bg-emerald-500 font-bold py-3 rounded-xl hover:bg-emerald-400 transition text-gray-900 flex items-center justify-center gap-2">Siguiente: Añadir Ejercicios <i data-lucide="arrow-right"></i></button>
                                     </div>
                                 </div>
                             </div>
-                            <footer class="p-4 bg-gray-900/80 backdrop-blur-sm shrink-0">
-                                <div class="max-w-4xl mx-auto">
-                                    <button data-action="routine-creator-next" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition text-gray-900 flex items-center justify-center gap-2">Siguiente: Añadir Ejercicios <i data-lucide="arrow-right"></i></button>
-                                </div>
-                            </footer>
                             `;
                     }
                     if (step === 2) {
@@ -1827,28 +1823,28 @@
                             `).join('')}
                         </main>`;
                         return `
-                            <header class="p-4 bg-gray-800/80 backdrop-blur-sm shrink-0 sticky top-0 z-20 space-y-3">
-                                <div class="flex items-center justify-between gap-3">
-                                    <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button>
-                                    <div class="flex-grow text-center">
-                                        <h3 class="text-lg font-bold truncate">${this._tempRoutine.name}</h3>
-                                        <p class="text-xs text-gray-400">Paso 2: Añadir Ejercicios</p>
-                                        ${assignmentInfo}
+                            <div class="min-h-full flex flex-col">
+                                <header class="p-4 bg-gray-900/80 backdrop-blur-sm border-b border-gray-800 space-y-3">
+                                    <div class="flex items-center justify-between gap-3">
+                                        <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button>
+                                        <div class="flex-grow text-center">
+                                            <h3 class="text-lg font-bold truncate">${this._tempRoutine.name}</h3>
+                                            <p class="text-xs text-gray-400">Paso 2: Añadir Ejercicios</p>
+                                            ${assignmentInfo}
+                                        </div>
+                                        <button data-action="routine-creator-save" class="font-bold text-emerald-400 px-4 py-2 rounded-lg hover:bg-emerald-500/10">Guardar</button>
                                     </div>
-                                    <button data-action="routine-creator-save" class="font-bold text-emerald-400 px-4 py-2 rounded-lg hover:bg-emerald-500/10">Guardar</button>
+                                    <div id="routine-day-tabs" class="horizontal-scroll-container flex overflow-x-auto gap-2 px-2"></div>
+                                </header>
+                                <div class="px-4 pb-16 pt-6 flex-1 w-full">
+                                    <div class="max-w-5xl mx-auto space-y-6">
+                                        <div id="exercise-list-container" class="space-y-3"></div>
+                                        <button data-action="routine-creator-add-exercise" class="w-full bg-emerald-500 font-bold py-3 rounded-xl hover:bg-emerald-400 transition flex items-center justify-center gap-2 text-gray-900">
+                                            <i data-lucide="plus"></i><span>Añadir Ejercicio</span>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div id="routine-day-tabs" class="horizontal-scroll-container flex overflow-x-auto gap-2 px-2"></div>
-                            </header>
-                            <div class="flex-grow overflow-y-auto">
-                                <div id="exercise-list-container" class="px-4 py-4 space-y-3 max-w-5xl mx-auto"></div>
                             </div>
-                            <footer class="p-4 bg-gray-900/80 backdrop-blur-sm shrink-0">
-                                <div class="max-w-5xl mx-auto">
-                                    <button data-action="routine-creator-add-exercise" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition flex items-center justify-center gap-2 text-gray-900">
-                                        <i data-lucide="plus"></i><span>Añadir Ejercicio</span>
-                                    </button>
-                                </div>
-                            </footer>
                             <div id="exercise-drawer" class="absolute inset-0 bg-gray-800 flex flex-col z-10">
                                 <header class="p-4 flex items-center bg-gray-900/80 backdrop-blur-sm sticky top-0 shrink-0">
                                     <div class="relative flex-grow">
