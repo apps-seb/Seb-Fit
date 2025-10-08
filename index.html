@@ -828,6 +828,7 @@
                             'routine-creator-upload-group-image': () => this.routine_creator_uploadGroupImage(groupTarget),
                             'manage-client': () => this.showClientManager(clientId),
                             'edit-client-routine': () => this.editClientRoutine(clientId),
+                            'assign-routine-to-client': () => this.assignRoutineToClient(clientId),
                             'edit-client-diet': () => this.editClientDiet(clientId),
                             'save-client-diet': () => this.saveClientDiet(clientId),
                             'toggle-food-completion': () => this.toggleFoodCompletion(parseInt(mealIndex), parseInt(itemIndex)),
@@ -955,19 +956,38 @@
                     }
 
                     const clientRoutine = client.userRoutines && client.userRoutines.length > 0 ? client.userRoutines[0] : null;
+                    const availableRoutines = Array.isArray(this.state.userRoutines) ? this.state.userRoutines : [];
+                    const selectorId = `client-routine-select-${clientId}`;
 
                     const routineHTML = `
-                        <div class="bg-gray-900/50 rounded-xl p-4">
-                            <h4 class="font-bold text-lg text-emerald-300 mb-3">Plan de Entrenamiento</h4>
-                            ${clientRoutine ? `
-                                <div class="bg-gray-700 p-3 rounded-lg">
-                                    <p class="font-semibold text-white">${clientRoutine.name}</p>
-                                    <p class="text-xs text-gray-400">${clientRoutine.plan.length} día(s) | ${clientRoutine.plan.reduce((acc, d) => acc + d.exercises.length, 0)} ejercicios</p>
-                                </div>
-                            ` : `<p class="text-sm text-gray-500">Aún no se ha asignado una rutina.</p>`}
-                            <button data-action="edit-client-routine" data-client-id="${clientId}" class="w-full bg-emerald-600/80 font-bold py-2 rounded-lg mt-3 hover:bg-emerald-600 transition">
-                                ${clientRoutine ? 'Editar Rutina' : 'Crear Rutina'}
+                        <div class="bg-gray-900/50 rounded-xl p-4 space-y-4">
+                            <div>
+                                <h4 class="font-bold text-lg text-emerald-300 mb-2">Plan de Entrenamiento</h4>
+                                ${clientRoutine ? `
+                                    <div class="bg-gray-700/60 border border-emerald-500/20 p-3 rounded-lg">
+                                        <p class="font-semibold text-white">${clientRoutine.name}</p>
+                                        <p class="text-xs text-gray-400 mt-1">${clientRoutine.plan.length} día(s) · ${clientRoutine.plan.reduce((acc, d) => acc + d.exercises.length, 0)} ejercicio(s)</p>
+                                    </div>
+                                ` : `<p class="text-sm text-gray-500">Aún no se ha asignado una rutina personalizada.</p>`}
+                            </div>
+                            <button data-action="edit-client-routine" data-client-id="${clientId}" class="w-full bg-emerald-600/80 font-bold py-2 rounded-lg hover:bg-emerald-600 transition">
+                                ${clientRoutine ? 'Editar en el Creador' : 'Crear Rutina Personalizada'}
                             </button>
+                            <div class="border-t border-gray-800 pt-4">
+                                <p class="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+                                    <i data-lucide="link" class="w-4 h-4 text-emerald-400"></i>
+                                    Vincular rutina desde tu librería
+                                </p>
+                                ${availableRoutines.length ? `
+                                    <div class="flex flex-col sm:flex-row gap-3">
+                                        <select id="${selectorId}" class="flex-1 bg-gray-800/70 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                            <option value="">Selecciona una rutina</option>
+                                            ${availableRoutines.map(routine => `<option value="${routine.id}">${routine.name}</option>`).join('')}
+                                        </select>
+                                        <button data-action="assign-routine-to-client" data-client-id="${clientId}" class="sm:w-auto w-full bg-emerald-500 text-gray-900 font-bold px-4 py-2 rounded-lg hover:bg-emerald-400 transition">Vincular</button>
+                                    </div>
+                                ` : `<p class="text-xs text-gray-500">Crea rutinas en tu librería para poder asignarlas rápidamente.</p>`}
+                            </div>
                         </div>
                     `;
                     
@@ -1020,6 +1040,52 @@
                     this._tempRoutine.editingClientId = clientId;
                     this._tempRoutine.assignedClientId = clientId;
                     this.routine_enterCreator(2);
+                },
+
+                async assignRoutineToClient(clientId) {
+                    const selector = document.getElementById(`client-routine-select-${clientId}`);
+                    if (!selector) return;
+
+                    const routineId = selector.value;
+                    if (!routineId) {
+                        this.showToast('Selecciona una rutina para vincular.', 'error');
+                        return;
+                    }
+
+                    const client = (this.state.asesorados || []).find(c => c.id === clientId);
+                    if (!client) {
+                        this.showToast('Cliente no encontrado.', 'error');
+                        return;
+                    }
+
+                    const routine = (this.state.userRoutines || []).find(r => r.id === routineId);
+                    if (!routine) {
+                        this.showToast('No encontramos esa rutina en tu librería.', 'error');
+                        return;
+                    }
+
+                    const routineCopy = JSON.parse(JSON.stringify(routine));
+                    routineCopy.assignedClientId = clientId;
+
+                    const existingRoutines = Array.isArray(client.userRoutines) ? [...client.userRoutines] : [];
+                    const existingIndex = existingRoutines.findIndex(r => r.id === routineCopy.id);
+                    if (existingIndex >= 0) {
+                        existingRoutines[existingIndex] = routineCopy;
+                    } else {
+                        existingRoutines.unshift(routineCopy);
+                    }
+
+                    try {
+                        const clientRef = doc(this.db, 'users', clientId);
+                        await updateDoc(clientRef, { userRoutines: existingRoutines });
+                        this.showToast(`Rutina vinculada a ${client.userName.split(' ')[0]}.`, 'success');
+                        selector.value = '';
+                        await this.fetchAsesorados();
+                        this.showClientManager(clientId);
+                    } catch (error) {
+                        console.error('Error assigning routine to client:', error);
+                        this.showToast('No se pudo vincular la rutina.', 'error');
+                    }
                 },
 
                 // --- NUEVAS FUNCIONES DE EDICIÓN DE DIETA ---
@@ -1618,7 +1684,7 @@
         // ▼▼▼ CAMBIO: Añadir la propiedad 'coverImageUrl' ▼▼▼
         this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null, assignedClientId: '' };
     } 
-                    const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(step)}</div>`; this.routine_openFullscreenView(viewHTML);
+        const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col">${this.routine_getCreatorContent(step)}</div>`; this.routine_openFullscreenView(viewHTML);
                 
         if (step === 1) {
             document.getElementById('routine-cover-image-input')?.addEventListener('change', (e) => this.routine_handleCoverImageSelect(e));
@@ -1629,77 +1695,70 @@
                 routine_getCreatorContent(step) {
                     if (step === 1) {
                         return `
-                            <header class="p-4 flex items-center bg-gray-800/80 backdrop-blur-sm shrink-0">
+                            <header class="p-4 flex items-center bg-gray-800/80 backdrop-blur-sm shrink-0 sticky top-0 z-20">
                                 <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="x"></i></button>
-                                <div class="flex-grow text-center"><p class="font-bold text-white">Crear Rutina</p></div>
+                                <div class="flex-grow text-center">
+                                    <p class="font-bold text-white">Crear Rutina</p>
+                                    <p class="text-xs text-gray-400 mt-1">Paso 1: Detalles de la Rutina</p>
+                                </div>
                                 <div class="w-9 h-9"></div>
                             </header>
-                            <div class="p-4 pt-0 w-full bg-gray-800/80">
-                                <div class="w-full h-1 bg-gray-700/50 rounded-full"><div class="w-1/2 h-1 bg-emerald-500 rounded-full"></div></div>
-                                <p class="text-center text-sm text-gray-400 mt-2">Paso 1: Detalles de la Rutina</p>
+                            <div class="px-4 py-3 bg-gray-900/60 border-b border-gray-800">
+                                <div class="max-w-4xl mx-auto">
+                                    <div class="w-full h-1 bg-gray-700/50 rounded-full">
+                                        <div class="w-1/2 h-1 bg-emerald-500 rounded-full"></div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="flex-grow overflow-y-auto px-4 pb-6">
-                                <div class="space-y-5 max-w-2xl mx-auto">
-                                    <div class="text-center space-y-2">
-                                        <i data-lucide="file-pen-line" class="w-14 h-14 mx-auto text-emerald-400/60"></i>
-                                        <div>
-                                            <h2 class="text-2xl font-bold text-white">Detalles de la Rutina</h2>
-                                            <p class="text-sm text-gray-400">Define la información esencial sin desplazamientos innecesarios.</p>
-                                        </div>
-                                    </div>
-                                    <div class="bg-gray-800 rounded-xl p-4">
-                                        <label for="routine-name-input" class="flex items-center gap-2 text-base font-semibold text-gray-300 mb-2">
-                                            <i data-lucide="type" class="w-5 h-5 text-emerald-400"></i>
-                                            <span>Nombre de la Rutina</span>
-                                        </label>
-                                        <input id="routine-name-input" type="text" value="${this._tempRoutine.name || ''}" class="w-full bg-gray-700/50 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Empuje Explosivo">
-                                    </div>
-                                    <div class="bg-gray-800 rounded-xl p-4">
-                                        <label for="routine-desc-input" class="flex items-center gap-2 text-base font-semibold text-gray-300 mb-2">
-                                            <i data-lucide="notebook-text" class="w-5 h-5 text-emerald-400"></i>
-                                            <span>Descripción (Opcional)</span>
-                                        </label>
-                                        <textarea id="routine-desc-input" class="w-full bg-gray-700/50 rounded-lg p-3 h-28 resize-none text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Enfocado en hipertrofia de pecho y hombro">${this._tempRoutine.description || ''}</textarea>
-                                    </div>
-                                    ${(this.state.asesorados && this.state.asesorados.length > 0) ? `
-                                    <div class="bg-gray-800 rounded-xl p-4 space-y-2">
-                                        <label for="routine-client-select" class="flex items-center gap-2 text-base font-semibold text-gray-300">
-                                            <i data-lucide="users" class="w-5 h-5 text-emerald-400"></i>
-                                            <span>Asignar a un asesorado</span>
-                                        </label>
-                                        <select id="routine-client-select" class="w-full bg-gray-700/50 rounded-lg p-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
-                                            <option value="">No asignar</option>
-                                            ${this.state.asesorados.map(client => `
-                                                <option value="${client.id}" ${this._tempRoutine.assignedClientId === client.id ? 'selected' : ''}>${client.userName}</option>
-                                            `).join('')}
-                                        </select>
-                                        <p class="text-xs text-gray-400">La rutina se guardará automáticamente en el perfil del asesorado seleccionado.</p>
-                                    </div>
-                                    ` : ''}
-                                    <div class="bg-gray-800 rounded-xl p-4">
-                                        <label for="routine-cover-image-input" class="flex items-center gap-2 text-base font-semibold text-gray-300 mb-2 cursor-pointer">
-                                            <i data-lucide="image" class="w-5 h-5 text-emerald-400"></i>
-                                            <span>Imagen de Portada (Opcional)</span>
-                                        </label>
-                                        <input type="file" id="routine-cover-image-input" class="hidden" accept="image/png, image/jpeg, image/webp">
-                                        <div id="cover-image-preview-wrapper" class="mt-2 aspect-video bg-gray-700/50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-600 relative overflow-hidden">
-                                            <img id="routine-cover-preview" src="#" alt="Vista previa de la portada" class="hidden w-full h-full object-cover">
-                                            <div id="cover-image-placeholder" class="text-center text-gray-500">
-                                                <i data-lucide="image-plus" class="w-10 h-10 mx-auto"></i>
-                                                <p class="text-sm mt-1">Clic para subir imagen</p>
-                                            </div>
-                                            <div id="cover-upload-progress-container" class="absolute inset-0 bg-black/70 flex-col items-center justify-center hidden">
-                                                <div class="w-3/4 bg-gray-600 rounded-full h-2">
-                                                    <div id="cover-upload-progress-bar" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
+                                <div class="max-w-4xl mx-auto space-y-6">
+                                    <div class="bg-gray-800/70 border border-gray-700/60 rounded-2xl p-4 md:p-6">
+                                        <div class="grid gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] lg:items-start">
+                                            <div class="space-y-5">
+                                                <div>
+                                                    <label for="routine-name-input" class="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
+                                                        <i data-lucide="type" class="w-5 h-5 text-emerald-400"></i>
+                                                        <span>Nombre de la Rutina</span>
+                                                    </label>
+                                                    <input id="routine-name-input" type="text" value="${this._tempRoutine.name || ''}" class="w-full bg-gray-900/40 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Empuje Explosivo">
                                                 </div>
-                                                <p id="cover-upload-progress-text" class="text-xs text-white mt-2">Subiendo...</p>
+                                                <div>
+                                                    <label for="routine-desc-input" class="flex items-center gap-2 text-sm font-semibold text-gray-300 mb-2">
+                                                        <i data-lucide="notebook-text" class="w-5 h-5 text-emerald-400"></i>
+                                                        <span>Descripción (Opcional)</span>
+                                                    </label>
+                                                    <textarea id="routine-desc-input" class="w-full bg-gray-900/40 rounded-xl px-4 py-3 min-h-[130px] resize-none text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Enfocado en hipertrofia de pecho y hombro">${this._tempRoutine.description || ''}</textarea>
+                                                </div>
+                                            </div>
+                                            <div class="bg-gray-900/40 border border-gray-700/60 rounded-xl p-4 flex flex-col gap-3">
+                                                <div>
+                                                    <p class="text-sm font-semibold text-gray-300 flex items-center gap-2">
+                                                        <i data-lucide="image" class="w-5 h-5 text-emerald-400"></i>
+                                                        Imagen de Portada (Opcional)
+                                                    </p>
+                                                    <p class="text-xs text-gray-500 mt-1">Se mostrará en la tarjeta de la rutina.</p>
+                                                </div>
+                                                <label for="routine-cover-image-input" class="relative block aspect-video w-full rounded-xl border-2 border-dashed border-gray-700/60 bg-gray-800/50 hover:border-emerald-400 hover:bg-gray-800 transition cursor-pointer overflow-hidden">
+                                                    <input type="file" id="routine-cover-image-input" class="hidden" accept="image/png, image/jpeg, image/webp">
+                                                    <img id="routine-cover-preview" src="#" alt="Vista previa de la portada" class="hidden w-full h-full object-cover">
+                                                    <div id="cover-image-placeholder" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
+                                                        <i data-lucide="image-plus" class="w-9 h-9"></i>
+                                                        <p class="text-xs mt-1">Toca para subir</p>
+                                                    </div>
+                                                    <div id="cover-upload-progress-container" class="absolute inset-0 bg-black/70 flex flex-col items-center justify-center hidden">
+                                                        <div class="w-3/4 bg-gray-600 rounded-full h-2">
+                                                            <div id="cover-upload-progress-bar" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
+                                                        </div>
+                                                        <p id="cover-upload-progress-text" class="text-xs text-white mt-2">Subiendo...</p>
+                                                    </div>
+                                                </label>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <footer class="p-4 bg-gray-900/80 backdrop-blur-sm shrink-0">
-                                <div class="max-w-2xl mx-auto">
+                                <div class="max-w-4xl mx-auto">
                                     <button data-action="routine-creator-next" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition text-gray-900 flex items-center justify-center gap-2">Siguiente: Añadir Ejercicios <i data-lucide="arrow-right"></i></button>
                                 </div>
                             </footer>
@@ -1768,18 +1827,18 @@
                             `).join('')}
                         </main>`;
                         return `
-                            <header class="p-4 flex items-center justify-between bg-gray-800/80 backdrop-blur-sm shrink-0">
-                                <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button>
-                                <div class="text-center">
-                                    <h3 class="text-lg font-bold truncate">${this._tempRoutine.name}</h3>
-                                    <p class="text-xs text-gray-400">Paso 2: Añadir Ejercicios</p>
-                                    ${assignmentInfo}
+                            <header class="p-4 bg-gray-800/80 backdrop-blur-sm shrink-0 sticky top-0 z-20 space-y-3">
+                                <div class="flex items-center justify-between gap-3">
+                                    <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button>
+                                    <div class="flex-grow text-center">
+                                        <h3 class="text-lg font-bold truncate">${this._tempRoutine.name}</h3>
+                                        <p class="text-xs text-gray-400">Paso 2: Añadir Ejercicios</p>
+                                        ${assignmentInfo}
+                                    </div>
+                                    <button data-action="routine-creator-save" class="font-bold text-emerald-400 px-4 py-2 rounded-lg hover:bg-emerald-500/10">Guardar</button>
                                 </div>
-                                <button data-action="routine-creator-save" class="font-bold text-emerald-400 px-4 py-2 rounded-lg hover:bg-emerald-500/10">Guardar</button>
+                                <div id="routine-day-tabs" class="horizontal-scroll-container flex overflow-x-auto gap-2 px-2"></div>
                             </header>
-                            <div class="shrink-0 bg-gray-900/60 border-b border-gray-800">
-                                <div id="routine-day-tabs" class="horizontal-scroll-container flex overflow-x-auto gap-2 px-4 py-3 max-w-5xl mx-auto"></div>
-                            </div>
                             <div class="flex-grow overflow-y-auto">
                                 <div id="exercise-list-container" class="px-4 py-4 space-y-3 max-w-5xl mx-auto"></div>
                             </div>
@@ -1862,11 +1921,8 @@
                     const name = document.getElementById('routine-name-input').value.trim();
                     const desc = document.getElementById('routine-desc-input').value.trim();
                     if (!name) { this.showToast('El nombre es obligatorio', 'error'); return; }
-                    const clientSelect = document.getElementById('routine-client-select');
-                    const assignedClientId = clientSelect ? clientSelect.value : (this._tempRoutine.assignedClientId || '');
                     this._tempRoutine.name = name;
                     this._tempRoutine.description = desc;
-                    this._tempRoutine.assignedClientId = assignedClientId;
                     this.routine_enterCreator(2);
                 },
                 routine_showAddExerciseDrawer() { const drawer = document.getElementById('exercise-drawer'); if (drawer) { drawer.classList.add('is-active'); document.getElementById('exercise-search-input').focus(); } },
