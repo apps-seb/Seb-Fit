@@ -49,6 +49,32 @@
         .prose ul, .prose ol { margin-left: 1rem; }
         .chart-bar { animation: bar-grow 0.8s cubic-bezier(0.25, 1, 0.5, 1); transform-origin: bottom; }
         #bmi-marker { transition: left 0.5s ease-in-out; }
+
+        #app-sidebar { transition: background-color 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, padding 0.3s ease; }
+        #app-sidebar .nav-btn { transition: all 0.25s ease; color: #9ca3af; }
+        #app-sidebar .nav-btn.is-active { color: #34d399; }
+        #app-sidebar .nav-btn i { width: 1.25rem; height: 1.25rem; }
+        #app-sidebar .sidebar-brand, #app-sidebar .sidebar-footer { transition: opacity 0.25s ease, transform 0.25s ease; }
+        #app-sidebar .nav-label { transition: opacity 0.25s ease, margin 0.25s ease; }
+
+        @media (max-width: 1023px) {
+            #app-sidebar { border-top: 1px solid rgba(75, 85, 99, 0.6); }
+            #app-sidebar .nav-btn { font-size: 0.75rem; font-weight: 600; }
+        }
+
+        @media (min-width: 1024px) {
+            #app-sidebar { width: 18rem; background: rgba(255, 255, 255, 0.96); color: #111827; border-radius: 1.75rem; padding: 1.75rem 1.5rem; box-shadow: 0 25px 50px -12px rgba(15, 118, 110, 0.25); border: 1px solid rgba(229, 231, 235, 0.8); position: sticky; top: 1.5rem; max-height: calc(100vh - 3rem); backdrop-filter: blur(12px); }
+            #app-sidebar .nav-btn { color: #6b7280; justify-content: flex-start; border-radius: 1.5rem; padding: 0.75rem 1rem; font-weight: 600; font-size: 0.95rem; }
+            #app-sidebar .nav-btn.is-active { color: #0f766e; background: linear-gradient(120deg, rgba(16, 185, 129, 0.18), rgba(20, 184, 166, 0.08)); box-shadow: 0 10px 25px -10px rgba(16, 185, 129, 0.6); }
+            #app-sidebar .nav-btn:not(.is-active):hover { color: #111827; background: rgba(243, 244, 246, 0.9); }
+            #app-sidebar .nav-btn .nav-label { font-size: 0.95rem; margin-left: 0.75rem; }
+            #app-sidebar .sidebar-footer { opacity: 1; transform: translateY(0); }
+            #app-sidebar[data-collapsed="true"] { width: 5rem; padding-left: 1rem; padding-right: 1rem; }
+            #app-sidebar[data-collapsed="true"] .sidebar-brand,
+            #app-sidebar[data-collapsed="true"] .sidebar-footer { opacity: 0; transform: translateX(-12px); pointer-events: none; }
+            #app-sidebar[data-collapsed="true"] .nav-btn { justify-content: center; padding-left: 0; padding-right: 0; }
+            #app-sidebar[data-collapsed="true"] .nav-btn .nav-label { opacity: 0; width: 0; margin: 0; }
+        }
         
         .auth-form-container { transition: all 0.4s ease-in-out; }
         .form-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; position: absolute; }
@@ -114,45 +140,83 @@
         </div>
     </div>
     
-    <div id="app-container" class="max-w-lg mx-auto min-h-screen bg-gray-800 shadow-2xl flex flex-col pb-20 md:pb-0 overflow-hidden relative hidden">
+    <div id="app-container" class="hidden relative min-h-screen bg-gray-900 text-white">
+        <div class="lg:flex lg:min-h-screen lg:mx-auto lg:max-w-7xl lg:gap-6">
+            <nav id="app-sidebar" data-collapsed="true" class="fixed bottom-0 left-0 right-0 z-30 bg-gray-900/85 backdrop-blur-lg border-t border-gray-800 px-3 pt-2 pb-3 lg:flex lg:flex-col lg:items-stretch lg:gap-8 lg:border-none lg:px-0 lg:pt-0 lg:pb-0">
+                <div class="hidden lg:flex items-center justify-between sidebar-brand">
+                    <div class="flex items-center gap-3">
+                        <div class="h-11 w-11 rounded-2xl bg-emerald-500 text-gray-900 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                            <i data-lucide="dumbbell" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-emerald-600 uppercase tracking-[0.35em]">FitTrack</p>
+                            <p class="text-lg font-bold text-gray-900">Panel Principal</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="main-nav-bar" class="flex justify-around items-center gap-1 lg:flex-col lg:items-stretch lg:gap-3 lg:mt-8 lg:justify-start">
+                    <button data-section="inicio" class="nav-btn is-active flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="home"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Inicio</span>
+                    </button>
+                    <button id="nav-rutinas" data-section="rutinas" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="clipboard-list"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Rutinas</span>
+                    </button>
+                    <button id="nav-asesorados" data-section="asesorados" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="users"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Asesorados</span>
+                    </button>
+                    <button id="nav-nutricion" data-section="nutricion" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="calculator"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Cálculos</span>
+                    </button>
+                    <button id="nav-dieta" data-section="dieta" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="utensils"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Dieta</span>
+                    </button>
+                    <button data-section="perfil" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="user"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Perfil</span>
+                    </button>
+                </div>
+                <div class="hidden lg:block mt-auto pt-6 sidebar-footer">
+                    <div class="bg-gradient-to-br from-emerald-500 via-emerald-400 to-teal-400 rounded-2xl p-5 text-emerald-950 shadow-xl shadow-emerald-500/25">
+                        <p class="text-sm font-semibold">Impulsa a tus clientes</p>
+                        <p class="text-xs text-emerald-900/80 mt-1">Gestiona rutinas, nutrición y hábitos desde un solo lugar.</p>
+                    </div>
+                </div>
+            </nav>
 
-        <header class="bg-gray-900/80 backdrop-blur-sm p-4 sticky top-0 z-20 flex items-center justify-between shadow-lg">
-            <div class="flex items-center space-x-2"><i data-lucide="dumbbell" class="text-emerald-400"></i><h1 class="text-xl font-bold tracking-tight">FitTrack</h1></div>
-            <div class="flex items-center space-x-3">
-                <div id="user-avatar" class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-gray-900"><span></span></div>
-                <button id="logout-btn" title="Cerrar sesión" class="text-gray-400 hover:text-white transition"><i data-lucide="log-out" class="w-5 h-5"></i></button>
-            </div>
-        </header>
+            <div class="flex-1 flex flex-col min-h-screen lg:min-h-0 lg:max-h-screen">
+                <header class="bg-gray-900/80 backdrop-blur-sm px-4 sm:px-6 py-4 sticky top-0 z-20 flex items-center justify-between shadow-lg lg:rounded-2xl lg:mt-6 lg:mr-6 lg:ml-6">
+                    <div class="flex items-center space-x-2"><i data-lucide="dumbbell" class="text-emerald-400"></i><h1 class="text-xl font-bold tracking-tight">FitTrack</h1></div>
+                    <div class="flex items-center space-x-3">
+                        <div id="user-avatar" class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-gray-900"><span></span></div>
+                        <button id="logout-btn" title="Cerrar sesión" class="text-gray-400 hover:text-white transition"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+                    </div>
+                </header>
 
-        <main class="flex-grow p-4 sm:p-6 overflow-y-auto"><div id="sections-wrapper"></div></main>
-        
-        <nav class="fixed bottom-0 left-0 right-0 bg-gray-900/80 backdrop-blur-sm max-w-lg mx-auto border-t border-gray-700">
-            <div id="main-nav-bar" class="flex justify-around">
-                <button data-section="inicio" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-emerald-400"><i data-lucide="home"></i><span class="text-xs font-medium">Inicio</span></button>
-                <button id="nav-rutinas" data-section="rutinas" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="clipboard-list"></i><span class="text-xs font-medium">Rutinas</span></button>
-                <button id="nav-asesorados" data-section="asesorados" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="users"></i><span class="text-xs font-medium">Asesorados</span></button>
-                <button id="nav-nutricion" data-section="nutricion" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="calculator"></i><span class="text-xs font-medium">Cálculos</span></button>
-                <button id="nav-dieta" data-section="dieta" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="utensils"></i><span class="text-xs font-medium">Dieta</span></button>
-                <button data-section="perfil" class="nav-btn flex-1 flex flex-col items-center pt-2 pb-1 text-gray-400"><i data-lucide="user"></i><span class="text-xs font-medium">Perfil</span></button>
+                <main class="flex-1 px-4 sm:px-6 pt-6 pb-28 overflow-y-auto lg:px-10 lg:pt-10 lg:pb-12"><div id="sections-wrapper" class="mx-auto w-full max-w-5xl lg:max-w-6xl xl:max-w-7xl"></div></main>
             </div>
-        </nav>
-        
-        <div id="fullscreen-view-container" class="absolute inset-0 z-30 pointer-events-none"></div>
+        </div>
+
+        <div id="fullscreen-view-container" class="fixed inset-0 z-40 pointer-events-none opacity-0 transition-opacity duration-300 bg-gray-950/95"></div>
     </div>
 
     <div id="custom-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"><div id="custom-modal-panel" class="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-xl border border-gray-700 modal-fade-in"><h3 id="custom-modal-title" class="text-xl font-bold"></h3><div id="custom-modal-body" class="text-gray-300 mt-4 max-h-[70vh] overflow-y-auto"></div><div id="custom-modal-footer" class="mt-6 flex justify-end space-x-3"></div></div></div>
-    <div id="toast-container" class="fixed bottom-24 right-0 left-0 max-w-lg mx-auto p-4 z-50 pointer-events-none"></div>
+    <div id="toast-container" class="fixed bottom-24 right-0 left-0 max-w-lg mx-auto p-4 z-50 pointer-events-none lg:bottom-auto lg:top-6 lg:right-8 lg:left-auto lg:max-w-sm"></div>
     <div id="live-workout-overlay" class="fixed inset-0 bg-gray-900 z-50 hidden flex-col transition-opacity duration-300"></div>
     <div id="image-viewer-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] hidden items-center justify-center p-4 cursor-pointer" onclick="this.classList.add('hidden')">
         <div id="image-viewer-content" class="max-w-3xl max-h-[90vh] relative cursor-default" onclick="event.stopPropagation()">
             </div>
     </div>
 
-    <template id="template-inicio"><section id="inicio" class="section-content"><div class="space-y-6"><div><h2 id="welcome-message" class="text-2xl font-bold">Hola, </h2><p class="text-gray-400">¿Listo para superar tus límites hoy?</p></div><div id="ai-daily-tip-card" class="bg-gray-700/80 p-4 rounded-2xl hidden"><div class="flex items-start space-x-3"><i data-lucide="sparkles" class="text-purple-400 w-5 h-5 flex-shrink-0 mt-1"></i><div><h3 class="font-semibold text-gray-200">Consejo del Día ✨</h3><p id="ai-daily-tip-text" class="text-sm text-gray-300 mt-1">Cargando consejo...</p></div></div></div><div id="weekly-progress-card" class="bg-gray-700/80 p-4 rounded-2xl"></div><div class="bg-gradient-to-br from-emerald-500 to-green-600 p-6 rounded-2xl shadow-lg text-white"><p class="font-medium">Tu Meta Diaria de Calorías</p><p class="text-3xl font-bold" id="dashboard-calories">2,500 kcal</p><div class="mt-4 h-2.5 w-full rounded-full bg-black/20"><div id="dashboard-progress-bar" class="bg-white h-2.5 rounded-full" style="width: 0%"></div></div><p class="text-right text-sm mt-1">Progreso: <span id="dashboard-progress-text">0</span>%</p></div><div class="grid grid-cols-2 gap-4"><button data-action="show-section" data-section-id="rutinas" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="clipboard-list" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Rutinas</span></button><button data-action="show-section" data-section-id="perfil" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="user" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Perfil</span></button><button data-action="show-section" data-section-id="dieta" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="salad" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Dieta</span></button><div class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2"><i data-lucide="flame" class="text-red-400"></i><span id="dashboard-consumed-calories" class="font-semibold">0 Kcal</span><span class="text-xs text-gray-400">Consumidas</span></div></div></div></section></template>
+    <template id="template-inicio"><section id="inicio" class="section-content"><div class="space-y-6"><div><h2 id="welcome-message" class="text-2xl font-bold">Hola, </h2><p class="text-gray-400">¿Listo para superar tus límites hoy?</p></div><div id="ai-daily-tip-card" class="bg-gray-700/80 p-4 rounded-2xl hidden"><div class="flex items-start space-x-3"><i data-lucide="sparkles" class="text-purple-400 w-5 h-5 flex-shrink-0 mt-1"></i><div><h3 class="font-semibold text-gray-200">Consejo del Día ✨</h3><p id="ai-daily-tip-text" class="text-sm text-gray-300 mt-1">Cargando consejo...</p></div></div></div><div id="weekly-progress-card" class="bg-gray-700/80 p-4 rounded-2xl"></div><div class="bg-gradient-to-br from-emerald-500 to-green-600 p-6 rounded-2xl shadow-lg text-white"><p class="font-medium">Tu Meta Diaria de Calorías</p><p class="text-3xl font-bold" id="dashboard-calories">2,500 kcal</p><div class="mt-4 h-2.5 w-full rounded-full bg-black/20"><div id="dashboard-progress-bar" class="bg-white h-2.5 rounded-full" style="width: 0%"></div></div><p class="text-right text-sm mt-1">Progreso: <span id="dashboard-progress-text">0</span>%</p></div><div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"><button data-action="show-section" data-section-id="rutinas" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="clipboard-list" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Rutinas</span></button><button data-action="show-section" data-section-id="perfil" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="user" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Perfil</span></button><button data-action="show-section" data-section-id="dieta" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="salad" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Dieta</span></button><div class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2"><i data-lucide="flame" class="text-red-400"></i><span id="dashboard-consumed-calories" class="font-semibold">0 Kcal</span><span class="text-xs text-gray-400">Consumidas</span></div></div></div></section></template>
     
     <template id="template-rutinas"><section id="rutinas" class="section-content hidden"><div class="space-y-8"><div class="flex justify-between items-center"><h2 class="text-2xl font-bold">Rutinas</h2><button id="create-routine-btn" data-action="routine-create" class="flex items-center gap-2 bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20"><i data-lucide="plus" class="w-5 h-5"></i><span>Crear Rutina</span></button></div><div id="user-routines-section">
         <h3 class="font-semibold text-lg mb-3 text-gray-300">Mis Rutinas</h3>
-        <div id="user-routines-container" class="horizontal-scroll-container flex overflow-x-auto gap-4 -mx-4 px-4 pb-4"></div>
+        <div id="user-routines-container" class="horizontal-scroll-container flex overflow-x-auto gap-4 -mx-4 px-4 pb-4 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-6 lg:overflow-visible lg:mx-0 lg:px-0"></div>
     </div><div id="predefined-routines-section"><h3 class="font-semibold text-lg mb-3 text-gray-300">Explorar Rutinas</h3><div id="predefined-routines-container" class="space-y-3"></div></div></div></section></template>
     
     <template id="template-asesorados">
@@ -165,9 +229,9 @@
                 
                 <div class="bg-gray-700/50 p-4 rounded-2xl">
                     <h3 class="font-semibold text-lg mb-3">Invitar a un Nuevo Cliente</h3>
-                    <form id="invite-form" class="flex gap-3">
+                    <form id="invite-form" class="flex flex-col gap-3 sm:flex-row">
                         <input type="email" id="invite-email" placeholder="email@cliente.com" required class="w-full bg-gray-700 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
-                        <button type="submit" class="bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition">Invitar</button>
+                        <button type="submit" class="bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition sm:w-auto">Invitar</button>
                     </form>
                 </div>
 
@@ -379,7 +443,11 @@
         // Inicializar Firebase
         const firebaseApp = initializeApp(firebaseConfig);
         
-        document.addEventListener('DOMContentLoaded', () => {
+        const bootstrapApp = () => {
+            if (window.app) {
+                return;
+            }
+
             const app = {
                 // IMPORTANTE: Reemplaza "" con tu propia clave de API de Google AI Studio.
                 apiKey: "", // Tu clave de API de Google AI Studio aquí
@@ -609,8 +677,8 @@
                         if (predefinedRoutines) predefinedRoutines.style.display = 'block';
                         if (dietManagementTools) dietManagementTools.style.display = 'block';
                         if (addFoodSection) addFoodSection.style.display = 'block';
-                        const navRutinasText = document.querySelector('#nav-rutinas .text-xs');
-                        if(navRutinasText) navRutinasText.textContent = 'Rutinas';
+                        const navRutinasText = document.querySelector('#nav-rutinas .nav-label');
+                        if (navRutinasText) navRutinasText.textContent = 'Rutinas';
 
                     } else {
                         navAsesorados.style.display = 'none';
@@ -619,8 +687,8 @@
                         if (predefinedRoutines) predefinedRoutines.style.display = 'none';
                         if (dietManagementTools) dietManagementTools.style.display = 'none';
                         if (addFoodSection) addFoodSection.style.display = 'none';
-                        const navRutinasText = document.querySelector('#nav-rutinas .text-xs');
-                        if(navRutinasText) navRutinasText.textContent = 'Mi Rutina';
+                        const navRutinasText = document.querySelector('#nav-rutinas .nav-label');
+                        if (navRutinasText) navRutinasText.textContent = 'Mi Rutina';
                     }
                 },
 
@@ -828,6 +896,7 @@
                             'routine-creator-upload-group-image': () => this.routine_creator_uploadGroupImage(groupTarget),
                             'manage-client': () => this.showClientManager(clientId),
                             'edit-client-routine': () => this.editClientRoutine(clientId),
+                            'assign-routine-to-client': () => this.assignRoutineToClient(clientId),
                             'edit-client-diet': () => this.editClientDiet(clientId),
                             'save-client-diet': () => this.saveClientDiet(clientId),
                             'toggle-food-completion': () => this.toggleFoodCompletion(parseInt(mealIndex), parseInt(itemIndex)),
@@ -855,10 +924,64 @@
                     document.body.addEventListener('submit', (e) => { e.preventDefault(); if (e.target.id === 'nutrition-form') { this.calculateNutrition(); } if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); } if (e.target.id === '1rm-form') { this.calculate1RM(); } if (e.target.id === 'invite-form') { this.handleInviteClient(e); } });
                     document.body.addEventListener('input', (e) => { if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); } if (e.target.id === 'exercise-search-input') { this.routine_filterExerciseLibrary(e.target.value); } if (e.target.id === 'client-food-search') { this.renderFoodList(e.target.value, 'client-food-list'); } if (e.target.closest('#client-diet-editor')) { const mealIndex = e.target.dataset.mealIndex; if (mealIndex) { this._updateMealDataFromUI(parseInt(mealIndex)); } } });
                     document.body.addEventListener('change', (e) => { if (e.target.closest('#client-diet-goals-form')) { this._handleUpdateClientGoalsFromUI(); } });
+
+                    const sidebar = document.getElementById('app-sidebar');
+                    if(sidebar){
+                        const setSidebarStateForViewport = () => {
+                            if(window.innerWidth >= 1024){
+                                sidebar.setAttribute('data-collapsed','true');
+                            } else {
+                                sidebar.setAttribute('data-collapsed','false');
+                            }
+                        };
+                        const expandSidebar = () => {
+                            if(window.innerWidth >= 1024){
+                                sidebar.setAttribute('data-collapsed','false');
+                            }
+                        };
+                        const collapseSidebar = () => {
+                            if(window.innerWidth >= 1024){
+                                sidebar.setAttribute('data-collapsed','true');
+                            }
+                        };
+
+                        setSidebarStateForViewport();
+
+                        sidebar.addEventListener('mouseenter', expandSidebar);
+                        sidebar.addEventListener('mouseleave', collapseSidebar);
+                        sidebar.addEventListener('focusin', expandSidebar);
+                        sidebar.addEventListener('focusout', () => {
+                            if(window.innerWidth >= 1024){
+                                requestAnimationFrame(() => {
+                                    if(!sidebar.contains(document.activeElement)){
+                                        sidebar.setAttribute('data-collapsed','true');
+                                    }
+                                });
+                            }
+                        });
+
+                        window.addEventListener('resize', setSidebarStateForViewport);
+                    }
                 },
 
                 renderAll() { this.renderRoutinesSection(); this.renderDietPage(); this.renderWeeklyProgress(); this.renderProfileSection(); this.renderNutricionSection(); if (this.isAsesor()){ this.renderAsesoradosSection();} this.updateDashboard(); lucide.createIcons(); },
-                showSection(id, animate=true){this.state.currentSection=id;document.querySelectorAll('.section-content').forEach(s=>s.classList.add('hidden'));const el=document.getElementById(id);if(el){el.classList.remove('hidden');if(animate){el.classList.add('section-fade-in');el.addEventListener('animationend',()=>el.classList.remove('section-fade-in'),{once:true});}}document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.toggle('text-emerald-400',b.dataset.section===id);b.classList.toggle('text-gray-400',b.dataset.section!==id);});if(id==='dieta'){this.renderFoodList();}},
+                showSection(id, animate=true){
+                    this.state.currentSection=id;
+                    document.querySelectorAll('.section-content').forEach(s=>s.classList.add('hidden'));
+                    const el=document.getElementById(id);
+                    if(el){
+                        el.classList.remove('hidden');
+                        if(animate){
+                            el.classList.add('section-fade-in');
+                            el.addEventListener('animationend',()=>el.classList.remove('section-fade-in'),{once:true});
+                        }
+                    }
+                    document.querySelectorAll('.nav-btn').forEach(b=>{
+                        const isActive=b.dataset.section===id;
+                        b.classList.toggle('is-active',isActive);
+                    });
+                    if(id==='dieta'){this.renderFoodList();}
+                },
                 
                 async renderAsesoradosSection() {
                     const listContainer = document.getElementById('asesorados-list');
@@ -955,19 +1078,38 @@
                     }
 
                     const clientRoutine = client.userRoutines && client.userRoutines.length > 0 ? client.userRoutines[0] : null;
+                    const availableRoutines = Array.isArray(this.state.userRoutines) ? this.state.userRoutines : [];
+                    const selectorId = `client-routine-select-${clientId}`;
 
                     const routineHTML = `
-                        <div class="bg-gray-900/50 rounded-xl p-4">
-                            <h4 class="font-bold text-lg text-emerald-300 mb-3">Plan de Entrenamiento</h4>
-                            ${clientRoutine ? `
-                                <div class="bg-gray-700 p-3 rounded-lg">
-                                    <p class="font-semibold text-white">${clientRoutine.name}</p>
-                                    <p class="text-xs text-gray-400">${clientRoutine.plan.length} día(s) | ${clientRoutine.plan.reduce((acc, d) => acc + d.exercises.length, 0)} ejercicios</p>
-                                </div>
-                            ` : `<p class="text-sm text-gray-500">Aún no se ha asignado una rutina.</p>`}
-                            <button data-action="edit-client-routine" data-client-id="${clientId}" class="w-full bg-emerald-600/80 font-bold py-2 rounded-lg mt-3 hover:bg-emerald-600 transition">
-                                ${clientRoutine ? 'Editar Rutina' : 'Crear Rutina'}
+                        <div class="bg-gray-900/50 rounded-xl p-4 space-y-4">
+                            <div>
+                                <h4 class="font-bold text-lg text-emerald-300 mb-2">Plan de Entrenamiento</h4>
+                                ${clientRoutine ? `
+                                    <div class="bg-gray-700/60 border border-emerald-500/20 p-3 rounded-lg">
+                                        <p class="font-semibold text-white">${clientRoutine.name}</p>
+                                        <p class="text-xs text-gray-400 mt-1">${clientRoutine.plan.length} día(s) · ${clientRoutine.plan.reduce((acc, d) => acc + d.exercises.length, 0)} ejercicio(s)</p>
+                                    </div>
+                                ` : `<p class="text-sm text-gray-500">Aún no se ha asignado una rutina personalizada.</p>`}
+                            </div>
+                            <button data-action="edit-client-routine" data-client-id="${clientId}" class="w-full bg-emerald-600/80 font-bold py-2 rounded-lg hover:bg-emerald-600 transition">
+                                ${clientRoutine ? 'Editar en el Creador' : 'Crear Rutina Personalizada'}
                             </button>
+                            <div class="border-t border-gray-800 pt-4">
+                                <p class="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+                                    <i data-lucide="link" class="w-4 h-4 text-emerald-400"></i>
+                                    Vincular rutina desde tu librería
+                                </p>
+                                ${availableRoutines.length ? `
+                                    <div class="flex flex-col sm:flex-row gap-3">
+                                        <select id="${selectorId}" class="flex-1 bg-gray-800/70 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                            <option value="">Selecciona una rutina</option>
+                                            ${availableRoutines.map(routine => `<option value="${routine.id}">${routine.name}</option>`).join('')}
+                                        </select>
+                                        <button data-action="assign-routine-to-client" data-client-id="${clientId}" class="sm:w-auto w-full bg-emerald-500 text-gray-900 font-bold px-4 py-2 rounded-lg hover:bg-emerald-400 transition">Vincular</button>
+                                    </div>
+                                ` : `<p class="text-xs text-gray-500">Crea rutinas en tu librería para poder asignarlas rápidamente.</p>`}
+                            </div>
                         </div>
                     `;
                     
@@ -1018,7 +1160,54 @@
                         };
                     }
                     this._tempRoutine.editingClientId = clientId;
+                    this._tempRoutine.assignedClientId = clientId;
                     this.routine_enterCreator(2);
+                },
+
+                async assignRoutineToClient(clientId) {
+                    const selector = document.getElementById(`client-routine-select-${clientId}`);
+                    if (!selector) return;
+
+                    const routineId = selector.value;
+                    if (!routineId) {
+                        this.showToast('Selecciona una rutina para vincular.', 'error');
+                        return;
+                    }
+
+                    const client = (this.state.asesorados || []).find(c => c.id === clientId);
+                    if (!client) {
+                        this.showToast('Cliente no encontrado.', 'error');
+                        return;
+                    }
+
+                    const routine = (this.state.userRoutines || []).find(r => r.id === routineId);
+                    if (!routine) {
+                        this.showToast('No encontramos esa rutina en tu librería.', 'error');
+                        return;
+                    }
+
+                    const routineCopy = JSON.parse(JSON.stringify(routine));
+                    routineCopy.assignedClientId = clientId;
+
+                    const existingRoutines = Array.isArray(client.userRoutines) ? [...client.userRoutines] : [];
+                    const existingIndex = existingRoutines.findIndex(r => r.id === routineCopy.id);
+                    if (existingIndex >= 0) {
+                        existingRoutines[existingIndex] = routineCopy;
+                    } else {
+                        existingRoutines.unshift(routineCopy);
+                    }
+
+                    try {
+                        const clientRef = doc(this.db, 'users', clientId);
+                        await updateDoc(clientRef, { userRoutines: existingRoutines });
+                        this.showToast(`Rutina vinculada a ${client.userName.split(' ')[0]}.`, 'success');
+                        selector.value = '';
+                        await this.fetchAsesorados();
+                        this.showClientManager(clientId);
+                    } catch (error) {
+                        console.error('Error assigning routine to client:', error);
+                        this.showToast('No se pudo vincular la rutina.', 'error');
+                    }
                 },
 
                 // --- NUEVAS FUNCIONES DE EDICIÓN DE DIETA ---
@@ -1427,7 +1616,54 @@
                 switchCalculatorTab(tabId) { document.querySelectorAll('.calc-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById(`tab-content-${tabId}`).classList.remove('hidden'); document.querySelectorAll('.calc-tab-btn').forEach(btn => { if (btn.dataset.tab === tabId) { btn.classList.add('bg-emerald-500', 'text-gray-900'); btn.classList.remove('text-gray-300'); } else { btn.classList.remove('bg-emerald-500', 'text-gray-900'); btn.classList.add('text-gray-300'); } }); },
                 populateNutritionForm() { const { age, weight, height, gender } = this.state.physicalStats; document.getElementById('age').value = age; document.getElementById('weight').value = weight; document.getElementById('height').value = height; const genderRadio = document.querySelector(`#nutrition-form input[name="gender"][value="${gender}"]`); if (genderRadio) genderRadio.checked = true; },
                 renderNutricionSection() { this.renderBmiCard(0, 0); document.getElementById('bodyfat-value').textContent = '--'; document.getElementById('ideal-weight-value').textContent = '--'; document.getElementById('water-intake-value').textContent = '-- L'; },
-                calculateNutrition(formElement = document.getElementById('nutrition-form'), showUI = true) { const gender = formElement.querySelector('input[name="gender"]:checked').value; const age = parseInt(formElement.age.value); const weight = parseFloat(formElement.weight.value); const height = parseInt(formElement.height.value); const activity = parseFloat(formElement.activity.value); const goal = formElement.querySelector('input[name="goal"]:checked').value; if (!age || !weight || !height) { this.showToast("Rellena todos los campos.", "error"); return null; } this.state.physicalStats = { ...this.state.physicalStats, age, weight, height, gender, activity }; this.saveDataToFirestore(); const bmr = (gender === 'male') ? (10 * weight + 6.25 * height - 5 * age + 5) : (10 * weight + 6.25 * height - 5 * age - 161); const tdee = bmr * activity; let calories; if (goal === 'lose') calories = tdee - 500; else if (goal === 'gain') calories = tdee + 500; else calories = tdee; const results = { calories: Math.round(calories), protein: Math.round((calories * 0.3) / 4), carbs: Math.round((calories * 0.4) / 4), fats: Math.round((calories * 0.3) / 9) }; if (showUI) { document.getElementById('result-calories').textContent = `${results.calories} kcal`; document.getElementById('result-protein').textContent = `${results.protein}g`; document.getElementById('result-carbs').textContent = `${results.carbs}g`; document.getElementById('result-fats').textContent = `${results.fats}g`; document.getElementById('nutrition-results').classList.remove('hidden'); this.showToast("Cálculos de nutrición actualizados", "success"); } this._tempResults = results; return results; },
+                calculateNutrition(formElement, showUI) {
+                    const targetForm = formElement || document.getElementById('nutrition-form');
+                    const shouldUpdateUI = typeof showUI === 'undefined' ? true : Boolean(showUI);
+
+                    const gender = targetForm.querySelector('input[name="gender"]:checked').value;
+                    const age = parseInt(targetForm.age.value);
+                    const weight = parseFloat(targetForm.weight.value);
+                    const height = parseInt(targetForm.height.value);
+                    const activity = parseFloat(targetForm.activity.value);
+                    const goal = targetForm.querySelector('input[name="goal"]:checked').value;
+
+                    if (!age || !weight || !height) {
+                        this.showToast("Rellena todos los campos.", "error");
+                        return null;
+                    }
+
+                    this.state.physicalStats = { ...this.state.physicalStats, age, weight, height, gender, activity };
+                    this.saveDataToFirestore();
+
+                    const bmr = (gender === 'male')
+                        ? (10 * weight + 6.25 * height - 5 * age + 5)
+                        : (10 * weight + 6.25 * height - 5 * age - 161);
+                    const tdee = bmr * activity;
+
+                    let calories;
+                    if (goal === 'lose') calories = tdee - 500;
+                    else if (goal === 'gain') calories = tdee + 500;
+                    else calories = tdee;
+
+                    const results = {
+                        calories: Math.round(calories),
+                        protein: Math.round((calories * 0.3) / 4),
+                        carbs: Math.round((calories * 0.4) / 4),
+                        fats: Math.round((calories * 0.3) / 9)
+                    };
+
+                    if (shouldUpdateUI) {
+                        document.getElementById('result-calories').textContent = `${results.calories} kcal`;
+                        document.getElementById('result-protein').textContent = `${results.protein}g`;
+                        document.getElementById('result-carbs').textContent = `${results.carbs}g`;
+                        document.getElementById('result-fats').textContent = `${results.fats}g`;
+                        document.getElementById('nutrition-results').classList.remove('hidden');
+                        this.showToast("Cálculos de nutrición actualizados", "success");
+                    }
+
+                    this._tempResults = results;
+                    return results;
+                },
                 calculateBodyMetrics() { const { weight, height, age, gender } = this.state.physicalStats; if (!weight || !height || !age) { this.showToast("Completa tus datos en el perfil o en la pestaña de nutrición primero.", "error"); return; } const bmi = this.renderBmiCard(weight, height); const genderFactor = (gender === 'male') ? 1 : 0; const bodyFat = (1.20 * bmi) + (0.23 * age) - (10.8 * genderFactor) - 5.4; document.getElementById('bodyfat-value').textContent = bodyFat.toFixed(1); const heightInM = height / 100; const idealMin = 18.5 * (heightInM * heightInM); const idealMax = 24.9 * (heightInM * heightInM); document.getElementById('ideal-weight-value').textContent = `${idealMin.toFixed(1)} - ${idealMax.toFixed(1)} kg`; const waterLiters = (weight * 35) / 1000; document.getElementById('water-intake-value').textContent = waterLiters.toFixed(1); this.showToast("Métricas corporales calculadas."); },
                 renderBmiCard(weight, height) { if(!weight || !height) { document.getElementById('bmi-value').textContent = '--'; document.getElementById('bmi-category').textContent = 'Sin calcular'; document.getElementById('bmi-category').className = 'font-semibold text-gray-400'; document.getElementById('bmi-marker').style.left = '0%'; return 0; } const heightInMeters = height / 100; const bmi = (weight / (heightInMeters * heightInMeters)); let category = '', colorClass = '', markerPosition = 0; if (bmi < 18.5) { category = 'Bajo Peso'; colorClass = 'text-sky-400'; markerPosition = (bmi / 18.5) * 25; } else if (bmi >= 18.5 && bmi < 25) { category = 'Normal'; colorClass = 'text-emerald-400'; markerPosition = 25 + ((bmi - 18.5) / (25 - 18.5)) * 30; } else if (bmi >= 25 && bmi < 30) { category = 'Sobrepeso'; colorClass = 'text-yellow-400'; markerPosition = 55 + ((bmi - 25) / (30 - 25)) * 25; } else { category = 'Obesidad'; colorClass = 'text-red-400'; markerPosition = 80 + ((bmi - 30) / (40 - 30)) * 20; } markerPosition = Math.max(2, Math.min(98, markerPosition)); document.getElementById('bmi-value').textContent = bmi.toFixed(1); const categoryEl = document.getElementById('bmi-category'); categoryEl.textContent = category; categoryEl.className = `font-semibold ${colorClass}`; document.getElementById('bmi-marker').style.left = `${markerPosition}%`; return bmi; },
                 calculate1RM() { const weight = parseFloat(document.getElementById('1rm-weight').value); const reps = parseInt(document.getElementById('1rm-reps').value); if(!weight || !reps || weight <= 0 || reps <= 0) { this.showToast("Ingresa un peso y repeticiones válidos.", "error"); return; } if (reps > 12) { this.showToast("El cálculo es menos preciso con más de 12 reps.", "error"); } const oneRepMax = weight / (1.0278 - 0.0278 * reps); document.getElementById('1rm-result-value').textContent = `${oneRepMax.toFixed(1)} kg`; const projectionsContainer = document.getElementById('1rm-projections'); const repRanges = [3, 5, 8, 10, 12, 15]; projectionsContainer.innerHTML = repRanges.map(r => { const projectedWeight = oneRepMax * (1.0278 - 0.0278 * r); return `<div class="bg-gray-800/70 p-2 rounded-lg"><p class="font-bold text-lg text-purple-200">${projectedWeight.toFixed(1)}<span class="text-xs text-gray-400"> kg</span></p><p class="text-xs text-gray-400">${r} RM</p></div>`; }).join(''); document.getElementById('1rm-results').classList.remove('hidden'); },
@@ -1608,172 +1844,247 @@
 
                     const isUserRoutine = routine.id.startsWith('manual-'); 
                     const deleteButtonHTML = isUserRoutine && this.isAsesor() ? `<button data-action="routine-confirm-delete" data-routine-id="${routine.id}" class="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-red-500/10"><i data-lucide="trash-2" class="w-5 h-5"></i></button>` : '<div class="w-9 h-9"></div>'; 
-                    const viewHTML = `<div id="routine-details-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col"><header class="p-4 flex items-center justify-between bg-gray-900/80 backdrop-blur-sm sticky top-0"><button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button><h3 class="text-lg font-bold truncate px-4">${routine.name}</h3>${deleteButtonHTML}</header><div class="flex-grow p-4 overflow-y-auto space-y-4"><p class="text-gray-400 bg-gray-700/50 p-3 rounded-lg text-sm">${routine.description}</p>${daysHTML}</div></div>`; 
-                    this.routine_openFullscreenView(viewHTML); 
+                    const viewHTML = `<div id="routine-details-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col"><header class="p-4 flex items-center justify-between bg-gray-900/80 backdrop-blur-sm sticky top-0"><button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button><h3 class="text-lg font-bold truncate px-4">${routine.name}</h3>${deleteButtonHTML}</header><div class="flex-grow p-4 overflow-y-auto space-y-4"><p class="text-gray-400 bg-gray-700/50 p-3 rounded-lg text-sm">${routine.description}</p>${daysHTML}</div></div>`;
+                    this.routine_openFullscreenView(viewHTML);
                 },
 
-                routine_enterCreator(step = 1) { 
-    if (step === 1) { 
-        // ▼▼▼ CAMBIO: Añadir la propiedad 'coverImageUrl' ▼▼▼
-        this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null }; 
-    } 
-                    const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(step)}</div>`; this.routine_openFullscreenView(viewHTML);
-                
-        if (step === 1) {
-            document.getElementById('routine-cover-image-input')?.addEventListener('change', (e) => this.routine_handleCoverImageSelect(e));
-        }
-       
-                    if(step === 2)
-                    { this.routine_refreshDayTabs(); this.routine_refreshExerciseList(); this.routine_creator_switchGroup(Object.keys(this.data.exerciseLibrary)[0]); } },
+                routine_enterCreator(step) {
+                    const targetStep = typeof step === 'undefined' ? 1 : step;
+                    if (targetStep === 1) {
+                        this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null, assignedClientId: '' };
+                    }
+                    const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(targetStep)}</div>`;
+                    this.routine_openFullscreenView(viewHTML);
+
+                    if (targetStep === 1) {
+                        document.getElementById('routine-cover-image-input')?.addEventListener('change', (e) => this.routine_handleCoverImageSelect(e));
+                    }
+
+                    if (targetStep === 2) {
+                        this.routine_refreshDayTabs();
+                        this.routine_refreshExerciseList();
+                        this.routine_creator_switchGroup(Object.keys(this.data.exerciseLibrary)[0]);
+                    }
+                },
                 routine_getCreatorContent(step) {
                     if (step === 1) {
                         return `
-                            <header class="p-4 flex items-center bg-gray-800/80 backdrop-blur-sm shrink-0">
-                                <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="x"></i></button>
-                                <div class="flex-grow text-center"><p class="font-bold text-white">Crear Rutina</p></div>
-                                <div class="w-9 h-9"></div>
-                            </header>
-                            <div class="p-4 pt-0 w-full bg-gray-800/80">
-                                <div class="w-full h-1 bg-gray-700/50 rounded-full"><div class="w-1/2 h-1 bg-emerald-500 rounded-full"></div></div>
-                                <p class="text-center text-sm text-gray-400 mt-2">Paso 1: Detalles de la Rutina</p>
-                            </div>
-                            <div class="flex-grow p-6 overflow-y-auto space-y-6">
-                                <div class="text-center">
-                                    <i data-lucide="file-pen-line" class="w-16 h-16 mx-auto text-emerald-400/50"></i>
-                                    <h2 class="text-3xl font-bold text-white mt-4">Detalles de la Rutina</h2>
-                                    <p class="text-gray-400 mt-1">Dale una identidad a tu nuevo plan de entrenamiento.</p>
-                                </div>
-                                <div class="bg-gray-800 rounded-xl p-4">
-                                    <label for="routine-name-input" class="flex items-center gap-2 text-lg font-semibold text-gray-300 mb-2">
-                                        <i data-lucide="type" class="w-5 h-5 text-emerald-400"></i>
-                                        <span>Nombre de la Rutina</span>
-                                    </label>
-                                    <input id="routine-name-input" type="text" value="${this._tempRoutine.name || ''}" class="w-full bg-gray-700/50 rounded-lg p-3 text-white text-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Empuje Explosivo">
-                                </div>
-                                <div class="bg-gray-800 rounded-xl p-4">
-                                    <label for="routine-desc-input" class="flex items-center gap-2 text-lg font-semibold text-gray-300 mb-2">
-                                        <i data-lucide="notebook-text" class="w-5 h-5 text-emerald-400"></i>
-                                        <span>Descripción (Opcional)</span>
-                                    </label>
-                                    <textarea id="routine-desc-input" class="w-full bg-gray-700/50 rounded-lg p-3 h-24 resize-none text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 transition" placeholder="Ej: Enfocado en hipertrofia de pecho y hombro">${this._tempRoutine.description || ''}</textarea>
-                                </div>
-                                <div class="bg-gray-800 rounded-xl p-4">
-                                    <label for="routine-cover-image-input" class="flex items-center gap-2 text-lg font-semibold text-gray-300 mb-2 cursor-pointer">
-                                        <i data-lucide="image" class="w-5 h-5 text-emerald-400"></i>
-                                        <span>Imagen de Portada (Opcional)</span>
-                                    </label>
-                                    <input type="file" id="routine-cover-image-input" class="hidden" accept="image/png, image/jpeg, image/webp">
-                                    <div id="cover-image-preview-wrapper" class="mt-2 aspect-video bg-gray-700/50 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-600 relative overflow-hidden">
-                                        <img id="routine-cover-preview" src="#" alt="Vista previa de la portada" class="hidden w-full h-full object-cover">
-                                        <div id="cover-image-placeholder" class="text-center text-gray-500">
-                                            <i data-lucide="image-plus" class="w-10 h-10 mx-auto"></i>
-                                            <p class="text-sm mt-1">Clic para subir imagen</p>
+                            <div class="min-h-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
+                                <header class="sticky top-0 z-10 border-b border-white/5 bg-gray-950/80 backdrop-blur">
+                                    <div class="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
+                                        <button data-action="routine-close-view" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white"><i data-lucide="x"></i></button>
+                                        <div class="text-center">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300/80">Crear Rutina</p>
+                                            <p class="mt-1 text-sm font-semibold text-white">Paso 1 · Detalles principales</p>
                                         </div>
-                                        <div id="cover-upload-progress-container" class="absolute inset-0 bg-black/70 flex-col items-center justify-center hidden">
-                                            <div class="w-3/4 bg-gray-600 rounded-full h-2">
-                                                <div id="cover-upload-progress-bar" class="bg-emerald-500 h-2 rounded-full" style="width: 0%"></div>
+                                        <div class="h-9 w-9"></div>
+                                    </div>
+                                    <div class="h-1 w-full bg-white/5">
+                                        <div class="h-full w-1/2 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"></div>
+                                    </div>
+                                </header>
+                                <div class="flex-1 overflow-y-auto">
+                                    <div class="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 py-8 sm:px-6 sm:py-10">
+                                        <section class="overflow-hidden rounded-3xl border border-white/5 bg-white/5 shadow-[0_35px_120px_-60px_rgba(16,185,129,0.85)]">
+                                            <div class="grid gap-10 p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+                                                <div class="flex flex-col gap-4">
+                                                    <div>
+                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Imagen de portada</p>
+                                                        <p class="mt-2 text-sm text-gray-300">Resalta tu rutina con una portada envolvente para motivar a tus asesorados.</p>
+                                                    </div>
+                                                    <label for="routine-cover-image-input" class="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-gray-950/60 transition hover:border-emerald-400/60">
+                                                        <input type="file" accept="image/*" id="routine-cover-image-input" class="absolute inset-0 h-full w-full cursor-pointer opacity-0">
+                                                        <div id="cover-image-placeholder" class="flex h-full flex-col items-center justify-center gap-3 text-gray-400">
+                                                            <span class="grid h-16 w-16 place-items-center rounded-full border border-white/10 bg-white/5 text-white transition group-hover:border-emerald-400/50 group-hover:text-emerald-200">
+                                                                <i data-lucide="image"></i>
+                                                            </span>
+                                                            <div class="text-center">
+                                                                <p class="text-sm font-semibold text-white">Arrastra o selecciona una imagen</p>
+                                                                <p class="text-xs text-gray-500">Ideal 1280 × 720 px</p>
+                                                            </div>
+                                                        </div>
+                                                        <img id="routine-cover-preview" class="hidden h-full w-full object-cover" alt="Vista previa de la portada">
+                                                    </label>
+                                                    <div id="cover-upload-progress-container" class="hidden items-center gap-3 rounded-2xl border border-white/10 bg-gray-950/70 px-4 py-3">
+                                                        <div class="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
+                                                            <div id="cover-upload-progress-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-300"></div>
+                                                        </div>
+                                                        <span id="cover-upload-progress-text" class="text-xs font-semibold text-gray-300"></span>
+                                                    </div>
+                                                </div>
+                                                <div class="flex flex-col gap-6">
+                                                    <div>
+                                                        <label for="routine-name-input" class="text-sm font-semibold text-gray-200">Nombre de la rutina</label>
+                                                        <input id="routine-name-input" type="text" placeholder="Ej. Fuerza Total" class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-950/60 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400" value="${this._tempRoutine?.name || ''}">
+                                                    </div>
+                                                    <div class="flex flex-col gap-3">
+                                                        <label for="routine-desc-input" class="text-sm font-semibold text-gray-200">Descripción</label>
+                                                        <textarea id="routine-desc-input" rows="6" placeholder="Describe objetivos, nivel de intensidad y sensaciones que buscará esta rutina." class="w-full resize-none rounded-2xl border border-white/10 bg-gray-950/60 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">${this._tempRoutine?.description || ''}</textarea>
+                                                    </div>
+                                                    <div class="flex flex-col gap-4 text-sm text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+                                                        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
+                                                            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                                                            <span>50% Completado</span>
+                                                        </div>
+                                                        <button data-action="routine-creator-next" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-6 py-3 font-semibold text-gray-900 transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                                            <span>Siguiente paso</span>
+                                                            <i data-lucide="arrow-right"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
-                                            <p id="cover-upload-progress-text" class="text-xs text-white mt-2">Subiendo...</p>
-                                        </div>
+                                        </section>
                                     </div>
                                 </div>
                             </div>
-                            <footer class="p-4 bg-gray-900/80 backdrop-blur-sm shrink-0">
-                                <button data-action="routine-creator-next" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition text-gray-900 flex items-center justify-center gap-2">Siguiente: Añadir Ejercicios <i data-lucide="arrow-right"></i></button>
-                            </footer>
-                            `;
+                        `;
                     }
+
                     if (step === 2) {
                         const isAdmin = this.isAsesor();
+                        const assignedClientId = this._tempRoutine.assignedClientId || this._tempRoutine.editingClientId;
+                        const assignedClient = assignedClientId ? (this.state.asesorados || []).find(c => c.id === assignedClientId) : null;
+                        const assignmentInfo = assignedClient ? `<p class="mt-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-200/80">Asignada a ${assignedClient.userName}</p>` : '';
+                        const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex] || { day: '', exercises: [] };
+                        const dayName = currentDay.day || `Día ${this._tempRoutine.currentDayIndex + 1}`;
+                        const totalDays = this._tempRoutine.plan.length;
+                        const totalExercises = currentDay.exercises.length;
                         const groupImages = this.data.exerciseGroupImages || {};
-                        const groupsNav = `<nav id="exercise-group-nav" class="w-full md:w-1/3 shrink-0 p-4 overflow-y-auto border-b md:border-b-0 md:border-r border-gray-800">
-                            <div class="grid gap-3">
+                        const groupsNav = `<aside id="exercise-group-nav" class="w-full shrink-0 border-b border-white/5 bg-gray-950/80 md:w-80 md:border-b-0 md:border-r md:max-h-[calc(100vh-8rem)] md:overflow-y-auto">
+                            <div class="grid gap-4 p-5">
                                 ${Object.keys(this.data.exerciseLibrary).map(group => {
                                     const rawUrl = groupImages[group] || '';
-                                    const sanitizedUrl = rawUrl.replace(/'/g, "\\'");
+                                    const sanitizedUrl = rawUrl.replace(/'/g, "\'");
                                     const backgroundStyle = rawUrl
                                         ? `background-image: url('${sanitizedUrl}');`
-                                        : 'background-image: linear-gradient(135deg, rgba(16,185,129,0.45), rgba(59,130,246,0.35));';
+                                        : 'background-image: linear-gradient(135deg, rgba(16,185,129,0.55), rgba(59,130,246,0.45));';
                                     const editButton = isAdmin
-                                        ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute top-3 right-3 z-10 inline-flex items-center justify-center w-9 h-9 rounded-full bg-black/60 backdrop-blur border border-white/10 text-white hover:bg-emerald-500 hover:text-gray-900 transition pointer-events-auto"><i data-lucide="image-plus" class="w-4 h-4"></i></button>`
+                                        ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/60 text-white shadow-lg transition hover:bg-emerald-400 hover:text-gray-900"><i data-lucide="image-plus" class="h-4 w-4"></i></button>`
                                         : '';
                                     return `
-                                        <div role="button" tabindex="0" data-action="routine-creator-switch-group" data-group-target="${group}" class="relative h-36 overflow-hidden rounded-2xl border border-transparent bg-gray-800/40 shadow-lg cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-emerald-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 data-[active=true]:border-emerald-400/60 data-[active=true]:shadow-emerald-400/30">
+                                        <button type="button" data-action="routine-creator-switch-group" data-group-target="${group}" class="group relative flex h-36 w-full flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-white/5 text-left shadow-[0_25px_60px_-40px_rgba(16,185,129,0.75)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300/60 data-[active=true]:border-emerald-300 data-[active=true]:shadow-emerald-400/40">
                                             <div class="absolute inset-0 bg-cover bg-center" style="${backgroundStyle}"></div>
-                                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10"></div>
+                                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
                                             ${editButton}
-                                            <div class="relative h-full flex flex-col justify-end p-4 pointer-events-none">
-                                                <span class="text-xs uppercase tracking-[0.2em] text-emerald-300/80">Grupo</span>
-                                                <span class="text-lg font-bold text-white">${group}</span>
+                                            <div class="relative z-10 w-full p-4">
+                                                <div class="rounded-2xl bg-black/45 px-4 py-3 backdrop-blur-sm">
+                                                    <span class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Grupo muscular</span>
+                                                    <p class="mt-1 text-lg font-semibold text-white leading-tight">${group}</p>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </button>
                                     `;
                                 }).join('')}
                             </div>
-                        </nav>`;
+                        </aside>`;
                         const exercisesPanel = `
-                        <main id="exercise-list-panel" class="flex-grow p-4 overflow-y-auto">
-                            ${Object.entries(this.data.exerciseLibrary).map(([group, subGroups]) => `
-                                <div data-group-content="${group}" class="hidden space-y-6">
-                                    ${Object.entries(subGroups).map(([subGroup, exercises]) => `
-                                        <div data-subgroup-content="${subGroup}">
-                                            <h4 class="font-bold text-lg text-emerald-300 px-2 mb-3">${subGroup}</h4>
-                                            <div class="space-y-3">
-                                                ${exercises.map((ex, exIndex) => `
-                                                    <div class="exercise-item bg-gray-800/60 rounded-xl p-3 flex items-center gap-3" data-exercise-name="${ex.name}">
-                                                        <button data-action="show-media-viewer" data-media-url="${ex.mediaUrl || ''}" class="shrink-0 w-20 h-20 bg-gray-900 rounded-lg flex items-center justify-center overflow-hidden group">
-                                                            ${ex.mediaUrl ? `<img src="${ex.mediaUrl}" alt="${ex.name}" class="w-full h-full object-cover transition-transform group-hover:scale-110">` : `<i data-lucide="image-off" class="w-10 h-10 text-gray-600"></i>`}
-                                                        </button>
-                                                        <div class="flex-grow">
-                                                            <p class="font-bold text-white">${ex.name}</p>
-                                                            <div class="flex items-center gap-2 mt-2">
-                                                                ${isAdmin ? `<button data-action="admin-edit-media" data-group="${group}" data-subgroup="${subGroup}" data-exercise-index="${exIndex}" class="flex items-center gap-1.5 text-xs text-amber-400/80 hover:text-amber-400"><i data-lucide="camera" class="w-3.5 h-3.5"></i>Editar Media</button>` : ''}
-                                                                <button data-action="show-exercise-info" data-exercise-name="${ex.name}" class="flex items-center gap-1.5 text-xs text-sky-400/80 hover:text-sky-400"><i data-lucide="info" class="w-3.5 h-3.5"></i>Instrucciones</button>
+                        <section id="exercise-list-panel" class="flex-grow overflow-y-auto bg-gray-950/60">
+                            <div class="space-y-8 p-5 sm:p-8">
+                                ${Object.entries(this.data.exerciseLibrary).map(([group, subGroups]) => `
+                                    <div data-group-content="${group}" class="hidden space-y-6">
+                                        ${Object.entries(subGroups).map(([subGroup, exercises]) => `
+                                            <div data-subgroup-content="${subGroup}" class="space-y-4">
+                                                <div class="flex items-center justify-between gap-2">
+                                                    <h4 class="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-200/80">${subGroup}</h4>
+                                                    ${isAdmin ? `<button data-action="routine-creator-switch-group" data-group-target="${group}" class="hidden"></button>` : ''}
+                                                </div>
+                                                <div class="grid gap-4">
+                                                    ${exercises.map((ex, exIndex) => `
+                                                        <div class="exercise-item group relative flex flex-col gap-4 rounded-2xl border border-white/5 bg-white/5 p-4 shadow-[0_25px_60px_-45px_rgba(56,189,248,0.55)] transition hover:border-emerald-300/70 sm:flex-row sm:items-center" data-exercise-name="${ex.name}">
+                                                            <button data-action="show-media-viewer" data-media-url="${ex.mediaUrl || ''}" class="relative h-24 w-full overflow-hidden rounded-xl bg-gray-900/80 sm:h-24 sm:w-32">
+                                                                ${ex.mediaUrl ? `<img src="${ex.mediaUrl}" alt="${ex.name}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">` : `<div class="flex h-full w-full items-center justify-center text-gray-500"><i data-lucide="image-off" class="h-10 w-10"></i></div>`}
+                                                                <span class="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white">${subGroup}</span>
+                                                            </button>
+                                                            <div class="flex flex-1 flex-col gap-3">
+                                                                <div>
+                                                                    <p class="text-base font-semibold text-white">${ex.name}</p>
+                                                                    <div class="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                                                                        ${isAdmin ? `<button data-action="admin-edit-media" data-group="${group}" data-subgroup="${subGroup}" data-exercise-index="${exIndex}" class="inline-flex items-center gap-1 text-amber-300/80 transition hover:text-amber-200"><i data-lucide="camera" class="h-3.5 w-3.5"></i>Editar media</button>` : ''}
+                                                                        <button data-action="show-exercise-info" data-exercise-name="${ex.name}" class="inline-flex items-center gap-1 text-sky-300/80 transition hover:text-sky-200"><i data-lucide="info" class="h-3.5 w-3.5"></i>Instrucciones</button>
+                                                                    </div>
+                                                                </div>
                                                             </div>
+                                                            <button data-action="routine-creator-select-exercise" data-exercise-name="${ex.name}" class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-400 text-gray-900 shadow-lg transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                                                <i data-lucide="plus" class="h-6 w-6"></i>
+                                                            </button>
                                                         </div>
-                                                        <button data-action="routine-creator-select-exercise" data-exercise-name="${ex.name}" class="shrink-0 w-12 h-12 bg-emerald-500 rounded-full text-gray-900 hover:bg-emerald-400 transition-all flex items-center justify-center">
-                                                            <i data-lucide="plus" class="w-7 h-7"></i>
-                                                        </button>
-                                                    </div>
-                                                `).join('')}
+                                                    `).join('')}
+                                                </div>
                                             </div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            `).join('')}
-                        </main>`;
-                        return `
-                            <header class="p-4 flex items-center justify-between bg-gray-800/80 backdrop-blur-sm shrink-0">
-                                <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button>
-                                <div class="text-center">
-                                    <h3 class="text-lg font-bold truncate">${this._tempRoutine.name}</h3>
-                                    <p class="text-xs text-gray-400">Paso 2: Añadir Ejercicios</p>
-                                </div>
-                                <button data-action="routine-creator-save" class="font-bold text-emerald-400 px-4 py-2 rounded-lg hover:bg-emerald-500/10">Guardar</button>
-                            </header>
-                            <div class="shrink-0">
-                                <div id="routine-day-tabs" class="horizontal-scroll-container flex overflow-x-auto gap-2 p-4 border-b border-gray-800"></div>
-                            </div>
-                            <div class="flex-grow p-4 overflow-y-auto space-y-3 bg-gray-900/50" id="exercise-list-container"></div>
-                            <footer class="p-4 bg-gray-900/80 backdrop-blur-sm shrink-0">
-                                <button data-action="routine-creator-add-exercise" class="w-full bg-emerald-500 font-bold py-3.5 rounded-lg hover:bg-emerald-400 transition flex items-center justify-center gap-2 text-gray-900">
-                                    <i data-lucide="plus"></i><span>Añadir Ejercicio</span>
-                                </button>
-                            </footer>
-                            <div id="exercise-drawer" class="absolute inset-0 bg-gray-800 flex flex-col z-10">
-                                <header class="p-4 flex items-center bg-gray-900/80 backdrop-blur-sm sticky top-0 shrink-0">
-                                    <div class="relative flex-grow">
-                                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500"></i>
-                                        <input id="exercise-search-input" type="search" placeholder="Buscar ejercicio..." class="w-full bg-gray-700/80 rounded-lg pl-10 pr-4 py-2 text-white border border-transparent focus:bg-gray-700 focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                                        `).join('')}
                                     </div>
-                                    <button data-action="routine-creator-close-drawer" class="p-2 ml-2 text-gray-400 hover:text-white"><i data-lucide="x"></i></button>
-                                </header>
-                                <div class="flex-grow flex flex-col md:flex-row overflow-hidden">${groupsNav}${exercisesPanel}</div>
+                                `).join('')}
                             </div>
-                            `;
+                        </section>`;
+                        return `
+                            <div class="min-h-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
+                                <header class="sticky top-0 z-20 border-b border-white/5 bg-gray-950/80 backdrop-blur">
+                                    <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+                                        <button data-action="routine-close-view" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white"><i data-lucide="arrow-left"></i></button>
+                                        <div class="min-w-0 text-center">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300/80">Paso 2 · Planifica tu rutina</p>
+                                            <h3 class="mt-1 truncate text-lg font-semibold text-white">${this._tempRoutine.name}</h3>
+                                            ${assignmentInfo}
+                                        </div>
+                                        <button data-action="routine-creator-save" class="rounded-2xl bg-white/10 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10 hover:text-emerald-200">Guardar</button>
+                                    </div>
+                                    <div class="horizontal-scroll-container flex items-center gap-2 overflow-x-auto px-4 pb-4 sm:px-6" id="routine-day-tabs"></div>
+                                </header>
+                                <div class="flex-1 overflow-y-auto">
+                                    <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10">
+                                        <section class="rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8">
+                                            <div class="grid gap-6 sm:grid-cols-3">
+                                                <div class="sm:col-span-2 text-left">
+                                                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Día seleccionado</p>
+                                                    <p class="mt-2 text-2xl font-semibold text-white">${dayName}</p>
+                                                    <p class="mt-3 text-sm text-gray-300">Organiza la experiencia del día con ejercicios cuidadosamente seleccionados y sin elementos que distraigan.</p>
+                                                </div>
+                                                <div class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-gray-950/60 p-4 text-sm text-gray-300">
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-xs uppercase tracking-[0.3em] text-emerald-200/70">Días totales</span>
+                                                        <span class="text-lg font-semibold text-white">${totalDays}</span>
+                                                    </div>
+                                                    <div class="flex items-center justify-between">
+                                                        <span class="text-xs uppercase tracking-[0.3em] text-emerald-200/70">Ejercicios hoy</span>
+                                                        <span class="text-lg font-semibold text-white">${totalExercises}</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-2 rounded-xl bg-white/5 px-3 py-2 text-xs text-gray-200">
+                                                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                                                        <span>Mantén la secuencia clara y concisa.</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </section>
+                                        <section class="overflow-hidden rounded-3xl border border-white/5 bg-white/5">
+                                            <div class="flex flex-col gap-6 p-6 sm:p-8">
+                                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div>
+                                                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Listado de ejercicios</p>
+                                                        <p class="mt-1 text-base text-gray-300">Revisa, organiza y edita cada bloque sin desplazamientos innecesarios.</p>
+                                                    </div>
+                                                </div>
+                                                <div id="exercise-list-container" class="space-y-4"></div>
+                                                <button data-action="routine-creator-add-exercise" class="w-full rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 py-3 text-sm font-semibold text-gray-900 shadow-lg transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                                    Añadir ejercicio
+                                                </button>
+                                            </div>
+                                        </section>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="exercise-drawer" class="absolute inset-0 z-30 flex flex-col bg-gray-950/95 backdrop-blur-lg">
+                                <header class="sticky top-0 z-10 flex items-center gap-3 border-b border-white/5 bg-gray-950/90 px-4 py-4 sm:px-6">
+                                    <div class="relative flex-1">
+                                        <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500"></i>
+                                        <input id="exercise-search-input" type="search" placeholder="Busca por nombre o grupo..." class="w-full rounded-2xl border border-white/10 bg-gray-900/80 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                    </div>
+                                    <button data-action="routine-creator-close-drawer" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white"><i data-lucide="x"></i></button>
+                                </header>
+                                <div class="flex flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden">${groupsNav}${exercisesPanel}</div>
+                            </div>
+                        `;
                     }
                 },
-
                 // ▼▼▼ CÓDIGO A INSERTAR ▼▼▼
                 routine_handleCoverImageSelect(event) {
                     const file = event.target.files[0];
@@ -1828,7 +2139,14 @@
                 },
                 // ▲▲▲ FIN DEL CÓDIGO A INSERTAR ▲▲▲
                 
-                routine_handleCreatorNext() { const name = document.getElementById('routine-name-input').value.trim(); const desc = document.getElementById('routine-desc-input').value.trim(); if (!name) { this.showToast('El nombre es obligatorio', 'error'); return; } this._tempRoutine.name = name; this._tempRoutine.description = desc; this.routine_enterCreator(2); },
+                routine_handleCreatorNext() {
+                    const name = document.getElementById('routine-name-input').value.trim();
+                    const desc = document.getElementById('routine-desc-input').value.trim();
+                    if (!name) { this.showToast('El nombre es obligatorio', 'error'); return; }
+                    this._tempRoutine.name = name;
+                    this._tempRoutine.description = desc;
+                    this.routine_enterCreator(2);
+                },
                 routine_showAddExerciseDrawer() { const drawer = document.getElementById('exercise-drawer'); if (drawer) { drawer.classList.add('is-active'); document.getElementById('exercise-search-input').focus(); } },
                 routine_closeAddExerciseDrawer() { const drawer = document.getElementById('exercise-drawer'); if (drawer) drawer.classList.remove('is-active'); },
                 routine_creator_switchGroup(targetGroup) {
@@ -2099,36 +2417,91 @@
                     }
                     this._tempRoutine.editingIndex = -1;
 
-                    const clientId = this._tempRoutine.editingClientId;
-                    delete this._tempRoutine.editingClientId;
+                    const editingClientId = this._tempRoutine.editingClientId;
+                    const assignedClientId = this._tempRoutine.assignedClientId || '';
+                    const routinePayload = JSON.parse(JSON.stringify(this._tempRoutine));
+                    delete routinePayload.editingClientId;
+                    if (!assignedClientId) delete routinePayload.assignedClientId;
 
-                    if (clientId) {
-                        const clientRef = doc(this.db, "users", clientId);
-                        try {
-                            await updateDoc(clientRef, {
-                                userRoutines: [this._tempRoutine]
-                            });
+                    try {
+                        if (editingClientId) {
+                            const clientRef = doc(this.db, "users", editingClientId);
+                            const clientData = (this.state.asesorados || []).find(c => c.id === editingClientId);
+                            const existingRoutines = Array.isArray(clientData?.userRoutines) ? [...clientData.userRoutines] : [];
+                            const routineIndex = existingRoutines.findIndex(r => r.id === routinePayload.id);
+                            if (routineIndex >= 0) {
+                                existingRoutines[routineIndex] = routinePayload;
+                            } else {
+                                existingRoutines.push(routinePayload);
+                            }
+                            await updateDoc(clientRef, { userRoutines: existingRoutines });
                             this.showToast('Rutina del cliente guardada con éxito');
                             await this.fetchAsesorados();
-                        } catch (error) {
-                            console.error("Error updating client routine:", error);
-                            this.showToast('Error al guardar la rutina del cliente.', 'error');
+                            if (Array.isArray(this.state.userRoutines)) {
+                                const localIndex = this.state.userRoutines.findIndex(r => r.id === routinePayload.id);
+                                if (localIndex >= 0) {
+                                    this.state.userRoutines[localIndex] = routinePayload;
+                                    await this.saveDataToFirestore();
+                                    this.renderRoutinesSection();
+                                }
+                            }
+                        } else if (assignedClientId) {
+                            const clientRef = doc(this.db, "users", assignedClientId);
+                            const clientData = (this.state.asesorados || []).find(c => c.id === assignedClientId);
+                            const existingRoutines = Array.isArray(clientData?.userRoutines) ? [...clientData.userRoutines] : [];
+                            existingRoutines.push(routinePayload);
+                            await updateDoc(clientRef, { userRoutines: existingRoutines });
+                            this.showToast('Rutina asignada al asesorado con éxito');
+                            await this.fetchAsesorados();
+
+                            if (!this.state.userRoutines) this.state.userRoutines = [];
+                            this.state.userRoutines.unshift(routinePayload);
+                            await this.saveDataToFirestore();
+                            this.renderRoutinesSection();
+                        } else {
+                            if (!this.state.userRoutines) this.state.userRoutines = [];
+                            this.state.userRoutines.unshift(routinePayload);
+                            await this.saveDataToFirestore();
+                            this.showToast('Rutina guardada con éxito');
+                            this.renderRoutinesSection();
                         }
-                    } else {
-                        if(!this.state.userRoutines) this.state.userRoutines = [];
-                        this.state.userRoutines.unshift(this._tempRoutine);
-                        await this.saveDataToFirestore();
-                        this.showToast('Rutina guardada con éxito');
-                        this.renderRoutinesSection();
+
+                        this.routine_closeFullscreenView();
+                    } catch (error) {
+                        console.error('Error saving routine:', error);
+                        const isClientAction = Boolean(editingClientId || assignedClientId);
+                        this.showToast(isClientAction ? 'Error al guardar la rutina del cliente.' : 'Error al guardar la rutina.', 'error');
                     }
-                    
-                    this.routine_closeFullscreenView();
                 },
 
                 routine_confirmDelete(routineId) { this.showModal('Eliminar Rutina', '¿Estás seguro? Esta acción no se puede deshacer.', [ {text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal'}, {text: 'Eliminar', class: 'bg-red-600 hover:bg-red-500', action: 'routine-delete', 'routine-id': routineId} ]); },
                 async routine_delete(routineId) { this.state.userRoutines = this.state.userRoutines.filter(r => r.id !== routineId); await this.saveDataToFirestore(); this.hideModal(); this.routine_closeFullscreenView(); this.renderRoutinesSection(); this.showToast('Rutina eliminada', 'error'); },
-                routine_openFullscreenView(html) { const container = document.getElementById('fullscreen-view-container'); container.innerHTML = html; container.classList.remove('pointer-events-none'); setTimeout(() => { const view = container.querySelector('.fullscreen-view'); if(view) view.classList.add('is-active'); lucide.createIcons(); }, 10); },
-                routine_closeFullscreenView() { const container = document.getElementById('fullscreen-view-container'); const view = container.querySelector('.fullscreen-view'); if (view) { view.classList.remove('is-active'); view.addEventListener('transitionend', () => { container.innerHTML = ''; container.classList.add('pointer-events-none'); this.renderAsesoradosSection(); }, { once: true }); } },
+                routine_openFullscreenView(html) {
+                    const container = document.getElementById('fullscreen-view-container');
+                    container.innerHTML = html;
+                    container.classList.remove('pointer-events-none');
+                    container.classList.remove('opacity-0');
+                    container.style.opacity = '1';
+                    setTimeout(() => {
+                        const view = container.querySelector('.fullscreen-view');
+                        if (view) view.classList.add('is-active');
+                        lucide.createIcons();
+                    }, 10);
+                },
+                routine_closeFullscreenView() {
+                    const container = document.getElementById('fullscreen-view-container');
+                    const view = container.querySelector('.fullscreen-view');
+                    if (view) {
+                        view.classList.remove('is-active');
+                        container.style.opacity = '0';
+                        container.classList.add('opacity-0');
+                        view.addEventListener('transitionend', () => {
+                            container.innerHTML = '';
+                            container.classList.add('pointer-events-none');
+                            this.renderAsesoradosSection();
+                        }, { once: true });
+                    }
+                },
                 
                 showMediaViewer(url) {
                     if (!url) {
@@ -2287,16 +2660,92 @@
                 renderLiveWorkoutView() { const overlay = document.getElementById('live-workout-overlay'); if (!this.state.activeWorkout) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); return; } const { exercises, currentExerciseIndex, currentSet } = this.state.activeWorkout; const exercise = exercises[currentExerciseIndex]; const totalExercises = exercises.length; const timerStatus = this.state.timer.status; const workoutProgress = ((currentExerciseIndex + 1) / totalExercises) * 100; let setIndicators = ''; for (let i = 1; i <= exercise.sets; i++) { const isCompleted = exercise.log[i-1] !== undefined; const isActive = i === currentSet && timerStatus !== 'resting' && timerStatus !== 'exercise_complete'; let barClass = 'bg-gray-700'; if (isCompleted) barClass = 'bg-emerald-500'; else if (isActive) barClass = 'bg-yellow-500 animate-pulse'; setIndicators += `<div class="flex-1 h-2 rounded ${barClass} transition-colors duration-300"></div>`; } let mainDisplayHtml = ''; switch (timerStatus) { case 'resting': const circumference = 2 * Math.PI * 120; const offset = this.state.timer.initialRestTime > 0 ? circumference - (this.state.timer.timeLeft / this.state.timer.initialRestTime) * circumference : 0; const nextExerciseName = (currentSet > exercise.sets) ? (exercises[currentExerciseIndex + 1] ? exercises[currentExerciseIndex + 1].name : '¡Última Serie!') : exercise.name; mainDisplayHtml = `<div class="relative w-72 h-72 flex items-center justify-center"><svg class="w-full h-full transform -rotate-90" viewBox="0 0 256 256"><circle class="text-gray-800" stroke-width="12" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"/><circle id="timer-progress-ring" class="text-emerald-500" stroke-width="12" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"/></svg><div class="absolute text-center"><span class="text-7xl font-black font-mono tracking-tighter text-white">${this.formatTime(this.state.timer.timeLeft)}</span><div class="text-sm text-gray-400 uppercase font-semibold mt-1">Descanso</div></div></div><p class="text-gray-300 mt-6">Siguiente: <span class="font-bold text-white">${nextExerciseName}</span></p>`; break; case 'logging_weight': const lastWeight = exercise.log[currentSet - 2] || ''; mainDisplayHtml = `<div class="w-full max-w-xs text-center"><p class="text-gray-400">Peso para Serie ${currentSet - 1}</p><div class="flex items-center justify-center gap-4 my-4"><button onclick="app.updateWeightInput(-2.5)" class="bg-gray-700 w-16 h-16 rounded-full text-3xl font-bold hover:bg-gray-600 transition">-</button><input type="number" id="weight-input" inputmode="decimal" class="bg-transparent text-white text-7xl font-black w-48 text-center focus:outline-none" placeholder="0" value="${lastWeight}"><button onclick="app.updateWeightInput(2.5)" class="bg-gray-700 w-16 h-16 rounded-full text-3xl font-bold hover:bg-gray-600 transition">+</button></div><span class="font-bold text-gray-400 text-3xl">kg</span></div>`; break; default: mainDisplayHtml = `<div class="text-center active-workout-state"><p class="text-9xl font-black text-white tracking-tighter">${exercise.reps}</p><p class="text-2xl font-bold text-gray-400 -mt-2">REPS</p></div><p class="text-gray-300 mt-6">Serie ${currentSet} de ${exercise.sets}</p>`; break; } const buttonMap = { idle: { text: `Iniciar Serie ${currentSet}`, class: 'from-emerald-500 to-green-600' }, active: { text: 'Finalizar Serie', class: 'from-yellow-500 to-amber-600' }, logging_weight: { text: `Guardar y Descansar`, class: 'from-sky-500 to-blue-600' }, resting: { text: `Descansando...`, class: 'from-gray-600 to-gray-700', disabled: true }, exercise_complete: { text: 'Siguiente Ejercicio', class: 'from-indigo-500 to-purple-600' }, workout_complete: { text: '¡Rutina Completada!', class: 'from-emerald-500 to-green-600' }}; const buttonState = buttonMap[timerStatus]; const mainButtonHtml = `<button data-action="handle-workout-action" class="w-full font-bold py-5 rounded-xl transition text-xl text-white shadow-lg bg-gradient-to-br ${buttonState.class} hover:opacity-90 disabled:opacity-50" ${buttonState.disabled ? 'disabled' : ''}>${buttonState.text}</button>`; const restControlsHtml = timerStatus === 'resting' ? `<div class="flex justify-center space-x-4"><button data-action="add-rest-time" class="bg-white/10 backdrop-blur-sm hover:bg-white/20 py-2 px-5 rounded-lg text-sm font-semibold">Añadir +15s</button><button data-action="skip-rest" class="bg-white/10 backdrop-blur-sm hover:bg-white/20 py-2 px-5 rounded-lg text-sm font-semibold">Saltar</button></div>` : ''; overlay.innerHTML = `<div class="relative w-full h-full flex flex-col p-4 sm:p-6 bg-gradient-to-b from-gray-900 to-black text-white"><div class="absolute top-5 left-1/2 -translate-x-1/2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-1.5 pointer-events-none"><p id="main-workout-timer" class="text-lg font-mono text-white tracking-wider">00:00</p></div><header class="flex items-center justify-between w-full shrink-0 z-10"><div class="flex-1"><div class="w-full bg-gray-800 rounded-full h-2.5"><div class="bg-emerald-500 h-2.5 rounded-full" style="width: ${workoutProgress}%"></div></div><p class="text-xs text-gray-400 mt-1.5">Ejercicio ${currentExerciseIndex + 1} de ${totalExercises}</p></div><div class="ml-4"><button data-action="confirm-finish-workout" class="bg-gray-800/80 w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition"><i data-lucide="x" class="w-6 h-6"></i></button></div></header><main class="flex-grow flex flex-col items-center justify-center text-center w-full overflow-hidden"><div class="flex items-center gap-2"><h1 class="text-3xl sm:text-4xl font-bold leading-tight px-4">${exercise.name}</h1><button data-action="show-exercise-info" data-exercise-name="${exercise.name}" class="text-gray-500 hover:text-sky-400 transition-colors shrink-0"><i data-lucide="help-circle" class="w-7 h-7"></i></button></div><div class="flex-grow flex items-center justify-center my-4 live-workout-display">${mainDisplayHtml}</div></main><footer class="w-full max-w-md mx-auto shrink-0 z-10"><div class="flex justify-center items-center gap-2 mb-4"><p class="text-sm font-semibold text-gray-400">SERIES</p><div class="flex items-center gap-2 w-40">${setIndicators}</div></div><div class="h-10 mb-4 flex items-center justify-center">${restControlsHtml}</div>${mainButtonHtml}</footer></div>`; overlay.classList.remove('hidden'); overlay.classList.add('flex'); if (timerStatus === 'logging_weight') { const weightInput = document.getElementById('weight-input'); if(weightInput) { weightInput.focus(); weightInput.select(); } } lucide.createIcons(); },
             updateWorkoutTimerDisplay() { if(!this.state.activeWorkout||!this.state.activeWorkout.workoutStartTime)return;const t=document.getElementById('main-workout-timer');if(t){const e=Math.floor((Date.now()-this.state.activeWorkout.workoutStartTime)/1000);t.textContent=this.formatTime(e);}},
             handleWorkoutAction() { const status = this.state.timer.status; if (status === 'idle') { this.state.timer.status = 'active'; } else if (status === 'active') { this.state.timer.status = 'logging_weight'; } else if (status === 'logging_weight') { const weightInput = document.getElementById('weight-input'); const weightValue = parseFloat(weightInput.value); const weightToLog = !isNaN(weightValue) && weightValue >= 0 ? weightValue : 0; const { exercises, currentExerciseIndex, currentSet } = this.state.activeWorkout; exercises[currentExerciseIndex].log[currentSet - 1] = weightToLog; this.state.activeWorkout.currentSet++; if (this.state.activeWorkout.currentSet <= exercises[currentExerciseIndex].sets) { this.startRestTimer(); } else { if (this.state.activeWorkout.currentExerciseIndex >= this.state.activeWorkout.exercises.length - 1) { this.state.timer.status = 'workout_complete'; } else { this.state.timer.status = 'exercise_complete'; } } } else if (status === 'exercise_complete') { this.startRestTimer(true); this.state.activeWorkout.currentExerciseIndex++; this.state.activeWorkout.currentSet = 1; this.state.timer.status = 'resting'; } else if (status === 'workout_complete') { this.finishWorkout(true); return; } this.renderLiveWorkoutView(); },
-            startRestTimer(isBetweenExercises = false) { clearInterval(this.state.timer.intervalId); const { exercises, currentExerciseIndex } = this.state.activeWorkout; let restSeconds; if (isBetweenExercises) { restSeconds = 90; } else { const restString = exercises[currentExerciseIndex].rest || '60s'; restSeconds = parseInt(restString.match(/\d+/)[0] || 60); } this.state.activeWorkout.totalRestTime += restSeconds; this.state.timer = { ...this.state.timer, status: 'resting', timeLeft: restSeconds, initialRestTime: restSeconds }; this.playSound('start'); this.state.timer.intervalId = setInterval(() => { if(!this.state.timer) return clearInterval(this.state.timer.intervalId); this.state.timer.timeLeft--; if (this.state.timer.timeLeft <= 0) { this.playSound('end'); this.skipRest(); } else { this.renderLiveWorkoutView(); } }, 1000); },
+            startRestTimer(isBetweenExercises) {
+                clearInterval(this.state.timer.intervalId);
+                const { exercises, currentExerciseIndex } = this.state.activeWorkout;
+                const betweenExercises = Boolean(isBetweenExercises);
+
+                let restSeconds;
+                if (betweenExercises) {
+                    restSeconds = 90;
+                } else {
+                    const restString = exercises[currentExerciseIndex].rest || '60s';
+                    restSeconds = parseInt(restString.match(/\d+/)[0] || 60);
+                }
+
+                this.state.activeWorkout.totalRestTime += restSeconds;
+                this.state.timer = { ...this.state.timer, status: 'resting', timeLeft: restSeconds, initialRestTime: restSeconds };
+                this.playSound('start');
+
+                this.state.timer.intervalId = setInterval(() => {
+                    if (!this.state.timer) {
+                        return clearInterval(this.state.timer.intervalId);
+                    }
+
+                    this.state.timer.timeLeft--;
+                    if (this.state.timer.timeLeft <= 0) {
+                        this.playSound('end');
+                        this.skipRest();
+                    } else {
+                        this.renderLiveWorkoutView();
+                    }
+                }, 1000);
+            },
             addRestTime() { if (this.state.timer.status === 'resting') { this.state.timer.timeLeft += 15; this.state.timer.initialRestTime += 15; this.state.activeWorkout.totalRestTime += 15; this.showToast("+15 segundos añadidos"); this.renderLiveWorkoutView(); } },
             skipRest() { if (this.state.timer.status === 'resting') { clearInterval(this.state.timer.intervalId); this.state.timer.status = 'idle'; this.renderLiveWorkoutView(); } },
             confirmFinishWorkout() { this.showModal('Finalizar Rutina', '¿Seguro que quieres terminar el entrenamiento?', [{ text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' }, { text: 'Finalizar', class: 'bg-red-600', action: 'finish-workout' }]); },
-            async finishWorkout(completed = true) { if (!this.state.activeWorkout) { document.getElementById('live-workout-overlay').classList.add('hidden'); this.hideModal(); return; } clearInterval(this.state.activeWorkout.workoutTimerIntervalId); clearInterval(this.state.timer.intervalId); const totalDuration = Math.floor((Date.now() - this.state.activeWorkout.workoutStartTime) / 1000); if (completed) { const today = new Date(), dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`; const summary = { routineId: this.state.activeWorkout.routineId, dayIndex: this.state.activeWorkout.dayIndex, routineName: this.state.activeWorkout.routineName, totalDuration: totalDuration, totalRest: this.state.activeWorkout.totalRestTime, log: this.state.activeWorkout.exercises.map(ex => ({ name: ex.name, sets: ex.sets, reps: ex.reps, log: ex.log })) }; if(!this.state.workoutHistory) this.state.workoutHistory = {}; this.state.workoutHistory[dateString] = summary; this.showWorkoutSummaryModal(summary); } else { this.hideModal(); } this.state.activeWorkout = null; this.state.timer = null; await this.saveDataToFirestore(); document.getElementById('live-workout-overlay').classList.add('hidden'); this.renderAll(); },
+            async finishWorkout(completed) {
+                const isCompleted = typeof completed === 'undefined' ? true : Boolean(completed);
+                if (!this.state.activeWorkout) {
+                    document.getElementById('live-workout-overlay').classList.add('hidden');
+                    this.hideModal();
+                    return;
+                }
+
+                clearInterval(this.state.activeWorkout.workoutTimerIntervalId);
+                clearInterval(this.state.timer.intervalId);
+                const totalDuration = Math.floor((Date.now() - this.state.activeWorkout.workoutStartTime) / 1000);
+
+                if (isCompleted) {
+                    const today = new Date();
+                    const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+                    const summary = {
+                        routineId: this.state.activeWorkout.routineId,
+                        dayIndex: this.state.activeWorkout.dayIndex,
+                        routineName: this.state.activeWorkout.routineName,
+                        totalDuration: totalDuration,
+                        totalRest: this.state.activeWorkout.totalRestTime,
+                        log: this.state.activeWorkout.exercises.map(ex => ({ name: ex.name, sets: ex.sets, reps: ex.reps, log: ex.log }))
+                    };
+
+                    if (!this.state.workoutHistory) this.state.workoutHistory = {};
+                    this.state.workoutHistory[dateString] = summary;
+                    this.showWorkoutSummaryModal(summary);
+                } else {
+                    this.hideModal();
+                }
+
+                this.state.activeWorkout = null;
+                this.state.timer = null;
+                await this.saveDataToFirestore();
+                document.getElementById('live-workout-overlay').classList.add('hidden');
+                this.renderAll();
+            },
             showWorkoutSummaryModal(summary) { const logHtml = summary.log.filter(ex => ex.log.length > 0).map(ex => `<div class="bg-gray-900/50 p-3 rounded-lg"><p class="font-semibold text-emerald-300">${ex.name}</p><div class="text-xs text-gray-400 mt-1 flex flex-wrap gap-x-3 gap-y-1">${ex.log.map((w, i) => `<span><span class="font-bold text-gray-300">S${i+1}:</span> ${w} kg</span>`).join('')}</div></div>`).join(''); const logString = encodeURIComponent(JSON.stringify(summary.log)); const body = `<div class="space-y-4 text-center"><p class="text-gray-300">¡Buen trabajo con la rutina <strong>${summary.routineName}</strong>!</p><div class="grid grid-cols-3 gap-3 text-white"><div class="bg-gray-700/80 p-3 rounded-lg"><div class="flex items-center justify-center gap-2"><i data-lucide="timer" class="w-4 h-4 text-gray-400"></i><p class="text-xl font-bold">${this.formatTime(summary.totalDuration)}</p></div><p class="text-xs text-gray-400 mt-1">Duración</p></div><div class="bg-gray-700/80 p-3 rounded-lg"><div class="flex items-center justify-center gap-2"><i data-lucide="flame" class="w-4 h-4 text-gray-400"></i><p class="text-xl font-bold">${this.formatTime(summary.totalDuration - summary.totalRest)}</p></div><p class="text-xs text-gray-400 mt-1">Activo</p></div><div class="bg-gray-700/80 p-3 rounded-lg"><div class="flex items-center justify-center gap-2"><i data-lucide="clock-3" class="w-4 h-4 text-gray-400"></i><p class="text-xl font-bold">${this.formatTime(summary.totalRest)}</p></div><p class="text-xs text-gray-400 mt-1">Descanso</p></div></div><div class="text-left mt-2 space-y-2 max-h-48 overflow-y-auto pr-2"><h4 class="font-bold text-gray-200">Resumen de Ejercicios</h4>${logHtml || '<p class="text-gray-500 text-sm p-3 bg-gray-900/50 rounded-lg">No se registraron series.</p>'}</div><div id="ai-analysis-container" class="mt-2"></div></div>`; this.showModal( "¡Rutina Completada!", body, [ {text: 'Cerrar', class: 'bg-gray-600', action: 'hide-modal'}, {text: '✨ Analizar', class: 'bg-gradient-to-r from-purple-500 to-indigo-600', action: 'analyze-workout-performance', 'log-data': logString} ]); lucide.createIcons(); },
         };
-        window.app = app;
-        app.init();
-    });
+            window.app = app;
+            app.init();
+        };
+
+        if (document.readyState === 'loading') {
+            const onceHandler = () => {
+                document.removeEventListener('DOMContentLoaded', onceHandler);
+                bootstrapApp();
+            };
+            document.addEventListener('DOMContentLoaded', onceHandler);
+        } else {
+            bootstrapApp();
+        }
 </script>
 
 </body>
