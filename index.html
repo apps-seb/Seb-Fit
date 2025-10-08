@@ -443,7 +443,11 @@
         // Inicializar Firebase
         const firebaseApp = initializeApp(firebaseConfig);
         
-        document.addEventListener('DOMContentLoaded', () => {
+        const bootstrapApp = () => {
+            if (window.app) {
+                return;
+            }
+
             const app = {
                 // IMPORTANTE: Reemplaza "" con tu propia clave de API de Google AI Studio.
                 apiKey: "", // Tu clave de API de Google AI Studio aquí
@@ -1612,7 +1616,54 @@
                 switchCalculatorTab(tabId) { document.querySelectorAll('.calc-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById(`tab-content-${tabId}`).classList.remove('hidden'); document.querySelectorAll('.calc-tab-btn').forEach(btn => { if (btn.dataset.tab === tabId) { btn.classList.add('bg-emerald-500', 'text-gray-900'); btn.classList.remove('text-gray-300'); } else { btn.classList.remove('bg-emerald-500', 'text-gray-900'); btn.classList.add('text-gray-300'); } }); },
                 populateNutritionForm() { const { age, weight, height, gender } = this.state.physicalStats; document.getElementById('age').value = age; document.getElementById('weight').value = weight; document.getElementById('height').value = height; const genderRadio = document.querySelector(`#nutrition-form input[name="gender"][value="${gender}"]`); if (genderRadio) genderRadio.checked = true; },
                 renderNutricionSection() { this.renderBmiCard(0, 0); document.getElementById('bodyfat-value').textContent = '--'; document.getElementById('ideal-weight-value').textContent = '--'; document.getElementById('water-intake-value').textContent = '-- L'; },
-                calculateNutrition(formElement = document.getElementById('nutrition-form'), showUI = true) { const gender = formElement.querySelector('input[name="gender"]:checked').value; const age = parseInt(formElement.age.value); const weight = parseFloat(formElement.weight.value); const height = parseInt(formElement.height.value); const activity = parseFloat(formElement.activity.value); const goal = formElement.querySelector('input[name="goal"]:checked').value; if (!age || !weight || !height) { this.showToast("Rellena todos los campos.", "error"); return null; } this.state.physicalStats = { ...this.state.physicalStats, age, weight, height, gender, activity }; this.saveDataToFirestore(); const bmr = (gender === 'male') ? (10 * weight + 6.25 * height - 5 * age + 5) : (10 * weight + 6.25 * height - 5 * age - 161); const tdee = bmr * activity; let calories; if (goal === 'lose') calories = tdee - 500; else if (goal === 'gain') calories = tdee + 500; else calories = tdee; const results = { calories: Math.round(calories), protein: Math.round((calories * 0.3) / 4), carbs: Math.round((calories * 0.4) / 4), fats: Math.round((calories * 0.3) / 9) }; if (showUI) { document.getElementById('result-calories').textContent = `${results.calories} kcal`; document.getElementById('result-protein').textContent = `${results.protein}g`; document.getElementById('result-carbs').textContent = `${results.carbs}g`; document.getElementById('result-fats').textContent = `${results.fats}g`; document.getElementById('nutrition-results').classList.remove('hidden'); this.showToast("Cálculos de nutrición actualizados", "success"); } this._tempResults = results; return results; },
+                calculateNutrition(formElement, showUI) {
+                    const targetForm = formElement || document.getElementById('nutrition-form');
+                    const shouldUpdateUI = typeof showUI === 'undefined' ? true : Boolean(showUI);
+
+                    const gender = targetForm.querySelector('input[name="gender"]:checked').value;
+                    const age = parseInt(targetForm.age.value);
+                    const weight = parseFloat(targetForm.weight.value);
+                    const height = parseInt(targetForm.height.value);
+                    const activity = parseFloat(targetForm.activity.value);
+                    const goal = targetForm.querySelector('input[name="goal"]:checked').value;
+
+                    if (!age || !weight || !height) {
+                        this.showToast("Rellena todos los campos.", "error");
+                        return null;
+                    }
+
+                    this.state.physicalStats = { ...this.state.physicalStats, age, weight, height, gender, activity };
+                    this.saveDataToFirestore();
+
+                    const bmr = (gender === 'male')
+                        ? (10 * weight + 6.25 * height - 5 * age + 5)
+                        : (10 * weight + 6.25 * height - 5 * age - 161);
+                    const tdee = bmr * activity;
+
+                    let calories;
+                    if (goal === 'lose') calories = tdee - 500;
+                    else if (goal === 'gain') calories = tdee + 500;
+                    else calories = tdee;
+
+                    const results = {
+                        calories: Math.round(calories),
+                        protein: Math.round((calories * 0.3) / 4),
+                        carbs: Math.round((calories * 0.4) / 4),
+                        fats: Math.round((calories * 0.3) / 9)
+                    };
+
+                    if (shouldUpdateUI) {
+                        document.getElementById('result-calories').textContent = `${results.calories} kcal`;
+                        document.getElementById('result-protein').textContent = `${results.protein}g`;
+                        document.getElementById('result-carbs').textContent = `${results.carbs}g`;
+                        document.getElementById('result-fats').textContent = `${results.fats}g`;
+                        document.getElementById('nutrition-results').classList.remove('hidden');
+                        this.showToast("Cálculos de nutrición actualizados", "success");
+                    }
+
+                    this._tempResults = results;
+                    return results;
+                },
                 calculateBodyMetrics() { const { weight, height, age, gender } = this.state.physicalStats; if (!weight || !height || !age) { this.showToast("Completa tus datos en el perfil o en la pestaña de nutrición primero.", "error"); return; } const bmi = this.renderBmiCard(weight, height); const genderFactor = (gender === 'male') ? 1 : 0; const bodyFat = (1.20 * bmi) + (0.23 * age) - (10.8 * genderFactor) - 5.4; document.getElementById('bodyfat-value').textContent = bodyFat.toFixed(1); const heightInM = height / 100; const idealMin = 18.5 * (heightInM * heightInM); const idealMax = 24.9 * (heightInM * heightInM); document.getElementById('ideal-weight-value').textContent = `${idealMin.toFixed(1)} - ${idealMax.toFixed(1)} kg`; const waterLiters = (weight * 35) / 1000; document.getElementById('water-intake-value').textContent = waterLiters.toFixed(1); this.showToast("Métricas corporales calculadas."); },
                 renderBmiCard(weight, height) { if(!weight || !height) { document.getElementById('bmi-value').textContent = '--'; document.getElementById('bmi-category').textContent = 'Sin calcular'; document.getElementById('bmi-category').className = 'font-semibold text-gray-400'; document.getElementById('bmi-marker').style.left = '0%'; return 0; } const heightInMeters = height / 100; const bmi = (weight / (heightInMeters * heightInMeters)); let category = '', colorClass = '', markerPosition = 0; if (bmi < 18.5) { category = 'Bajo Peso'; colorClass = 'text-sky-400'; markerPosition = (bmi / 18.5) * 25; } else if (bmi >= 18.5 && bmi < 25) { category = 'Normal'; colorClass = 'text-emerald-400'; markerPosition = 25 + ((bmi - 18.5) / (25 - 18.5)) * 30; } else if (bmi >= 25 && bmi < 30) { category = 'Sobrepeso'; colorClass = 'text-yellow-400'; markerPosition = 55 + ((bmi - 25) / (30 - 25)) * 25; } else { category = 'Obesidad'; colorClass = 'text-red-400'; markerPosition = 80 + ((bmi - 30) / (40 - 30)) * 20; } markerPosition = Math.max(2, Math.min(98, markerPosition)); document.getElementById('bmi-value').textContent = bmi.toFixed(1); const categoryEl = document.getElementById('bmi-category'); categoryEl.textContent = category; categoryEl.className = `font-semibold ${colorClass}`; document.getElementById('bmi-marker').style.left = `${markerPosition}%`; return bmi; },
                 calculate1RM() { const weight = parseFloat(document.getElementById('1rm-weight').value); const reps = parseInt(document.getElementById('1rm-reps').value); if(!weight || !reps || weight <= 0 || reps <= 0) { this.showToast("Ingresa un peso y repeticiones válidos.", "error"); return; } if (reps > 12) { this.showToast("El cálculo es menos preciso con más de 12 reps.", "error"); } const oneRepMax = weight / (1.0278 - 0.0278 * reps); document.getElementById('1rm-result-value').textContent = `${oneRepMax.toFixed(1)} kg`; const projectionsContainer = document.getElementById('1rm-projections'); const repRanges = [3, 5, 8, 10, 12, 15]; projectionsContainer.innerHTML = repRanges.map(r => { const projectedWeight = oneRepMax * (1.0278 - 0.0278 * r); return `<div class="bg-gray-800/70 p-2 rounded-lg"><p class="font-bold text-lg text-purple-200">${projectedWeight.toFixed(1)}<span class="text-xs text-gray-400"> kg</span></p><p class="text-xs text-gray-400">${r} RM</p></div>`; }).join(''); document.getElementById('1rm-results').classList.remove('hidden'); },
@@ -1793,21 +1844,23 @@
 
                     const isUserRoutine = routine.id.startsWith('manual-'); 
                     const deleteButtonHTML = isUserRoutine && this.isAsesor() ? `<button data-action="routine-confirm-delete" data-routine-id="${routine.id}" class="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-red-500/10"><i data-lucide="trash-2" class="w-5 h-5"></i></button>` : '<div class="w-9 h-9"></div>'; 
-                    const viewHTML = `<div id="routine-details-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col"><header class="p-4 flex items-center justify-between bg-gray-900/80 backdrop-blur-sm sticky top-0"><button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button><h3 class="text-lg font-bold truncate px-4">${routine.name}</h3>${deleteButtonHTML}</header><div class="flex-grow p-4 overflow-y-auto space-y-4"><p class="text-gray-400 bg-gray-700/50 p-3 rounded-lg text-sm">${routine.description}</p>${daysHTML}</div></div>`; 
-                    this.routine_openFullscreenView(viewHTML); 
-     
-                routine_enterCreator(step = 1) {
-                    if (step === 1) {
+                    const viewHTML = `<div id="routine-details-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col"><header class="p-4 flex items-center justify-between bg-gray-900/80 backdrop-blur-sm sticky top-0"><button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button><h3 class="text-lg font-bold truncate px-4">${routine.name}</h3>${deleteButtonHTML}</header><div class="flex-grow p-4 overflow-y-auto space-y-4"><p class="text-gray-400 bg-gray-700/50 p-3 rounded-lg text-sm">${routine.description}</p>${daysHTML}</div></div>`;
+                    this.routine_openFullscreenView(viewHTML);
+                },
+
+                routine_enterCreator(step) {
+                    const targetStep = typeof step === 'undefined' ? 1 : step;
+                    if (targetStep === 1) {
                         this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null, assignedClientId: '' };
                     }
-                    const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(step)}</div>`;
+                    const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(targetStep)}</div>`;
                     this.routine_openFullscreenView(viewHTML);
 
-                    if (step === 1) {
+                    if (targetStep === 1) {
                         document.getElementById('routine-cover-image-input')?.addEventListener('change', (e) => this.routine_handleCoverImageSelect(e));
                     }
 
-                    if (step === 2) {
+                    if (targetStep === 2) {
                         this.routine_refreshDayTabs();
                         this.routine_refreshExerciseList();
                         this.routine_creator_switchGroup(Object.keys(this.data.exerciseLibrary)[0]);
@@ -2581,16 +2634,92 @@
                 renderLiveWorkoutView() { const overlay = document.getElementById('live-workout-overlay'); if (!this.state.activeWorkout) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); return; } const { exercises, currentExerciseIndex, currentSet } = this.state.activeWorkout; const exercise = exercises[currentExerciseIndex]; const totalExercises = exercises.length; const timerStatus = this.state.timer.status; const workoutProgress = ((currentExerciseIndex + 1) / totalExercises) * 100; let setIndicators = ''; for (let i = 1; i <= exercise.sets; i++) { const isCompleted = exercise.log[i-1] !== undefined; const isActive = i === currentSet && timerStatus !== 'resting' && timerStatus !== 'exercise_complete'; let barClass = 'bg-gray-700'; if (isCompleted) barClass = 'bg-emerald-500'; else if (isActive) barClass = 'bg-yellow-500 animate-pulse'; setIndicators += `<div class="flex-1 h-2 rounded ${barClass} transition-colors duration-300"></div>`; } let mainDisplayHtml = ''; switch (timerStatus) { case 'resting': const circumference = 2 * Math.PI * 120; const offset = this.state.timer.initialRestTime > 0 ? circumference - (this.state.timer.timeLeft / this.state.timer.initialRestTime) * circumference : 0; const nextExerciseName = (currentSet > exercise.sets) ? (exercises[currentExerciseIndex + 1] ? exercises[currentExerciseIndex + 1].name : '¡Última Serie!') : exercise.name; mainDisplayHtml = `<div class="relative w-72 h-72 flex items-center justify-center"><svg class="w-full h-full transform -rotate-90" viewBox="0 0 256 256"><circle class="text-gray-800" stroke-width="12" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"/><circle id="timer-progress-ring" class="text-emerald-500" stroke-width="12" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"/></svg><div class="absolute text-center"><span class="text-7xl font-black font-mono tracking-tighter text-white">${this.formatTime(this.state.timer.timeLeft)}</span><div class="text-sm text-gray-400 uppercase font-semibold mt-1">Descanso</div></div></div><p class="text-gray-300 mt-6">Siguiente: <span class="font-bold text-white">${nextExerciseName}</span></p>`; break; case 'logging_weight': const lastWeight = exercise.log[currentSet - 2] || ''; mainDisplayHtml = `<div class="w-full max-w-xs text-center"><p class="text-gray-400">Peso para Serie ${currentSet - 1}</p><div class="flex items-center justify-center gap-4 my-4"><button onclick="app.updateWeightInput(-2.5)" class="bg-gray-700 w-16 h-16 rounded-full text-3xl font-bold hover:bg-gray-600 transition">-</button><input type="number" id="weight-input" inputmode="decimal" class="bg-transparent text-white text-7xl font-black w-48 text-center focus:outline-none" placeholder="0" value="${lastWeight}"><button onclick="app.updateWeightInput(2.5)" class="bg-gray-700 w-16 h-16 rounded-full text-3xl font-bold hover:bg-gray-600 transition">+</button></div><span class="font-bold text-gray-400 text-3xl">kg</span></div>`; break; default: mainDisplayHtml = `<div class="text-center active-workout-state"><p class="text-9xl font-black text-white tracking-tighter">${exercise.reps}</p><p class="text-2xl font-bold text-gray-400 -mt-2">REPS</p></div><p class="text-gray-300 mt-6">Serie ${currentSet} de ${exercise.sets}</p>`; break; } const buttonMap = { idle: { text: `Iniciar Serie ${currentSet}`, class: 'from-emerald-500 to-green-600' }, active: { text: 'Finalizar Serie', class: 'from-yellow-500 to-amber-600' }, logging_weight: { text: `Guardar y Descansar`, class: 'from-sky-500 to-blue-600' }, resting: { text: `Descansando...`, class: 'from-gray-600 to-gray-700', disabled: true }, exercise_complete: { text: 'Siguiente Ejercicio', class: 'from-indigo-500 to-purple-600' }, workout_complete: { text: '¡Rutina Completada!', class: 'from-emerald-500 to-green-600' }}; const buttonState = buttonMap[timerStatus]; const mainButtonHtml = `<button data-action="handle-workout-action" class="w-full font-bold py-5 rounded-xl transition text-xl text-white shadow-lg bg-gradient-to-br ${buttonState.class} hover:opacity-90 disabled:opacity-50" ${buttonState.disabled ? 'disabled' : ''}>${buttonState.text}</button>`; const restControlsHtml = timerStatus === 'resting' ? `<div class="flex justify-center space-x-4"><button data-action="add-rest-time" class="bg-white/10 backdrop-blur-sm hover:bg-white/20 py-2 px-5 rounded-lg text-sm font-semibold">Añadir +15s</button><button data-action="skip-rest" class="bg-white/10 backdrop-blur-sm hover:bg-white/20 py-2 px-5 rounded-lg text-sm font-semibold">Saltar</button></div>` : ''; overlay.innerHTML = `<div class="relative w-full h-full flex flex-col p-4 sm:p-6 bg-gradient-to-b from-gray-900 to-black text-white"><div class="absolute top-5 left-1/2 -translate-x-1/2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-1.5 pointer-events-none"><p id="main-workout-timer" class="text-lg font-mono text-white tracking-wider">00:00</p></div><header class="flex items-center justify-between w-full shrink-0 z-10"><div class="flex-1"><div class="w-full bg-gray-800 rounded-full h-2.5"><div class="bg-emerald-500 h-2.5 rounded-full" style="width: ${workoutProgress}%"></div></div><p class="text-xs text-gray-400 mt-1.5">Ejercicio ${currentExerciseIndex + 1} de ${totalExercises}</p></div><div class="ml-4"><button data-action="confirm-finish-workout" class="bg-gray-800/80 w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition"><i data-lucide="x" class="w-6 h-6"></i></button></div></header><main class="flex-grow flex flex-col items-center justify-center text-center w-full overflow-hidden"><div class="flex items-center gap-2"><h1 class="text-3xl sm:text-4xl font-bold leading-tight px-4">${exercise.name}</h1><button data-action="show-exercise-info" data-exercise-name="${exercise.name}" class="text-gray-500 hover:text-sky-400 transition-colors shrink-0"><i data-lucide="help-circle" class="w-7 h-7"></i></button></div><div class="flex-grow flex items-center justify-center my-4 live-workout-display">${mainDisplayHtml}</div></main><footer class="w-full max-w-md mx-auto shrink-0 z-10"><div class="flex justify-center items-center gap-2 mb-4"><p class="text-sm font-semibold text-gray-400">SERIES</p><div class="flex items-center gap-2 w-40">${setIndicators}</div></div><div class="h-10 mb-4 flex items-center justify-center">${restControlsHtml}</div>${mainButtonHtml}</footer></div>`; overlay.classList.remove('hidden'); overlay.classList.add('flex'); if (timerStatus === 'logging_weight') { const weightInput = document.getElementById('weight-input'); if(weightInput) { weightInput.focus(); weightInput.select(); } } lucide.createIcons(); },
             updateWorkoutTimerDisplay() { if(!this.state.activeWorkout||!this.state.activeWorkout.workoutStartTime)return;const t=document.getElementById('main-workout-timer');if(t){const e=Math.floor((Date.now()-this.state.activeWorkout.workoutStartTime)/1000);t.textContent=this.formatTime(e);}},
             handleWorkoutAction() { const status = this.state.timer.status; if (status === 'idle') { this.state.timer.status = 'active'; } else if (status === 'active') { this.state.timer.status = 'logging_weight'; } else if (status === 'logging_weight') { const weightInput = document.getElementById('weight-input'); const weightValue = parseFloat(weightInput.value); const weightToLog = !isNaN(weightValue) && weightValue >= 0 ? weightValue : 0; const { exercises, currentExerciseIndex, currentSet } = this.state.activeWorkout; exercises[currentExerciseIndex].log[currentSet - 1] = weightToLog; this.state.activeWorkout.currentSet++; if (this.state.activeWorkout.currentSet <= exercises[currentExerciseIndex].sets) { this.startRestTimer(); } else { if (this.state.activeWorkout.currentExerciseIndex >= this.state.activeWorkout.exercises.length - 1) { this.state.timer.status = 'workout_complete'; } else { this.state.timer.status = 'exercise_complete'; } } } else if (status === 'exercise_complete') { this.startRestTimer(true); this.state.activeWorkout.currentExerciseIndex++; this.state.activeWorkout.currentSet = 1; this.state.timer.status = 'resting'; } else if (status === 'workout_complete') { this.finishWorkout(true); return; } this.renderLiveWorkoutView(); },
-            startRestTimer(isBetweenExercises = false) { clearInterval(this.state.timer.intervalId); const { exercises, currentExerciseIndex } = this.state.activeWorkout; let restSeconds; if (isBetweenExercises) { restSeconds = 90; } else { const restString = exercises[currentExerciseIndex].rest || '60s'; restSeconds = parseInt(restString.match(/\d+/)[0] || 60); } this.state.activeWorkout.totalRestTime += restSeconds; this.state.timer = { ...this.state.timer, status: 'resting', timeLeft: restSeconds, initialRestTime: restSeconds }; this.playSound('start'); this.state.timer.intervalId = setInterval(() => { if(!this.state.timer) return clearInterval(this.state.timer.intervalId); this.state.timer.timeLeft--; if (this.state.timer.timeLeft <= 0) { this.playSound('end'); this.skipRest(); } else { this.renderLiveWorkoutView(); } }, 1000); },
+            startRestTimer(isBetweenExercises) {
+                clearInterval(this.state.timer.intervalId);
+                const { exercises, currentExerciseIndex } = this.state.activeWorkout;
+                const betweenExercises = Boolean(isBetweenExercises);
+
+                let restSeconds;
+                if (betweenExercises) {
+                    restSeconds = 90;
+                } else {
+                    const restString = exercises[currentExerciseIndex].rest || '60s';
+                    restSeconds = parseInt(restString.match(/\d+/)[0] || 60);
+                }
+
+                this.state.activeWorkout.totalRestTime += restSeconds;
+                this.state.timer = { ...this.state.timer, status: 'resting', timeLeft: restSeconds, initialRestTime: restSeconds };
+                this.playSound('start');
+
+                this.state.timer.intervalId = setInterval(() => {
+                    if (!this.state.timer) {
+                        return clearInterval(this.state.timer.intervalId);
+                    }
+
+                    this.state.timer.timeLeft--;
+                    if (this.state.timer.timeLeft <= 0) {
+                        this.playSound('end');
+                        this.skipRest();
+                    } else {
+                        this.renderLiveWorkoutView();
+                    }
+                }, 1000);
+            },
             addRestTime() { if (this.state.timer.status === 'resting') { this.state.timer.timeLeft += 15; this.state.timer.initialRestTime += 15; this.state.activeWorkout.totalRestTime += 15; this.showToast("+15 segundos añadidos"); this.renderLiveWorkoutView(); } },
             skipRest() { if (this.state.timer.status === 'resting') { clearInterval(this.state.timer.intervalId); this.state.timer.status = 'idle'; this.renderLiveWorkoutView(); } },
             confirmFinishWorkout() { this.showModal('Finalizar Rutina', '¿Seguro que quieres terminar el entrenamiento?', [{ text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' }, { text: 'Finalizar', class: 'bg-red-600', action: 'finish-workout' }]); },
-            async finishWorkout(completed = true) { if (!this.state.activeWorkout) { document.getElementById('live-workout-overlay').classList.add('hidden'); this.hideModal(); return; } clearInterval(this.state.activeWorkout.workoutTimerIntervalId); clearInterval(this.state.timer.intervalId); const totalDuration = Math.floor((Date.now() - this.state.activeWorkout.workoutStartTime) / 1000); if (completed) { const today = new Date(), dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`; const summary = { routineId: this.state.activeWorkout.routineId, dayIndex: this.state.activeWorkout.dayIndex, routineName: this.state.activeWorkout.routineName, totalDuration: totalDuration, totalRest: this.state.activeWorkout.totalRestTime, log: this.state.activeWorkout.exercises.map(ex => ({ name: ex.name, sets: ex.sets, reps: ex.reps, log: ex.log })) }; if(!this.state.workoutHistory) this.state.workoutHistory = {}; this.state.workoutHistory[dateString] = summary; this.showWorkoutSummaryModal(summary); } else { this.hideModal(); } this.state.activeWorkout = null; this.state.timer = null; await this.saveDataToFirestore(); document.getElementById('live-workout-overlay').classList.add('hidden'); this.renderAll(); },
+            async finishWorkout(completed) {
+                const isCompleted = typeof completed === 'undefined' ? true : Boolean(completed);
+                if (!this.state.activeWorkout) {
+                    document.getElementById('live-workout-overlay').classList.add('hidden');
+                    this.hideModal();
+                    return;
+                }
+
+                clearInterval(this.state.activeWorkout.workoutTimerIntervalId);
+                clearInterval(this.state.timer.intervalId);
+                const totalDuration = Math.floor((Date.now() - this.state.activeWorkout.workoutStartTime) / 1000);
+
+                if (isCompleted) {
+                    const today = new Date();
+                    const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+                    const summary = {
+                        routineId: this.state.activeWorkout.routineId,
+                        dayIndex: this.state.activeWorkout.dayIndex,
+                        routineName: this.state.activeWorkout.routineName,
+                        totalDuration: totalDuration,
+                        totalRest: this.state.activeWorkout.totalRestTime,
+                        log: this.state.activeWorkout.exercises.map(ex => ({ name: ex.name, sets: ex.sets, reps: ex.reps, log: ex.log }))
+                    };
+
+                    if (!this.state.workoutHistory) this.state.workoutHistory = {};
+                    this.state.workoutHistory[dateString] = summary;
+                    this.showWorkoutSummaryModal(summary);
+                } else {
+                    this.hideModal();
+                }
+
+                this.state.activeWorkout = null;
+                this.state.timer = null;
+                await this.saveDataToFirestore();
+                document.getElementById('live-workout-overlay').classList.add('hidden');
+                this.renderAll();
+            },
             showWorkoutSummaryModal(summary) { const logHtml = summary.log.filter(ex => ex.log.length > 0).map(ex => `<div class="bg-gray-900/50 p-3 rounded-lg"><p class="font-semibold text-emerald-300">${ex.name}</p><div class="text-xs text-gray-400 mt-1 flex flex-wrap gap-x-3 gap-y-1">${ex.log.map((w, i) => `<span><span class="font-bold text-gray-300">S${i+1}:</span> ${w} kg</span>`).join('')}</div></div>`).join(''); const logString = encodeURIComponent(JSON.stringify(summary.log)); const body = `<div class="space-y-4 text-center"><p class="text-gray-300">¡Buen trabajo con la rutina <strong>${summary.routineName}</strong>!</p><div class="grid grid-cols-3 gap-3 text-white"><div class="bg-gray-700/80 p-3 rounded-lg"><div class="flex items-center justify-center gap-2"><i data-lucide="timer" class="w-4 h-4 text-gray-400"></i><p class="text-xl font-bold">${this.formatTime(summary.totalDuration)}</p></div><p class="text-xs text-gray-400 mt-1">Duración</p></div><div class="bg-gray-700/80 p-3 rounded-lg"><div class="flex items-center justify-center gap-2"><i data-lucide="flame" class="w-4 h-4 text-gray-400"></i><p class="text-xl font-bold">${this.formatTime(summary.totalDuration - summary.totalRest)}</p></div><p class="text-xs text-gray-400 mt-1">Activo</p></div><div class="bg-gray-700/80 p-3 rounded-lg"><div class="flex items-center justify-center gap-2"><i data-lucide="clock-3" class="w-4 h-4 text-gray-400"></i><p class="text-xl font-bold">${this.formatTime(summary.totalRest)}</p></div><p class="text-xs text-gray-400 mt-1">Descanso</p></div></div><div class="text-left mt-2 space-y-2 max-h-48 overflow-y-auto pr-2"><h4 class="font-bold text-gray-200">Resumen de Ejercicios</h4>${logHtml || '<p class="text-gray-500 text-sm p-3 bg-gray-900/50 rounded-lg">No se registraron series.</p>'}</div><div id="ai-analysis-container" class="mt-2"></div></div>`; this.showModal( "¡Rutina Completada!", body, [ {text: 'Cerrar', class: 'bg-gray-600', action: 'hide-modal'}, {text: '✨ Analizar', class: 'bg-gradient-to-r from-purple-500 to-indigo-600', action: 'analyze-workout-performance', 'log-data': logString} ]); lucide.createIcons(); },
         };
-        window.app = app;
-        app.init();
-    });
+            window.app = app;
+            app.init();
+        };
+
+        if (document.readyState === 'loading') {
+            const onceHandler = () => {
+                document.removeEventListener('DOMContentLoaded', onceHandler);
+                bootstrapApp();
+            };
+            document.addEventListener('DOMContentLoaded', onceHandler);
+        } else {
+            bootstrapApp();
+        }
 </script>
 
 </body>
