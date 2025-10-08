@@ -889,7 +889,7 @@
                         
                         const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex } = button.dataset;
                         const actionMap = {
-                            'show-section': () => this.showSection(sectionId), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-finish-workout': () => this.confirmFinishWorkout(), 'finish-workout': () => this.finishWorkout(false), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)),
+                            'show-section': () => this.showSection(sectionId), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-finish-workout': () => this.confirmFinishWorkout(), 'finish-workout': () => this.finishWorkout(false), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
                             'routine-creator-switch-group': () => this.routine_creator_switchGroup(groupTarget),
                             'routine-creator-edit-group-image': (evt) => { evt.stopPropagation(); this.routine_creator_showGroupImageModal(groupTarget); },
@@ -1156,8 +1156,12 @@
                             description: '',
                             plan: [{ day: 'Día 1', exercises: [] }],
                             currentDayIndex: 0,
-                            editingIndex: -1
+                            editingIndex: -1,
+                            activeExerciseGroup: ''
                         };
+                    }
+                    if (!this._tempRoutine.activeExerciseGroup) {
+                        this._tempRoutine.activeExerciseGroup = '';
                     }
                     this._tempRoutine.editingClientId = clientId;
                     this._tempRoutine.assignedClientId = clientId;
@@ -1849,9 +1853,14 @@
                 },
 
                 routine_enterCreator(step) {
+                    if (this._boundHandleDrawerResize) {
+                        window.removeEventListener('resize', this._boundHandleDrawerResize);
+                        this._boundHandleDrawerResize = null;
+                    }
+
                     const targetStep = typeof step === 'undefined' ? 1 : step;
                     if (targetStep === 1) {
-                        this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null, assignedClientId: '' };
+                        this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null, assignedClientId: '', activeExerciseGroup: '' };
                     }
                     const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(targetStep)}</div>`;
                     this.routine_openFullscreenView(viewHTML);
@@ -1863,7 +1872,19 @@
                     if (targetStep === 2) {
                         this.routine_refreshDayTabs();
                         this.routine_refreshExerciseList();
-                        this.routine_creator_switchGroup(Object.keys(this.data.exerciseLibrary)[0]);
+                        const activeGroup = this._tempRoutine.activeExerciseGroup || Object.keys(this.data.exerciseLibrary)[0];
+                        if (activeGroup) {
+                            this.routine_creator_switchGroup(activeGroup);
+                        }
+
+                        const panel = document.getElementById('exercise-list-panel');
+                        if (panel) {
+                            panel.dataset.mobileVisible = window.innerWidth >= 768 ? 'true' : 'false';
+                        }
+
+                        this._boundHandleDrawerResize = this.routine_creator_handleDrawerResize.bind(this);
+                        window.addEventListener('resize', this._boundHandleDrawerResize);
+                        this.routine_creator_handleDrawerResize();
                     }
                 },
                 routine_getCreatorContent(step) {
@@ -1950,19 +1971,24 @@
                         const totalDays = this._tempRoutine.plan.length;
                         const totalExercises = currentDay.exercises.length;
                         const groupImages = this.data.exerciseGroupImages || {};
+                        const groupKeys = Object.keys(this.data.exerciseLibrary);
+                        const firstGroup = groupKeys[0] || '';
+                        const activeGroup = this._tempRoutine.activeExerciseGroup || firstGroup;
+                        this._tempRoutine.activeExerciseGroup = activeGroup;
                         const groupsNav = `<aside id="exercise-group-nav" class="w-full shrink-0 border-b border-white/5 bg-gray-950/80 md:w-80 md:border-b-0 md:border-r md:max-h-[calc(100vh-8rem)] md:overflow-y-auto">
                             <div class="grid gap-4 p-5">
-                                ${Object.keys(this.data.exerciseLibrary).map(group => {
-                                    const rawUrl = groupImages[group] || '';
-                                    const sanitizedUrl = rawUrl.replace(/'/g, "\'");
-                                    const backgroundStyle = rawUrl
-                                        ? `background-image: url('${sanitizedUrl}');`
-                                        : 'background-image: linear-gradient(135deg, rgba(16,185,129,0.55), rgba(59,130,246,0.45));';
-                                    const editButton = isAdmin
-                                        ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/60 text-white shadow-lg transition hover:bg-emerald-400 hover:text-gray-900"><i data-lucide="image-plus" class="h-4 w-4"></i></button>`
-                                        : '';
-                                    return `
-                                        <button type="button" data-action="routine-creator-switch-group" data-group-target="${group}" class="group relative flex h-36 w-full flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-white/5 text-left shadow-[0_25px_60px_-40px_rgba(16,185,129,0.75)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300/60 data-[active=true]:border-emerald-300 data-[active=true]:shadow-emerald-400/40">
+                                ${groupKeys.map(group => {
+                                        const rawUrl = groupImages[group] || '';
+                                        const sanitizedUrl = rawUrl.replace(/'/g, "\'");
+                                        const backgroundStyle = rawUrl
+                                            ? `background-image: url('${sanitizedUrl}');`
+                                            : 'background-image: linear-gradient(135deg, rgba(16,185,129,0.55), rgba(59,130,246,0.45));';
+                                        const editButton = isAdmin
+                                            ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/60 text-white shadow-lg transition hover:bg-emerald-400 hover:text-gray-900"><i data-lucide="image-plus" class="h-4 w-4"></i></button>`
+                                            : '';
+                                    const isActiveGroup = group === activeGroup;
+                                        return `
+                                        <button type="button" data-action="routine-creator-switch-group" data-group-target="${group}" data-active="${isActiveGroup}" class="group relative flex h-36 w-full flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-white/5 text-left shadow-[0_25px_60px_-40px_rgba(16,185,129,0.75)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300/60 data-[active=true]:border-emerald-300 data-[active=true]:shadow-emerald-400/40">
                                             <div class="absolute inset-0 bg-cover bg-center" style="${backgroundStyle}"></div>
                                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-transparent"></div>
                                             ${editButton}
@@ -1978,10 +2004,20 @@
                             </div>
                         </aside>`;
                         const exercisesPanel = `
-                        <section id="exercise-list-panel" class="flex-grow overflow-y-auto bg-gray-950/60">
+                        <section id="exercise-list-panel" data-mobile-visible="false" class="hidden flex-1 flex-col overflow-y-auto bg-gray-950/60 md:flex">
+                            <header class="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-white/5 bg-gray-950/90 px-4 py-4 md:hidden">
+                                <button data-action="routine-creator-back-to-groups" class="rounded-full bg-white/10 p-2 text-gray-300 transition hover:text-white">
+                                    <i data-lucide="arrow-left"></i>
+                                </button>
+                                <div class="min-w-0 flex-1 text-center">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Ejercicios</p>
+                                    <h3 id="active-group-title" class="mt-1 truncate text-base font-semibold text-white">${activeGroup}</h3>
+                                </div>
+                                <div class="h-9 w-9"></div>
+                            </header>
                             <div class="space-y-8 p-5 sm:p-8">
                                 ${Object.entries(this.data.exerciseLibrary).map(([group, subGroups]) => `
-                                    <div data-group-content="${group}" class="hidden space-y-6">
+                                    <div data-group-content="${group}" class="${group === activeGroup ? 'space-y-6' : 'hidden space-y-6'}">
                                         ${Object.entries(subGroups).map(([subGroup, exercises]) => `
                                             <div data-subgroup-content="${subGroup}" class="space-y-4">
                                                 <div class="flex items-center justify-between gap-2">
@@ -2080,7 +2116,7 @@
                                     </div>
                                     <button data-action="routine-creator-close-drawer" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white"><i data-lucide="x"></i></button>
                                 </header>
-                                <div class="flex flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden">${groupsNav}${exercisesPanel}</div>
+                                <div id="exercise-drawer-content" class="flex flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden" data-current-group="${activeGroup}">${groupsNav}${exercisesPanel}</div>
                             </div>
                         `;
                     }
@@ -2147,8 +2183,32 @@
                     this._tempRoutine.description = desc;
                     this.routine_enterCreator(2);
                 },
-                routine_showAddExerciseDrawer() { const drawer = document.getElementById('exercise-drawer'); if (drawer) { drawer.classList.add('is-active'); document.getElementById('exercise-search-input').focus(); } },
-                routine_closeAddExerciseDrawer() { const drawer = document.getElementById('exercise-drawer'); if (drawer) drawer.classList.remove('is-active'); },
+                routine_showAddExerciseDrawer() {
+                    const drawer = document.getElementById('exercise-drawer');
+                    if (!drawer) return;
+
+                    drawer.classList.add('is-active');
+
+                    const panel = document.getElementById('exercise-list-panel');
+                    if (panel) {
+                        panel.dataset.mobileVisible = window.innerWidth >= 768 ? 'true' : 'false';
+                    }
+
+                    this.routine_creator_handleDrawerResize();
+
+                    const searchInput = document.getElementById('exercise-search-input');
+                    if (searchInput) searchInput.focus();
+                },
+                routine_closeAddExerciseDrawer() {
+                    const drawer = document.getElementById('exercise-drawer');
+                    if (drawer) drawer.classList.remove('is-active');
+
+                    const panel = document.getElementById('exercise-list-panel');
+                    if (panel && window.innerWidth < 768) {
+                        panel.dataset.mobileVisible = 'false';
+                        this.routine_creator_handleDrawerResize();
+                    }
+                },
                 routine_creator_switchGroup(targetGroup) {
                     const navButtons = document.querySelectorAll('#exercise-group-nav [data-action="routine-creator-switch-group"]');
                     navButtons.forEach(btn => {
@@ -2162,6 +2222,65 @@
                     document.querySelectorAll('#exercise-list-panel [data-group-content]').forEach(panel => {
                         panel.classList.toggle('hidden', panel.dataset.groupContent !== targetGroup);
                     });
+
+                    this._tempRoutine.activeExerciseGroup = targetGroup;
+
+                    const drawerContent = document.getElementById('exercise-drawer-content');
+                    if (drawerContent) {
+                        drawerContent.dataset.currentGroup = targetGroup;
+                    }
+
+                    const panel = document.getElementById('exercise-list-panel');
+                    if (panel) {
+                        panel.dataset.mobileVisible = 'true';
+                        if (window.innerWidth < 768) {
+                            panel.classList.remove('hidden');
+                            panel.classList.add('flex');
+                            panel.scrollTop = 0;
+                        }
+                    }
+
+                    const groupTitle = document.getElementById('active-group-title');
+                    if (groupTitle) groupTitle.textContent = targetGroup;
+
+                    this.routine_creator_handleDrawerResize();
+                },
+                routine_creator_showGroupList() {
+                    const panel = document.getElementById('exercise-list-panel');
+                    if (panel) {
+                        if (window.innerWidth < 768) {
+                            panel.dataset.mobileVisible = 'false';
+                            panel.scrollTop = 0;
+                        } else {
+                            panel.dataset.mobileVisible = 'true';
+                        }
+                    }
+
+                    this.routine_creator_handleDrawerResize();
+                },
+                routine_creator_handleDrawerResize() {
+                    const nav = document.getElementById('exercise-group-nav');
+                    const panel = document.getElementById('exercise-list-panel');
+                    if (!nav || !panel) return;
+
+                    if (window.innerWidth >= 768) {
+                        nav.classList.remove('hidden');
+                        panel.classList.remove('hidden');
+                        panel.classList.remove('flex');
+                        panel.dataset.mobileVisible = 'true';
+                        return;
+                    }
+
+                    const shouldShowExercises = panel.dataset.mobileVisible === 'true';
+                    if (shouldShowExercises) {
+                        nav.classList.add('hidden');
+                        panel.classList.remove('hidden');
+                        panel.classList.add('flex');
+                    } else {
+                        nav.classList.remove('hidden');
+                        panel.classList.add('hidden');
+                        panel.classList.remove('flex');
+                    }
                 },
                 routine_creator_showGroupImageModal(group) {
                     if (!this.isAsesor()) return;
@@ -2421,6 +2540,7 @@
                     const assignedClientId = this._tempRoutine.assignedClientId || '';
                     const routinePayload = JSON.parse(JSON.stringify(this._tempRoutine));
                     delete routinePayload.editingClientId;
+                    delete routinePayload.activeExerciseGroup;
                     if (!assignedClientId) delete routinePayload.assignedClientId;
 
                     try {
@@ -2489,6 +2609,11 @@
                     }, 10);
                 },
                 routine_closeFullscreenView() {
+                    if (this._boundHandleDrawerResize) {
+                        window.removeEventListener('resize', this._boundHandleDrawerResize);
+                        this._boundHandleDrawerResize = null;
+                    }
+
                     const container = document.getElementById('fullscreen-view-container');
                     const view = container.querySelector('.fullscreen-view');
                     if (view) {
