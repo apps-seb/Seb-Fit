@@ -2793,11 +2793,17 @@
 
                     const { exercises, currentExerciseIndex, currentSet, routineName, dayName } = this.state.activeWorkout;
                     const exercise = exercises[currentExerciseIndex];
-                    const totalExercises = exercises.length;
+                    if (!exercise) {
+                        this.finishWorkout(false);
+                        return;
+                    }
+
+                    const totalExercises = Math.max(1, exercises.length);
                     const timerStatus = this.state.timer.status;
                     const workoutProgress = ((currentExerciseIndex + 1) / totalExercises) * 100;
                     const progressRounded = Math.min(100, Math.max(0, workoutProgress));
-                    const normalizedSet = Math.min(currentSet, exercise.sets);
+                    const totalSets = Math.max(1, Number(exercise.sets) || 1);
+                    const normalizedSet = Math.min(currentSet, totalSets);
                     const restTarget = exercise.rest || '60s';
                     const nextExercise = exercises[currentExerciseIndex + 1] || null;
 
@@ -2805,47 +2811,42 @@
                     const mediaUrl = exercise.mediaUrl || libraryExercise.mediaUrl || '';
                     const isVideoMedia = mediaUrl ? (/\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(mediaUrl) || mediaUrl.includes('video')) : false;
 
-                    let mediaContent = '';
-                    if (mediaUrl) {
-                        const mediaElement = isVideoMedia
-                            ? `<video src="${mediaUrl}" autoplay loop muted playsinline class="h-full w-full object-cover"></video>`
-                            : `<img src="${mediaUrl}" alt="Demostración de ${exercise.name}" class="h-full w-full object-cover" loading="lazy">`;
-                        mediaContent = `
-                            <div class="relative aspect-video w-full overflow-hidden rounded-3xl border border-white/10 bg-black/40 shadow-[0_35px_90px_-45px_rgba(56,189,248,0.8)]">
-                                ${mediaElement}
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                                <div class="absolute inset-x-4 bottom-4 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.35em] text-white/80">
+                    const mediaContent = mediaUrl
+                        ? `
+                            <div class="relative aspect-video w-full overflow-hidden rounded-3xl border border-white/10 bg-black/40 shadow-[0_25px_70px_-45px_rgba(56,189,248,0.65)]">
+                                ${isVideoMedia
+                                    ? `<video src="${mediaUrl}" autoplay loop muted playsinline class="h-full w-full object-cover"></video>`
+                                    : `<img src="${mediaUrl}" alt="Demostración de ${exercise.name}" class="h-full w-full object-cover" loading="lazy">`
+                                }
+                                <div class="absolute inset-x-3 bottom-3 flex items-center justify-between rounded-full bg-black/55 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/80">
                                     <span class="inline-flex items-center gap-2 text-white">
-                                        <i data-lucide="${isVideoMedia ? 'play-circle' : 'image'}" class="h-5 w-5"></i>
-                                        ${isVideoMedia ? 'Video de demostración' : 'Imagen de referencia'}
+                                        <i data-lucide="${isVideoMedia ? 'play-circle' : 'image'}" class="h-4 w-4"></i>
+                                        ${isVideoMedia ? 'Video' : 'Imagen'} de referencia
                                     </span>
-                                    <button data-action="show-media-viewer" data-media-url="${mediaUrl}"
-                                        class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-[10px] font-bold tracking-[0.4em] text-white transition hover:bg-white/25">
+                                    <button data-action="show-media-viewer" data-media-url="${mediaUrl}" class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold tracking-[0.4em] text-white transition hover:bg-white/30">
                                         Ver grande
                                         <i data-lucide="expand" class="h-4 w-4"></i>
                                     </button>
                                 </div>
                             </div>
-                        `;
-                    } else {
-                        mediaContent = `
-                            <div class="relative overflow-hidden rounded-3xl border border-dashed border-white/15 bg-white/5 px-4 py-12 text-center sm:px-6 sm:py-16">
-                                <i data-lucide="image-off" class="mx-auto mb-4 h-12 w-12 text-gray-500"></i>
+                        `
+                        : `
+                            <div class="relative overflow-hidden rounded-3xl border border-dashed border-white/15 bg-white/5 px-4 py-12 text-center sm:px-6">
+                                <i data-lucide="image-off" class="mx-auto mb-4 h-10 w-10 text-gray-500"></i>
                                 <p class="text-sm font-semibold text-gray-300">Aún no hay media asociada a este ejercicio.</p>
                                 <p class="mt-2 text-xs text-gray-500">Sube una imagen o video desde el creador de rutinas para enriquecer esta vista.</p>
                             </div>
                         `;
-                    }
 
                     let setIndicators = '';
-                    for (let i = 1; i <= exercise.sets; i++) {
-                        const isCompleted = exercise.log[i - 1] !== undefined;
-                        const isActive = i === currentSet && timerStatus !== 'resting' && timerStatus !== 'exercise_complete';
+                    for (let i = 1; i <= totalSets; i++) {
+                        const isCompleted = exercise.log?.[i - 1] !== undefined;
+                        const isActive = i === normalizedSet && !['resting', 'exercise_complete', 'workout_complete'].includes(timerStatus);
                         let barClass = 'bg-white/10';
                         if (isCompleted) {
-                            barClass = 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 shadow-[0_0_25px_-12px_rgba(45,212,191,0.8)]';
+                            barClass = 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 shadow-[0_0_25px_-12px_rgba(45,212,191,0.7)]';
                         } else if (isActive) {
-                            barClass = 'bg-amber-400/80 animate-pulse shadow-[0_0_35px_-18px_rgba(251,191,36,0.9)]';
+                            barClass = 'bg-amber-400/80 animate-pulse shadow-[0_0_35px_-18px_rgba(251,191,36,0.85)]';
                         }
                         setIndicators += `<span class="h-2 flex-1 rounded-full transition-all duration-500 ${barClass}"></span>`;
                     }
@@ -2863,58 +2864,59 @@
                     let mainDisplayHtml = '';
                     switch (timerStatus) {
                         case 'resting': {
-                            const circumference = 2 * Math.PI * 120;
+                            const radius = 88;
+                            const circumference = 2 * Math.PI * radius;
                             const progressFraction = this.state.timer.initialRestTime > 0
                                 ? Math.max(0, this.state.timer.timeLeft) / this.state.timer.initialRestTime
                                 : 0;
                             const offset = circumference - progressFraction * circumference;
-                            const upcomingName = (currentSet > exercise.sets && nextExercise)
+                            const upcomingName = (currentSet > totalSets && nextExercise)
                                 ? nextExercise.name
                                 : exercise.name;
                             mainDisplayHtml = `
-                                <div class="flex flex-col items-center gap-5 text-center">
-                                    <div class="relative mx-auto h-48 w-48 sm:h-56 sm:w-56 lg:h-64">
-                                        <svg class="h-full w-full -rotate-90" viewBox="0 0 256 256">
-                                            <circle class="text-white/10" stroke-width="12" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"></circle>
+                                <div class="flex flex-col items-center gap-6 text-center">
+                                    <div class="relative mx-auto h-48 w-48">
+                                        <svg class="h-full w-full -rotate-90" viewBox="0 0 ${radius * 2 + 40} ${radius * 2 + 40}">
+                                            <circle class="text-white/10" stroke-width="12" stroke="currentColor" fill="transparent" r="${radius}" cx="${radius + 20}" cy="${radius + 20}"></circle>
                                             <circle id="rest-progress-circle" data-circumference="${circumference}" class="text-emerald-400 drop-shadow-[0_0_20px_rgba(45,212,191,0.45)]" stroke-width="12" stroke-dasharray="${circumference}"
-                                                stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"></circle>
+                                                stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="${radius}" cx="${radius + 20}" cy="${radius + 20}"></circle>
                                         </svg>
                                         <div class="absolute inset-0 grid place-items-center">
                                             <div class="text-center">
-                                                <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-emerald-200/80 sm:text-[11px]">Tiempo de descanso</p>
-                                                <p id="rest-timer-display" class="mt-1 text-5xl font-black font-mono tracking-tight text-white sm:text-6xl">${this.formatTime(this.state.timer.timeLeft)}</p>
+                                                <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-emerald-200/80">Tiempo de descanso</p>
+                                                <p id="rest-timer-display" class="mt-1 text-5xl font-black font-mono tracking-tight text-white">${this.formatTime(this.state.timer.timeLeft)}</p>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="flex flex-col items-center gap-1">
-                                        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200">
+                                    <div class="space-y-2">
+                                        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-200">
                                             <i data-lucide="clock" class="h-4 w-4"></i>
                                             Recupera energías
                                         </span>
-                                        <p class="text-sm font-semibold text-white sm:text-base">${nextExercise ? 'Próximo: ' + upcomingName : 'Último bloque completado'}</p>
-                                        <p class="text-xs text-gray-400 sm:text-sm">Respira profundo y prepara la técnica.</p>
+                                        <p class="text-sm font-semibold text-white">${nextExercise ? 'Próximo: ' + upcomingName : 'Último bloque completado'}</p>
+                                        <p class="text-xs text-gray-400">Respira profundo y prepara la técnica.</p>
                                     </div>
                                 </div>
                             `;
                             break;
                         }
                         case 'logging_weight': {
-                            const lastWeight = exercise.log[currentSet - 2] || '';
+                            const lastWeight = exercise.log?.[currentSet - 2] ?? '';
                             mainDisplayHtml = `
                                 <div class="mx-auto w-full max-w-md space-y-6 text-center">
                                     <div>
-                                        <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-sky-200/80">Registra el peso</p>
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-sky-200/80">Registra el peso</p>
                                         <p class="mt-2 text-sm text-gray-300">Serie ${Math.max(currentSet - 1, 1)} completada</p>
                                     </div>
                                     <div class="flex items-center justify-center gap-4">
-                                        <button onclick="app.updateWeightInput(-2.5)" class="h-16 w-16 rounded-full border border-white/10 bg-white/5 text-3xl font-bold text-white transition hover:border-emerald-300/60 hover:bg-emerald-300/10">-</button>
-                                        <div class="relative w-48">
+                                        <button type="button" onclick="app.updateWeightInput(-2.5)" class="h-14 w-14 rounded-full border border-white/15 bg-white/10 text-3xl font-bold text-white transition hover:border-emerald-300/60 hover:bg-emerald-300/10">-</button>
+                                        <div class="relative w-44">
                                             <input type="number" id="weight-input" inputmode="decimal"
-                                                class="w-full rounded-2xl border border-white/10 bg-black/50 py-3 text-center text-6xl font-black text-white focus:border-emerald-400 focus:outline-none"
+                                                class="w-full rounded-2xl border border-white/10 bg-black/60 py-3 text-center text-5xl font-black text-white focus:border-emerald-400 focus:outline-none"
                                                 placeholder="0" value="${lastWeight}">
                                             <span class="pointer-events-none absolute inset-x-0 -bottom-6 text-xs uppercase tracking-[0.4em] text-gray-400">kg</span>
                                         </div>
-                                        <button onclick="app.updateWeightInput(2.5)" class="h-16 w-16 rounded-full border border-white/10 bg-white/5 text-3xl font-bold text-white transition hover:border-emerald-300/60 hover:bg-emerald-300/10">+</button>
+                                        <button type="button" onclick="app.updateWeightInput(2.5)" class="h-14 w-14 rounded-full border border-white/15 bg-white/10 text-3xl font-bold text-white transition hover:border-emerald-300/60 hover:bg-emerald-300/10">+</button>
                                     </div>
                                     <p class="text-xs text-gray-400">Guarda el peso utilizado para mantener tu progreso controlado.</p>
                                 </div>
@@ -2945,11 +2947,11 @@
                             break;
                         default:
                             mainDisplayHtml = `
-                                <div class="flex flex-col items-center gap-6 text-center">
-                                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">
-                                        Serie ${normalizedSet} / ${exercise.sets}
+                                <div class="flex flex-col items-center gap-5 text-center">
+                                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                        Serie ${normalizedSet} / ${totalSets}
                                     </div>
-                                    <p class="text-8xl font-black tracking-tight text-white">${exercise.reps}</p>
+                                    <p class="text-7xl font-black tracking-tight text-white">${exercise.reps}</p>
                                     <p class="text-sm text-gray-400">Repeticiones objetivo · Mantén la técnica bajo control.</p>
                                 </div>
                             `;
@@ -2957,17 +2959,16 @@
                     }
 
                     const buttonMap = {
-                        idle: { text: `Comenzar serie ${normalizedSet}`, gradient: 'from-emerald-400 via-teal-400 to-cyan-400', textClass: 'text-gray-900', icon: 'play', hoverShadow: 'hover:shadow-[0_40px_90px_-50px_rgba(45,212,191,0.8)]' },
-                        active: { text: 'Finalizar serie', gradient: 'from-amber-400 via-orange-400 to-pink-500', textClass: 'text-gray-900', icon: 'flag-checkered', hoverShadow: 'hover:shadow-[0_40px_90px_-50px_rgba(251,191,36,0.8)]' },
-                        logging_weight: { text: 'Guardar y descansar', gradient: 'from-sky-400 via-blue-500 to-indigo-500', textClass: 'text-white', icon: 'save', hoverShadow: 'hover:shadow-[0_40px_90px_-50px_rgba(59,130,246,0.8)]' },
+                        idle: { text: `Comenzar serie ${normalizedSet}`, gradient: 'from-emerald-400 via-teal-400 to-cyan-400', textClass: 'text-gray-900', icon: 'play', hoverShadow: 'hover:shadow-[0_35px_70px_-40px_rgba(45,212,191,0.75)]' },
+                        active: { text: 'Finalizar serie', gradient: 'from-amber-400 via-orange-400 to-pink-500', textClass: 'text-gray-900', icon: 'flag-checkered', hoverShadow: 'hover:shadow-[0_35px_70px_-40px_rgba(251,191,36,0.75)]' },
+                        logging_weight: { text: 'Guardar y descansar', gradient: 'from-sky-400 via-blue-500 to-indigo-500', textClass: 'text-white', icon: 'save', hoverShadow: 'hover:shadow-[0_35px_70px_-40px_rgba(59,130,246,0.75)]' },
                         resting: { text: 'Descansando...', gradient: 'from-slate-600 via-slate-700 to-slate-800', textClass: 'text-gray-200', icon: 'timer', hoverShadow: '', disabled: true },
-                        exercise_complete: { text: 'Siguiente ejercicio', gradient: 'from-purple-500 via-indigo-500 to-blue-500', textClass: 'text-white', icon: 'arrow-right', hoverShadow: 'hover:shadow-[0_40px_90px_-50px_rgba(129,140,248,0.8)]' },
-                        workout_complete: { text: '¡Rutina completada!', gradient: 'from-emerald-400 via-green-500 to-teal-500', textClass: 'text-gray-900', icon: 'sparkles', hoverShadow: 'hover:shadow-[0_50px_110px_-60px_rgba(16,185,129,0.85)]' }
+                        exercise_complete: { text: 'Siguiente ejercicio', gradient: 'from-purple-500 via-indigo-500 to-blue-500', textClass: 'text-white', icon: 'arrow-right', hoverShadow: 'hover:shadow-[0_35px_70px_-40px_rgba(129,140,248,0.75)]' },
+                        workout_complete: { text: '¡Rutina completada!', gradient: 'from-emerald-400 via-green-500 to-teal-500', textClass: 'text-gray-900', icon: 'sparkles', hoverShadow: 'hover:shadow-[0_45px_90px_-50px_rgba(16,185,129,0.85)]' }
                     };
                     const buttonState = buttonMap[timerStatus] || buttonMap.idle;
-                    const mainButtonClasses = `group relative w-full overflow-hidden rounded-full bg-gradient-to-r ${buttonState.gradient} px-6 py-3.5 text-base font-semibold sm:px-8 sm:py-4 sm:text-lg ${buttonState.textClass} transition duration-200 ${buttonState.disabled ? 'cursor-not-allowed opacity-70' : 'hover:scale-[1.015]'} ${buttonState.hoverShadow}`.trim();
                     const mainButtonHtml = `
-                        <button data-action="handle-workout-action" class="${mainButtonClasses}" ${buttonState.disabled ? 'disabled' : ''}>
+                        <button data-action="handle-workout-action" class="group relative w-full overflow-hidden rounded-full bg-gradient-to-r ${buttonState.gradient} px-5 py-3 text-base font-semibold sm:px-7 sm:py-3.5 sm:text-lg ${buttonState.textClass} transition duration-200 ${buttonState.disabled ? 'cursor-not-allowed opacity-70' : 'hover:scale-[1.01]'} ${buttonState.hoverShadow}" ${buttonState.disabled ? 'disabled' : ''}>
                             <span class="flex items-center justify-center gap-3">
                                 ${buttonState.text}
                                 <i data-lucide="${buttonState.icon}" class="h-5 w-5"></i>
@@ -2991,8 +2992,8 @@
                         : '';
 
                     const upcomingHtml = `
-                        <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl shadow-[0_30px_80px_-60px_rgba(59,130,246,0.45)] sm:p-6">
-                            <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-300">
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl shadow-[0_25px_70px_-55px_rgba(59,130,246,0.45)] sm:p-6">
+                            <div class="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-300">
                                 <span>${nextExercise ? 'Siguiente ejercicio' : 'Último esfuerzo'}</span>
                                 <span class="inline-flex items-center gap-2 text-emerald-200"><i data-lucide="activity" class="h-4 w-4"></i>${Math.round(progressRounded)}%</span>
                             </div>
@@ -3005,7 +3006,7 @@
                         <div class="grid grid-cols-3 gap-3">
                             <div class="rounded-2xl border border-white/10 bg-white/5 py-3 text-center">
                                 <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-gray-400">Serie</p>
-                                <p class="mt-1 text-lg font-semibold text-white">${normalizedSet}/${exercise.sets}</p>
+                                <p class="mt-1 text-lg font-semibold text-white">${normalizedSet}/${totalSets}</p>
                             </div>
                             <div class="rounded-2xl border border-white/10 bg-white/5 py-3 text-center">
                                 <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-gray-400">Reps</p>
@@ -3019,59 +3020,64 @@
                     `;
 
                     overlay.innerHTML = `
-                        <div class="relative flex min-h-full flex-col bg-[#030712] text-white">
-                            <div class="pointer-events-none absolute inset-0 opacity-60">
-                                <div class="absolute -top-32 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-emerald-500/10 blur-3xl"></div>
-                                <div class="absolute bottom-0 right-[-20%] h-[26rem] w-[26rem] rounded-full bg-sky-500/10 blur-3xl"></div>
-                            </div>
-                            <div class="relative flex min-h-full flex-col">
-                                <header class="flex flex-col gap-5 px-4 py-5 sm:px-6 lg:px-10">
+                        <div class="flex min-h-full flex-col bg-gradient-to-b from-gray-950 via-gray-950 to-gray-900 text-white">
+                            <header class="sticky top-0 z-10 border-b border-white/5 bg-gray-950/95 px-4 py-4 backdrop-blur-sm sm:px-6">
+                                <div class="mx-auto flex w-full max-w-5xl flex-col gap-4">
                                     <div class="flex items-start justify-between gap-3">
-                                        <div class="space-y-2">
-                                            <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-400 sm:text-[11px]">${routineName || 'Rutina personalizada'}</p>
-                                            <p class="text-lg font-semibold text-white sm:text-xl">${dayName || 'Sesión en curso'}</p>
-                                            <span class="inline-flex items-center gap-2 rounded-full px-3.5 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] sm:text-[11px] ${statusInfo.badgeClass}">
-                                                <span class="h-2 w-2 rounded-full bg-current"></span>
-                                                ${statusInfo.label}
-                                            </span>
+                                        <div class="space-y-1">
+                                            <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-400">${routineName || 'Rutina personalizada'}</p>
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <h1 class="text-xl font-semibold text-white">${dayName || 'Sesión en curso'}</h1>
+                                                <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] ${statusInfo.badgeClass}">
+                                                    <span class="h-2 w-2 rounded-full bg-current"></span>
+                                                    ${statusInfo.label}
+                                                </span>
+                                            </div>
                                         </div>
-                                        <button data-action="confirm-finish-workout" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-rose-400/60 hover:bg-rose-500/10 hover:text-white sm:h-11 sm:w-11">
-                                            <i data-lucide="x" class="h-5 w-5 sm:h-6 sm:w-6"></i>
+                                        <button data-action="confirm-finish-workout" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-rose-400/60 hover:bg-rose-500/10 hover:text-white">
+                                            <i data-lucide="x" class="h-5 w-5"></i>
                                         </button>
                                     </div>
-                                    <div class="flex flex-col items-center gap-4 rounded-3xl border border-white/5 bg-black/20 px-4 py-4 text-center backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:text-left sm:px-5">
-                                        <div class="flex flex-col items-center gap-2 sm:items-start">
-                                            <div class="text-[10px] font-semibold uppercase tracking-[0.4em] text-gray-400 sm:text-[11px]">Duración de la sesión</div>
-                                            <div id="main-workout-timer" class="rounded-full bg-black/40 px-4 py-2 text-2xl font-mono font-semibold tracking-widest text-white shadow-inner sm:text-3xl">00:00</div>
+                                    <div class="grid gap-3 sm:grid-cols-[auto,1fr] sm:items-center">
+                                        <div class="flex items-center gap-3">
+                                            <div id="main-workout-timer" class="rounded-full bg-black/40 px-4 py-2 text-2xl font-mono font-semibold tracking-widest text-white shadow-inner">00:00</div>
+                                            <span class="text-xs text-gray-400">Duración de la sesión</span>
                                         </div>
-                                        <div class="w-full max-w-sm">
+                                        <div class="w-full">
                                             <div class="overflow-hidden rounded-full border border-white/10 bg-white/5">
                                                 <div class="h-2 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-500" style="width: ${progressRounded}%"></div>
                                             </div>
-                                            <p class="mt-1 text-xs text-gray-400 sm:text-[13px]">Ejercicio ${currentExerciseIndex + 1} de ${totalEjercicios}</p>
+                                            <p class="mt-1 text-xs text-gray-400">Ejercicio ${currentExerciseIndex + 1} de ${totalExercises}</p>
                                         </div>
                                     </div>
-                                </header>
+                                </div>
+                            </header>
 
-                                <div class="flex flex-1 flex-col gap-6 px-4 pb-24 sm:px-6 lg:flex-row lg:gap-8 lg:px-10 lg:pb-12">
+                            <main class="flex-1 overflow-y-auto px-4 pb-28 pt-6 sm:px-6">
+                                <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 lg:flex-row">
                                     <section class="flex w-full flex-col gap-4 lg:w-5/12">
                                         ${mediaContent}
                                         ${upcomingHtml}
                                     </section>
 
                                     <section class="flex flex-1">
-                                        <div class="flex w-full flex-col justify-between gap-5 rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl shadow-[0_30px_90px_-60px_rgba(15,118,110,0.45)] sm:p-6 lg:p-8">
+                                        <div class="flex w-full flex-col gap-5 rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl shadow-[0_25px_70px_-55px_rgba(15,118,110,0.5)] sm:p-6">
                                             <div class="flex items-start justify-between gap-3">
                                                 <div>
-                                                    <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-emerald-200/80 sm:text-[11px]">Ejercicio en curso</p>
-                                                    <h1 class="mt-2 text-2xl font-semibold leading-tight text-white sm:text-3xl">${exercise.name}</h1>
+                                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Ejercicio en curso</p>
+                                                    <h2 class="mt-1 text-2xl font-semibold leading-tight text-white">${exercise.name}</h2>
                                                 </div>
-                                                <button data-action="show-exercise-info" data-exercise-name="${exercise.name}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-sky-400/60 hover:bg-sky-500/10 hover:text-white sm:h-11 sm:w-11">
+                                                <button data-action="show-exercise-info" data-exercise-name="${exercise.name}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-sky-400/60 hover:bg-sky-500/10 hover:text-white">
                                                     <i data-lucide="info" class="h-5 w-5"></i>
                                                 </button>
                                             </div>
 
-                                            ${statsHtml}
+                                            <div class="space-y-3">
+                                                <div class="flex items-center gap-2">
+                                                    ${setIndicators}
+                                                </div>
+                                                ${statsHtml}
+                                            </div>
 
                                             <div class="flex flex-1 items-center justify-center">
                                                 <div class="live-workout-display w-full">
@@ -3079,14 +3085,18 @@
                                                 </div>
                                             </div>
 
-                                            <div class="space-y-4">
-                                                ${restControlsSection}
-                                                ${mainButtonHtml}
-                                            </div>
+                                            ${timerStatus === 'resting' ? '' : '<p class="text-center text-xs text-gray-400">Mantén la buena forma y controla la respiración.</p>'}
                                         </div>
                                     </section>
                                 </div>
-                            </div>
+                            </main>
+
+                            <footer class="fixed inset-x-0 bottom-0 border-t border-white/5 bg-gray-950/95 px-4 py-4 backdrop-blur-sm sm:px-6">
+                                <div class="mx-auto flex w-full max-w-5xl flex-col gap-3">
+                                    ${restControlsSection}
+                                    ${mainButtonHtml}
+                                </div>
+                            </footer>
                         </div>
                     `;
 
@@ -3102,7 +3112,7 @@
                     }
 
                     lucide.createIcons();
-                    if (timerStatus === "resting") {
+                    if (timerStatus === 'resting') {
                         this.updateRestTimerVisuals();
                     }
                 },
