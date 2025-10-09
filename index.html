@@ -175,6 +175,10 @@
                         <i data-lucide="utensils"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Dieta</span>
                     </button>
+                    <button id="nav-historial" data-section="historial" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="timeline"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Historial</span>
+                    </button>
                     <button data-section="perfil" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="user"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Perfil</span>
@@ -324,6 +328,7 @@
     </template>
     
     <template id="template-dieta"><section id="dieta" class="section-content hidden"><div class="space-y-6"><div><h2 class="text-2xl font-bold">Plan de Dieta de Hoy</h2><p class="text-gray-400">Objetivo: <span id="diet-goal-calories" class="font-bold text-emerald-400">2500</span> kcal</p></div><div class="bg-gray-700/80 p-4 rounded-xl space-y-3"><div class="flex justify-between items-center text-sm"><span class="text-gray-300">Consumido</span><span class="font-bold"><span id="diet-total-calories">0</span> kcal</span></div><div class="h-2.5 w-full rounded-full bg-gray-600"><div id="diet-progress-bar" class="bg-emerald-500 h-2.5 rounded-full w-0"></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="space-y-1"><p class="font-semibold text-blue-300">Proteína</p><div class="h-1.5 w-full rounded-full bg-blue-500/20"><div id="diet-protein-bar" class="bg-blue-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-protein">0</span>g / <span id="diet-goal-protein">188</span>g</p></div><div class="space-y-1"><p class="font-semibold text-yellow-300">Carbs</p><div class="h-1.5 w-full rounded-full bg-yellow-500/20"><div id="diet-carbs-bar" class="bg-yellow-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-carbs">0</span>g / <span id="diet-goal-carbs">250</span>g</p></div><div class="space-y-1"><p class="font-semibold text-red-300">Grasas</p><div class="h-1.5 w-full rounded-full bg-red-500/20"><div id="diet-fats-bar" class="bg-red-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-fats">0</span>g / <span id="diet-goal-fats">83</span>g</p></div></div></div><div id="diet-management-tools"><div class="my-4"><button data-action="generate-plan" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 font-bold py-3 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2 shadow-lg"><i data-lucide="sparkles" class="w-5 h-5 p-e-none"></i><span class="p-e-none">✨ Generar Plan con IA</span></button></div><div class="bg-gray-700/50 p-4 rounded-xl space-y-3 mb-6"><h3 class="font-semibold flex items-center gap-2"><i data-lucide="brain-circuit" class="w-5 h-5 text-sky-400"></i>Analizador de Comidas IA</h3><p class="text-sm text-gray-400">Describe una comida y la IA estimará sus macros para añadirla a tu dieta.</p><textarea id="food-analysis-input" placeholder="Ej: un tazón de avena con plátano y nueces" class="w-full bg-gray-700 rounded-lg p-2 h-16 resize-none"></textarea><button data-action="analyze-food" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 font-bold py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2"><span class="p-e-none">✨ Analizar y Añadir</span></button></div></div><div id="meal-sections" class="space-y-4"></div><div id="add-food-section" class="space-y-4 mt-4"><h3 class="text-xl font-bold">Añadir Alimentos</h3><div class="relative"><input type="text" id="food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 p-e-none"><i data-lucide="search" class="text-gray-400"></i></div></div><div id="food-list" class="space-y-2 pr-2"></div></div></div></section></template>
+    <template id="template-historial"><section id="historial" class="section-content hidden"><div class="space-y-6"><div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h2 class="text-2xl font-bold">Historial de Progreso</h2><p class="text-sm text-gray-400">Visualiza la evolución de tus entrenamientos, tiempos y cargas.</p></div><button data-action="show-workout-history" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10"><i data-lucide="gallery-vertical-end" class="h-4 w-4"></i>Ver resumen detallado</button></div><div id="history-overview" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div><div id="history-cards" class="space-y-4"></div></div></section></template>
     
     <template id="template-perfil">
         <section id="perfil" class="section-content hidden">
@@ -976,7 +981,7 @@
                     }
                 },
 
-                renderAll() { this.renderRoutinesSection(); this.renderDietPage(); this.renderWeeklyProgress(); this.renderProfileSection(); this.renderNutricionSection(); if (this.isAsesor()){ this.renderAsesoradosSection();} this.updateDashboard(); lucide.createIcons(); },
+                renderAll() { this.renderRoutinesSection(); this.renderDietPage(); this.renderWeeklyProgress(); this.renderWorkoutHistorySection(); this.renderProfileSection(); this.renderNutricionSection(); if (this.isAsesor()){ this.renderAsesoradosSection();} this.updateDashboard(); lucide.createIcons(); },
                 showSection(id, animate=true){
                     this.state.currentSection=id;
                     document.querySelectorAll('.section-content').forEach(s=>s.classList.add('hidden'));
@@ -1690,6 +1695,180 @@
                     `;
                     lucide.createIcons();
                 },
+                renderWorkoutHistorySection() {
+                    const overviewContainer = document.getElementById('history-overview');
+                    const cardsContainer = document.getElementById('history-cards');
+                    const section = document.getElementById('historial');
+                    if (!overviewContainer || !cardsContainer || !section) return;
+
+                    const entries = this.getWorkoutHistoryEntries();
+                    const intlFormatter = new Intl.NumberFormat('es-ES');
+
+                    if (entries.length === 0) {
+                        overviewContainer.innerHTML = `
+                            <div class="rounded-3xl border border-dashed border-white/15 bg-white/5 p-6 text-center text-gray-400">
+                                <i data-lucide="activity" class="mx-auto mb-3 h-8 w-8 text-emerald-300/80"></i>
+                                <p class="font-semibold">Aún no hay entrenamientos registrados.</p>
+                                <p class="mt-1 text-xs text-gray-500">Inicia una rutina para comenzar a construir tu historial.</p>
+                            </div>
+                        `;
+                        cardsContainer.innerHTML = `
+                            <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-6 text-center text-sm text-gray-400">
+                                <p>Cuando completes tus sesiones verás aquí tarjetas con tus métricas, pesos y progresos por fecha.</p>
+                                <button data-action="show-section" data-section-id="rutinas" class="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-900 transition hover:bg-emerald-400">
+                                    <i data-lucide="play" class="h-4 w-4"></i>
+                                    Comenzar una rutina
+                                </button>
+                            </div>
+                        `;
+                        lucide.createIcons();
+                        return;
+                    }
+
+                    const totalSessions = entries.length;
+                    const totalActiveSeconds = entries.reduce((sum, entry) => sum + (entry.totalActive || 0), 0);
+                    const totalVolume = entries.reduce((sum, entry) => sum + (entry.totalVolume || 0), 0);
+                    const bestOneRepMax = entries.reduce((max, entry) => {
+                        const entryPeak = entry.peakOneRepMax || (entry.exerciseDetails || []).reduce((peak, ex) => Math.max(peak, ex.estimated1RM || 0), 0);
+                        return Math.max(max, entryPeak || 0);
+                    }, 0);
+                    const latestWeightEntry = (this.state.weightLog || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
+
+                    overviewContainer.innerHTML = `
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200"><i data-lucide="trophy" class="h-5 w-5"></i></span>
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Sesiones totales</p>
+                                    <p class="text-2xl font-bold text-white">${intlFormatter.format(totalSessions)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-sky-500/20 text-sky-200"><i data-lucide="timer" class="h-5 w-5"></i></span>
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Tiempo activo</p>
+                                    <p class="text-2xl font-bold text-white">${this.formatTime(totalActiveSeconds)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/20 text-amber-200"><i data-lucide="bar-chart" class="h-5 w-5"></i></span>
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Volumen total</p>
+                                    <p class="text-2xl font-bold text-white">${intlFormatter.format(Math.round(totalVolume))} kg·reps</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/20 text-purple-200"><i data-lucide="line-chart" class="h-5 w-5"></i></span>
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">1RM más alto</p>
+                                    <p class="text-2xl font-bold text-white">${bestOneRepMax ? `${bestOneRepMax.toFixed(1)} kg` : '—'}</p>
+                                    <p class="text-[10px] text-gray-400">Peso actual: ${latestWeightEntry ? `${parseFloat(latestWeightEntry.weight).toFixed(1)} kg` : 'registra tu peso'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    const groupedByDate = entries.reduce((acc, entry) => {
+                        const dateKey = entry.date || (entry.completedAt ? entry.completedAt.split('T')[0] : '');
+                        if (!dateKey) return acc;
+                        if (!acc[dateKey]) acc[dateKey] = [];
+                        acc[dateKey].push(entry);
+                        return acc;
+                    }, {});
+
+                    const sortedDates = Object.keys(groupedByDate).sort((a, b) => new Date(b) - new Date(a));
+                    const weightLogMap = (this.state.weightLog || []).reduce((map, entry) => {
+                        if (entry && entry.date) {
+                            map[entry.date] = parseFloat(entry.weight);
+                        }
+                        return map;
+                    }, {});
+
+                    const cardsHtml = sortedDates.map(dateKey => {
+                        const sessions = groupedByDate[dateKey].slice().sort((a, b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0));
+                        const dateLabel = new Date(`${dateKey}T00:00:00`).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+                        const weightLabel = weightLogMap[dateKey] ? `${weightLogMap[dateKey].toFixed(1)} kg` : '—';
+                        const dayDuration = sessions.reduce((sum, session) => sum + (session.totalDuration || 0), 0);
+                        const dayActive = sessions.reduce((sum, session) => sum + (session.totalActive || 0), 0);
+                        const dayRest = sessions.reduce((sum, session) => sum + (session.totalRest || Math.max(0, (session.totalDuration || 0) - (session.totalActive || 0))), 0);
+                        const dayVolume = sessions.reduce((sum, session) => sum + (session.totalVolume || 0), 0);
+                        const dayPeakOneRm = sessions.reduce((max, session) => {
+                            const sessionPeak = session.peakOneRepMax || (session.exerciseDetails || []).reduce((peak, ex) => Math.max(peak, ex.estimated1RM || 0), 0);
+                            return Math.max(max, sessionPeak || 0);
+                        }, 0);
+
+                        const sessionItems = sessions.map(session => {
+                            const timeLabel = session.completedAt ? new Date(session.completedAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '';
+                            const highlightExercise = (session.exerciseDetails || []).reduce((best, ex) => {
+                                const current = ex.estimated1RM || 0;
+                                return current > ((best?.estimated1RM) || 0) ? ex : best;
+                            }, null);
+                            const highlightName = highlightExercise ? highlightExercise.name : null;
+                            const highlightWeight = highlightExercise?.bestWeight;
+                            const highlightOneRM = highlightExercise?.estimated1RM;
+
+                            return `
+                                <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <div>
+                                            <p class="text-sm font-semibold text-white">${session.routineName}</p>
+                                            <p class="text-xs text-gray-400">${session.dayName || 'Sesión'}${timeLabel ? ` · ${timeLabel}` : ''}</p>
+                                        </div>
+                                        <div class="flex flex-wrap gap-2 text-xs text-gray-300">
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5"><i data-lucide="timer" class="h-3.5 w-3.5"></i>${this.formatTime(session.totalDuration || 0)}</span>
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-0.5 text-emerald-100"><i data-lucide="flame" class="h-3.5 w-3.5"></i>${this.formatTime(session.totalActive || 0)}</span>
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/10 px-2.5 py-0.5 text-sky-100"><i data-lucide="bar-chart" class="h-3.5 w-3.5"></i>${intlFormatter.format(Math.round(session.totalVolume || 0))} kg·reps</span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 flex flex-wrap gap-2 text-xs text-gray-300">
+                                        ${highlightName ? `<span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5">Foco: ${highlightName}</span>` : '<span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-gray-400">Registra pesos para ver 1RM estimados</span>'}
+                                        ${highlightWeight ? `<span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-0.5 text-emerald-100"><i data-lucide="dumbbell" class="h-3.5 w-3.5"></i>${highlightWeight} kg</span>` : ''}
+                                        ${highlightOneRM ? `<span class="inline-flex items-center gap-1 rounded-full border border-purple-400/40 bg-purple-500/10 px-2.5 py-0.5 text-purple-100"><i data-lucide="line-chart" class="h-3.5 w-3.5"></i>${highlightOneRM.toFixed(1)} kg</span>` : ''}
+                                    </div>
+                                </article>
+                            `;
+                        }).join('');
+
+                        return `
+                            <article class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                    <div>
+                                        <p class="text-lg font-semibold text-white capitalize">${dateLabel}</p>
+                                        <p class="text-xs text-gray-400">${sessions.length} ${sessions.length === 1 ? 'sesión' : 'sesiones'} · Peso corporal: ${weightLabel}</p>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2 text-xs text-gray-300">
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5"><i data-lucide="clock" class="h-3.5 w-3.5"></i>${this.formatTime(dayDuration)}</span>
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-0.5 text-emerald-100"><i data-lucide="flame" class="h-3.5 w-3.5"></i>${this.formatTime(dayActive)}</span>
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-indigo-400/40 bg-indigo-500/10 px-2.5 py-0.5 text-indigo-100"><i data-lucide="moon" class="h-3.5 w-3.5"></i>${this.formatTime(dayRest)}</span>
+                                    </div>
+                                </div>
+                                <div class="mt-4 space-y-3">
+                                    ${sessionItems}
+                                </div>
+                                <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div class="flex flex-wrap gap-2 text-xs text-gray-300">
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-500/10 px-2.5 py-0.5 text-amber-100"><i data-lucide="bar-chart-3" class="h-3.5 w-3.5"></i>${intlFormatter.format(Math.round(dayVolume))} kg·reps</span>
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-purple-400/40 bg-purple-500/10 px-2.5 py-0.5 text-purple-100"><i data-lucide="line-chart" class="h-3.5 w-3.5"></i>${dayPeakOneRm ? `${dayPeakOneRm.toFixed(1)} kg 1RM` : '1RM pendiente'}</span>
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-gray-300"><i data-lucide="scale" class="h-3.5 w-3.5"></i>Peso: ${weightLabel}</span>
+                                    </div>
+                                    <button data-action="show-workout-history" data-history-date="${dateKey}" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400/60 hover:text-white">
+                                        Ver detalle
+                                        <i data-lucide="chevron-right" class="h-4 w-4"></i>
+                                    </button>
+                                </div>
+                            </article>
+                        `;
+                    }).join('');
+
+                    cardsContainer.innerHTML = cardsHtml;
+                    lucide.createIcons();
+                },
                 renderProfileSection() {
                     if (!this.state.currentUser) return;
                     const { userName, currentUser, physicalStats, targetWeight } = this.state;
@@ -1799,7 +1978,28 @@
                 showModal(t,b,f=[]){document.getElementById('custom-modal-title').textContent=t;document.getElementById('custom-modal-body').innerHTML=b;const ft=document.getElementById('custom-modal-footer');ft.innerHTML=f.map(btn=>{const d=Object.entries(btn).filter(([k])=>k!=='text'&&k!=='class').map(([k,v])=>`data-${k}="${v}"`).join(' ');return`<button ${d} class="font-bold py-2 px-4 rounded-lg transition ${btn.class}">${btn.text}</button>`}).join('');document.getElementById('custom-modal').classList.remove('hidden');document.getElementById('custom-modal-panel').classList.remove('modal-fade-out');},
                 hideModal(){const m=document.getElementById('custom-modal'),p=document.getElementById('custom-modal-panel');p.classList.add('modal-fade-out');p.addEventListener('animationend',()=>m.classList.add('hidden'),{once:true});},
                 showToast(m,t='success'){const c=document.getElementById('toast-container'),el=document.createElement('div');el.className=`toast ${t==='success'?'bg-emerald-500':'bg-red-500'} text-white font-bold py-2 px-4 rounded-lg shadow-lg`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.remove(),3000);},
-                formatTime(seconds) { const m = Math.floor(seconds / 60); const s = seconds % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; },
+            formatTime(seconds) { const m = Math.floor(seconds / 60); const s = seconds % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; },
+            parseRepsValue(reps) {
+                if (typeof reps === 'number' && !Number.isNaN(reps)) {
+                    return reps;
+                }
+                if (typeof reps === 'string') {
+                    const match = reps.match(/\d+/);
+                    if (match) {
+                        return parseInt(match[0], 10);
+                    }
+                }
+                return 1;
+            },
+            estimateOneRepMax(weight, reps) {
+                const numericWeight = typeof weight === 'number' ? weight : parseFloat(weight);
+                const repsValue = this.parseRepsValue(reps);
+                if (!numericWeight || Number.isNaN(numericWeight) || numericWeight <= 0 || !repsValue) {
+                    return 0;
+                }
+                const estimate = numericWeight * (1 + repsValue / 30);
+                return Math.round(estimate * 10) / 10;
+            },
                 playSound(type) { if(!this.audioCtx) return; const o=this.audioCtx.createOscillator(),g=this.audioCtx.createGain();o.connect(g);g.connect(this.audioCtx.destination);g.gain.setValueAtTime(0,this.audioCtx.currentTime);g.gain.linearRampToValueAtTime(0.3,this.audioCtx.currentTime+0.01);o.frequency.value=type==='start'?440:880;o.type='sine';o.start(this.audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.00001,this.audioCtx.currentTime+0.5);o.stop(this.audioCtx.currentTime+0.5); },
                 switchCalculatorTab(tabId) { document.querySelectorAll('.calc-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById(`tab-content-${tabId}`).classList.remove('hidden'); document.querySelectorAll('.calc-tab-btn').forEach(btn => { if (btn.dataset.tab === tabId) { btn.classList.add('bg-emerald-500', 'text-gray-900'); btn.classList.remove('text-gray-300'); } else { btn.classList.remove('bg-emerald-500', 'text-gray-900'); btn.classList.add('text-gray-300'); } }); },
                 populateNutritionForm() { const { age, weight, height, gender } = this.state.physicalStats; document.getElementById('age').value = age; document.getElementById('weight').value = weight; document.getElementById('height').value = height; const genderRadio = document.querySelector(`#nutrition-form input[name="gender"][value="${gender}"]`); if (genderRadio) genderRadio.checked = true; },
@@ -3179,13 +3379,14 @@
                         : '';
 
                     const isReadyToFinish = timerStatus === 'workout_complete';
+                    const finishAction = isReadyToFinish ? 'complete-workout' : 'confirm-finish-workout';
                     const secondaryActionsHtml = `
                         <div class="flex flex-col gap-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-300 sm:flex-row sm:items-center sm:justify-between">
                             <button data-action="confirm-cancel-workout" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-gray-300 transition hover:border-rose-400/60 hover:bg-rose-500/10 hover:text-rose-100">
                                 <i data-lucide="log-out" class="h-4 w-4"></i>
                                 Salir sin guardar
                             </button>
-                            <button data-action="confirm-finish-workout" class="inline-flex items-center justify-center gap-2 rounded-full ${isReadyToFinish ? 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-gray-900 shadow-[0_20px_60px_-35px_rgba(45,212,191,0.8)]' : 'border border-emerald-400/40 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-400/20'} px-4 py-2 text-xs transition">
+                            <button data-action="${finishAction}" class="inline-flex items-center justify-center gap-2 rounded-full ${isReadyToFinish ? 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-gray-900 shadow-[0_20px_60px_-35px_rgba(45,212,191,0.8)]' : 'border border-emerald-400/40 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-400/20'} px-4 py-2 text-xs transition">
                                 <i data-lucide="check-circle-2" class="h-4 w-4"></i>
                                 ${isReadyToFinish ? 'Guardar progreso' : 'Finalizar y guardar'}
                             </button>
@@ -3426,15 +3627,17 @@
                     const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
                     const baseLog = this.state.activeWorkout.exercises.map(ex => ({ name: ex.name, sets: ex.sets, reps: ex.reps, log: ex.log }));
                     const exerciseDetails = baseLog.map(exercise => {
-                        const reps = parseInt(exercise.reps, 10) || 0;
+                        const reps = this.parseRepsValue(exercise.reps);
                         const weights = (exercise.log || []).filter(value => typeof value === 'number' && !Number.isNaN(value));
                         const completedSets = weights.length;
                         const bestWeight = weights.length ? Math.max(...weights) : 0;
                         const volume = weights.reduce((sum, weight) => sum + (weight * (reps || 1)), 0);
-                        return { ...exercise, weights, completedSets, bestWeight, volume };
+                        const estimated1RM = this.estimateOneRepMax(bestWeight, exercise.reps || reps);
+                        return { ...exercise, weights, completedSets, bestWeight, volume, estimated1RM };
                     });
                     const totalVolume = exerciseDetails.reduce((sum, ex) => sum + ex.volume, 0);
                     const totalSetsCompleted = exerciseDetails.reduce((sum, ex) => sum + ex.completedSets, 0);
+                    const peakOneRepMax = exerciseDetails.reduce((max, ex) => Math.max(max, ex.estimated1RM || 0), 0);
 
                     const summary = {
                         id: `workout-${Date.now()}`,
@@ -3449,6 +3652,7 @@
                         totalRest,
                         totalVolume,
                         totalSetsCompleted,
+                        peakOneRepMax,
                         log: baseLog,
                         exerciseDetails
                     };
@@ -3509,6 +3713,10 @@
                                         <i data-lucide="repeat-2" class="h-3.5 w-3.5"></i>
                                         Series completadas: ${exercise.completedSets}
                                     </span>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-purple-400/40 bg-purple-500/10 px-3 py-1 font-semibold text-purple-100">
+                                        <i data-lucide="line-chart" class="h-3.5 w-3.5"></i>
+                                        1RM: ${exercise.estimated1RM ? `${exercise.estimated1RM.toFixed(1)} kg` : '—'}
+                                    </span>
                                 </div>
                                 <div class="mt-4 flex flex-wrap gap-2">
                                     ${setBadges}
@@ -3545,6 +3753,7 @@
                                 <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Volumen (kg·reps)</p>
                                 <p class="mt-2 text-2xl font-bold">${formattedVolume}</p>
                                 <p class="text-xs text-gray-400 mt-1">${formattedSets} series registradas</p>
+                                <p class="text-xs text-gray-400">1RM máximo: ${summary.peakOneRepMax ? `${summary.peakOneRepMax.toFixed(1)} kg` : '—'}</p>
                             </div>
                         </div>
                         <div class="space-y-3">
@@ -3599,7 +3808,7 @@
                     : [];
 
                 const deriveDetails = (source) => {
-                    const reps = parseInt(source.reps, 10) || 0;
+                    const reps = this.parseRepsValue(source.reps);
                     const weights = (source.log || []).filter(value => typeof value === 'number' && !Number.isNaN(value));
                     const completedSets = weights.length;
                     const bestWeight = weights.length ? Math.max(...weights) : 0;
@@ -3612,7 +3821,8 @@
                         weights,
                         completedSets,
                         bestWeight,
-                        volume
+                        volume,
+                        estimated1RM: this.estimateOneRepMax(bestWeight, source.reps || reps)
                     };
                 };
 
@@ -3621,7 +3831,7 @@
                         const base = baseLog.find(ex => ex.name === detail.name) || detail;
                         const normalizedLog = Array.isArray(detail.log) ? detail.log : (base.log || []);
                         const weights = Array.isArray(detail.weights) ? detail.weights : normalizedLog.filter(value => typeof value === 'number' && !Number.isNaN(value));
-                        const reps = parseInt(detail.reps ?? base.reps, 10) || 0;
+                        const reps = this.parseRepsValue(detail.reps ?? base.reps);
                         const completedSets = typeof detail.completedSets === 'number' ? detail.completedSets : weights.length;
                         const bestWeight = typeof detail.bestWeight === 'number' ? detail.bestWeight : (weights.length ? Math.max(...weights) : 0);
                         const volume = typeof detail.volume === 'number' ? detail.volume : weights.reduce((sum, weight) => sum + weight * (reps || 1), 0);
@@ -3633,7 +3843,8 @@
                             weights,
                             completedSets,
                             bestWeight,
-                            volume
+                            volume,
+                            estimated1RM: typeof detail.estimated1RM === 'number' ? detail.estimated1RM : this.estimateOneRepMax(bestWeight, detail.reps ?? base.reps)
                         };
                     })
                     : baseLog.map(deriveDetails);
@@ -3643,6 +3854,7 @@
                 const totalActive = entry.totalActive || Math.max(0, totalDuration - totalRest);
                 const totalVolume = typeof entry.totalVolume === 'number' ? entry.totalVolume : exerciseDetails.reduce((sum, ex) => sum + (ex.volume || 0), 0);
                 const totalSetsCompleted = typeof entry.totalSetsCompleted === 'number' ? entry.totalSetsCompleted : exerciseDetails.reduce((sum, ex) => sum + (ex.completedSets || 0), 0);
+                const peakOneRepMax = typeof entry.peakOneRepMax === 'number' ? entry.peakOneRepMax : exerciseDetails.reduce((max, ex) => Math.max(max, ex.estimated1RM || 0), 0);
 
                 return {
                     id: entry.id || `workout-${Date.parse(entry.completedAt || `${dateKey}T00:00:00`) || Date.now()}`,
@@ -3657,6 +3869,7 @@
                     totalActive,
                     totalVolume,
                     totalSetsCompleted,
+                    peakOneRepMax,
                     log: baseLog,
                     exerciseDetails
                 };
@@ -3732,12 +3945,19 @@
                         ? new Date(entry.completedAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
                         : '';
                     const entryVolume = intlFormatter.format(Math.round(entry.totalVolume || 0));
-                    const topExercises = (entry.exerciseDetails || []).slice(0, 3).map(ex => `
-                        <div class="flex items-center justify-between text-xs text-gray-300">
-                            <span class="truncate pr-2">${ex.name}</span>
-                            <span class="inline-flex items-center gap-1 text-emerald-200"><i data-lucide="dumbbell" class="h-3.5 w-3.5"></i>${ex.bestWeight ? `${ex.bestWeight} kg` : '—'}</span>
-                        </div>
-                    `).join('');
+                    const topExercises = (entry.exerciseDetails || []).slice(0, 3).map(ex => {
+                        const bestWeightLabel = ex.bestWeight ? `${ex.bestWeight} kg` : '—';
+                        const oneRmLabel = ex.estimated1RM ? `${ex.estimated1RM.toFixed(1)} kg` : '—';
+                        return `
+                            <div class="flex items-center justify-between gap-2 text-xs text-gray-300">
+                                <span class="truncate pr-2">${ex.name}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-0.5 text-emerald-100"><i data-lucide="dumbbell" class="h-3.5 w-3.5"></i>${bestWeightLabel}</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-purple-400/40 bg-purple-500/10 px-2.5 py-0.5 text-purple-100"><i data-lucide="line-chart" class="h-3.5 w-3.5"></i>${oneRmLabel}</span>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
                     return `
                         <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-4">
                             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
