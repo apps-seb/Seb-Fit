@@ -2782,7 +2782,317 @@
 
                 startWorkout(routineId, dayIndex) { let routine = [...(this.state.userRoutines || []), ...Object.values(this.data.predefinedRoutines).flat()].find(r => r.id === routineId); if (!routine || !routine.plan || !routine.plan[dayIndex]) { this.showToast("No se pudo iniciar la rutina.", "error"); return; } const workoutDay = routine.plan[dayIndex]; this.state.activeWorkout = { routineId, dayIndex, routineName: routine.name, dayName: workoutDay.day, exercises: JSON.parse(JSON.stringify(workoutDay.exercises.map(ex => ({...ex, log: []})))), currentExerciseIndex: 0, currentSet: 1, workoutStartTime: Date.now(), totalRestTime: 0, workoutTimerIntervalId: null, }; this.state.timer = { status: 'idle', timeLeft: 0, intervalId: null }; this.state.activeWorkout.workoutTimerIntervalId = setInterval(() => this.updateWorkoutTimerDisplay(), 1000); this.renderLiveWorkoutView(); },
                 updateWeightInput(amount) { const input = document.getElementById('weight-input'); if (input) { let currentValue = parseFloat(input.value) || 0; input.value = Math.max(0, currentValue + amount); } },
-                renderLiveWorkoutView() { const overlay = document.getElementById('live-workout-overlay'); if (!this.state.activeWorkout) { overlay.classList.add('hidden'); overlay.classList.remove('flex'); return; } const { exercises, currentExerciseIndex, currentSet } = this.state.activeWorkout; const exercise = exercises[currentExerciseIndex]; const totalExercises = exercises.length; const timerStatus = this.state.timer.status; const workoutProgress = ((currentExerciseIndex + 1) / totalExercises) * 100; let setIndicators = ''; for (let i = 1; i <= exercise.sets; i++) { const isCompleted = exercise.log[i-1] !== undefined; const isActive = i === currentSet && timerStatus !== 'resting' && timerStatus !== 'exercise_complete'; let barClass = 'bg-gray-700'; if (isCompleted) barClass = 'bg-emerald-500'; else if (isActive) barClass = 'bg-yellow-500 animate-pulse'; setIndicators += `<div class="flex-1 h-2 rounded ${barClass} transition-colors duration-300"></div>`; } let mainDisplayHtml = ''; switch (timerStatus) { case 'resting': const circumference = 2 * Math.PI * 120; const offset = this.state.timer.initialRestTime > 0 ? circumference - (this.state.timer.timeLeft / this.state.timer.initialRestTime) * circumference : 0; const nextExerciseName = (currentSet > exercise.sets) ? (exercises[currentExerciseIndex + 1] ? exercises[currentExerciseIndex + 1].name : '¡Última Serie!') : exercise.name; mainDisplayHtml = `<div class="relative w-72 h-72 flex items-center justify-center"><svg class="w-full h-full transform -rotate-90" viewBox="0 0 256 256"><circle class="text-gray-800" stroke-width="12" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"/><circle id="timer-progress-ring" class="text-emerald-500" stroke-width="12" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"/></svg><div class="absolute text-center"><span class="text-7xl font-black font-mono tracking-tighter text-white">${this.formatTime(this.state.timer.timeLeft)}</span><div class="text-sm text-gray-400 uppercase font-semibold mt-1">Descanso</div></div></div><p class="text-gray-300 mt-6">Siguiente: <span class="font-bold text-white">${nextExerciseName}</span></p>`; break; case 'logging_weight': const lastWeight = exercise.log[currentSet - 2] || ''; mainDisplayHtml = `<div class="w-full max-w-xs text-center"><p class="text-gray-400">Peso para Serie ${currentSet - 1}</p><div class="flex items-center justify-center gap-4 my-4"><button onclick="app.updateWeightInput(-2.5)" class="bg-gray-700 w-16 h-16 rounded-full text-3xl font-bold hover:bg-gray-600 transition">-</button><input type="number" id="weight-input" inputmode="decimal" class="bg-transparent text-white text-7xl font-black w-48 text-center focus:outline-none" placeholder="0" value="${lastWeight}"><button onclick="app.updateWeightInput(2.5)" class="bg-gray-700 w-16 h-16 rounded-full text-3xl font-bold hover:bg-gray-600 transition">+</button></div><span class="font-bold text-gray-400 text-3xl">kg</span></div>`; break; default: mainDisplayHtml = `<div class="text-center active-workout-state"><p class="text-9xl font-black text-white tracking-tighter">${exercise.reps}</p><p class="text-2xl font-bold text-gray-400 -mt-2">REPS</p></div><p class="text-gray-300 mt-6">Serie ${currentSet} de ${exercise.sets}</p>`; break; } const buttonMap = { idle: { text: `Iniciar Serie ${currentSet}`, class: 'from-emerald-500 to-green-600' }, active: { text: 'Finalizar Serie', class: 'from-yellow-500 to-amber-600' }, logging_weight: { text: `Guardar y Descansar`, class: 'from-sky-500 to-blue-600' }, resting: { text: `Descansando...`, class: 'from-gray-600 to-gray-700', disabled: true }, exercise_complete: { text: 'Siguiente Ejercicio', class: 'from-indigo-500 to-purple-600' }, workout_complete: { text: '¡Rutina Completada!', class: 'from-emerald-500 to-green-600' }}; const buttonState = buttonMap[timerStatus]; const mainButtonHtml = `<button data-action="handle-workout-action" class="w-full font-bold py-5 rounded-xl transition text-xl text-white shadow-lg bg-gradient-to-br ${buttonState.class} hover:opacity-90 disabled:opacity-50" ${buttonState.disabled ? 'disabled' : ''}>${buttonState.text}</button>`; const restControlsHtml = timerStatus === 'resting' ? `<div class="flex justify-center space-x-4"><button data-action="add-rest-time" class="bg-white/10 backdrop-blur-sm hover:bg-white/20 py-2 px-5 rounded-lg text-sm font-semibold">Añadir +15s</button><button data-action="skip-rest" class="bg-white/10 backdrop-blur-sm hover:bg-white/20 py-2 px-5 rounded-lg text-sm font-semibold">Saltar</button></div>` : ''; overlay.innerHTML = `<div class="relative w-full h-full flex flex-col p-4 sm:p-6 bg-gradient-to-b from-gray-900 to-black text-white"><div class="absolute top-5 left-1/2 -translate-x-1/2 bg-black/30 backdrop-blur-sm rounded-full px-4 py-1.5 pointer-events-none"><p id="main-workout-timer" class="text-lg font-mono text-white tracking-wider">00:00</p></div><header class="flex items-center justify-between w-full shrink-0 z-10"><div class="flex-1"><div class="w-full bg-gray-800 rounded-full h-2.5"><div class="bg-emerald-500 h-2.5 rounded-full" style="width: ${workoutProgress}%"></div></div><p class="text-xs text-gray-400 mt-1.5">Ejercicio ${currentExerciseIndex + 1} de ${totalExercises}</p></div><div class="ml-4"><button data-action="confirm-finish-workout" class="bg-gray-800/80 w-10 h-10 rounded-full flex items-center justify-center text-gray-400 hover:text-white transition"><i data-lucide="x" class="w-6 h-6"></i></button></div></header><main class="flex-grow flex flex-col items-center justify-center text-center w-full overflow-hidden"><div class="flex items-center gap-2"><h1 class="text-3xl sm:text-4xl font-bold leading-tight px-4">${exercise.name}</h1><button data-action="show-exercise-info" data-exercise-name="${exercise.name}" class="text-gray-500 hover:text-sky-400 transition-colors shrink-0"><i data-lucide="help-circle" class="w-7 h-7"></i></button></div><div class="flex-grow flex items-center justify-center my-4 live-workout-display">${mainDisplayHtml}</div></main><footer class="w-full max-w-md mx-auto shrink-0 z-10"><div class="flex justify-center items-center gap-2 mb-4"><p class="text-sm font-semibold text-gray-400">SERIES</p><div class="flex items-center gap-2 w-40">${setIndicators}</div></div><div class="h-10 mb-4 flex items-center justify-center">${restControlsHtml}</div>${mainButtonHtml}</footer></div>`; overlay.classList.remove('hidden'); overlay.classList.add('flex'); if (timerStatus === 'logging_weight') { const weightInput = document.getElementById('weight-input'); if(weightInput) { weightInput.focus(); weightInput.select(); } } lucide.createIcons(); },
+                
+                renderLiveWorkoutView() {
+                    const overlay = document.getElementById('live-workout-overlay');
+                    if (!this.state.activeWorkout) {
+                        overlay.classList.add('hidden');
+                        overlay.classList.remove('flex');
+                        return;
+                    }
+
+                    const { exercises, currentExerciseIndex, currentSet, routineName, dayName } = this.state.activeWorkout;
+                    const exercise = exercises[currentExerciseIndex];
+                    const totalExercises = exercises.length;
+                    const timerStatus = this.state.timer.status;
+                    const workoutProgress = ((currentExerciseIndex + 1) / totalExercises) * 100;
+                    const progressRounded = Math.min(100, Math.max(0, workoutProgress));
+                    const normalizedSet = Math.min(currentSet, exercise.sets);
+                    const restTarget = exercise.rest || '60s';
+                    const nextExercise = exercises[currentExerciseIndex + 1] || null;
+
+                    const libraryExercise = this.getExerciseByName(exercise.name) || {};
+                    const mediaUrl = exercise.mediaUrl || libraryExercise.mediaUrl || '';
+                    const isVideoMedia = mediaUrl ? (/\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(mediaUrl) || mediaUrl.includes('video')) : false;
+
+                    let mediaContent = '';
+                    if (mediaUrl) {
+                        const mediaElement = isVideoMedia
+                            ? `<video src="${mediaUrl}" autoplay loop muted playsinline class="h-full w-full object-cover"></video>`
+                            : `<img src="${mediaUrl}" alt="Demostración de ${exercise.name}" class="h-full w-full object-cover" loading="lazy">`;
+                        mediaContent = `
+                            <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-black/40 shadow-[0_35px_90px_-45px_rgba(56,189,248,0.8)]">
+                                ${mediaElement}
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                                <div class="absolute inset-x-4 bottom-4 flex items-center justify-between text-xs font-semibold uppercase tracking-[0.35em] text-white/80">
+                                    <span class="inline-flex items-center gap-2 text-white">
+                                        <i data-lucide="${isVideoMedia ? 'play-circle' : 'image'}" class="h-5 w-5"></i>
+                                        ${isVideoMedia ? 'Video de demostración' : 'Imagen de referencia'}
+                                    </span>
+                                    <button data-action="show-media-viewer" data-media-url="${mediaUrl}"
+                                        class="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-[10px] font-bold tracking-[0.4em] text-white transition hover:bg-white/25">
+                                        Ver grande
+                                        <i data-lucide="expand" class="h-4 w-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        mediaContent = `
+                            <div class="relative overflow-hidden rounded-3xl border border-dashed border-white/15 bg-white/5 px-6 py-16 text-center">
+                                <i data-lucide="image-off" class="mx-auto mb-4 h-12 w-12 text-gray-500"></i>
+                                <p class="text-sm font-semibold text-gray-300">Aún no hay media asociada a este ejercicio.</p>
+                                <p class="mt-2 text-xs text-gray-500">Sube una imagen o video desde el creador de rutinas para enriquecer esta vista.</p>
+                            </div>
+                        `;
+                    }
+
+                    let setIndicators = '';
+                    for (let i = 1; i <= exercise.sets; i++) {
+                        const isCompleted = exercise.log[i - 1] !== undefined;
+                        const isActive = i === currentSet && timerStatus !== 'resting' && timerStatus !== 'exercise_complete';
+                        let barClass = 'bg-white/10';
+                        if (isCompleted) {
+                            barClass = 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 shadow-[0_0_25px_-12px_rgba(45,212,191,0.8)]';
+                        } else if (isActive) {
+                            barClass = 'bg-amber-400/80 animate-pulse shadow-[0_0_35px_-18px_rgba(251,191,36,0.9)]';
+                        }
+                        setIndicators += `<span class="h-2 flex-1 rounded-full transition-all duration-500 ${barClass}"></span>`;
+                    }
+
+                    const statusPresets = {
+                        idle: { label: 'Listo para iniciar', badgeClass: 'bg-emerald-400/10 border border-emerald-300/40 text-emerald-200' },
+                        active: { label: 'En progreso', badgeClass: 'bg-amber-400/10 border border-amber-300/40 text-amber-200' },
+                        logging_weight: { label: 'Registra el peso', badgeClass: 'bg-sky-400/10 border border-sky-300/40 text-sky-200' },
+                        resting: { label: 'Descansando', badgeClass: 'bg-purple-400/10 border border-purple-300/40 text-purple-200' },
+                        exercise_complete: { label: 'Ejercicio completado', badgeClass: 'bg-indigo-400/10 border border-indigo-300/40 text-indigo-200' },
+                        workout_complete: { label: 'Rutina completada', badgeClass: 'bg-emerald-400/20 border border-emerald-300/40 text-emerald-100' }
+                    };
+                    const statusInfo = statusPresets[timerStatus] || statusPresets.idle;
+
+                    let mainDisplayHtml = '';
+                    switch (timerStatus) {
+                        case 'resting': {
+                            const circumference = 2 * Math.PI * 120;
+                            const offset = this.state.timer.initialRestTime > 0
+                                ? circumference - (this.state.timer.timeLeft / this.state.timer.initialRestTime) * circumference
+                                : 0;
+                            const upcomingName = (currentSet > exercise.sets && nextExercise)
+                                ? nextExercise.name
+                                : exercise.name;
+                            mainDisplayHtml = `
+                                <div class="flex flex-col items-center gap-6">
+                                    <div class="relative h-64 w-64">
+                                        <svg class="h-full w-full -rotate-90" viewBox="0 0 256 256">
+                                            <circle class="text-white/10" stroke-width="12" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"></circle>
+                                            <circle class="text-emerald-400 drop-shadow-[0_0_20px_rgba(45,212,191,0.45)]" stroke-width="12" stroke-dasharray="${circumference}"
+                                                stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="120" cx="128" cy="128"></circle>
+                                        </svg>
+                                        <div class="absolute inset-0 grid place-items-center">
+                                            <div class="text-center">
+                                                <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-emerald-200/80">Tiempo de descanso</p>
+                                                <p class="mt-2 text-6xl font-black font-mono tracking-tight text-white">${this.formatTime(this.state.timer.timeLeft)}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-center text-sm text-gray-300">
+                                        <p class="font-semibold text-white">Próximo: ${upcomingName}</p>
+                                        <p class="text-xs text-gray-400">Aprovecha para prepararte y mantener la técnica impecable.</p>
+                                    </div>
+                                </div>
+                            `;
+                            break;
+                        }
+                        case 'logging_weight': {
+                            const lastWeight = exercise.log[currentSet - 2] || '';
+                            mainDisplayHtml = `
+                                <div class="mx-auto w-full max-w-md space-y-6 text-center">
+                                    <div>
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-sky-200/80">Registra el peso</p>
+                                        <p class="mt-2 text-sm text-gray-300">Serie ${Math.max(currentSet - 1, 1)} completada</p>
+                                    </div>
+                                    <div class="flex items-center justify-center gap-4">
+                                        <button onclick="app.updateWeightInput(-2.5)" class="h-16 w-16 rounded-full border border-white/10 bg-white/5 text-3xl font-bold text-white transition hover:border-emerald-300/60 hover:bg-emerald-300/10">-</button>
+                                        <div class="relative w-48">
+                                            <input type="number" id="weight-input" inputmode="decimal"
+                                                class="w-full rounded-2xl border border-white/10 bg-black/50 py-3 text-center text-6xl font-black text-white focus:border-emerald-400 focus:outline-none"
+                                                placeholder="0" value="${lastWeight}">
+                                            <span class="pointer-events-none absolute inset-x-0 -bottom-6 text-xs uppercase tracking-[0.4em] text-gray-400">kg</span>
+                                        </div>
+                                        <button onclick="app.updateWeightInput(2.5)" class="h-16 w-16 rounded-full border border-white/10 bg-white/5 text-3xl font-bold text-white transition hover:border-emerald-300/60 hover:bg-emerald-300/10">+</button>
+                                    </div>
+                                    <p class="text-xs text-gray-400">Guarda el peso utilizado para mantener tu progreso controlado.</p>
+                                </div>
+                            `;
+                            break;
+                        }
+                        case 'exercise_complete':
+                            mainDisplayHtml = `
+                                <div class="flex flex-col items-center gap-4 text-center">
+                                    <span class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">
+                                        <i data-lucide="check" class="h-10 w-10"></i>
+                                    </span>
+                                    <p class="text-2xl font-semibold text-white">¡Ejercicio completado!</p>
+                                    <p class="text-sm text-gray-400">Respira profundo y prepárate para el siguiente desafío.</p>
+                                </div>
+                            `;
+                            break;
+                        case 'workout_complete':
+                            mainDisplayHtml = `
+                                <div class="flex flex-col items-center gap-4 text-center">
+                                    <span class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-200">
+                                        <i data-lucide="sparkles" class="h-10 w-10"></i>
+                                    </span>
+                                    <p class="text-3xl font-semibold text-white">¡Entrenamiento finalizado!</p>
+                                    <p class="text-sm text-gray-400">Excelente trabajo. Registra sensaciones y estira para cerrar con broche de oro.</p>
+                                </div>
+                            `;
+                            break;
+                        default:
+                            mainDisplayHtml = `
+                                <div class="flex flex-col items-center gap-6 text-center">
+                                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                        Serie ${normalizedSet} / ${exercise.sets}
+                                    </div>
+                                    <p class="text-8xl font-black tracking-tight text-white">${exercise.reps}</p>
+                                    <p class="text-sm text-gray-400">Repeticiones objetivo · Mantén la técnica bajo control.</p>
+                                </div>
+                            `;
+                            break;
+                    }
+
+                    const buttonMap = {
+                        idle: { text: `Comenzar serie ${normalizedSet}`, gradient: 'from-emerald-400 via-teal-400 to-cyan-400', textClass: 'text-gray-900', icon: 'play', hoverShadow: 'hover:shadow-[0_40px_90px_-50px_rgba(45,212,191,0.8)]' },
+                        active: { text: 'Finalizar serie', gradient: 'from-amber-400 via-orange-400 to-pink-500', textClass: 'text-gray-900', icon: 'flag-checkered', hoverShadow: 'hover:shadow-[0_40px_90px_-50px_rgba(251,191,36,0.8)]' },
+                        logging_weight: { text: 'Guardar y descansar', gradient: 'from-sky-400 via-blue-500 to-indigo-500', textClass: 'text-white', icon: 'save', hoverShadow: 'hover:shadow-[0_40px_90px_-50px_rgba(59,130,246,0.8)]' },
+                        resting: { text: 'Descansando...', gradient: 'from-slate-600 via-slate-700 to-slate-800', textClass: 'text-gray-200', icon: 'timer', hoverShadow: '', disabled: true },
+                        exercise_complete: { text: 'Siguiente ejercicio', gradient: 'from-purple-500 via-indigo-500 to-blue-500', textClass: 'text-white', icon: 'arrow-right', hoverShadow: 'hover:shadow-[0_40px_90px_-50px_rgba(129,140,248,0.8)]' },
+                        workout_complete: { text: '¡Rutina completada!', gradient: 'from-emerald-400 via-green-500 to-teal-500', textClass: 'text-gray-900', icon: 'sparkles', hoverShadow: 'hover:shadow-[0_50px_110px_-60px_rgba(16,185,129,0.85)]' }
+                    };
+                    const buttonState = buttonMap[timerStatus] || buttonMap.idle;
+                    const mainButtonClasses = `group relative w-full overflow-hidden rounded-full bg-gradient-to-r ${buttonState.gradient} px-8 py-4 text-lg font-semibold ${buttonState.textClass} transition duration-200 ${buttonState.disabled ? 'cursor-not-allowed opacity-70' : 'hover:scale-[1.015]'} ${buttonState.hoverShadow}`.trim();
+                    const mainButtonHtml = `
+                        <button data-action="handle-workout-action" class="${mainButtonClasses}" ${buttonState.disabled ? 'disabled' : ''}>
+                            <span class="flex items-center justify-center gap-3">
+                                ${buttonState.text}
+                                <i data-lucide="${buttonState.icon}" class="h-5 w-5"></i>
+                            </span>
+                        </button>
+                    `;
+
+                    const restControlsSection = timerStatus === 'resting'
+                        ? `
+                            <div class="flex flex-wrap items-center justify-center gap-3">
+                                <button data-action="add-rest-time" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-white transition hover:border-emerald-300/60 hover:bg-emerald-300/10">
+                                    <i data-lucide="plus" class="h-4 w-4"></i>
+                                    +15s
+                                </button>
+                                <button data-action="skip-rest" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-white transition hover:border-rose-300/60 hover:bg-rose-300/10">
+                                    <i data-lucide="skip-forward" class="h-4 w-4"></i>
+                                    Saltar descanso
+                                </button>
+                            </div>
+                        `
+                        : '';
+
+                    const upcomingHtml = `
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl shadow-[0_30px_80px_-60px_rgba(59,130,246,0.45)]">
+                            <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                <span>${nextExercise ? 'Siguiente ejercicio' : 'Último esfuerzo'}</span>
+                                <span class="inline-flex items-center gap-2 text-emerald-200"><i data-lucide="activity" class="h-4 w-4"></i>${Math.round(progressRounded)}%</span>
+                            </div>
+                            <p class="mt-3 text-xl font-semibold text-white">${nextExercise ? nextExercise.name : 'Cool down & estiramientos'}</p>
+                            <p class="mt-2 text-sm text-gray-400">${nextExercise ? `${nextExercise.sets || '—'} series · ${nextExercise.reps || '—'} reps` : 'Aprovecha para bajar pulsaciones y evaluar sensaciones.'}</p>
+                        </div>
+                    `;
+
+                    const statsHtml = `
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="rounded-2xl border border-white/10 bg-white/5 py-3 text-center">
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-gray-400">Serie</p>
+                                <p class="mt-1 text-lg font-semibold text-white">${normalizedSet}/${exercise.sets}</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 py-3 text-center">
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-gray-400">Reps</p>
+                                <p class="mt-1 text-lg font-semibold text-white">${exercise.reps || '—'}</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 py-3 text-center">
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-gray-400">Descanso</p>
+                                <p class="mt-1 text-lg font-semibold text-white">${restTarget}</p>
+                            </div>
+                        </div>
+                    `;
+
+                    overlay.innerHTML = `
+                        <div class="relative flex h-full flex-col overflow-hidden bg-[#030712] text-white">
+                            <div class="pointer-events-none absolute inset-0 opacity-70">
+                                <div class="absolute -top-32 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-emerald-500/10 blur-3xl"></div>
+                                <div class="absolute bottom-0 right-[-20%] h-[28rem] w-[28rem] rounded-full bg-sky-500/10 blur-3xl"></div>
+                            </div>
+                            <div class="relative flex h-full flex-col">
+                                <header class="flex flex-col gap-4 px-6 py-6 sm:flex-row sm:items-center sm:justify-between">
+                                    <button data-action="confirm-finish-workout" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-rose-400/60 hover:bg-rose-500/10 hover:text-white">
+                                        <i data-lucide="x" class="h-6 w-6"></i>
+                                    </button>
+                                    <div class="flex flex-1 flex-col items-center gap-3 text-center">
+                                        <div class="text-[11px] font-semibold uppercase tracking-[0.4em] text-gray-400">Duración de la sesión</div>
+                                        <div id="main-workout-timer" class="rounded-full bg-black/40 px-5 py-2 text-2xl font-mono font-semibold tracking-widest text-white shadow-inner">00:00</div>
+                                        <div class="w-full max-w-xs overflow-hidden rounded-full border border-white/10 bg-white/5">
+                                            <div class="h-2 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-500" style="width: ${progressRounded}%"></div>
+                                        </div>
+                                        <p class="text-xs text-gray-400">Ejercicio ${currentExerciseIndex + 1} de ${totalExercises}</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-gray-400">${routineName || 'Rutina personalizada'}</p>
+                                        <p class="mt-1 text-lg font-semibold text-white">${dayName || 'Sesión en curso'}</p>
+                                        <span class="mt-3 inline-flex items-center gap-2 rounded-full px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] ${statusInfo.badgeClass}">
+                                            <span class="h-2 w-2 rounded-full bg-current"></span>
+                                            ${statusInfo.label}
+                                        </span>
+                                    </div>
+                                </header>
+
+                                <div class="flex flex-1 flex-col gap-8 px-6 pb-10 lg:flex-row">
+                                    <section class="flex w-full flex-col gap-6 lg:w-5/12">
+                                        ${mediaContent}
+                                        ${upcomingHtml}
+                                    </section>
+
+                                    <section class="flex flex-1">
+                                        <div class="flex w-full flex-col justify-between gap-6 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl shadow-[0_30px_90px_-60px_rgba(15,118,110,0.45)] lg:p-8">
+                                            <div class="flex items-start justify-between gap-4">
+                                                <div>
+                                                    <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-emerald-200/80">Ejercicio en curso</p>
+                                                    <h1 class="mt-2 text-3xl font-semibold leading-tight text-white">${exercise.name}</h1>
+                                                </div>
+                                                <button data-action="show-exercise-info" data-exercise-name="${exercise.name}" class="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-sky-400/60 hover:bg-sky-500/10 hover:text-white">
+                                                    <i data-lucide="info" class="h-5 w-5"></i>
+                                                </button>
+                                            </div>
+
+                                            ${statsHtml}
+
+                                            <div class="flex flex-1 items-center justify-center">
+                                                <div class="live-workout-display w-full">
+                                                    ${mainDisplayHtml}
+                                                </div>
+                                            </div>
+
+                                            <div class="space-y-4">
+                                                ${restControlsSection}
+                                                ${mainButtonHtml}
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    overlay.classList.remove('hidden');
+                    overlay.classList.add('flex');
+
+                    if (timerStatus === 'logging_weight') {
+                        const weightInput = document.getElementById('weight-input');
+                        if (weightInput) {
+                            weightInput.focus();
+                            weightInput.select();
+                        }
+                    }
+
+                    lucide.createIcons();
+                },
+
             updateWorkoutTimerDisplay() { if(!this.state.activeWorkout||!this.state.activeWorkout.workoutStartTime)return;const t=document.getElementById('main-workout-timer');if(t){const e=Math.floor((Date.now()-this.state.activeWorkout.workoutStartTime)/1000);t.textContent=this.formatTime(e);}},
             handleWorkoutAction() { const status = this.state.timer.status; if (status === 'idle') { this.state.timer.status = 'active'; } else if (status === 'active') { this.state.timer.status = 'logging_weight'; } else if (status === 'logging_weight') { const weightInput = document.getElementById('weight-input'); const weightValue = parseFloat(weightInput.value); const weightToLog = !isNaN(weightValue) && weightValue >= 0 ? weightValue : 0; const { exercises, currentExerciseIndex, currentSet } = this.state.activeWorkout; exercises[currentExerciseIndex].log[currentSet - 1] = weightToLog; this.state.activeWorkout.currentSet++; if (this.state.activeWorkout.currentSet <= exercises[currentExerciseIndex].sets) { this.startRestTimer(); } else { if (this.state.activeWorkout.currentExerciseIndex >= this.state.activeWorkout.exercises.length - 1) { this.state.timer.status = 'workout_complete'; } else { this.state.timer.status = 'exercise_complete'; } } } else if (status === 'exercise_complete') { this.startRestTimer(true); this.state.activeWorkout.currentExerciseIndex++; this.state.activeWorkout.currentSet = 1; this.state.timer.status = 'resting'; } else if (status === 'workout_complete') { this.finishWorkout(true); return; } this.renderLiveWorkoutView(); },
             startRestTimer(isBetweenExercises) {
