@@ -15,6 +15,7 @@
 
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body.mobile-menu-open { overflow: hidden; }
         ::-webkit-scrollbar { width: 6px; } 
         ::-webkit-scrollbar-track { background: transparent; } 
         ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; } 
@@ -33,6 +34,9 @@
         .modal-fade-out { animation: fadeOut 0.3s ease-in forwards; }
         .toast { animation: toastIn 0.5s ease-out forwards, toastOut 0.5s ease-in 2.5s forwards; }
         #timer-progress-ring { transition: stroke-dashoffset 1s linear; }
+
+        #mobile-menu-backdrop { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        #mobile-menu-backdrop.is-visible { opacity: 1; pointer-events: auto; }
 
         .horizontal-scroll-container { -ms-overflow-style: none; scrollbar-width: none; }
         .horizontal-scroll-container::-webkit-scrollbar { display: none; }
@@ -60,6 +64,17 @@
         @media (max-width: 1023px) {
             #app-sidebar { border-top: 1px solid rgba(75, 85, 99, 0.6); }
             #app-sidebar .nav-btn { font-size: 0.75rem; font-weight: 600; }
+            #app-sidebar.mobile-overlay { top: 0; bottom: 0; right: auto; left: 0; width: 18rem; max-width: calc(100vw - 3rem);
+                padding: 1.75rem 1.5rem; border-radius: 0 1.5rem 1.5rem 0; border-top: none; border-right: 1px solid rgba(75, 85,
+                99, 0.6); border-left: none; border-bottom: none; background: rgba(17, 24, 39, 0.98); box-shadow: 0 25px 60px -22px
+                rgba(16, 185, 129, 0.35); transform: translateX(-110%); display: flex; flex-direction: column; gap: 1.5rem;
+                align-items: stretch; z-index: 50; }
+            #app-sidebar.mobile-overlay[data-mobile-open="true"] { transform: translateX(0); }
+            #app-sidebar.mobile-overlay #main-nav-bar { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+            #app-sidebar.mobile-overlay .nav-btn { flex-direction: row; justify-content: flex-start; gap: 0.75rem; padding: 0.75rem 1rem; }
+            #app-sidebar.mobile-overlay .nav-label { opacity: 1; }
+            #app-sidebar.mobile-overlay .sidebar-brand { display: flex !important; }
+            #app-sidebar.mobile-overlay .sidebar-footer { display: block !important; }
         }
 
         @media (min-width: 1024px) {
@@ -142,7 +157,7 @@
     
     <div id="app-container" class="hidden relative min-h-screen bg-gray-900 text-white">
         <div class="lg:flex lg:min-h-screen lg:mx-auto lg:max-w-7xl lg:gap-6">
-            <nav id="app-sidebar" data-collapsed="true" class="fixed bottom-0 left-0 right-0 z-30 bg-gray-900/85 backdrop-blur-lg border-t border-gray-800 px-3 pt-2 pb-3 lg:flex lg:flex-col lg:items-stretch lg:gap-8 lg:border-none lg:px-0 lg:pt-0 lg:pb-0">
+            <nav id="app-sidebar" data-collapsed="true" data-mobile-open="false" class="fixed bottom-0 left-0 right-0 z-30 bg-gray-900/85 backdrop-blur-lg border-t border-gray-800 px-3 pt-2 pb-3 lg:flex lg:flex-col lg:items-stretch lg:gap-8 lg:border-none lg:px-0 lg:pt-0 lg:pb-0">
                 <div class="hidden lg:flex items-center justify-between sidebar-brand">
                     <div class="flex items-center gap-3">
                         <div class="h-11 w-11 rounded-2xl bg-emerald-500 text-gray-900 flex items-center justify-center shadow-lg shadow-emerald-500/30">
@@ -191,10 +206,17 @@
                     </div>
                 </div>
             </nav>
+            <div id="mobile-menu-backdrop" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"></div>
 
             <div class="flex-1 flex flex-col min-h-screen lg:min-h-0 lg:max-h-screen">
                 <header class="bg-gray-900/80 backdrop-blur-sm px-4 sm:px-6 py-4 sticky top-0 z-20 flex items-center justify-between shadow-lg lg:rounded-2xl lg:mt-6 lg:mr-6 lg:ml-6">
-                    <div class="flex items-center space-x-2"><i data-lucide="dumbbell" class="text-emerald-400"></i><h1 class="text-xl font-bold tracking-tight">FitTrack</h1></div>
+                    <div class="flex items-center gap-3">
+                        <button id="mobile-menu-toggle" type="button" aria-controls="app-sidebar" aria-expanded="false" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400/60 lg:hidden">
+                            <span class="sr-only">Abrir menú</span>
+                            <i data-lucide="menu" class="h-5 w-5"></i>
+                        </button>
+                        <div class="flex items-center space-x-2"><i data-lucide="dumbbell" class="text-emerald-400"></i><h1 class="text-xl font-bold tracking-tight">FitTrack</h1></div>
+                    </div>
                     <div class="flex items-center space-x-3">
                         <div id="user-avatar" class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-gray-900"><span></span></div>
                         <button id="logout-btn" title="Cerrar sesión" class="text-gray-400 hover:text-white transition"><i data-lucide="log-out" class="w-5 h-5"></i></button>
@@ -218,7 +240,7 @@
 
     <template id="template-inicio"><section id="inicio" class="section-content"><div class="space-y-6"><div><h2 id="welcome-message" class="text-2xl font-bold">Hola, </h2><p class="text-gray-400">¿Listo para superar tus límites hoy?</p></div><div id="ai-daily-tip-card" class="bg-gray-700/80 p-4 rounded-2xl hidden"><div class="flex items-start space-x-3"><i data-lucide="sparkles" class="text-purple-400 w-5 h-5 flex-shrink-0 mt-1"></i><div><h3 class="font-semibold text-gray-200">Consejo del Día ✨</h3><p id="ai-daily-tip-text" class="text-sm text-gray-300 mt-1">Cargando consejo...</p></div></div></div><div id="weekly-progress-card" class="bg-gray-700/80 p-4 rounded-2xl"></div><div class="bg-gradient-to-br from-emerald-500 to-green-600 p-6 rounded-2xl shadow-lg text-white"><p class="font-medium">Tu Meta Diaria de Calorías</p><p class="text-3xl font-bold" id="dashboard-calories">2,500 kcal</p><div class="mt-4 h-2.5 w-full rounded-full bg-black/20"><div id="dashboard-progress-bar" class="bg-white h-2.5 rounded-full" style="width: 0%"></div></div><p class="text-right text-sm mt-1">Progreso: <span id="dashboard-progress-text">0</span>%</p></div><div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"><button data-action="show-section" data-section-id="rutinas" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="clipboard-list" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Rutinas</span></button><button data-action="show-section" data-section-id="perfil" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="user" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Perfil</span></button><button data-action="show-section" data-section-id="dieta" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="salad" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Dieta</span></button><div class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2"><i data-lucide="flame" class="text-red-400"></i><span id="dashboard-consumed-calories" class="font-semibold">0 Kcal</span><span class="text-xs text-gray-400">Consumidas</span></div></div></div></section></template>
     
-    <template id="template-rutinas"><section id="rutinas" class="section-content hidden"><div class="space-y-8"><div class="flex justify-between items-center"><h2 class="text-2xl font-bold">Rutinas</h2><button id="create-routine-btn" data-action="routine-create" class="flex items-center gap-2 bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20"><i data-lucide="plus" class="w-5 h-5"></i><span>Crear Rutina</span></button></div><div id="user-routines-section">
+    <template id="template-rutinas"><section id="rutinas" class="section-content hidden"><div class="space-y-8"><div class="flex justify-between items-center"><h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Rutinas</span></h2><button id="create-routine-btn" data-action="routine-create" class="flex items-center gap-2 bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20"><i data-lucide="plus" class="w-5 h-5"></i><span>Crear Rutina</span></button></div><div id="user-routines-section">
         <h3 class="font-semibold text-lg mb-3 text-gray-300">Mis Rutinas</h3>
         <div id="user-routines-container" class="horizontal-scroll-container flex overflow-x-auto gap-4 -mx-4 px-4 pb-4 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-6 lg:overflow-visible lg:mx-0 lg:px-0"></div>
     </div><div id="predefined-routines-section"><h3 class="font-semibold text-lg mb-3 text-gray-300">Explorar Rutinas</h3><div id="predefined-routines-container" class="space-y-3"></div></div></div></section></template>
@@ -227,7 +249,7 @@
         <section id="asesorados" class="section-content hidden">
             <div class="space-y-6">
                 <div>
-                    <h2 class="text-2xl font-bold">Gestión de Asesorados</h2>
+                    <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Gestión de Asesorados</span></h2>
                     <p class="text-gray-400">Invita y gestiona los planes de tus clientes.</p>
                 </div>
                 
@@ -253,7 +275,7 @@
         <section id="nutricion" class="section-content hidden">
             <div class="space-y-6 pb-8">
                 <div>
-                    <h2 class="text-2xl font-bold">Herramientas de Cálculo</h2>
+                    <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Herramientas de Cálculo</span></h2>
                     <p class="text-gray-400">Estima tus métricas clave para optimizar tu progreso.</p>
                 </div>
                 
@@ -327,8 +349,8 @@
         </section>
     </template>
     
-    <template id="template-dieta"><section id="dieta" class="section-content hidden"><div class="space-y-6"><div><h2 class="text-2xl font-bold">Plan de Dieta de Hoy</h2><p class="text-gray-400">Objetivo: <span id="diet-goal-calories" class="font-bold text-emerald-400">2500</span> kcal</p></div><div class="bg-gray-700/80 p-4 rounded-xl space-y-3"><div class="flex justify-between items-center text-sm"><span class="text-gray-300">Consumido</span><span class="font-bold"><span id="diet-total-calories">0</span> kcal</span></div><div class="h-2.5 w-full rounded-full bg-gray-600"><div id="diet-progress-bar" class="bg-emerald-500 h-2.5 rounded-full w-0"></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="space-y-1"><p class="font-semibold text-blue-300">Proteína</p><div class="h-1.5 w-full rounded-full bg-blue-500/20"><div id="diet-protein-bar" class="bg-blue-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-protein">0</span>g / <span id="diet-goal-protein">188</span>g</p></div><div class="space-y-1"><p class="font-semibold text-yellow-300">Carbs</p><div class="h-1.5 w-full rounded-full bg-yellow-500/20"><div id="diet-carbs-bar" class="bg-yellow-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-carbs">0</span>g / <span id="diet-goal-carbs">250</span>g</p></div><div class="space-y-1"><p class="font-semibold text-red-300">Grasas</p><div class="h-1.5 w-full rounded-full bg-red-500/20"><div id="diet-fats-bar" class="bg-red-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-fats">0</span>g / <span id="diet-goal-fats">83</span>g</p></div></div></div><div id="diet-management-tools"><div class="my-4"><button data-action="generate-plan" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 font-bold py-3 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2 shadow-lg"><i data-lucide="sparkles" class="w-5 h-5 p-e-none"></i><span class="p-e-none">✨ Generar Plan con IA</span></button></div><div class="bg-gray-700/50 p-4 rounded-xl space-y-3 mb-6"><h3 class="font-semibold flex items-center gap-2"><i data-lucide="brain-circuit" class="w-5 h-5 text-sky-400"></i>Analizador de Comidas IA</h3><p class="text-sm text-gray-400">Describe una comida y la IA estimará sus macros para añadirla a tu dieta.</p><textarea id="food-analysis-input" placeholder="Ej: un tazón de avena con plátano y nueces" class="w-full bg-gray-700 rounded-lg p-2 h-16 resize-none"></textarea><button data-action="analyze-food" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 font-bold py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2"><span class="p-e-none">✨ Analizar y Añadir</span></button></div></div><div id="meal-sections" class="space-y-4"></div><div id="add-food-section" class="space-y-4 mt-4"><h3 class="text-xl font-bold">Añadir Alimentos</h3><div class="relative"><input type="text" id="food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 p-e-none"><i data-lucide="search" class="text-gray-400"></i></div></div><div id="food-list" class="space-y-2 pr-2"></div></div></div></section></template>
-    <template id="template-historial"><section id="historial" class="section-content hidden"><div class="space-y-6"><div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h2 class="text-2xl font-bold">Historial de Progreso</h2><p class="text-sm text-gray-400">Visualiza la evolución de tus entrenamientos, tiempos y cargas.</p></div><button data-action="show-workout-history" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10"><i data-lucide="gallery-vertical-end" class="h-4 w-4"></i>Ver resumen detallado</button></div><div id="history-overview" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div><div id="history-cards" class="space-y-4"></div></div></section></template>
+    <template id="template-dieta"><section id="dieta" class="section-content hidden"><div class="space-y-6"><div><h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Plan de Dieta de Hoy</span></h2><p class="text-gray-400">Objetivo: <span id="diet-goal-calories" class="font-bold text-emerald-400">2500</span> kcal</p></div><div class="bg-gray-700/80 p-4 rounded-xl space-y-3"><div class="flex justify-between items-center text-sm"><span class="text-gray-300">Consumido</span><span class="font-bold"><span id="diet-total-calories">0</span> kcal</span></div><div class="h-2.5 w-full rounded-full bg-gray-600"><div id="diet-progress-bar" class="bg-emerald-500 h-2.5 rounded-full w-0"></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="space-y-1"><p class="font-semibold text-blue-300">Proteína</p><div class="h-1.5 w-full rounded-full bg-blue-500/20"><div id="diet-protein-bar" class="bg-blue-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-protein">0</span>g / <span id="diet-goal-protein">188</span>g</p></div><div class="space-y-1"><p class="font-semibold text-yellow-300">Carbs</p><div class="h-1.5 w-full rounded-full bg-yellow-500/20"><div id="diet-carbs-bar" class="bg-yellow-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-carbs">0</span>g / <span id="diet-goal-carbs">250</span>g</p></div><div class="space-y-1"><p class="font-semibold text-red-300">Grasas</p><div class="h-1.5 w-full rounded-full bg-red-500/20"><div id="diet-fats-bar" class="bg-red-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-fats">0</span>g / <span id="diet-goal-fats">83</span>g</p></div></div></div><div id="diet-management-tools"><div class="my-4"><button data-action="generate-plan" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 font-bold py-3 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2 shadow-lg"><i data-lucide="sparkles" class="w-5 h-5 p-e-none"></i><span class="p-e-none">✨ Generar Plan con IA</span></button></div><div class="bg-gray-700/50 p-4 rounded-xl space-y-3 mb-6"><h3 class="font-semibold flex items-center gap-2"><i data-lucide="brain-circuit" class="w-5 h-5 text-sky-400"></i>Analizador de Comidas IA</h3><p class="text-sm text-gray-400">Describe una comida y la IA estimará sus macros para añadirla a tu dieta.</p><textarea id="food-analysis-input" placeholder="Ej: un tazón de avena con plátano y nueces" class="w-full bg-gray-700 rounded-lg p-2 h-16 resize-none"></textarea><button data-action="analyze-food" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 font-bold py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2"><span class="p-e-none">✨ Analizar y Añadir</span></button></div></div><div id="meal-sections" class="space-y-4"></div><div id="add-food-section" class="space-y-4 mt-4"><h3 class="text-xl font-bold">Añadir Alimentos</h3><div class="relative"><input type="text" id="food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 p-e-none"><i data-lucide="search" class="text-gray-400"></i></div></div><div id="food-list" class="space-y-2 pr-2"></div></div></div></section></template>
+    <template id="template-historial"><section id="historial" class="section-content hidden"><div class="space-y-6"><div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Historial de Progreso</span></h2><p class="text-sm text-gray-400">Visualiza la evolución de tus entrenamientos, tiempos y cargas.</p></div><button data-action="show-workout-history" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10"><i data-lucide="gallery-vertical-end" class="h-4 w-4"></i>Ver resumen detallado</button></div><div id="history-overview" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div><div id="history-cards" class="space-y-4"></div></div></section></template>
     
     <template id="template-perfil">
         <section id="perfil" class="section-content hidden">
@@ -474,7 +496,7 @@
                         role: 'asesor', 
                         coachId: null,
                         currentSection: 'inicio', 
-                        userGoals: { calories: 2500, protein: 188, carbs: 250, fats: 83 }, 
+                        userGoals: { calories: 2500, protein: 188, carbs: 250, fats: 83 },
                         dailyDiet: [
                             { id: `meal-${now.getTime()}`, name: 'Desayuno', time: '08:00', items: [] },
                             { id: `meal-${now.getTime() + 1}`, name: 'Almuerzo', time: '13:00', items: [] },
@@ -487,8 +509,9 @@
                         targetWeight: 75,
                         weightLog: [],
                         asesorados: [],
-                        activeWorkout: null, 
-                        timer: { status: 'idle', timeLeft: 0, intervalId: null, initialRestTime: 0 }
+                        activeWorkout: null,
+                        timer: { status: 'idle', timeLeft: 0, intervalId: null, initialRestTime: 0 },
+                        isMobileMenuOpen: false
                     };
                 },
                 
@@ -700,7 +723,7 @@
                 async saveDataToFirestore() {
                     if (!this.state.currentUser) return;
                     const dataToSave = { ...this.state };
-                    ['currentUser', 'activeWorkout', 'timer', 'currentSection', 'asesorados'].forEach(key => delete dataToSave[key]);
+                    ['currentUser', 'activeWorkout', 'timer', 'currentSection', 'asesorados', 'isMobileMenuOpen'].forEach(key => delete dataToSave[key]);
                     const userRef = doc(this.db, "users", this.state.currentUser.uid);
                     try {
                         await setDoc(userRef, dataToSave, { merge: true });
@@ -943,12 +966,36 @@
                     document.body.addEventListener('change', (e) => { if (e.target.closest('#client-diet-goals-form')) { this._handleUpdateClientGoalsFromUI(); } });
 
                     const sidebar = document.getElementById('app-sidebar');
+                    const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+                    const mobileBackdrop = document.getElementById('mobile-menu-backdrop');
+
+                    if (mobileMenuToggle) {
+                        mobileMenuToggle.addEventListener('click', () => this.toggleMobileMenu());
+                    }
+                    if (mobileBackdrop) {
+                        mobileBackdrop.addEventListener('click', () => this.closeMobileMenu(true));
+                    }
+                    document.addEventListener('keydown', (event) => {
+                        if (event.key === 'Escape' && this.state?.isMobileMenuOpen) {
+                            this.closeMobileMenu(true);
+                        }
+                    });
+
                     if(sidebar){
                         const setSidebarStateForViewport = () => {
                             if(window.innerWidth >= 1024){
                                 sidebar.setAttribute('data-collapsed','true');
+                                this.closeMobileMenu(true, true);
                             } else {
                                 sidebar.setAttribute('data-collapsed','false');
+                                if (!this.state.isMobileMenuOpen) {
+                                    sidebar.setAttribute('data-mobile-open','false');
+                                    sidebar.classList.remove('mobile-overlay');
+                                    if (mobileBackdrop) {
+                                        mobileBackdrop.classList.remove('is-visible');
+                                    }
+                                    document.body.classList.remove('mobile-menu-open');
+                                }
                             }
                         };
                         const expandSidebar = () => {
@@ -981,6 +1028,74 @@
                     }
                 },
 
+                toggleMobileMenu() {
+                    if (window.innerWidth >= 1024) { return; }
+                    if (this.state?.isMobileMenuOpen) {
+                        this.closeMobileMenu(true);
+                    } else {
+                        this.openMobileMenu();
+                    }
+                },
+
+                openMobileMenu() {
+                    if (window.innerWidth >= 1024) { return; }
+                    const sidebar = document.getElementById('app-sidebar');
+                    const backdrop = document.getElementById('mobile-menu-backdrop');
+                    const toggleBtn = document.getElementById('mobile-menu-toggle');
+                    if (!sidebar) { return; }
+
+                    this.state.isMobileMenuOpen = true;
+                    sidebar.classList.add('mobile-overlay');
+                    requestAnimationFrame(() => {
+                        sidebar.setAttribute('data-mobile-open', 'true');
+                    });
+                    if (backdrop) {
+                        backdrop.classList.add('is-visible');
+                    }
+                    document.body.classList.add('mobile-menu-open');
+                    if (toggleBtn) {
+                        toggleBtn.setAttribute('aria-expanded', 'true');
+                    }
+                },
+
+                closeMobileMenu(force = false, immediate = false) {
+                    if (!force && window.innerWidth >= 1024) { return; }
+                    const sidebar = document.getElementById('app-sidebar');
+                    const backdrop = document.getElementById('mobile-menu-backdrop');
+                    const toggleBtn = document.getElementById('mobile-menu-toggle');
+
+                    if (this.state) {
+                        this.state.isMobileMenuOpen = false;
+                    }
+
+                    if (sidebar) {
+                        sidebar.setAttribute('data-mobile-open', 'false');
+                    }
+
+                    if (backdrop) {
+                        backdrop.classList.remove('is-visible');
+                    }
+
+                    document.body.classList.remove('mobile-menu-open');
+
+                    if (toggleBtn) {
+                        toggleBtn.setAttribute('aria-expanded', 'false');
+                    }
+
+                    if (sidebar && sidebar.classList.contains('mobile-overlay')) {
+                        const cleanup = () => {
+                            if (!this.state.isMobileMenuOpen && window.innerWidth < 1024) {
+                                sidebar.classList.remove('mobile-overlay');
+                            }
+                        };
+                        if (immediate) {
+                            cleanup();
+                        } else {
+                            setTimeout(cleanup, 300);
+                        }
+                    }
+                },
+
                 renderAll() { this.renderRoutinesSection(); this.renderDietPage(); this.renderWeeklyProgress(); this.renderWorkoutHistorySection(); this.renderProfileSection(); this.renderNutricionSection(); if (this.isAsesor()){ this.renderAsesoradosSection();} this.updateDashboard(); lucide.createIcons(); },
                 showSection(id, animate=true){
                     this.state.currentSection=id;
@@ -997,6 +1112,9 @@
                         const isActive=b.dataset.section===id;
                         b.classList.toggle('is-active',isActive);
                     });
+                    if(window.innerWidth < 1024){
+                        this.closeMobileMenu(true);
+                    }
                     if(id==='dieta'){this.renderFoodList();}
                 },
                 
@@ -3381,14 +3499,14 @@
                     const isReadyToFinish = timerStatus === 'workout_complete';
                     const finishAction = isReadyToFinish ? 'complete-workout' : 'confirm-finish-workout';
                     const secondaryActionsHtml = `
-                        <div class="flex flex-col gap-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-300 sm:flex-row sm:items-center sm:justify-between">
-                            <button data-action="confirm-cancel-workout" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-gray-300 transition hover:border-rose-400/60 hover:bg-rose-500/10 hover:text-rose-100">
-                                <i data-lucide="log-out" class="h-4 w-4"></i>
-                                Salir sin guardar
+                        <div class="flex items-center justify-between sm:justify-end sm:gap-3">
+                            <button data-action="confirm-cancel-workout" title="Salir sin guardar" class="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-rose-400/60 hover:bg-rose-500/10 hover:text-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-400/40">
+                                <span class="sr-only">Salir sin guardar</span>
+                                <i data-lucide="x" class="h-5 w-5"></i>
                             </button>
-                            <button data-action="${finishAction}" class="inline-flex items-center justify-center gap-2 rounded-full ${isReadyToFinish ? 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-gray-900 shadow-[0_20px_60px_-35px_rgba(45,212,191,0.8)]' : 'border border-emerald-400/40 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-400/20'} px-4 py-2 text-xs transition">
-                                <i data-lucide="check-circle-2" class="h-4 w-4"></i>
-                                ${isReadyToFinish ? 'Guardar progreso' : 'Finalizar y guardar'}
+                            <button data-action="${finishAction}" title="${isReadyToFinish ? 'Guardar progreso' : 'Finalizar y guardar'}" class="flex h-12 w-12 items-center justify-center rounded-full ${isReadyToFinish ? 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-gray-900 shadow-[0_20px_60px_-35px_rgba(45,212,191,0.8)] focus:ring-emerald-400/60' : 'border border-emerald-400/40 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-400/20 focus:ring-emerald-400/40'} transition focus:outline-none focus:ring-2">
+                                <span class="sr-only">${isReadyToFinish ? 'Guardar progreso' : 'Finalizar y guardar'}</span>
+                                <i data-lucide="save" class="h-5 w-5"></i>
                             </button>
                         </div>
                     `;
