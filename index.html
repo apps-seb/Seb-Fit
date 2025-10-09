@@ -70,11 +70,12 @@
                 rgba(16, 185, 129, 0.35); transform: translateX(-110%); display: flex; flex-direction: column; gap: 1.5rem;
                 align-items: stretch; z-index: 50; }
             #app-sidebar.mobile-overlay[data-mobile-open="true"] { transform: translateX(0); }
-            #app-sidebar.mobile-overlay #main-nav-bar { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+            #app-sidebar.mobile-overlay #main-nav-bar { display: flex; flex-direction: column; align-items: stretch; gap: 0.75rem; }
             #app-sidebar.mobile-overlay .nav-btn { flex-direction: row; justify-content: flex-start; gap: 0.75rem; padding: 0.75rem 1rem; }
             #app-sidebar.mobile-overlay .nav-label { opacity: 1; }
             #app-sidebar.mobile-overlay .sidebar-brand { display: flex !important; }
             #app-sidebar.mobile-overlay .sidebar-footer { display: block !important; }
+            #app-sidebar.mobile-overlay #mobile-bottom-nav { display: none; }
         }
 
         @media (min-width: 1024px) {
@@ -169,34 +170,52 @@
                         </div>
                     </div>
                 </div>
-                <div id="main-nav-bar" class="flex justify-around items-center gap-1 lg:flex-col lg:items-stretch lg:gap-3 lg:mt-8 lg:justify-start">
-                    <button data-section="inicio" class="nav-btn is-active flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                <div id="main-nav-bar" class="hidden flex-col items-stretch gap-3 lg:mt-8 lg:flex">
+                    <button data-section="inicio" class="nav-btn is-active flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="home"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Inicio</span>
                     </button>
-                    <button id="nav-rutinas" data-section="rutinas" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                    <button id="nav-rutinas" data-section="rutinas" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="clipboard-list"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Rutinas</span>
                     </button>
-                    <button id="nav-asesorados" data-section="asesorados" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                    <button id="nav-asesorados" data-section="asesorados" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="users"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Asesorados</span>
                     </button>
-                    <button id="nav-nutricion" data-section="nutricion" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                    <button id="nav-nutricion" data-section="nutricion" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="calculator"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Cálculos</span>
                     </button>
-                    <button id="nav-dieta" data-section="dieta" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                    <button id="nav-dieta" data-section="dieta" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="utensils"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Dieta</span>
                     </button>
-                    <button id="nav-historial" data-section="historial" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                    <button id="nav-historial" data-section="historial" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="timeline"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Historial</span>
                     </button>
-                    <button data-section="perfil" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-none lg:w-full lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                    <button data-section="perfil" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="user"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Perfil</span>
+                    </button>
+                </div>
+                <div id="mobile-bottom-nav" class="flex justify-around items-center gap-1 lg:hidden">
+                    <button data-section="inicio" class="nav-btn is-active flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
+                        <i data-lucide="home"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">Inicio</span>
+                    </button>
+                    <button data-section="rutinas" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
+                        <i data-lucide="clipboard-list"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">Rutinas</span>
+                    </button>
+                    <button data-section="dieta" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
+                        <i data-lucide="utensils"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">Dieta</span>
+                    </button>
+                    <button data-section="perfil" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
+                        <i data-lucide="user"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">Perfil</span>
                     </button>
                 </div>
                 <div class="hidden lg:block mt-auto pt-6 sidebar-footer">
@@ -350,7 +369,7 @@
     </template>
     
     <template id="template-dieta"><section id="dieta" class="section-content hidden"><div class="space-y-6"><div><h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Plan de Dieta de Hoy</span></h2><p class="text-gray-400">Objetivo: <span id="diet-goal-calories" class="font-bold text-emerald-400">2500</span> kcal</p></div><div class="bg-gray-700/80 p-4 rounded-xl space-y-3"><div class="flex justify-between items-center text-sm"><span class="text-gray-300">Consumido</span><span class="font-bold"><span id="diet-total-calories">0</span> kcal</span></div><div class="h-2.5 w-full rounded-full bg-gray-600"><div id="diet-progress-bar" class="bg-emerald-500 h-2.5 rounded-full w-0"></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="space-y-1"><p class="font-semibold text-blue-300">Proteína</p><div class="h-1.5 w-full rounded-full bg-blue-500/20"><div id="diet-protein-bar" class="bg-blue-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-protein">0</span>g / <span id="diet-goal-protein">188</span>g</p></div><div class="space-y-1"><p class="font-semibold text-yellow-300">Carbs</p><div class="h-1.5 w-full rounded-full bg-yellow-500/20"><div id="diet-carbs-bar" class="bg-yellow-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-carbs">0</span>g / <span id="diet-goal-carbs">250</span>g</p></div><div class="space-y-1"><p class="font-semibold text-red-300">Grasas</p><div class="h-1.5 w-full rounded-full bg-red-500/20"><div id="diet-fats-bar" class="bg-red-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-fats">0</span>g / <span id="diet-goal-fats">83</span>g</p></div></div></div><div id="diet-management-tools"><div class="my-4"><button data-action="generate-plan" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 font-bold py-3 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2 shadow-lg"><i data-lucide="sparkles" class="w-5 h-5 p-e-none"></i><span class="p-e-none">✨ Generar Plan con IA</span></button></div><div class="bg-gray-700/50 p-4 rounded-xl space-y-3 mb-6"><h3 class="font-semibold flex items-center gap-2"><i data-lucide="brain-circuit" class="w-5 h-5 text-sky-400"></i>Analizador de Comidas IA</h3><p class="text-sm text-gray-400">Describe una comida y la IA estimará sus macros para añadirla a tu dieta.</p><textarea id="food-analysis-input" placeholder="Ej: un tazón de avena con plátano y nueces" class="w-full bg-gray-700 rounded-lg p-2 h-16 resize-none"></textarea><button data-action="analyze-food" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 font-bold py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2"><span class="p-e-none">✨ Analizar y Añadir</span></button></div></div><div id="meal-sections" class="space-y-4"></div><div id="add-food-section" class="space-y-4 mt-4"><h3 class="text-xl font-bold">Añadir Alimentos</h3><div class="relative"><input type="text" id="food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 p-e-none"><i data-lucide="search" class="text-gray-400"></i></div></div><div id="food-list" class="space-y-2 pr-2"></div></div></div></section></template>
-    <template id="template-historial"><section id="historial" class="section-content hidden"><div class="space-y-6"><div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Historial de Progreso</span></h2><p class="text-sm text-gray-400">Visualiza la evolución de tus entrenamientos, tiempos y cargas.</p></div><button data-action="show-workout-history" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10"><i data-lucide="gallery-vertical-end" class="h-4 w-4"></i>Ver resumen detallado</button></div><div id="history-overview" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div><div id="history-cards" class="space-y-4"></div></div></section></template>
+    <template id="template-historial"><section id="historial" class="section-content hidden"><div class="space-y-6"><div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h2 class="text-2xl font-bold flex items-center gap-3"><span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-300 shadow-inner shadow-emerald-500/20"><i data-lucide="clock-3" class="h-6 w-6"></i></span><span>Historial de Progreso</span></h2><p class="text-sm text-gray-400">Visualiza la evolución de tus entrenamientos, tiempos y cargas.</p></div><button data-action="show-workout-history" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10"><i data-lucide="gallery-vertical-end" class="h-4 w-4"></i>Ver resumen detallado</button></div><div id="history-overview" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div><div id="history-cards" class="space-y-4"></div></div></section></template>
     
     <template id="template-perfil">
         <section id="perfil" class="section-content hidden">
@@ -3497,15 +3516,16 @@
                         : '';
 
                     const isReadyToFinish = timerStatus === 'workout_complete';
-                    const finishAction = isReadyToFinish ? 'complete-workout' : 'confirm-finish-workout';
+                    const finishAction = 'confirm-finish-workout';
+                    const finishTitle = isReadyToFinish ? 'Guardar progreso' : 'Finalizar y guardar';
                     const secondaryActionsHtml = `
                         <div class="flex items-center justify-between sm:justify-end sm:gap-3">
                             <button data-action="confirm-cancel-workout" title="Salir sin guardar" class="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-rose-400/60 hover:bg-rose-500/10 hover:text-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-400/40">
                                 <span class="sr-only">Salir sin guardar</span>
                                 <i data-lucide="x" class="h-5 w-5"></i>
                             </button>
-                            <button data-action="${finishAction}" title="${isReadyToFinish ? 'Guardar progreso' : 'Finalizar y guardar'}" class="flex h-12 w-12 items-center justify-center rounded-full ${isReadyToFinish ? 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-gray-900 shadow-[0_20px_60px_-35px_rgba(45,212,191,0.8)] focus:ring-emerald-400/60' : 'border border-emerald-400/40 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-400/20 focus:ring-emerald-400/40'} transition focus:outline-none focus:ring-2">
-                                <span class="sr-only">${isReadyToFinish ? 'Guardar progreso' : 'Finalizar y guardar'}</span>
+                            <button data-action="${finishAction}" title="${finishTitle}" class="flex h-12 w-12 items-center justify-center rounded-full ${isReadyToFinish ? 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-gray-900 shadow-[0_20px_60px_-35px_rgba(45,212,191,0.8)] focus:ring-emerald-400/60' : 'border border-emerald-400/40 bg-emerald-500/15 text-emerald-100 hover:bg-emerald-400/20 focus:ring-emerald-400/40'} transition focus:outline-none focus:ring-2">
+                                <span class="sr-only">${finishTitle}</span>
                                 <i data-lucide="save" class="h-5 w-5"></i>
                             </button>
                         </div>
@@ -3705,17 +3725,17 @@
                 const status = this.state?.timer?.status;
                 const isComplete = status === 'workout_complete';
                 const message = isComplete
-                    ? 'Tu sesión está lista para guardarse. Al confirmar, registraremos todas las series completadas.'
-                    : 'Se guardará el progreso acumulado hasta este momento. ¿Deseas finalizar la rutina y registrarla?';
-                this.showModal('Finalizar rutina', `<p class="text-sm text-gray-300">${message}</p>`, [
-                    { text: 'Seguir entrenando', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
-                    { text: 'Guardar y salir', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'complete-workout' }
+                    ? 'Tu sesión está lista para guardarse por completo. ¿Deseas guardar la rutina?'
+                    : 'Se guardará el progreso acumulado hasta este momento. ¿Deseas guardar la rutina hasta ahora?';
+                this.showModal('Guardar progreso', `<p class="text-sm text-gray-300">${message}</p>`, [
+                    { text: 'Seguir en la rutina', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                    { text: 'Sí, guardar', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'complete-workout' }
                 ]);
             },
             confirmCancelWorkout() {
-                this.showModal('Salir del entrenamiento', '<p class="text-sm text-gray-300">Si sales ahora perderás el progreso no guardado de esta sesión.</p>', [
-                    { text: 'Continuar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
-                    { text: 'Salir sin guardar', class: 'bg-red-600 hover:bg-red-500', action: 'abort-workout' }
+                this.showModal('Salir del entrenamiento', '<p class="text-sm text-gray-300">¿Deseas salir del entrenamiento? Perderás el progreso no guardado de esta sesión.</p>', [
+                    { text: 'Seguir en la rutina', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                    { text: 'Sí, salir', class: 'bg-red-600 hover:bg-red-500', action: 'abort-workout' }
                 ]);
             },
             async finishWorkout(completed) {
