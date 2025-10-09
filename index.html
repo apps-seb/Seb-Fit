@@ -3492,11 +3492,18 @@
                     };
                     const buttonState = buttonMap[timerStatus] || buttonMap.idle;
                     const mainButtonHtml = `
-                        <button data-action="handle-workout-action" class="group relative w-full overflow-hidden rounded-full bg-gradient-to-r ${buttonState.gradient} px-5 py-3 text-base font-semibold sm:px-7 sm:py-3.5 sm:text-lg ${buttonState.textClass} transition duration-200 ${buttonState.disabled ? 'cursor-not-allowed opacity-70' : 'hover:scale-[1.01]'} ${buttonState.hoverShadow}" ${buttonState.disabled ? 'disabled' : ''}>
+                        <button data-action="handle-workout-action" class="group relative w-full overflow-hidden rounded-full bg-gradient-to-r ${buttonState.gradient} px-5 py-3 text-base font-semibold sm:flex-1 sm:px-7 sm:py-3.5 sm:text-lg ${buttonState.textClass} transition duration-200 ${buttonState.disabled ? 'cursor-not-allowed opacity-70' : 'hover:scale-[1.01]'} ${buttonState.hoverShadow}" ${buttonState.disabled ? 'disabled' : ''}>
                             <span class="flex items-center justify-center gap-3">
                                 ${buttonState.text}
                                 <i data-lucide="${buttonState.icon}" class="h-5 w-5"></i>
                             </span>
+                        </button>
+                    `;
+
+                    const exitRoutineButtonHtml = `
+                        <button data-action="confirm-cancel-workout" class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-rose-400/60 hover:bg-rose-500/10 hover:text-white sm:w-auto sm:px-6">
+                            <i data-lucide="log-out" class="h-4 w-4"></i>
+                            <span>Finalizar rutina</span>
                         </button>
                     `;
 
@@ -3619,7 +3626,10 @@
                             <footer class="fixed inset-x-0 bottom-0 border-t border-white/5 bg-gray-950/95 px-4 py-4 backdrop-blur-sm sm:px-6">
                                 <div class="mx-auto flex w-full max-w-5xl flex-col gap-3">
                                     ${restControlsSection}
-                                    ${mainButtonHtml}
+                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        ${exitRoutineButtonHtml}
+                                        ${mainButtonHtml}
+                                    </div>
                                 </div>
                             </footer>
                         </div>
