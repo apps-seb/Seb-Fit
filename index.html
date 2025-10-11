@@ -18,8 +18,15 @@
         body.mobile-menu-open { overflow: hidden; }
         ::-webkit-scrollbar { width: 6px; } 
         ::-webkit-scrollbar-track { background: transparent; } 
-        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; } 
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+        .full-dvh { min-height: 100dvh; height: 100dvh; }
+        @supports not (min-height: 100dvh) {
+            .full-dvh { min-height: 100vh; height: 100vh; }
+        }
+        #fullscreen-view-container { display: flex; flex-direction: column; align-items: stretch; width: 100%; height: 100%; }
+        .mobile-scroll { -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
@@ -246,7 +253,7 @@
             </div>
         </div>
 
-        <div id="fullscreen-view-container" class="fixed inset-0 z-40 pointer-events-none opacity-0 transition-opacity duration-300 bg-gray-950/95"></div>
+        <div id="fullscreen-view-container" class="fixed inset-0 z-40 pointer-events-none opacity-0 transition-opacity duration-300 bg-slate-950/75 backdrop-blur"></div>
     </div>
 
     <div id="custom-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"><div id="custom-modal-panel" class="bg-gray-800 rounded-2xl p-6 w-full max-w-sm shadow-xl border border-gray-700 modal-fade-in"><h3 id="custom-modal-title" class="text-xl font-bold"></h3><div id="custom-modal-body" class="text-gray-300 mt-4 max-h-[70vh] overflow-y-auto"></div><div id="custom-modal-footer" class="mt-6 flex justify-end space-x-3"></div></div></div>
@@ -981,8 +988,27 @@
                         }
                     });
                     document.body.addEventListener('submit', (e) => { e.preventDefault(); if (e.target.id === 'nutrition-form') { this.calculateNutrition(); } if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); } if (e.target.id === '1rm-form') { this.calculate1RM(); } if (e.target.id === 'invite-form') { this.handleInviteClient(e); } });
-                    document.body.addEventListener('input', (e) => { if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); } if (e.target.id === 'exercise-search-input') { this.routine_filterExerciseLibrary(e.target.value); } if (e.target.id === 'client-food-search') { this.renderFoodList(e.target.value, 'client-food-list'); } if (e.target.closest('#client-diet-editor')) { const mealIndex = e.target.dataset.mealIndex; if (mealIndex) { this._updateMealDataFromUI(parseInt(mealIndex)); } } });
-                    document.body.addEventListener('change', (e) => { if (e.target.closest('#client-diet-goals-form')) { this._handleUpdateClientGoalsFromUI(); } });
+                    document.body.addEventListener('input', (e) => {
+                        if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); }
+                        if (e.target.id === 'exercise-search-input') { this.routine_filterExerciseLibrary(e.target.value); }
+                        if (e.target.id === 'client-food-search') { this.renderFoodList(e.target.value, 'client-food-list'); }
+                        if (e.target.closest('#client-diet-editor')) { const mealIndex = e.target.dataset.mealIndex; if (mealIndex) { this._updateMealDataFromUI(parseInt(mealIndex)); } }
+                        if (e.target.id === 'routine-name-input') { if (this._tempRoutine) { this._tempRoutine.name = e.target.value; this.routine_refreshExerciseList(); } }
+                        if (e.target.id === 'routine-desc-input') { if (this._tempRoutine) { this._tempRoutine.description = e.target.value; this.routine_refreshExerciseList(); } }
+                    });
+                    document.body.addEventListener('change', (e) => {
+                        if (e.target.closest('#client-diet-goals-form')) { this._handleUpdateClientGoalsFromUI(); }
+                        if (e.target.matches('[data-day-date-input]')) {
+                            const index = parseInt(e.target.dataset.dayIndex);
+                            if (!Number.isNaN(index) && this._tempRoutine?.plan?.[index]) {
+                                this._tempRoutine.plan[index].date = e.target.value;
+                                if (index === this._tempRoutine.currentDayIndex) {
+                                    this.routine_refreshExerciseList();
+                                }
+                                this.routine_refreshDayTabs();
+                            }
+                        }
+                    });
 
                     const sidebar = document.getElementById('app-sidebar');
                     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
@@ -2382,269 +2408,311 @@
                         this._boundHandleDrawerResize = null;
                     }
 
-                    const targetStep = typeof step === 'undefined' ? 1 : step;
-                    if (targetStep === 1) {
-                        this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null, assignedClientId: '', activeExerciseGroup: '' };
+                    const preserveExisting = step === 2 && this._tempRoutine;
+                    if (!preserveExisting) {
+                        this._tempRoutine = {
+                            id: `manual-${Date.now()}`,
+                            name: '',
+                            description: '',
+                            coverImageUrl: null,
+                            plan: [{ day: 'Día 1', date: '', exercises: [] }],
+                            currentDayIndex: 0,
+                            editingIndex: -1,
+                            editingClientId: null,
+                            assignedClientId: '',
+                            activeExerciseGroup: ''
+                        };
+                    } else {
+                        if (!Array.isArray(this._tempRoutine.plan) || this._tempRoutine.plan.length === 0) {
+                            this._tempRoutine.plan = [{ day: 'Día 1', date: '', exercises: [] }];
+                        }
                     }
-                    const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(targetStep)}</div>`;
+
+                    this._tempRoutine.plan = this._tempRoutine.plan.map((day, index) => ({
+                        ...day,
+                        day: day?.day || `Día ${index + 1}`,
+                        date: day?.date || '',
+                        exercises: Array.isArray(day?.exercises) ? day.exercises : []
+                    }));
+
+                    if (typeof this._tempRoutine.currentDayIndex !== 'number' || this._tempRoutine.currentDayIndex >= this._tempRoutine.plan.length) {
+                        this._tempRoutine.currentDayIndex = 0;
+                    }
+
+                    const availableGroups = this.data.exerciseLibrary ? Object.keys(this.data.exerciseLibrary) : [];
+                    if (!this._tempRoutine.activeExerciseGroup) {
+                        this._tempRoutine.activeExerciseGroup = availableGroups[0] || '';
+                    }
+
+                    const viewHTML = `<div id="routine-creator-view" class="fullscreen-view full-dvh w-full flex min-h-0 flex-col overflow-hidden bg-slate-950/90">${this.routine_getCreatorContent()}</div>`;
                     this.routine_openFullscreenView(viewHTML);
 
-                    if (targetStep === 1) {
-                        document.getElementById('routine-cover-image-input')?.addEventListener('change', (e) => this.routine_handleCoverImageSelect(e));
+                    const coverInput = document.getElementById('routine-cover-image-input');
+                    if (coverInput) {
+                        coverInput.addEventListener('change', (e) => this.routine_handleCoverImageSelect(e));
                     }
 
-                    if (targetStep === 2) {
-                        this.routine_refreshDayTabs();
-                        this.routine_refreshExerciseList();
-                        const activeGroup = this._tempRoutine.activeExerciseGroup || Object.keys(this.data.exerciseLibrary)[0];
-                        if (activeGroup) {
-                            this.routine_creator_switchGroup(activeGroup);
-                        }
+                    const preview = document.getElementById('routine-cover-preview');
+                    const placeholder = document.getElementById('cover-image-placeholder');
+                    if (this._tempRoutine.coverImageUrl && preview && placeholder) {
+                        preview.src = this._tempRoutine.coverImageUrl;
+                        preview.classList.remove('hidden');
+                        placeholder.classList.add('hidden');
+                    }
 
-                        const panel = document.getElementById('exercise-list-panel');
-                        if (panel) {
-                            panel.dataset.mobileVisible = window.innerWidth >= 768 ? 'true' : 'false';
-                        }
+                    this.routine_refreshDayTabs();
+                    this.routine_refreshExerciseList();
 
-                        this._boundHandleDrawerResize = this.routine_creator_handleDrawerResize.bind(this);
-                        window.addEventListener('resize', this._boundHandleDrawerResize);
+                    const activeGroup = this._tempRoutine.activeExerciseGroup || availableGroups[0];
+                    if (activeGroup) {
+                        this.routine_creator_switchGroup(activeGroup);
+                    } else {
                         this.routine_creator_handleDrawerResize();
                     }
-                },
-                routine_getCreatorContent(step) {
-                    if (step === 1) {
-                        return `
-                            <div class="min-h-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
-                                <header class="sticky top-0 z-10 border-b border-white/5 bg-gray-950/80 backdrop-blur">
-                                    <div class="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
-                                        <button data-action="routine-close-view" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white"><i data-lucide="x"></i></button>
-                                        <div class="text-center">
-                                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300/80">Crear Rutina</p>
-                                            <p class="mt-1 text-sm font-semibold text-white">Paso 1 · Detalles principales</p>
-                                        </div>
-                                        <div class="h-9 w-9"></div>
-                                    </div>
-                                    <div class="h-1 w-full bg-white/5">
-                                        <div class="h-full w-1/2 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"></div>
-                                    </div>
-                                </header>
-                                <div class="flex-1 overflow-y-auto">
-                                    <div class="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 py-8 sm:px-6 sm:py-10">
-                                        <section class="overflow-hidden rounded-3xl border border-white/5 bg-white/5 shadow-[0_35px_120px_-60px_rgba(16,185,129,0.85)]">
-                                            <div class="grid gap-10 p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-                                                <div class="flex flex-col gap-4">
-                                                    <div>
-                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Imagen de portada</p>
-                                                        <p class="mt-2 text-sm text-gray-300">Resalta tu rutina con una portada envolvente para motivar a tus asesorados.</p>
-                                                    </div>
-                                                    <label for="routine-cover-image-input" class="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-gray-950/60 transition hover:border-emerald-400/60">
-                                                        <input type="file" accept="image/*" id="routine-cover-image-input" class="absolute inset-0 h-full w-full cursor-pointer opacity-0">
-                                                        <div id="cover-image-placeholder" class="flex h-full flex-col items-center justify-center gap-3 text-gray-400">
-                                                            <span class="grid h-16 w-16 place-items-center rounded-full border border-white/10 bg-white/5 text-white transition group-hover:border-emerald-400/50 group-hover:text-emerald-200">
-                                                                <i data-lucide="image"></i>
-                                                            </span>
-                                                            <div class="text-center">
-                                                                <p class="text-sm font-semibold text-white">Arrastra o selecciona una imagen</p>
-                                                                <p class="text-xs text-gray-500">Ideal 1280 × 720 px</p>
-                                                            </div>
-                                                        </div>
-                                                        <img id="routine-cover-preview" class="hidden h-full w-full object-cover" alt="Vista previa de la portada">
-                                                    </label>
-                                                    <div id="cover-upload-progress-container" class="hidden items-center gap-3 rounded-2xl border border-white/10 bg-gray-950/70 px-4 py-3">
-                                                        <div class="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-                                                            <div id="cover-upload-progress-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-300"></div>
-                                                        </div>
-                                                        <span id="cover-upload-progress-text" class="text-xs font-semibold text-gray-300"></span>
-                                                    </div>
-                                                </div>
-                                                <div class="flex flex-col gap-6">
-                                                    <div>
-                                                        <label for="routine-name-input" class="text-sm font-semibold text-gray-200">Nombre de la rutina</label>
-                                                        <input id="routine-name-input" type="text" placeholder="Ej. Fuerza Total" class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-950/60 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400" value="${this._tempRoutine?.name || ''}">
-                                                    </div>
-                                                    <div class="flex flex-col gap-3">
-                                                        <label for="routine-desc-input" class="text-sm font-semibold text-gray-200">Descripción</label>
-                                                        <textarea id="routine-desc-input" rows="6" placeholder="Describe objetivos, nivel de intensidad y sensaciones que buscará esta rutina." class="w-full resize-none rounded-2xl border border-white/10 bg-gray-950/60 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">${this._tempRoutine?.description || ''}</textarea>
-                                                    </div>
-                                                    <div class="flex flex-col gap-4 text-sm text-gray-400 sm:flex-row sm:items-center sm:justify-between">
-                                                        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
-                                                            <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-                                                            <span>50% Completado</span>
-                                                        </div>
-                                                        <button data-action="routine-creator-next" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-6 py-3 font-semibold text-gray-900 transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
-                                                            <span>Siguiente paso</span>
-                                                            <i data-lucide="arrow-right"></i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </section>
-                                    </div>
-                                </div>
-                            </div>
-                        `;
+
+                    const panel = document.getElementById('exercise-list-panel');
+                    if (panel) {
+                        panel.dataset.mobileVisible = window.innerWidth >= 768 ? 'true' : 'false';
                     }
 
-                    if (step === 2) {
-                        const isAdmin = this.isAsesor();
-                        const assignedClientId = this._tempRoutine.assignedClientId || this._tempRoutine.editingClientId;
-                        const assignedClient = assignedClientId ? (this.state.asesorados || []).find(c => c.id === assignedClientId) : null;
-                        const assignmentInfo = assignedClient ? `<p class="mt-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-200/80">Asignada a ${assignedClient.userName}</p>` : '';
-                        const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex] || { day: '', exercises: [] };
-                        const dayName = currentDay.day || `Día ${this._tempRoutine.currentDayIndex + 1}`;
-                        const totalDays = this._tempRoutine.plan.length;
-                        const totalExercises = currentDay.exercises.length;
-                        const groupImages = this.data.exerciseGroupImages || {};
-                        const groupKeys = Object.keys(this.data.exerciseLibrary);
-                        const firstGroup = groupKeys[0] || '';
-                        const activeGroup = this._tempRoutine.activeExerciseGroup || firstGroup;
-                        this._tempRoutine.activeExerciseGroup = activeGroup;
-                        const groupsNav = `<aside id="exercise-group-nav" class="w-full shrink-0 border-b border-white/5 bg-gray-950/80 md:w-80 md:border-b-0 md:border-r md:max-h-[calc(100vh-8rem)] md:overflow-y-auto">
+                    this._boundHandleDrawerResize = this.routine_creator_handleDrawerResize.bind(this);
+                    window.addEventListener('resize', this._boundHandleDrawerResize);
+                    this.routine_creator_handleDrawerResize();
+                },
+                routine_getCreatorContent() {
+                    const isAdmin = this.isAsesor();
+                    const assignedClientId = this._tempRoutine.assignedClientId || this._tempRoutine.editingClientId;
+                    const assignedClient = assignedClientId ? (this.state.asesorados || []).find(c => c.id === assignedClientId) : null;
+                    const assignmentInfo = assignedClient
+                        ? `<span class="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.28em] text-emerald-200/90"><i data-lucide="user-check" class="h-3.5 w-3.5"></i>Asignada a ${assignedClient.userName}</span>`
+                        : '';
+
+                    const library = this.data.exerciseLibrary || {};
+                    const groupImages = this.data.exerciseGroupImages || {};
+                    const groupKeys = Object.keys(library);
+                    const firstGroup = groupKeys[0] || '';
+                    const activeGroup = groupKeys.includes(this._tempRoutine.activeExerciseGroup) ? this._tempRoutine.activeExerciseGroup : firstGroup;
+                    this._tempRoutine.activeExerciseGroup = activeGroup || '';
+                    const hasLibrary = groupKeys.length > 0;
+
+                    const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex] || { day: '', date: '', exercises: [] };
+                    const dayName = currentDay.day || `Día ${this._tempRoutine.currentDayIndex + 1}`;
+                    const totalDays = this._tempRoutine.plan.length;
+                    const totalExercises = currentDay.exercises.length;
+                    const formattedDate = currentDay.date
+                        ? (() => { try { return new Date(`${currentDay.date}T00:00:00`).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }); } catch (error) { return currentDay.date; } })()
+                        : 'Sin fecha';
+
+                    const groupsNav = `
+                        <aside id="exercise-group-nav" class="w-full shrink-0 border-b border-white/5 bg-slate-950/80 md:w-72 md:border-b-0 md:border-r md:max-h-[calc(100vh-9rem)] md:overflow-y-auto">
                             <div class="grid gap-4 p-5">
-                                ${groupKeys.map(group => {
+                                ${hasLibrary
+                                    ? groupKeys.map(group => {
                                         const rawUrl = groupImages[group] || '';
                                         const sanitizedUrl = rawUrl.replace(/'/g, "\'");
                                         const backgroundStyle = rawUrl
                                             ? `background-image: url('${sanitizedUrl}');`
                                             : 'background-image: linear-gradient(135deg, rgba(16,185,129,0.55), rgba(59,130,246,0.45));';
                                         const editButton = isAdmin
-                                            ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/60 text-white shadow-lg transition hover:bg-emerald-400 hover:text-gray-900"><i data-lucide="image-plus" class="h-4 w-4"></i></button>`
+                                            ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-black/60 text-white shadow-lg transition hover:bg-emerald-400 hover:text-gray-900"><i data-lucide="image-plus" class="h-4 w-4"></i></button>`
                                             : '';
                                         const isActiveGroup = group === activeGroup;
                                         return `
-                                        <button type="button" data-action="routine-creator-switch-group" data-group-target="${group}" data-active="${isActiveGroup}" class="group relative flex h-44 w-full flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-white/5 text-left shadow-[0_25px_60px_-40px_rgba(16,185,129,0.75)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300/60 data-[active=true]:border-emerald-300 data-[active=true]:shadow-emerald-400/40">
-                                            <div class="absolute inset-0 overflow-hidden">
-                                                <div class="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105" style="${backgroundStyle}"></div>
-                                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                                            </div>
-                                            ${editButton}
-                                            <div class="relative z-10 flex w-full flex-col gap-2 p-5">
-                                                <span class="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/90 backdrop-blur">Grupo muscular</span>
-                                                <p class="text-2xl font-semibold leading-tight text-white drop-shadow-xl">${group}</p>
-                                            </div>
-                                        </button>
-                                    `;
-                                }).join('')}
+                                            <button type="button" data-action="routine-creator-switch-group" data-group-target="${group}" data-active="${isActiveGroup}" class="group relative flex h-40 w-full flex-col justify-end overflow-hidden rounded-2xl border border-white/10 bg-white/5 text-left shadow-[0_25px_60px_-40px_rgba(16,185,129,0.75)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300/60 data-[active=true]:border-emerald-300 data-[active=true]:shadow-emerald-400/40">
+                                                <div class="absolute inset-0 overflow-hidden">
+                                                    <div class="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105" style="${backgroundStyle}"></div>
+                                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                                                </div>
+                                                ${editButton}
+                                                <div class="relative z-10 flex w-full flex-col gap-2 p-5">
+                                                    <span class="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/90 backdrop-blur">Grupo muscular</span>
+                                                    <p class="text-2xl font-semibold leading-tight text-white drop-shadow-xl">${group}</p>
+                                                </div>
+                                            </button>
+                                        `;
+                                    }).join('')
+                                    : `<div class="flex min-h-[14rem] flex-col items-center justify-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-6 text-center text-sm text-gray-300"><i data-lucide="dumbbell" class="h-8 w-8 text-emerald-300"></i><p>Tu biblioteca de ejercicios aún no está disponible. Puedes añadir ejercicios manualmente o cargar la librería más tarde.</p></div>`}
                             </div>
                         </aside>`;
-                        const exercisesPanel = `
-                        <section id="exercise-list-panel" data-mobile-visible="false" class="hidden flex-1 flex-col overflow-y-auto bg-gray-950/60 md:flex">
-                            <header class="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-white/5 bg-gray-950/90 px-4 py-4 md:hidden">
+
+                    const exercisesPanel = `
+                        <section id="exercise-list-panel" data-mobile-visible="false" class="hidden flex-1 flex-col overflow-y-auto bg-slate-950/70 md:flex">
+                            <header class="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-white/5 bg-slate-950/90 px-4 py-4 md:hidden">
                                 <button data-action="routine-creator-back-to-groups" class="rounded-full bg-white/10 p-2 text-gray-300 transition hover:text-white">
                                     <i data-lucide="arrow-left"></i>
                                 </button>
                                 <div class="min-w-0 flex-1 text-center">
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Ejercicios</p>
-                                    <h3 id="active-group-title" class="mt-1 truncate text-base font-semibold text-white">${activeGroup}</h3>
+                                    <h3 id="active-group-title" class="mt-1 truncate text-base font-semibold text-white">${activeGroup || 'Biblioteca'}</h3>
                                 </div>
                                 <div class="h-9 w-9"></div>
                             </header>
-                            <div class="space-y-8 p-5 sm:p-8">
-                                ${Object.entries(this.data.exerciseLibrary).map(([group, subGroups]) => `
-                                    <div data-group-content="${group}" class="${group === activeGroup ? 'space-y-6' : 'hidden space-y-6'}">
-                                        ${Object.entries(subGroups).map(([subGroup, exercises]) => `
-                                            <div data-subgroup-content="${subGroup}" class="space-y-4">
-                                                <div class="flex items-center justify-between gap-2">
-                                                    <h4 class="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-200/80">${subGroup}</h4>
-                                                    ${isAdmin ? `<button data-action="routine-creator-switch-group" data-group-target="${group}" class="hidden"></button>` : ''}
-                                                </div>
-                                                <div class="grid gap-5">
-                                                    ${exercises.map((ex, exIndex) => `
-                                                        <div class="exercise-item group relative flex flex-col gap-5 rounded-2xl border border-white/5 bg-white/5 p-5 shadow-[0_25px_60px_-45px_rgba(56,189,248,0.55)] transition hover:border-emerald-300/70 sm:flex-row sm:items-center" data-exercise-name="${ex.name}">
-                                                            <button data-action="show-media-viewer" data-media-url="${ex.mediaUrl || ''}" class="relative h-36 w-full overflow-hidden rounded-2xl bg-gray-900/80 sm:h-40 sm:w-48">
-                                                                ${ex.mediaUrl ? `<img src="${ex.mediaUrl}" alt="${ex.name}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">` : `<div class="flex h-full w-full items-center justify-center text-gray-500"><i data-lucide="image-off" class="h-10 w-10"></i></div>`}
-                                                                <span class="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white">${subGroup}</span>
-                                                            </button>
-                                                            <div class="flex flex-1 flex-col gap-4">
-                                                                <div>
-                                                                    <p class="text-base font-semibold text-white">${ex.name}</p>
-                                                                    <div class="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-400">
-                                                                        ${isAdmin ? `<button data-action="admin-edit-media" data-group="${group}" data-subgroup="${subGroup}" data-exercise-index="${exIndex}" class="inline-flex items-center gap-1 text-amber-300/80 transition hover:text-amber-200"><i data-lucide="camera" class="h-3.5 w-3.5"></i>Editar media</button>` : ''}
-                                                                        <button data-action="show-exercise-info" data-exercise-name="${ex.name}" class="inline-flex items-center gap-1 text-sky-300/80 transition hover:text-sky-200"><i data-lucide="info" class="h-3.5 w-3.5"></i>Instrucciones</button>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <button data-action="routine-creator-select-exercise" data-exercise-name="${ex.name}" class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-400 text-gray-900 shadow-lg transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
-                                                                <i data-lucide="plus" class="h-6 w-6"></i>
-                                                            </button>
-                                                        </div>
-                                                    `).join('')}
-                                                </div>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                `).join('')}
+                            <div class="flex-1 space-y-6 overflow-y-auto px-4 py-5">
+                                ${hasLibrary
+                                    ? groupKeys.map(group => {
+                                        const subgroups = library[group] || {};
+                                        return `<div data-group-content="${group}" class="${group === activeGroup ? '' : 'hidden'} space-y-5">
+                                            ${Object.keys(subgroups).map(subgroup => {
+                                                const exercises = subgroups[subgroup] || [];
+                                                return `<div data-subgroup-content="${subgroup}" class="space-y-3">
+                                                    <div class="flex items-center justify-between">
+                                                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/70">${subgroup}</p>
+                                                        <button data-action="show-media-viewer" data-media-url="${groupImages[group] || ''}" class="inline-flex items-center gap-1 rounded-full border border-white/10 px-2.5 py-1 text-[11px] uppercase tracking-[0.28em] text-gray-300 transition hover:border-emerald-400/60 hover:text-white">
+                                                            <i data-lucide="image-play" class="h-3.5 w-3.5"></i><span>Ver guía</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="space-y-3">
+                                                        ${exercises.map(ex => `
+                                                            <button data-action="routine-creator-select-exercise" data-exercise-name="${ex.name}" class="exercise-item flex w-full items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-left text-sm font-semibold text-white transition hover:border-emerald-300/60 hover:bg-emerald-400/10">
+                                                                <span class="line-clamp-2">${ex.name}</span>
+                                                                <i data-lucide="plus-circle" class="h-5 w-5 text-emerald-300"></i>
+                                                            </button>`).join('')}
+                                                    </div>
+                                                </div>`;
+                                            }).join('')}
+                                        </div>`;
+                                    }).join('')
+                                    : `<div class="flex flex-1 items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-6 text-center text-sm text-gray-300">No hay ejercicios disponibles para mostrar en este momento.</div>`}
                             </div>
                         </section>`;
-                        return `
-                            <div class="min-h-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
-                                <header class="sticky top-0 z-20 border-b border-white/5 bg-gray-950/80 backdrop-blur">
-                                    <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-                                        <button data-action="routine-close-view" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white"><i data-lucide="arrow-left"></i></button>
-                                        <div class="min-w-0 text-center">
-                                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300/80">Paso 2 · Planifica tu rutina</p>
-                                            <h3 class="mt-1 truncate text-lg font-semibold text-white">${this._tempRoutine.name}</h3>
-                                            ${assignmentInfo}
-                                        </div>
-                                        <button data-action="routine-creator-save" class="rounded-2xl bg-white/10 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10 hover:text-emerald-200">Guardar</button>
+
+                    return `
+                        <div class="flex h-full flex-col bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+                            <header class="sticky top-0 z-20 border-b border-white/5 bg-slate-950/85 backdrop-blur">
+                                <div class="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
+                                    <button data-action="routine-close-view" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white"><i data-lucide="x"></i></button>
+                                    <div class="flex flex-col items-center gap-1 text-center">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/70">Creador de rutinas</p>
+                                        <h1 class="text-lg font-semibold text-white sm:text-xl">Configura todo en un solo paso</h1>
                                     </div>
-                                    <div class="horizontal-scroll-container flex items-center gap-2 overflow-x-auto px-4 pb-4 sm:px-6" id="routine-day-tabs"></div>
-                                </header>
-                                <div class="flex-1 overflow-y-auto">
-                                    <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10">
-                                        <section class="rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8">
-                                            <div class="grid gap-6 sm:grid-cols-3">
-                                                <div class="sm:col-span-2 text-left">
-                                                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Día seleccionado</p>
-                                                    <p class="mt-2 text-2xl font-semibold text-white">${dayName}</p>
-                                                    <p class="mt-3 text-sm text-gray-300">Organiza la experiencia del día con ejercicios cuidadosamente seleccionados y sin elementos que distraigan.</p>
+                                    <button data-action="routine-creator-save" class="hidden rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300 sm:inline-flex sm:items-center sm:gap-2">
+                                        <i data-lucide="save"></i>
+                                        <span>Guardar</span>
+                                    </button>
+                                </div>
+                            </header>
+                            <div class="flex-1 overflow-hidden">
+                                <div class="mobile-scroll h-full overflow-y-auto">
+                                    <div class="mx-auto w-full max-w-5xl space-y-6 px-4 py-6 sm:px-6">
+                                        <section class="rounded-3xl border border-white/10 bg-slate-900/70 shadow-[0_30px_100px_-60px_rgba(16,185,129,0.75)]">
+                                            <div class="space-y-6 p-5 sm:p-8">
+                                                <div>
+                                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Información general</p>
+                                                    <h2 class="mt-2 text-xl font-semibold text-white">Personaliza la esencia de tu rutina</h2>
+                                                    <p class="mt-2 text-sm text-gray-300">Sube una imagen de portada y completa los datos base antes de planificar cada día.</p>
                                                 </div>
-                                                <div class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-gray-950/60 p-4 text-sm text-gray-300">
-                                                    <div class="flex items-center justify-between">
-                                                        <span class="text-xs uppercase tracking-[0.3em] text-emerald-200/70">Días totales</span>
-                                                        <span class="text-lg font-semibold text-white">${totalDays}</span>
+                                                <div class="grid gap-6 lg:grid-cols-2">
+                                                    <div class="flex flex-col gap-4">
+                                                        <label for="routine-cover-image-input" class="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-slate-950/70 transition hover:border-emerald-400/60">
+                                                            <input type="file" accept="image/*" id="routine-cover-image-input" class="absolute inset-0 h-full w-full cursor-pointer opacity-0">
+                                                            <div id="cover-image-placeholder" class="flex h-full flex-col items-center justify-center gap-3 text-gray-400">
+                                                                <i data-lucide="image" class="h-10 w-10 text-emerald-300"></i>
+                                                                <span class="text-sm font-semibold">Seleccionar portada</span>
+                                                                <span class="text-xs text-gray-500">PNG, JPG o WEBP • Máx 5MB</span>
+                                                            </div>
+                                                            <img id="routine-cover-preview" class="hidden h-full w-full object-cover" alt="Vista previa de la portada">
+                                                        </label>
+                                                        <div id="cover-upload-progress-container" class="hidden items-center gap-3 rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3">
+                                                            <div class="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
+                                                                <div id="cover-upload-progress-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-300"></div>
+                                                            </div>
+                                                            <span id="cover-upload-progress-text" class="text-xs font-semibold text-gray-300"></span>
+                                                        </div>
+                                                        <p class="text-xs text-gray-400">Recomendado: relación 4:3 y al menos 1200px de ancho.</p>
                                                     </div>
-                                                    <div class="flex items-center justify-between">
-                                                        <span class="text-xs uppercase tracking-[0.3em] text-emerald-200/70">Ejercicios hoy</span>
-                                                        <span class="text-lg font-semibold text-white">${totalExercises}</span>
-                                                    </div>
-                                                    <div class="flex items-center gap-2 rounded-xl bg-white/5 px-3 py-2 text-xs text-gray-200">
-                                                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-                                                        <span>Mantén la secuencia clara y concisa.</span>
+                                                    <div class="flex flex-col gap-5">
+                                                        <div>
+                                                            <label for="routine-name-input" class="text-sm font-semibold text-gray-200">Nombre de la rutina</label>
+                                                            <input id="routine-name-input" type="text" placeholder="Ej. Fuerza Total" class="mt-2 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400" value="${this._tempRoutine?.name || ''}">
+                                                        </div>
+                                                        <div>
+                                                            <label for="routine-desc-input" class="text-sm font-semibold text-gray-200">Descripción</label>
+                                                            <textarea id="routine-desc-input" rows="6" placeholder="Describe objetivos, nivel de intensidad y sensaciones que buscará esta rutina." class="mt-2 w-full resize-none rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">${this._tempRoutine?.description || ''}</textarea>
+                                                        </div>
+                                                        <p class="text-xs text-gray-400">La vista "Ver rutina creada" se actualiza automáticamente con estos datos.</p>
                                                     </div>
                                                 </div>
                                             </div>
                                         </section>
-                                        <section class="overflow-hidden rounded-3xl border border-white/5 bg-white/5">
-                                            <div class="flex flex-col gap-6 p-6 sm:p-8">
-                                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                                    <div>
-                                                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Listado de ejercicios</p>
-                                                        <p class="mt-1 text-base text-gray-300">Revisa, organiza y edita cada bloque sin desplazamientos innecesarios.</p>
+
+                                        <section class="rounded-3xl border border-white/10 bg-slate-900/70 shadow-[0_30px_100px_-70px_rgba(20,184,166,0.6)]">
+                                            <div class="flex flex-col gap-4 border-b border-white/5 bg-white/5 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                                                <div>
+                                                    <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Días de entrenamiento</p>
+                                                    <h2 class="text-base font-semibold text-white sm:text-lg">Gestiona fechas y nombres sin salir de la pantalla</h2>
+                                                </div>
+                                                <button data-action="routine-creator-add-day" class="inline-flex items-center gap-2 rounded-full bg-emerald-500/90 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg transition hover:bg-emerald-400">
+                                                    <i data-lucide="calendar-plus" class="h-4 w-4"></i>
+                                                    <span>Agregar día</span>
+                                                </button>
+                                            </div>
+                                            <div class="space-y-5 px-5 py-5 sm:px-6">
+                                                <div id="routine-day-tabs" class="flex items-center gap-2 overflow-x-auto rounded-2xl border border-white/10 bg-black/30 p-2"></div>
+                                                <p class="text-xs text-gray-400">Toca un día para editarlo. Puedes renombrarlo, asignar la fecha y eliminarlo si ya no lo necesitas.</p>
+                                                <div id="routine-day-summary" class="space-y-4"></div>
+                                            </div>
+                                        </section>
+                                        <section class="rounded-3xl border border-emerald-400/20 bg-emerald-950/20 p-5 shadow-[0_35px_110px_-65px_rgba(16,185,129,0.65)] sm:p-7">
+                                            <div class="flex flex-wrap items-start gap-4">
+                                                <div class="min-w-0 flex-1">
+                                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Ver rutina creada</p>
+                                                    <h2 id="preview-routine-name" class="mt-2 text-2xl font-semibold text-white">${this._tempRoutine?.name?.trim() || 'Rutina sin título'}</h2>
+                                                    <p id="preview-routine-description" class="mt-2 text-sm text-emerald-100/80">${this._tempRoutine?.description?.trim() || 'Añade una descripción para contextualizar cada sesión.'}</p>
+                                                    ${assignmentInfo}
+                                                </div>
+                                                <div class="grid grid-cols-3 gap-3 text-center text-sm text-emerald-50">
+                                                    <div class="rounded-2xl border border-emerald-400/30 bg-black/30 p-4">
+                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/70">Día actual</p>
+                                                        <p id="routine-active-day-title" class="mt-1 text-base font-bold text-white">${dayName}</p>
+                                                    </div>
+                                                    <div class="rounded-2xl border border-emerald-400/30 bg-black/30 p-4">
+                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/70">Total de días</p>
+                                                        <p id="routine-total-days-value" class="mt-1 text-base font-bold text-white">${totalDays}</p>
+                                                    </div>
+                                                    <div class="rounded-2xl border border-emerald-400/30 bg-black/30 p-4">
+                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/70">Ejercicios</p>
+                                                        <p id="routine-day-exercises-value" class="mt-1 text-base font-bold text-white">${totalExercises}</p>
                                                     </div>
                                                 </div>
-                                                <div id="exercise-list-container" class="space-y-4"></div>
-                                                <button data-action="routine-creator-add-exercise" class="w-full rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 py-3 text-sm font-semibold text-gray-900 shadow-lg transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
-                                                    Añadir ejercicio
+                                            </div>
+                                            <div class="mt-4 flex items-center gap-2 text-sm text-emerald-100/80">
+                                                <i data-lucide="calendar" class="h-4 w-4"></i>
+                                                <span id="routine-active-day-date">${formattedDate}</span>
+                                            </div>
+                                            <div class="mt-4 flex flex-wrap items-center gap-2">
+                                                <button data-action="routine-creator-add-exercise" class="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg transition hover:bg-emerald-100">
+                                                    <i data-lucide="plus" class="h-4 w-4"></i>
+                                                    <span>Añadir ejercicio</span>
                                                 </button>
+                                                <button data-action="routine-creator-suggest-ai" class="inline-flex items-center gap-2 rounded-2xl border border-purple-400/40 bg-purple-500/10 px-4 py-2 text-sm font-semibold text-purple-100 transition hover:border-purple-300/60 hover:bg-purple-500/20">
+                                                    <i data-lucide="sparkles" class="h-4 w-4"></i>
+                                                    <span>Idea con IA</span>
+                                                </button>
+                                            </div>
+                                            <div id="exercise-list-container" class="mt-5 space-y-4"></div>
+                                            <div class="sm:hidden">
+                                                <button data-action="routine-creator-save" class="mt-4 w-full rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 py-3 text-base font-semibold text-gray-900 shadow-lg transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">Guardar rutina</button>
                                             </div>
                                         </section>
                                     </div>
                                 </div>
                             </div>
-                            <div id="exercise-drawer" class="absolute inset-0 z-30 flex flex-col bg-gray-950/95 backdrop-blur-lg">
-                                <header class="sticky top-0 z-10 flex items-center gap-3 border-b border-white/5 bg-gray-950/90 px-4 py-4 sm:px-6">
+                            <div id="exercise-drawer" class="absolute inset-0 z-30 flex flex-col bg-slate-950/95 backdrop-blur">
+                                <header class="sticky top-0 z-10 flex items-center gap-3 border-b border-white/5 bg-slate-950/90 px-4 py-4 sm:px-6">
                                     <div class="relative flex-1">
                                         <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500"></i>
-                                        <input id="exercise-search-input" type="search" placeholder="Busca por nombre o grupo..." class="w-full rounded-2xl border border-white/10 bg-gray-900/80 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                        <input id="exercise-search-input" type="search" placeholder="Busca por nombre o grupo..." class="w-full rounded-2xl border border-white/10 bg-slate-900/80 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
                                     </div>
                                     <button data-action="routine-creator-close-drawer" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white"><i data-lucide="x"></i></button>
                                 </header>
-                                <div id="exercise-drawer-content" class="flex flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden" data-current-group="${activeGroup}">${groupsNav}${exercisesPanel}</div>
+                                <div id="exercise-drawer-content" class="flex flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden" data-current-group="${activeGroup}">
+                                    ${groupsNav}
+                                    ${exercisesPanel}
+                                </div>
                             </div>
-                        `;
-                    }
-                },
+                        </div>
+                    `;
+                }
                 // ▼▼▼ CÓDIGO A INSERTAR ▼▼▼
                 routine_handleCoverImageSelect(event) {
                     const file = event.target.files[0];
@@ -2684,7 +2752,7 @@
                             progressText.textContent = `Subiendo... ${Math.round(progress)}%`;
                         },
                         (error) => {
-                            console.error("Upload failed:", error);
+                            console.error('Upload failed:', error);
                             this.showToast('Error al subir la imagen.', 'error');
                             progressText.textContent = 'Error en la subida';
                         },
@@ -2698,16 +2766,28 @@
                     );
                 },
                 // ▲▲▲ FIN DEL CÓDIGO A INSERTAR ▲▲▲
-                
                 routine_handleCreatorNext() {
-                    const name = document.getElementById('routine-name-input').value.trim();
-                    const desc = document.getElementById('routine-desc-input').value.trim();
-                    if (!name) { this.showToast('El nombre es obligatorio', 'error'); return; }
-                    this._tempRoutine.name = name;
-                    this._tempRoutine.description = desc;
-                    this.routine_enterCreator(2);
+                    const nameInput = document.getElementById('routine-name-input');
+                    const descInput = document.getElementById('routine-desc-input');
+                    const name = nameInput?.value.trim() || '';
+                    const desc = descInput?.value.trim() || '';
+                    if (!name) {
+                        this.showToast('El nombre es obligatorio', 'error');
+                        return;
+                    }
+                    if (this._tempRoutine) {
+                        this._tempRoutine.name = name;
+                        this._tempRoutine.description = desc;
+                        this.routine_refreshExerciseList();
+                    }
                 },
                 routine_showAddExerciseDrawer() {
+                    const hasLibrary = this.data.exerciseLibrary && Object.keys(this.data.exerciseLibrary).length > 0;
+                    if (!hasLibrary) {
+                        this.showToast('La biblioteca de ejercicios aún no está disponible.', 'error');
+                        return;
+                    }
+
                     const drawer = document.getElementById('exercise-drawer');
                     if (!drawer) return;
 
@@ -2734,6 +2814,12 @@
                     }
                 },
                 routine_creator_switchGroup(targetGroup) {
+                    const library = this.data.exerciseLibrary || {};
+                    if (!targetGroup || !library[targetGroup]) {
+                        this.routine_creator_handleDrawerResize();
+                        return;
+                    }
+
                     const navButtons = document.querySelectorAll('#exercise-group-nav [data-action="routine-creator-switch-group"]');
                     navButtons.forEach(btn => {
                         const isActive = btn.dataset.groupTarget === targetGroup;
@@ -2979,6 +3065,29 @@
                     if (!currentDay) return;
                     const exercises = currentDay.exercises;
 
+                    const dayTitle = document.getElementById('routine-active-day-title');
+                    if (dayTitle) dayTitle.textContent = currentDay.day || `Día ${this._tempRoutine.currentDayIndex + 1}`;
+                    const totalDaysEl = document.getElementById('routine-total-days-value');
+                    if (totalDaysEl) totalDaysEl.textContent = this._tempRoutine.plan.length;
+                    const totalExercisesEl = document.getElementById('routine-day-exercises-value');
+                    if (totalExercisesEl) totalExercisesEl.textContent = exercises.length;
+                    const previewName = document.getElementById('preview-routine-name');
+                    if (previewName) previewName.textContent = this._tempRoutine.name?.trim() || 'Rutina sin título';
+                    const previewDescription = document.getElementById('preview-routine-description');
+                    if (previewDescription) previewDescription.textContent = this._tempRoutine.description?.trim() || 'Añade una descripción para contextualizar cada sesión.';
+                    const dayDateEl = document.getElementById('routine-active-day-date');
+                    if (dayDateEl) {
+                        if (currentDay.date) {
+                            try {
+                                dayDateEl.textContent = new Date(`${currentDay.date}T00:00:00`).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+                            } catch (error) {
+                                dayDateEl.textContent = currentDay.date;
+                            }
+                        } else {
+                            dayDateEl.textContent = 'Sin fecha';
+                        }
+                    }
+
                     if (exercises.length === 0) {
                         container.innerHTML = `
                         <div class="flex flex-col items-center justify-center text-center p-6 h-full">
@@ -3046,9 +3155,61 @@
                     lucide.createIcons();
                 },
                 
-                routine_addDay() { const dayCount = this._tempRoutine.plan.length + 1; this._tempRoutine.plan.push({ day: `Día ${dayCount}`, exercises: [] }); this._tempRoutine.currentDayIndex = dayCount - 1; this.routine_refreshDayTabs(); this.routine_refreshExerciseList(); },
+                routine_addDay() { const dayCount = this._tempRoutine.plan.length + 1; this._tempRoutine.plan.push({ day: `Día ${dayCount}`, date: '', exercises: [] }); this._tempRoutine.currentDayIndex = dayCount - 1; this.routine_refreshDayTabs(); this.routine_refreshExerciseList(); },
                 routine_switchDay(index) { this._tempRoutine.currentDayIndex = index; this.routine_refreshDayTabs(); this.routine_refreshExerciseList(); },
-                routine_refreshDayTabs() { const container = document.getElementById('routine-day-tabs'); if(!container) return; const tabsHtml = this._tempRoutine.plan.map((day, index) => { const isActive = index === this._tempRoutine.currentDayIndex; return `<button data-action="routine-creator-switch-day" data-day-index="${index}" class="relative group flex-shrink-0 px-4 py-2 text-sm font-semibold rounded-lg ${isActive ? 'bg-emerald-500 text-gray-900' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'} transition-colors"><span ondblclick="app.routine_showRenameDayModal(${index})">${day.day}</span><button data-action="routine-creator-confirm-delete-day" data-day-index="${index}" class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full text-white flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">&times;</button></button>`; }).join(''); const addButton = `<button data-action="routine-creator-add-day" class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-gray-800 text-gray-400 rounded-lg hover:bg-gray-700 hover:text-white transition-colors"><i data-lucide="plus"></i></button>`; container.innerHTML = tabsHtml + addButton; lucide.createIcons(); container.scrollLeft = container.scrollWidth; },
+                routine_refreshDayTabs() {
+                    const container = document.getElementById('routine-day-tabs');
+                    if (!container || !this._tempRoutine?.plan) return;
+
+                    const disableDelete = this._tempRoutine.plan.length <= 1;
+                    const tabsHtml = this._tempRoutine.plan.map((day, index) => {
+                        const isActive = index === this._tempRoutine.currentDayIndex;
+                        return `<button data-action="routine-creator-switch-day" data-day-index="${index}" class="inline-flex items-center gap-2 rounded-2xl px-3 py-2 text-sm font-semibold transition ${isActive ? 'bg-emerald-500 text-gray-900 shadow-lg shadow-emerald-500/30' : 'bg-white/5 text-gray-200 hover:bg-emerald-500/20 hover:text-white'}">${day.day}</button>`;
+                    }).join('');
+                    const addButton = `<button data-action="routine-creator-add-day" class="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10 hover:text-white"><i data-lucide="plus" class="h-4 w-4"></i></button>`;
+                    container.innerHTML = tabsHtml + addButton;
+                    container.scrollLeft = container.scrollWidth;
+
+                    const summary = document.getElementById('routine-day-summary');
+                    if (summary) {
+                        summary.innerHTML = this._tempRoutine.plan.map((day, index) => {
+                            const isActive = index === this._tempRoutine.currentDayIndex;
+                            const formattedDate = day.date
+                                ? (() => { try { return new Date(`${day.date}T00:00:00`).toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' }); } catch (error) { return day.date; } })()
+                                : 'Sin fecha';
+                            const deleteAttrs = disableDelete ? 'disabled' : '';
+                            const deleteClasses = disableDelete
+                                ? 'inline-flex items-center gap-1 rounded-full bg-red-500/5 px-3 py-1 text-xs font-semibold text-red-200/60 cursor-not-allowed opacity-60'
+                                : 'inline-flex items-center gap-1 rounded-full bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-200 transition hover:bg-red-500/20 hover:text-red-100';
+                            return `<div class="flex flex-col gap-3 rounded-2xl border ${isActive ? 'border-emerald-300/50 bg-emerald-400/10' : 'border-white/10 bg-white/5'} p-4 sm:flex-row sm:items-center sm:justify-between" data-active="${isActive}">
+                                <div class="flex items-start gap-3">
+                                    <button data-action="routine-creator-switch-day" data-day-index="${index}" class="flex h-10 w-10 items-center justify-center rounded-xl border ${isActive ? 'border-emerald-400 bg-emerald-400/20 text-emerald-100' : 'border-white/10 bg-white/5 text-gray-300 hover:border-emerald-300/50 hover:text-white'} font-semibold transition">${index + 1}</button>
+                                    <div>
+                                        <p class="font-semibold text-white">${day.day}</p>
+                                        <div class="mt-1 flex items-center gap-2 text-xs text-gray-400">
+                                            <i data-lucide="calendar" class="h-3.5 w-3.5"></i>
+                                            <span>${formattedDate}</span>
+                                        </div>
+                                        <div class="mt-2 flex flex-wrap items-center gap-2">
+                                            <button data-action="routine-creator-rename-day" data-day-index="${index}" class="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-gray-200 transition hover:bg-emerald-400/20 hover:text-emerald-50">
+                                                <i data-lucide="edit-3" class="h-3.5 w-3.5"></i><span>Renombrar</span>
+                                            </button>
+                                            <button data-action="routine-creator-confirm-delete-day" data-day-index="${index}" class="${deleteClasses}" ${deleteAttrs}>
+                                                <i data-lucide="trash-2" class="h-3.5 w-3.5"></i><span>Eliminar</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-2 sm:items-end">
+                                    <label class="text-xs font-semibold uppercase tracking-[0.28em] text-gray-400">Fecha</label>
+                                    <input type="date" data-day-date-input data-day-index="${index}" value="${day.date || ''}" class="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/60 sm:w-44">
+                                </div>
+                            </div>`;
+                        }).join('');
+                    }
+
+                    lucide.createIcons();
+                },
                 routine_showRenameDayModal(index) { const currentName = this._tempRoutine.plan[index].day; const body = `<input type="text" id="rename-day-input" value="${currentName}" class="w-full bg-gray-700 rounded-lg p-3">`; const footer = [{ text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' }, { text: 'Guardar', class: 'bg-emerald-600 text-gray-900', action: 'none' }]; this.showModal(`Renombrar ${currentName}`, body, footer); document.querySelector('#custom-modal-footer button[data-action="none"]').onclick = () => { const newName = document.getElementById('rename-day-input').value.trim(); if (newName) { this._tempRoutine.plan[index].day = newName; this.routine_refreshDayTabs(); this.hideModal(); } else { this.showToast('El nombre no puede estar vacío', 'error'); } }; },
                 routine_confirmDeleteDay(dayIndex) { if (this._tempRoutine.plan.length <= 1) { this.showToast('No puedes eliminar el único día de la rutina.', 'error'); return; } const dayName = this._tempRoutine.plan[dayIndex].day; this.showModal('Eliminar Día', `¿Seguro que quieres eliminar "${dayName}"?`, [ {text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal'}, {text: 'Eliminar', class: 'bg-red-600', action: 'routine-creator-delete-day', 'day-index': dayIndex} ]); },
                 routine_deleteDay(dayIndex) { this._tempRoutine.plan.splice(dayIndex, 1); this._tempRoutine.currentDayIndex = Math.max(0, dayIndex - 1); this.routine_refreshDayTabs(); this.routine_refreshExerciseList(); this.hideModal(); },
