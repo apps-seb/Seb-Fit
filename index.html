@@ -14,8 +14,104 @@
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
 
     <style>
-        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        :root {
+            --app-background: #0f172a;
+            --app-surface: #16223a;
+            --app-card: #1f2937;
+            --app-border: rgba(148, 163, 184, 0.18);
+            --app-text: #f8fafc;
+            --app-muted: #94a3b8;
+            --app-accent: #10b981;
+            --app-accent-contrast: #031b13;
+            --sidebar-background: #101827;
+            --bottom-nav-background: #101827;
+            --home-card-gradient: #10b981;
+        }
+
+        body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; background: var(--app-background); color: var(--app-text); transition: background 0.3s ease, color 0.3s ease; }
         body.mobile-menu-open { overflow: hidden; }
+        body[data-theme="light"] {
+            --app-background: #f5f9ff;
+            --app-surface: #ffffff;
+            --app-card: #ffffff;
+            --app-border: rgba(15, 23, 42, 0.08);
+            --app-text: #0f172a;
+            --app-muted: #5b6b7f;
+            --app-accent: #0f766e;
+            --app-accent-contrast: #ffffff;
+            --sidebar-background: #ffffff;
+            --bottom-nav-background: #ffffff;
+            --home-card-gradient: #1abc9c;
+        }
+        body[data-theme="dark"] {
+            --app-background: #0f172a;
+            --app-surface: #16223a;
+            --app-card: #1f2937;
+            --app-border: rgba(148, 163, 184, 0.18);
+            --app-text: #f8fafc;
+            --app-muted: #94a3b8;
+            --app-accent: #10b981;
+            --app-accent-contrast: #031b13;
+            --sidebar-background: #101827;
+            --bottom-nav-background: #101827;
+            --home-card-gradient: #10b981;
+        }
+
+        .theme-surface { background: var(--app-surface) !important; color: var(--app-text) !important; border-color: var(--app-border) !important; }
+        .theme-card { background: var(--app-card) !important; color: var(--app-text) !important; border-color: var(--app-border) !important; }
+        .theme-card .text-gray-400, .theme-card .text-gray-300, .theme-card .text-gray-500 { color: var(--app-muted) !important; }
+        .theme-muted { color: var(--app-muted) !important; }
+
+        .theme-sidebar { background: var(--sidebar-background) !important; color: var(--app-text) !important; }
+        .theme-bottom-nav { background: var(--bottom-nav-background) !important; color: var(--app-text) !important; box-shadow: 0 -18px 45px -28px color-mix(in srgb, var(--app-accent) 35%, transparent); }
+
+        .home-hero-card { position: relative; overflow: hidden; border-radius: 1.75rem; padding: 1.5rem; background: linear-gradient(135deg, color-mix(in srgb, var(--home-card-gradient) 28%, transparent), color-mix(in srgb, var(--home-card-gradient) 10%, transparent)); border: 1px solid color-mix(in srgb, var(--home-card-gradient) 22%, transparent); box-shadow: 0 25px 60px -30px color-mix(in srgb, var(--home-card-gradient) 45%, transparent); }
+        .home-hero-card > * { position: relative; z-index: 1; }
+        .home-hero-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at top right, color-mix(in srgb, var(--home-card-gradient) 45%, transparent), transparent 55%); opacity: 0.9; pointer-events: none; }
+        @media (min-width: 640px) { .home-hero-card { padding: 2rem; } }
+
+        .home-hero-chip { display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 9999px; padding: 0.4rem 0.85rem; border: 1px solid color-mix(in srgb, var(--home-card-gradient) 42%, transparent); background: color-mix(in srgb, var(--home-card-gradient) 18%, transparent); color: color-mix(in srgb, var(--home-card-gradient) 80%, var(--app-text) 20%); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.35em; text-transform: uppercase; }
+        .home-hero-chip i { color: color-mix(in srgb, var(--home-card-gradient) 75%, var(--app-text) 15%); }
+        .home-hero-pill { display: inline-flex; align-items: center; gap: 0.5rem; border-radius: 9999px; padding: 0.45rem 0.9rem; border: 1px solid color-mix(in srgb, var(--home-card-gradient) 38%, transparent); background: color-mix(in srgb, var(--home-card-gradient) 14%, transparent); color: color-mix(in srgb, var(--home-card-gradient) 70%, var(--app-text) 30%); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.3em; text-transform: uppercase; }
+        .home-hero-pill i { color: color-mix(in srgb, var(--home-card-gradient) 75%, var(--app-text) 25%); }
+
+        .home-accent-card { position: relative; overflow: hidden; border-radius: 1.5rem; background: linear-gradient(140deg, color-mix(in srgb, var(--home-card-gradient) 24%, transparent), color-mix(in srgb, var(--home-card-gradient) 6%, transparent)); border: 1px solid color-mix(in srgb, var(--home-card-gradient) 24%, transparent); box-shadow: 0 22px 45px -26px color-mix(in srgb, var(--home-card-gradient) 40%, transparent); color: var(--app-text); }
+        .home-accent-card::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at top right, color-mix(in srgb, var(--home-card-gradient) 32%, transparent), transparent 60%); opacity: 0.85; }
+        .home-accent-card > * { position: relative; z-index: 1; }
+        .home-accent-card .home-accent-track { background: color-mix(in srgb, var(--app-text) 16%, transparent); }
+        .home-accent-card .home-accent-track > .home-accent-fill { background: var(--app-accent); color: var(--app-accent-contrast); }
+        .home-accent-card .home-accent-subcard { background: color-mix(in srgb, var(--app-text) 10%, transparent); border: 1px solid color-mix(in srgb, var(--app-text) 18%, transparent); border-radius: 1.25rem; }
+
+        .theme-accent-button { background: var(--app-accent) !important; color: var(--app-accent-contrast) !important; box-shadow: 0 12px 30px -18px color-mix(in srgb, var(--app-accent) 65%, transparent); }
+        .theme-accent-meter { background: color-mix(in srgb, var(--app-accent) 22%, transparent) !important; }
+        .theme-accent-meter > div { background: var(--app-accent) !important; }
+
+        .app-logo-chip { background: var(--app-accent); color: var(--app-accent-contrast); box-shadow: 0 12px 30px -18px color-mix(in srgb, var(--app-accent) 55%, transparent); }
+        .app-logo-chip i { color: var(--app-accent-contrast); }
+        .theme-accent-text { color: var(--app-accent) !important; }
+
+        body[data-theme] #app-sidebar { background: var(--sidebar-background); color: var(--app-text); }
+        body[data-theme] #app-sidebar .sidebar-footer { color: var(--app-text); }
+        body[data-theme] #app-sidebar .nav-btn { color: var(--app-muted); }
+        body[data-theme] #app-sidebar .nav-btn.is-active { color: var(--app-accent); }
+        body[data-theme] #mobile-bottom-nav { background: var(--bottom-nav-background); border-top: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent); }
+        body[data-theme] #mobile-bottom-nav .nav-btn { color: var(--app-muted); }
+        body[data-theme] #mobile-bottom-nav .nav-btn.is-active { color: var(--app-accent); }
+
+        body[data-theme] .text-white { color: var(--app-text) !important; }
+        body[data-theme] .text-gray-300, body[data-theme] .text-gray-400, body[data-theme] .text-gray-500 { color: var(--app-muted) !important; }
+        body[data-theme] .border-gray-800, body[data-theme] .border-gray-700, body[data-theme] .border-gray-800\/60, body[data-theme] .border-gray-700\/50, body[data-theme] .border-white\/10 { border-color: var(--app-border) !important; }
+        body[data-theme] .bg-gray-900, body[data-theme] .bg-gray-900\/90, body[data-theme] .bg-gray-900\/80, body[data-theme] .bg-gray-900\/70, body[data-theme] .bg-gray-900\/60, body[data-theme] .bg-gray-900\/50, body[data-theme] .bg-gray-900\/40,
+        body[data-theme] .bg-gray-800, body[data-theme] .bg-gray-800\/80, body[data-theme] .bg-gray-800\/70, body[data-theme] .bg-gray-800\/60, body[data-theme] .bg-gray-800\/50,
+        body[data-theme] .bg-gray-700, body[data-theme] .bg-gray-700\/80, body[data-theme] .bg-gray-700\/70, body[data-theme] .bg-gray-700\/60, body[data-theme] .bg-gray-700\/50, body[data-theme] .bg-gray-700\/40,
+        body[data-theme] .bg-gray-600, body[data-theme] .bg-gray-600\/90, body[data-theme] .bg-gray-600\/80, body[data-theme] .bg-gray-600\/70, body[data-theme] .bg-gray-600\/60, body[data-theme] .bg-gray-600\/50,
+        body[data-theme] .bg-gray-500\/40, body[data-theme] .bg-white\/10, body[data-theme] .bg-white\/5 { background: var(--app-card) !important; color: var(--app-text) !important; }
+        body[data-theme] .bg-gray-600, body[data-theme] .bg-gray-500 { background: color-mix(in srgb, var(--app-text) 12%, var(--app-background)) !important; }
+        body[data-theme] .bg-emerald-500, body[data-theme] .bg-emerald-400, body[data-theme] .bg-emerald-600 { background: var(--app-accent) !important; color: var(--app-accent-contrast) !important; }
+        body[data-theme] .bg-emerald-500\/20, body[data-theme] .bg-emerald-500\/10, body[data-theme] .bg-emerald-500\/5, body[data-theme] .bg-emerald-400\/10 { background: color-mix(in srgb, var(--app-accent) 18%, transparent) !important; color: var(--app-accent) !important; }
+        body[data-theme] .text-emerald-400, body[data-theme] .text-emerald-300, body[data-theme] .text-emerald-200, body[data-theme] .text-emerald-100, body[data-theme] .text-emerald-50 { color: color-mix(in srgb, var(--app-accent) 82%, var(--app-text) 18%) !important; }
+        body[data-theme] .border-emerald-400\/40, body[data-theme] .border-emerald-400\/50, body[data-theme] .border-emerald-400\/60 { border-color: color-mix(in srgb, var(--app-accent) 45%, transparent) !important; }
+        body[data-theme] .shadow-emerald-500\/10, body[data-theme] .shadow-emerald-500\/20, body[data-theme] .shadow-emerald-500\/25, body[data-theme] .shadow-emerald-500\/30 { box-shadow: 0 10px 30px -15px color-mix(in srgb, var(--app-accent) 60%, transparent) !important; }
         ::-webkit-scrollbar { width: 6px; } 
         ::-webkit-scrollbar-track { background: transparent; } 
         ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; } 
@@ -55,19 +151,17 @@
         #bmi-marker { transition: left 0.5s ease-in-out; }
 
         #app-sidebar { transition: background-color 0.3s ease, box-shadow 0.3s ease, width 0.3s ease, padding 0.3s ease; }
-        #app-sidebar .nav-btn { transition: all 0.25s ease; color: #9ca3af; }
-        #app-sidebar .nav-btn.is-active { color: #34d399; }
+        #app-sidebar .nav-btn { transition: all 0.25s ease; color: var(--app-muted); }
+        #app-sidebar .nav-btn.is-active { color: var(--app-accent); }
         #app-sidebar .nav-btn i { width: 1.25rem; height: 1.25rem; }
         #app-sidebar .sidebar-brand, #app-sidebar .sidebar-footer { transition: opacity 0.25s ease, transform 0.25s ease; }
         #app-sidebar .nav-label { transition: opacity 0.25s ease, margin 0.25s ease; }
 
         @media (max-width: 1023px) {
-            #app-sidebar { border-top: 1px solid rgba(75, 85, 99, 0.6); }
+            #app-sidebar { border-top: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent); background: var(--sidebar-background); }
             #app-sidebar .nav-btn { font-size: 0.75rem; font-weight: 600; }
             #app-sidebar.mobile-overlay { top: 0; bottom: 0; right: auto; left: 0; width: 18rem; max-width: calc(100vw - 3rem);
-                padding: 1.75rem 1.5rem; border-radius: 0 1.5rem 1.5rem 0; border-top: none; border-right: 1px solid rgba(75, 85,
-                99, 0.6); border-left: none; border-bottom: none; background: rgba(17, 24, 39, 0.98); box-shadow: 0 25px 60px -22px
-                rgba(16, 185, 129, 0.35); transform: translateX(-110%); display: flex; flex-direction: column; gap: 1.5rem;
+                padding: 1.75rem 1.5rem; border-radius: 0 1.5rem 1.5rem 0; border-top: none; border-right: 1px solid color-mix(in srgb, var(--app-text) 18%, transparent); border-left: none; border-bottom: none; background: var(--sidebar-background); box-shadow: 0 25px 60px -22px color-mix(in srgb, var(--app-accent) 35%, transparent); transform: translateX(-110%); display: flex; flex-direction: column; gap: 1.5rem;
                 align-items: stretch; z-index: 50; }
             #app-sidebar.mobile-overlay[data-mobile-open="true"] { transform: translateX(0); }
             #app-sidebar.mobile-overlay #main-nav-bar { display: flex; flex-direction: column; align-items: stretch; gap: 0.75rem; }
@@ -79,10 +173,10 @@
         }
 
         @media (min-width: 1024px) {
-            #app-sidebar { width: 18rem; background: rgba(255, 255, 255, 0.96); color: #111827; border-radius: 1.75rem; padding: 1.75rem 1.5rem; box-shadow: 0 25px 50px -12px rgba(15, 118, 110, 0.25); border: 1px solid rgba(229, 231, 235, 0.8); position: sticky; top: 1.5rem; max-height: calc(100vh - 3rem); backdrop-filter: blur(12px); }
-            #app-sidebar .nav-btn { color: #6b7280; justify-content: flex-start; border-radius: 1.5rem; padding: 0.75rem 1rem; font-weight: 600; font-size: 0.95rem; }
-            #app-sidebar .nav-btn.is-active { color: #0f766e; background: linear-gradient(120deg, rgba(16, 185, 129, 0.18), rgba(20, 184, 166, 0.08)); box-shadow: 0 10px 25px -10px rgba(16, 185, 129, 0.6); }
-            #app-sidebar .nav-btn:not(.is-active):hover { color: #111827; background: rgba(243, 244, 246, 0.9); }
+            #app-sidebar { width: 18rem; background: var(--sidebar-background); color: var(--app-text); border-radius: 1.75rem; padding: 1.75rem 1.5rem; box-shadow: 0 25px 50px -12px color-mix(in srgb, var(--app-accent) 25%, transparent); border: 1px solid color-mix(in srgb, var(--app-text) 12%, transparent); position: sticky; top: 1.5rem; max-height: calc(100vh - 3rem); backdrop-filter: blur(12px); }
+            #app-sidebar .nav-btn { color: var(--app-muted); justify-content: flex-start; border-radius: 1.5rem; padding: 0.75rem 1rem; font-weight: 600; font-size: 0.95rem; }
+            #app-sidebar .nav-btn.is-active { color: var(--app-accent); background: color-mix(in srgb, var(--app-accent) 18%, transparent); box-shadow: 0 10px 25px -12px color-mix(in srgb, var(--app-accent) 55%, transparent); }
+            #app-sidebar .nav-btn:not(.is-active):hover { color: var(--app-text); background: color-mix(in srgb, var(--app-text) 8%, transparent); }
             #app-sidebar .nav-btn .nav-label { font-size: 0.95rem; margin-left: 0.75rem; }
             #app-sidebar .sidebar-footer { opacity: 1; transform: translateY(0); }
             #app-sidebar[data-collapsed="true"] { width: 5rem; padding-left: 1rem; padding-right: 1rem; }
@@ -158,15 +252,16 @@
     
     <div id="app-container" class="hidden relative min-h-screen bg-gray-900 text-white">
         <div class="lg:flex lg:min-h-screen lg:mx-auto lg:max-w-7xl lg:gap-6">
-            <nav id="app-sidebar" data-collapsed="true" data-mobile-open="false" class="fixed bottom-0 left-0 right-0 z-30 bg-gray-900/85 backdrop-blur-lg border-t border-gray-800 px-3 pt-2 pb-3 lg:flex lg:flex-col lg:items-stretch lg:gap-8 lg:border-none lg:px-0 lg:pt-0 lg:pb-0">
+            <nav id="app-sidebar" data-collapsed="true" data-mobile-open="false" class="fixed bottom-0 left-0 right-0 z-30 border-t px-3 pt-2 pb-3 backdrop-blur-lg lg:flex lg:flex-col lg:items-stretch lg:gap-8 lg:border-none lg:px-0 lg:pt-0 lg:pb-0 theme-sidebar">
                 <div class="hidden lg:flex items-center justify-between sidebar-brand">
                     <div class="flex items-center gap-3">
-                        <div class="h-11 w-11 rounded-2xl bg-emerald-500 text-gray-900 flex items-center justify-center shadow-lg shadow-emerald-500/30">
+                        <div id="app-logo-desktop-wrapper" class="h-11 w-11 rounded-2xl app-logo-chip flex items-center justify-center overflow-hidden">
+                            <img id="app-logo-desktop" src="" alt="Logo personalizado" class="hidden h-full w-full object-contain" />
                             <i data-lucide="dumbbell" class="w-5 h-5"></i>
                         </div>
                         <div>
-                            <p class="text-xs font-semibold text-emerald-600 uppercase tracking-[0.35em]">FitTrack</p>
-                            <p class="text-lg font-bold text-gray-900">Panel Principal</p>
+                            <p class="text-xs font-semibold theme-accent-text uppercase tracking-[0.35em]">FitTrack</p>
+                            <p class="text-lg font-bold">Panel Principal</p>
                         </div>
                     </div>
                 </div>
@@ -195,12 +290,16 @@
                         <i data-lucide="history"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Historial</span>
                     </button>
+                    <button data-section="configuracion" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="settings"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Configuración</span>
+                    </button>
                     <button data-section="perfil" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="user"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Perfil</span>
                     </button>
                 </div>
-                <div id="mobile-bottom-nav" class="flex justify-around items-center gap-1 lg:hidden">
+                <div id="mobile-bottom-nav" class="flex justify-around items-center gap-1 lg:hidden theme-bottom-nav">
                     <button data-section="inicio" class="nav-btn is-active flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
                         <i data-lucide="home"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">Inicio</span>
@@ -219,22 +318,28 @@
                     </button>
                 </div>
                 <div class="hidden lg:block mt-auto pt-6 sidebar-footer">
-                    <div class="bg-gradient-to-br from-emerald-500 via-emerald-400 to-teal-400 rounded-2xl p-5 text-emerald-950 shadow-xl shadow-emerald-500/25">
+                    <div class="home-accent-card p-5 shadow-xl">
                         <p class="text-sm font-semibold">Impulsa a tus clientes</p>
-                        <p class="text-xs text-emerald-900/80 mt-1">Gestiona rutinas, nutrición y hábitos desde un solo lugar.</p>
+                        <p class="text-xs theme-muted mt-1">Gestiona rutinas, nutrición y hábitos desde un solo lugar.</p>
                     </div>
                 </div>
             </nav>
             <div id="mobile-menu-backdrop" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"></div>
 
             <div class="flex-1 flex flex-col min-h-screen lg:min-h-0 lg:max-h-screen">
-                <header class="bg-gray-900/80 backdrop-blur-sm px-4 sm:px-6 py-4 sticky top-0 z-20 flex items-center justify-between shadow-lg lg:rounded-2xl lg:mt-6 lg:mr-6 lg:ml-6">
+                <header class="bg-gray-900/80 backdrop-blur-sm px-4 sm:px-6 py-4 sticky top-0 z-20 flex items-center justify-between shadow-lg lg:rounded-2xl lg:mt-6 lg:mr-6 lg:ml-6 theme-surface">
                     <div class="flex items-center gap-3">
                         <button id="mobile-menu-toggle" type="button" aria-controls="app-sidebar" aria-expanded="false" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400/60 lg:hidden">
                             <span class="sr-only">Abrir menú</span>
                             <i data-lucide="menu" class="h-5 w-5"></i>
                         </button>
-                        <div class="flex items-center space-x-2"><i data-lucide="dumbbell" class="text-emerald-400"></i><h1 class="text-xl font-bold tracking-tight">FitTrack</h1></div>
+                        <div class="flex items-center space-x-2">
+                            <div id="app-logo-mobile-wrapper" class="h-10 w-10 rounded-2xl app-logo-chip flex items-center justify-center overflow-hidden">
+                                <img id="app-logo-mobile" src="" alt="Logo personalizado" class="hidden h-full w-full object-contain" />
+                                <i data-lucide="dumbbell"></i>
+                            </div>
+                            <h1 class="text-xl font-bold tracking-tight">FitTrack</h1>
+                        </div>
                     </div>
                     <div class="flex items-center space-x-3">
                         <div id="user-avatar" class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-gray-900"><span></span></div>
@@ -257,7 +362,159 @@
             </div>
     </div>
 
-    <template id="template-inicio"><section id="inicio" class="section-content"><div class="space-y-6"><div><h2 id="welcome-message" class="text-2xl font-bold">Hola, </h2><p class="text-gray-400">¿Listo para superar tus límites hoy?</p></div><div id="ai-daily-tip-card" class="bg-gray-700/80 p-4 rounded-2xl hidden"><div class="flex items-start space-x-3"><i data-lucide="sparkles" class="text-purple-400 w-5 h-5 flex-shrink-0 mt-1"></i><div><h3 class="font-semibold text-gray-200">Consejo del Día ✨</h3><p id="ai-daily-tip-text" class="text-sm text-gray-300 mt-1">Cargando consejo...</p></div></div></div><div id="weekly-progress-card" class="bg-gray-700/80 p-4 rounded-2xl"></div><div class="bg-gradient-to-br from-emerald-500 to-green-600 p-6 rounded-2xl shadow-lg text-white"><p class="font-medium">Tu Meta Diaria de Calorías</p><p class="text-3xl font-bold" id="dashboard-calories">2,500 kcal</p><div class="mt-4 h-2.5 w-full rounded-full bg-black/20"><div id="dashboard-progress-bar" class="bg-white h-2.5 rounded-full" style="width: 0%"></div></div><p class="text-right text-sm mt-1">Progreso: <span id="dashboard-progress-text">0</span>%</p></div><div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4"><button data-action="show-section" data-section-id="rutinas" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="clipboard-list" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Rutinas</span></button><button data-action="show-section" data-section-id="perfil" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="user" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Perfil</span></button><button data-action="show-section" data-section-id="dieta" class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2 hover:bg-gray-700 transition"><i data-lucide="salad" class="text-emerald-400 p-e-none"></i><span class="font-semibold p-e-none">Mi Dieta</span></button><div class="bg-gray-700/80 p-4 rounded-2xl flex flex-col items-center justify-center space-y-2"><i data-lucide="flame" class="text-red-400"></i><span id="dashboard-consumed-calories" class="font-semibold">0 Kcal</span><span class="text-xs text-gray-400">Consumidas</span></div></div></div></section></template>
+    <template id="template-inicio">
+        <section id="inicio" class="section-content">
+            <div class="space-y-8">
+                <div class="space-y-4">
+                    <div class="home-hero-card">
+                        <div class="flex flex-col gap-6">
+                            <div class="space-y-3">
+                                <span class="home-hero-chip"><i data-lucide="layout-dashboard" class="h-4 w-4"></i>Panel Inicio</span>
+                                <h2 id="welcome-message" class="text-3xl font-black leading-tight sm:text-4xl">Hola,</h2>
+                                <p class="max-w-xl text-sm sm:text-base theme-muted">Administra tus sesiones, nutrición y comunicaciones desde un panel preparado primero para móviles.</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em]">
+                                <span class="home-hero-pill"><i data-lucide="flame" class="h-4 w-4"></i><span>Metas activas</span></span>
+                                <span class="home-hero-pill"><i data-lucide="sparkles" class="h-4 w-4"></i><span>Motivación diaria</span></span>
+                                <span class="home-hero-pill"><i data-lucide="smartphone" class="h-4 w-4"></i><span>Optimizado móvil</span></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ai-daily-tip-card" class="hidden rounded-3xl border border-purple-400/30 bg-purple-500/10 p-5 text-purple-50 shadow-lg shadow-purple-500/10">
+                        <div class="flex items-start gap-3">
+                            <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-purple-500/20">
+                                <i data-lucide="sparkles" class="h-5 w-5 text-purple-200"></i>
+                            </span>
+                            <div class="space-y-1">
+                                <h3 class="font-semibold text-purple-100">Consejo del Día ✨</h3>
+                                <p id="ai-daily-tip-text" class="text-sm text-purple-100/80">Cargando consejo...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-5">
+                    <div class="overflow-hidden rounded-3xl border border-white/10 bg-gray-900/60 backdrop-blur theme-card">
+                        <div class="relative aspect-[21/9] bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800">
+                            <img id="dashboard-cover-preview" alt="Portada promocional" class="absolute inset-0 h-full w-full object-cover hidden" />
+                            <div id="dashboard-cover-placeholder" class="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center text-gray-400">
+                                <i data-lucide="image" class="h-10 w-10 text-gray-500"></i>
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500/80">Portada publicitaria</p>
+                                <p class="text-sm text-gray-400">Recomendado: formato panorámico 21:9 para un banner tipo publicidad.</p>
+                            </div>
+                            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                        </div>
+                        <div class="flex flex-col gap-4 border-t border-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                            <div class="space-y-1">
+                                <h3 class="text-lg font-semibold">Portada promocional</h3>
+                                <p class="text-sm text-gray-300">Sube un banner alargado para destacar promociones, retos o anuncios importantes.</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <input type="file" id="dashboard-cover-input" accept="image/*" class="hidden">
+                                <button data-action="open-cover-upload" class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
+                                    <i data-lucide="image-plus" class="h-4 w-4"></i>
+                                    Subir portada
+                                </button>
+                                <button data-action="remove-cover-image" class="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:border-red-400/60 hover:text-red-300">
+                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                    Quitar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid gap-4 lg:grid-cols-2">
+                    <div class="home-accent-card p-6 shadow-lg">
+                        <div class="flex flex-col gap-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] theme-muted">Meta diaria</p>
+                                    <h3 class="mt-1 text-3xl font-black" id="dashboard-calories">2,500 kcal</h3>
+                                </div>
+                                <span class="home-hero-pill">
+                                    <i data-lucide="target" class="h-4 w-4"></i>
+                                    En progreso
+                                </span>
+                            </div>
+                            <div>
+                                <div class="home-accent-track h-2.5 w-full rounded-full overflow-hidden">
+                                    <div id="dashboard-progress-bar" class="home-accent-fill h-2.5 rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                                </div>
+                                <p class="mt-2 text-right text-xs theme-muted">Progreso: <span id="dashboard-progress-text">0</span>%</p>
+                            </div>
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                <div class="home-accent-subcard p-3">
+                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] theme-muted">Proteínas</p>
+                                    <p class="mt-1 text-lg font-bold" id="dashboard-goal-protein">0 g</p>
+                                    <p class="text-xs theme-muted"><span id="dashboard-consumed-protein">0</span> g consumidos</p>
+                                </div>
+                                <div class="home-accent-subcard p-3">
+                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] theme-muted">Carbohidratos</p>
+                                    <p class="mt-1 text-lg font-bold" id="dashboard-goal-carbs">0 g</p>
+                                    <p class="text-xs theme-muted"><span id="dashboard-consumed-carbs">0</span> g consumidos</p>
+                                </div>
+                                <div class="home-accent-subcard p-3">
+                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] theme-muted">Grasas</p>
+                                    <p class="mt-1 text-lg font-bold" id="dashboard-goal-fats">0 g</p>
+                                    <p class="text-xs theme-muted"><span id="dashboard-consumed-fats">0</span> g consumidos</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="weekly-progress-card" class="rounded-3xl border border-white/10 bg-gray-900/60 p-6 shadow-lg shadow-emerald-500/10 theme-card"></div>
+                </div>
+
+                <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                    <button data-action="show-section" data-section-id="rutinas" class="rounded-3xl border border-white/10 bg-white/5 p-4 text-left shadow-lg shadow-emerald-500/10 transition hover:border-emerald-400/50 hover:bg-emerald-500/10">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-300">
+                                <i data-lucide="clipboard-list" class="h-5 w-5"></i>
+                            </span>
+                            <div>
+                                <p class="text-sm font-semibold">Rutinas activas</p>
+                                <p class="text-xs text-gray-400">Crea, revisa o lanza sesiones en segundos.</p>
+                            </div>
+                        </div>
+                    </button>
+                    <button data-action="show-section" data-section-id="perfil" class="rounded-3xl border border-white/10 bg-white/5 p-4 text-left shadow-lg shadow-emerald-500/10 transition hover:border-emerald-400/50 hover:bg-emerald-500/10">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-300">
+                                <i data-lucide="user" class="h-5 w-5"></i>
+                            </span>
+                            <div>
+                                <p class="text-sm font-semibold">Mi perfil</p>
+                                <p class="text-xs text-gray-400">Actualiza datos personales y objetivos.</p>
+                            </div>
+                        </div>
+                    </button>
+                    <button data-action="show-section" data-section-id="dieta" class="rounded-3xl border border-white/10 bg-white/5 p-4 text-left shadow-lg shadow-emerald-500/10 transition hover:border-emerald-400/50 hover:bg-emerald-500/10">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-300">
+                                <i data-lucide="salad" class="h-5 w-5"></i>
+                            </span>
+                            <div>
+                                <p class="text-sm font-semibold">Mi dieta</p>
+                                <p class="text-xs text-gray-400">Gestiona comidas y seguimiento diario.</p>
+                            </div>
+                        </div>
+                    </button>
+                    <div class="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-lg shadow-emerald-500/10">
+                        <div class="flex items-start gap-3">
+                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-500/20 text-rose-300">
+                                <i data-lucide="flame" class="h-5 w-5"></i>
+                            </span>
+                            <div>
+                                <p class="text-sm font-semibold">Calorías consumidas hoy</p>
+                                <p id="dashboard-consumed-calories" class="text-lg font-bold">0 Kcal</p>
+                                <p class="text-xs text-gray-400">Marca alimentos como completados para registrar tu avance.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
     
     <template id="template-rutinas"><section id="rutinas" class="section-content hidden"><div class="space-y-8"><div class="flex justify-between items-center"><h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Rutinas</span></h2><button id="create-routine-btn" data-action="routine-create" class="flex items-center gap-2 bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20"><i data-lucide="plus" class="w-5 h-5"></i><span>Crear Rutina</span></button></div><div id="user-routines-section">
         <h3 class="font-semibold text-lg mb-3 text-gray-300">Mis Rutinas</h3>
@@ -370,7 +627,204 @@
     
     <template id="template-dieta"><section id="dieta" class="section-content hidden"><div class="space-y-6"><div><h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Plan de Dieta de Hoy</span></h2><p class="text-gray-400">Objetivo: <span id="diet-goal-calories" class="font-bold text-emerald-400">2500</span> kcal</p></div><div class="bg-gray-700/80 p-4 rounded-xl space-y-3"><div class="flex justify-between items-center text-sm"><span class="text-gray-300">Consumido</span><span class="font-bold"><span id="diet-total-calories">0</span> kcal</span></div><div class="h-2.5 w-full rounded-full bg-gray-600"><div id="diet-progress-bar" class="bg-emerald-500 h-2.5 rounded-full w-0"></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="space-y-1"><p class="font-semibold text-blue-300">Proteína</p><div class="h-1.5 w-full rounded-full bg-blue-500/20"><div id="diet-protein-bar" class="bg-blue-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-protein">0</span>g / <span id="diet-goal-protein">188</span>g</p></div><div class="space-y-1"><p class="font-semibold text-yellow-300">Carbs</p><div class="h-1.5 w-full rounded-full bg-yellow-500/20"><div id="diet-carbs-bar" class="bg-yellow-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-carbs">0</span>g / <span id="diet-goal-carbs">250</span>g</p></div><div class="space-y-1"><p class="font-semibold text-red-300">Grasas</p><div class="h-1.5 w-full rounded-full bg-red-500/20"><div id="diet-fats-bar" class="bg-red-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-fats">0</span>g / <span id="diet-goal-fats">83</span>g</p></div></div></div><div id="diet-management-tools"><div class="my-4"><button data-action="generate-plan" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 font-bold py-3 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2 shadow-lg"><i data-lucide="sparkles" class="w-5 h-5 p-e-none"></i><span class="p-e-none">✨ Generar Plan con IA</span></button></div><div class="bg-gray-700/50 p-4 rounded-xl space-y-3 mb-6"><h3 class="font-semibold flex items-center gap-2"><i data-lucide="brain-circuit" class="w-5 h-5 text-sky-400"></i>Analizador de Comidas IA</h3><p class="text-sm text-gray-400">Describe una comida y la IA estimará sus macros para añadirla a tu dieta.</p><textarea id="food-analysis-input" placeholder="Ej: un tazón de avena con plátano y nueces" class="w-full bg-gray-700 rounded-lg p-2 h-16 resize-none"></textarea><button data-action="analyze-food" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 font-bold py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2"><span class="p-e-none">✨ Analizar y Añadir</span></button></div></div><div id="meal-sections" class="space-y-4"></div><div id="add-food-section" class="space-y-4 mt-4"><h3 class="text-xl font-bold">Añadir Alimentos</h3><div class="relative"><input type="text" id="food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 p-e-none"><i data-lucide="search" class="text-gray-400"></i></div></div><div id="food-list" class="space-y-2 pr-2"></div></div></div></section></template>
     <template id="template-historial"><section id="historial" class="section-content hidden"><div class="space-y-6"><div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h2 class="text-2xl font-bold flex items-center gap-3"><span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-300 shadow-inner shadow-emerald-500/20"><i data-lucide="history" class="h-6 w-6"></i></span><span>Historial de Progreso</span></h2><p class="text-sm text-gray-400">Visualiza la evolución de tus entrenamientos, tiempos y cargas.</p></div><button data-action="show-workout-history" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10"><i data-lucide="gallery-vertical-end" class="h-4 w-4"></i>Ver resumen detallado</button></div><div id="history-overview" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div><div id="history-cards" class="space-y-4"></div></div></section></template>
-    
+
+    <template id="template-configuracion">
+        <section id="configuracion" class="section-content hidden">
+            <div class="space-y-8 pb-10">
+                <div class="space-y-2">
+                    <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="settings" class="h-6 w-6 text-emerald-400"></i><span>Configuración</span></h2>
+                    <p class="text-sm text-gray-400">Personaliza la identidad visual de tu panel y la experiencia para tus asesorados.</p>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="rounded-3xl border border-white/10 bg-white/5 p-6 theme-card">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 class="text-xl font-semibold">Logo de la marca</h3>
+                                <p class="text-sm text-gray-400">Sube un logotipo cuadrado o horizontal en formato PNG o JPG para personalizar la app.</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="h-16 w-16 rounded-2xl border border-white/10 bg-white/5 flex items-center justify-center overflow-hidden">
+                                    <img id="branding-logo-preview" src="" alt="Logo actual" class="hidden h-full w-full object-contain" />
+                                    <div id="branding-logo-placeholder" class="flex h-full w-full items-center justify-center text-gray-500 text-sm">Logo</div>
+                                </div>
+                                <div class="text-xs text-gray-500 max-w-[12rem]">Recomendado: fondo transparente para mejor integración con los temas.</div>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="flex flex-wrap items-center gap-3">
+                                <input type="file" id="branding-logo-input" accept="image/png,image/jpeg,image/webp" class="hidden" />
+                                <button data-action="open-logo-upload" class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
+                                    <i data-lucide="image-plus" class="h-4 w-4"></i>
+                                    <span>Cargar logo</span>
+                                </button>
+                                <button data-action="remove-logo-image" class="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:border-red-400/60 hover:text-red-300">
+                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                    <span>Quitar</span>
+                                </button>
+                            </div>
+                            <p id="logo-updated-at" class="text-xs text-gray-500"></p>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-white/10 bg-white/5 p-6 theme-card">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 class="text-xl font-semibold">Tema del panel</h3>
+                                <p class="text-sm text-gray-400">Elige entre tema claro, oscuro o crea una combinación personalizada.</p>
+                            </div>
+                            <div id="theme-applied-note" class="text-xs text-emerald-300"></div>
+                        </div>
+                        <div class="mt-6 grid gap-6 lg:grid-cols-2">
+                            <div class="space-y-4">
+                                <div class="flex flex-col gap-3">
+                                    <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-emerald-400/60">
+                                        <input type="radio" name="theme-mode" value="dark" id="theme-mode-dark" class="h-4 w-4">
+                                        <div>
+                                            <p class="font-semibold">Tema oscuro</p>
+                                            <p class="text-xs text-gray-400">Ideal para contrastes altos y entornos nocturnos.</p>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-emerald-400/60">
+                                        <input type="radio" name="theme-mode" value="light" id="theme-mode-light" class="h-4 w-4">
+                                        <div>
+                                            <p class="font-semibold">Tema claro</p>
+                                            <p class="text-xs text-gray-400">Fondos claros con tipografía oscura para ambientes iluminados.</p>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-emerald-400/60">
+                                        <input type="radio" name="theme-mode" value="custom" id="theme-mode-custom" class="h-4 w-4">
+                                        <div>
+                                            <p class="font-semibold">Tema personalizado</p>
+                                            <p class="text-xs text-gray-400">Define tus propios colores corporativos.</p>
+                                        </div>
+                                    </label>
+                                </div>
+                                <div id="custom-theme-fields" class="grid gap-4 sm:grid-cols-2">
+                                    <label class="flex flex-col gap-2 text-sm">
+                                        <span class="font-semibold">Fondo general</span>
+                                        <input type="color" id="custom-color-background" data-theme-color="self" data-color-key="background" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                    </label>
+                                    <label class="flex flex-col gap-2 text-sm">
+                                        <span class="font-semibold">Menú lateral</span>
+                                        <input type="color" id="custom-color-sidebar" data-theme-color="self" data-color-key="sidebar" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                    </label>
+                                    <label class="flex flex-col gap-2 text-sm">
+                                        <span class="font-semibold">Menú inferior</span>
+                                        <input type="color" id="custom-color-bottomNav" data-theme-color="self" data-color-key="bottomNav" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                    </label>
+                                    <label class="flex flex-col gap-2 text-sm">
+                                        <span class="font-semibold">Texto principal</span>
+                                        <input type="color" id="custom-color-text" data-theme-color="self" data-color-key="text" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                    </label>
+                                    <label class="flex flex-col gap-2 text-sm">
+                                        <span class="font-semibold">Texto secundario</span>
+                                        <input type="color" id="custom-color-muted" data-theme-color="self" data-color-key="muted" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                    </label>
+                                    <label class="flex flex-col gap-2 text-sm">
+                                        <span class="font-semibold">Color de acento</span>
+                                        <input type="color" id="custom-color-accent" data-theme-color="self" data-color-key="accent" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                    </label>
+                                    <label class="flex flex-col gap-2 text-sm sm:col-span-2">
+                                        <span class="font-semibold">Tarjetas de inicio (degradado)</span>
+                                        <input type="color" id="custom-color-homeGradient" data-theme-color="self" data-color-key="homeGradient" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-5 theme-card">
+                                <p class="text-sm text-gray-400">Vista previa</p>
+                                <div class="mt-4 space-y-4">
+                                    <div class="rounded-2xl border border-white/10 p-4 theme-card">
+                                        <p class="text-xs uppercase tracking-[0.3em] text-gray-400">Identidad</p>
+                                        <h4 class="mt-2 text-lg font-bold">Así verás tu panel</h4>
+                                        <p class="text-sm text-gray-400">Los cambios se aplican en tiempo real al resto de la app.</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 p-4 theme-card">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm font-semibold">Botón principal</span>
+                                            <span class="rounded-full px-3 py-1 text-xs font-semibold theme-accent-button">Acción</span>
+                                        </div>
+                                        <div class="mt-3 h-2.5 w-full rounded-full theme-accent-meter">
+                                            <div class="h-2.5 w-1/2 rounded-full"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="client-theme-block" class="rounded-3xl border border-white/10 bg-white/5 p-6 theme-card">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 class="text-xl font-semibold">Tema para asesorados</h3>
+                                <p class="text-sm text-gray-400">Define los colores que verán tus clientes cuando ingresen a su panel.</p>
+                            </div>
+                            <div id="client-theme-note" class="text-xs text-emerald-300"></div>
+                        </div>
+                        <div id="client-theme-editor" class="mt-6 grid gap-6 lg:grid-cols-2">
+                            <div class="space-y-3">
+                                <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-emerald-400/60">
+                                    <input type="radio" name="client-theme-mode" value="dark" id="client-theme-dark" class="h-4 w-4">
+                                    <div>
+                                        <p class="font-semibold">Oscuro</p>
+                                        <p class="text-xs text-gray-400">Recomendado para pantallas AMOLED o ambientes con poca luz.</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-emerald-400/60">
+                                    <input type="radio" name="client-theme-mode" value="light" id="client-theme-light" class="h-4 w-4">
+                                    <div>
+                                        <p class="font-semibold">Claro</p>
+                                        <p class="text-xs text-gray-400">Más luminoso para uso en exteriores.</p>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-emerald-400/60">
+                                    <input type="radio" name="client-theme-mode" value="custom" id="client-theme-custom" class="h-4 w-4">
+                                    <div>
+                                        <p class="font-semibold">Personalizado</p>
+                                        <p class="text-xs text-gray-400">Aplica los colores corporativos a toda la experiencia del cliente.</p>
+                                    </div>
+                                </label>
+                            </div>
+                            <div id="client-custom-theme-fields" class="grid gap-4 sm:grid-cols-2">
+                                <label class="flex flex-col gap-2 text-sm">
+                                    <span class="font-semibold">Fondo general</span>
+                                    <input type="color" id="client-color-background" data-theme-color="client" data-color-key="background" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                </label>
+                                <label class="flex flex-col gap-2 text-sm">
+                                    <span class="font-semibold">Menú lateral</span>
+                                    <input type="color" id="client-color-sidebar" data-theme-color="client" data-color-key="sidebar" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                </label>
+                                <label class="flex flex-col gap-2 text-sm">
+                                    <span class="font-semibold">Menú inferior</span>
+                                    <input type="color" id="client-color-bottomNav" data-theme-color="client" data-color-key="bottomNav" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                </label>
+                                <label class="flex flex-col gap-2 text-sm">
+                                    <span class="font-semibold">Texto principal</span>
+                                    <input type="color" id="client-color-text" data-theme-color="client" data-color-key="text" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                </label>
+                                <label class="flex flex-col gap-2 text-sm">
+                                    <span class="font-semibold">Texto secundario</span>
+                                    <input type="color" id="client-color-muted" data-theme-color="client" data-color-key="muted" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                </label>
+                                <label class="flex flex-col gap-2 text-sm">
+                                    <span class="font-semibold">Color de acento</span>
+                                    <input type="color" id="client-color-accent" data-theme-color="client" data-color-key="accent" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                </label>
+                                <label class="flex flex-col gap-2 text-sm sm:col-span-2">
+                                    <span class="font-semibold">Tarjetas de inicio (degradado)</span>
+                                    <input type="color" id="client-color-homeGradient" data-theme-color="client" data-color-key="homeGradient" class="h-10 w-full cursor-pointer rounded-md border border-white/10 bg-transparent" />
+                                </label>
+                            </div>
+                        </div>
+                        <div id="client-theme-message" class="mt-6 hidden rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-gray-400">
+                            Aún no perteneces a un equipo de asesoría o tu asesor no ha definido un tema corporativo.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
     <template id="template-perfil">
         <section id="perfil" class="section-content hidden">
             <div class="space-y-6 pb-8">
@@ -530,8 +984,271 @@
                         asesorados: [],
                         activeWorkout: null,
                         timer: { status: 'idle', timeLeft: 0, intervalId: null, initialRestTime: 0 },
+                        dashboardCover: { image: '', updatedAt: null },
+                        branding: {
+                            logo: { image: '', updatedAt: null },
+                            theme: {
+                                mode: 'dark',
+                                customColors: {
+                                    background: '#0f172a',
+                                    surface: '#16223a',
+                                    card: '#1f2937',
+                                    text: '#f8fafc',
+                                    muted: '#94a3b8',
+                                    accent: '#10b981',
+                                    sidebar: '#101827',
+                                    bottomNav: '#101827',
+                                    homeGradient: '#10b981'
+                                }
+                            },
+                            clientTheme: {
+                                mode: 'dark',
+                                customColors: {
+                                    background: '#0f172a',
+                                    surface: '#16223a',
+                                    card: '#1f2937',
+                                    text: '#f8fafc',
+                                    muted: '#94a3b8',
+                                    accent: '#10b981',
+                                    sidebar: '#101827',
+                                    bottomNav: '#101827',
+                                    homeGradient: '#10b981'
+                                }
+                            }
+                        },
+                        coachBranding: null,
                         isMobileMenuOpen: false
                     };
+                },
+
+                ensureBrandingDefaults() {
+                    if (!this.state) return;
+                    const defaultBranding = this.getDefaultState().branding;
+                    if (!this.state.branding) {
+                        this.state.branding = JSON.parse(JSON.stringify(defaultBranding));
+                        return;
+                    }
+                    const mergeTheme = (baseTheme, overrideTheme = {}) => {
+                        const merged = { ...baseTheme, ...overrideTheme };
+                        merged.mode = overrideTheme?.mode || baseTheme.mode || 'dark';
+                        merged.customColors = { ...baseTheme.customColors, ...(overrideTheme?.customColors || {}) };
+                        return merged;
+                    };
+                    this.state.branding.logo = { ...defaultBranding.logo, ...(this.state.branding.logo || {}) };
+                    this.state.branding.theme = mergeTheme(defaultBranding.theme, this.state.branding.theme);
+                    this.state.branding.clientTheme = mergeTheme(defaultBranding.clientTheme, this.state.branding.clientTheme);
+                },
+
+                mergeThemeConfig(baseTheme, overrideTheme = {}) {
+                    const merged = { ...baseTheme, ...overrideTheme };
+                    merged.mode = overrideTheme.mode || baseTheme.mode || 'dark';
+                    merged.customColors = { ...baseTheme.customColors, ...(overrideTheme.customColors || {}) };
+                    return merged;
+                },
+
+                getPaletteForMode(mode = 'dark', customColors = {}) {
+                    const presets = {
+                        dark: {
+                            background: '#0f172a',
+                            surface: '#16223a',
+                            card: '#1f2937',
+                            text: '#f8fafc',
+                            muted: '#94a3b8',
+                            accent: '#10b981',
+                            sidebar: '#101827',
+                            bottomNav: '#101827',
+                            homeGradient: '#10b981',
+                            border: 'rgba(148, 163, 184, 0.18)'
+                        },
+                        light: {
+                            background: '#f5f9ff',
+                            surface: '#ffffff',
+                            card: '#ffffff',
+                            text: '#0f172a',
+                            muted: '#5b6b7f',
+                            accent: '#0f766e',
+                            sidebar: '#ffffff',
+                            bottomNav: '#ffffff',
+                            homeGradient: '#1abc9c',
+                            border: 'rgba(15, 23, 42, 0.08)'
+                        }
+                    };
+                    const baseMode = mode === 'custom' ? 'dark' : mode;
+                    const base = presets[baseMode] || presets.dark;
+                    const palette = { ...base, ...customColors };
+                    const customSurface = customColors.surface;
+                    const customCard = customColors.card;
+                    palette.background = palette.background || base.background;
+                    const backgroundBrightness = this.getColorBrightness(palette.background);
+                    const computedSurface = backgroundBrightness > 200
+                        ? '#ffffff'
+                        : backgroundBrightness > 180
+                            ? this.mixColors(palette.background, '#000000', 0.05)
+                            : this.mixColors(palette.background, '#ffffff', 0.12);
+                    const computedCard = backgroundBrightness > 190
+                        ? '#ffffff'
+                        : backgroundBrightness > 160
+                            ? this.mixColors(palette.background, '#ffffff', 0.85)
+                            : this.mixColors(palette.background, '#ffffff', 0.18);
+                    palette.surface = (!customSurface || customSurface === base.surface) ? computedSurface : customSurface;
+                    palette.card = (!customCard || customCard === base.card) ? computedCard : customCard;
+                    const computedSidebar = backgroundBrightness > 200
+                        ? '#ffffff'
+                        : backgroundBrightness > 170
+                            ? this.mixColors(palette.background, '#000000', 0.08)
+                            : this.mixColors(palette.background, '#ffffff', 0.12);
+                    palette.sidebar = (!customColors.sidebar || customColors.sidebar === base.sidebar) ? computedSidebar : customColors.sidebar;
+                    const computedBottom = backgroundBrightness > 200
+                        ? '#ffffff'
+                        : backgroundBrightness > 170
+                            ? this.mixColors(palette.background, '#000000', 0.06)
+                            : this.mixColors(palette.background, '#ffffff', 0.1);
+                    palette.bottomNav = (!customColors.bottomNav || customColors.bottomNav === base.bottomNav) ? computedBottom : customColors.bottomNav;
+                    palette.homeGradient = palette.homeGradient || palette.accent || base.accent;
+                    palette.text = palette.text || base.text;
+                    palette.muted = palette.muted || base.muted;
+                    palette.accent = palette.accent || base.accent;
+                    palette.border = palette.border || this.hexToRgba(palette.text, backgroundBrightness > 180 ? 0.08 : 0.18);
+                    return palette;
+                },
+
+                normalizeHex(hex) {
+                    if (!hex) return null;
+                    let sanitized = hex.toString().trim().replace('#', '');
+                    if (sanitized.length === 3) {
+                        sanitized = sanitized.split('').map((char) => char + char).join('');
+                    }
+                    if (sanitized.length !== 6) {
+                        return null;
+                    }
+                    return sanitized.toLowerCase();
+                },
+
+                hexToRgba(hex, alpha = 1) {
+                    const sanitized = this.normalizeHex(hex);
+                    if (!sanitized) return `rgba(0, 0, 0, ${alpha})`;
+                    const bigint = parseInt(sanitized, 16);
+                    const r = (bigint >> 16) & 255;
+                    const g = (bigint >> 8) & 255;
+                    const b = bigint & 255;
+                    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                },
+
+                mixColors(colorA, colorB, ratio = 0.5) {
+                    const a = this.normalizeHex(colorA) || '000000';
+                    const b = this.normalizeHex(colorB) || '000000';
+                    const r1 = parseInt(a.slice(0, 2), 16);
+                    const g1 = parseInt(a.slice(2, 4), 16);
+                    const b1 = parseInt(a.slice(4, 6), 16);
+                    const r2 = parseInt(b.slice(0, 2), 16);
+                    const g2 = parseInt(b.slice(2, 4), 16);
+                    const b2 = parseInt(b.slice(4, 6), 16);
+                    const t = Math.min(Math.max(ratio, 0), 1);
+                    const mix = (c1, c2) => Math.round(c1 + (c2 - c1) * t);
+                    return `#${[mix(r1, r2), mix(g1, g2), mix(b1, b2)].map((val) => val.toString(16).padStart(2, '0')).join('')}`;
+                },
+
+                getColorBrightness(hex) {
+                    const sanitized = this.normalizeHex(hex);
+                    if (!sanitized) return 0;
+                    const r = parseInt(sanitized.slice(0, 2), 16);
+                    const g = parseInt(sanitized.slice(2, 4), 16);
+                    const b = parseInt(sanitized.slice(4, 6), 16);
+                    return 0.299 * r + 0.587 * g + 0.114 * b;
+                },
+
+                async loadCoachBranding() {
+                    if (!this.state?.coachId) {
+                        this.state.coachBranding = null;
+                        return;
+                    }
+                    try {
+                        const coachRef = doc(this.db, 'users', this.state.coachId);
+                        const coachSnap = await getDoc(coachRef);
+                        if (coachSnap.exists()) {
+                            const defaults = this.getDefaultState().branding;
+                            const coachData = coachSnap.data().branding || defaults;
+                            this.state.coachBranding = {
+                                logo: { ...defaults.logo, ...(coachData.logo || {}) },
+                                theme: this.mergeThemeConfig(defaults.theme, coachData.theme || {}),
+                                clientTheme: this.mergeThemeConfig(defaults.clientTheme, coachData.clientTheme || {})
+                            };
+                        } else {
+                            this.state.coachBranding = null;
+                        }
+                    } catch (error) {
+                        console.error('Error loading coach branding:', error);
+                        this.state.coachBranding = null;
+                    }
+                },
+
+                async refreshBrandingContext() {
+                    this.ensureBrandingDefaults();
+                    if (!this.isAsesor()) {
+                        await this.loadCoachBranding();
+                    } else {
+                        this.state.coachBranding = null;
+                    }
+                    this.applyTheme();
+                    this.updateBrandingUI();
+                },
+
+                applyTheme() {
+                    if (!this.state) return;
+                    this.ensureBrandingDefaults();
+                    const defaults = this.getDefaultState().branding;
+                    let sourceTheme = this.mergeThemeConfig(defaults.theme, this.state.branding?.theme || {});
+                    if (!this.isAsesor() && this.state.coachBranding?.clientTheme) {
+                        sourceTheme = this.mergeThemeConfig(defaults.clientTheme, this.state.coachBranding.clientTheme);
+                    }
+                    const palette = this.getPaletteForMode(sourceTheme.mode, sourceTheme.customColors);
+                    document.body.setAttribute('data-theme', sourceTheme.mode === 'custom' ? 'custom' : sourceTheme.mode);
+                    const root = document.documentElement;
+                    root.style.setProperty('--app-background', palette.background);
+                    root.style.setProperty('--app-surface', palette.surface);
+                    root.style.setProperty('--app-card', palette.card);
+                    root.style.setProperty('--app-text', palette.text);
+                    root.style.setProperty('--app-muted', palette.muted);
+                    root.style.setProperty('--app-accent', palette.accent);
+                    const accentContrast = this.getColorBrightness(palette.accent) > 150 ? '#031b13' : '#f8fafc';
+                    root.style.setProperty('--app-accent-contrast', accentContrast);
+                    root.style.setProperty('--sidebar-background', palette.sidebar || palette.surface || palette.background);
+                    root.style.setProperty('--bottom-nav-background', palette.bottomNav || palette.sidebar || palette.surface);
+                    root.style.setProperty('--home-card-gradient', palette.homeGradient || palette.accent);
+                    root.style.setProperty('--app-border', palette.border || this.hexToRgba(palette.text, 0.18));
+                },
+
+                updateBrandingUI() {
+                    if (!this.state) return;
+                    const defaults = this.getDefaultState().branding;
+                    const branding = this.isAsesor() ? this.state.branding : (this.state.coachBranding || this.state.branding || defaults);
+                    const logoData = branding?.logo?.image || '';
+                    const desktopLogo = document.getElementById('app-logo-desktop');
+                    const desktopWrapper = document.getElementById('app-logo-desktop-wrapper');
+                    const desktopIcon = desktopWrapper ? desktopWrapper.querySelector('i[data-lucide]') : null;
+                    const mobileLogo = document.getElementById('app-logo-mobile');
+                    const mobileWrapper = document.getElementById('app-logo-mobile-wrapper');
+                    const mobileIcon = mobileWrapper ? mobileWrapper.querySelector('i[data-lucide]') : null;
+
+                    const toggleLogo = (img, wrapper, icon) => {
+                        if (!img || !wrapper) return;
+                        if (logoData) {
+                            img.src = logoData;
+                            img.classList.remove('hidden');
+                            wrapper.classList.remove('app-logo-chip');
+                            wrapper.classList.add('bg-white/5', 'border', 'border-white/10');
+                            if (icon) icon.classList.add('hidden');
+                        } else {
+                            img.src = '';
+                            img.classList.add('hidden');
+                            wrapper.classList.add('app-logo-chip');
+                            wrapper.classList.remove('bg-white/5', 'border', 'border-white/10');
+                            if (icon) icon.classList.remove('hidden');
+                        }
+                    };
+
+                    toggleLogo(desktopLogo, desktopWrapper, desktopIcon);
+                    toggleLogo(mobileLogo, mobileWrapper, mobileIcon);
                 },
                 
                 state: null,
@@ -742,7 +1459,7 @@
                 async saveDataToFirestore() {
                     if (!this.state.currentUser) return;
                     const dataToSave = { ...this.state };
-                    ['currentUser', 'activeWorkout', 'timer', 'currentSection', 'asesorados', 'isMobileMenuOpen'].forEach(key => delete dataToSave[key]);
+                    ['currentUser', 'activeWorkout', 'timer', 'currentSection', 'asesorados', 'isMobileMenuOpen', 'coachBranding'].forEach(key => delete dataToSave[key]);
                     const userRef = doc(this.db, "users", this.state.currentUser.uid);
                     try {
                         await setDoc(userRef, dataToSave, { merge: true });
@@ -785,6 +1502,7 @@
                             this.state.role = this.auth.currentUser.uid === this.adminUID ? 'asesor' : 'asesorado';
                             await this.saveDataToFirestore();
                         }
+                        await this.refreshBrandingContext();
                     } catch (error) {
                         console.error("Error loading data from Firestore: ", error);
                         this.showToast("Error al cargar datos.", "error");
@@ -948,7 +1666,7 @@
                         
                         const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate } = button.dataset;
                         const actionMap = {
-                            'show-section': () => this.showSection(sectionId), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(),
+                            'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'open-logo-upload': () => this.triggerLogoUpload(), 'remove-logo-image': () => this.removeLogoImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
                             'routine-creator-switch-group': () => this.routine_creator_switchGroup(groupTarget),
                             'routine-creator-edit-group-image': (evt) => { evt.stopPropagation(); this.routine_creator_showGroupImageModal(groupTarget); },
@@ -981,8 +1699,38 @@
                         }
                     });
                     document.body.addEventListener('submit', (e) => { e.preventDefault(); if (e.target.id === 'nutrition-form') { this.calculateNutrition(); } if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); } if (e.target.id === '1rm-form') { this.calculate1RM(); } if (e.target.id === 'invite-form') { this.handleInviteClient(e); } });
-                    document.body.addEventListener('input', (e) => { if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); } if (e.target.id === 'exercise-search-input') { this.routine_filterExerciseLibrary(e.target.value); } if (e.target.id === 'client-food-search') { this.renderFoodList(e.target.value, 'client-food-list'); } if (e.target.closest('#client-diet-editor')) { const mealIndex = e.target.dataset.mealIndex; if (mealIndex) { this._updateMealDataFromUI(parseInt(mealIndex)); } } });
-                    document.body.addEventListener('change', (e) => { if (e.target.closest('#client-diet-goals-form')) { this._handleUpdateClientGoalsFromUI(); } });
+                    document.body.addEventListener('input', (e) => {
+                        if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); }
+                        if (e.target.id === 'exercise-search-input') { this.routine_filterExerciseLibrary(e.target.value); }
+                        if (e.target.id === 'client-food-search') { this.renderFoodList(e.target.value, 'client-food-list'); }
+                        if (e.target.closest('#client-diet-editor')) { const mealIndex = e.target.dataset.mealIndex; if (mealIndex) { this._updateMealDataFromUI(parseInt(mealIndex)); } }
+                        if (e.target.matches('[data-theme-color]')) {
+                            const target = e.target.dataset.themeColor;
+                            const key = e.target.dataset.colorKey;
+                            this.handleCustomColorChange(target, key, e.target.value);
+                        }
+                    });
+                    document.body.addEventListener('change', (e) => {
+                        if (e.target.id === 'dashboard-cover-input') {
+                            this.handleCoverFileChange(e.target);
+                            return;
+                        }
+                        if (e.target.id === 'branding-logo-input') {
+                            this.handleLogoFileChange(e.target);
+                            return;
+                        }
+                        if (e.target.name === 'theme-mode') {
+                            this.handleThemeModeChange('self', e.target.value);
+                            return;
+                        }
+                        if (e.target.name === 'client-theme-mode') {
+                            this.handleThemeModeChange('client', e.target.value);
+                            return;
+                        }
+                        if (e.target.closest('#client-diet-goals-form')) {
+                            this._handleUpdateClientGoalsFromUI();
+                        }
+                    });
 
                     const sidebar = document.getElementById('app-sidebar');
                     const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
@@ -1115,7 +1863,120 @@
                     }
                 },
 
-                renderAll() { this.renderRoutinesSection(); this.renderDietPage(); this.renderWeeklyProgress(); this.renderWorkoutHistorySection(); this.renderProfileSection(); this.renderNutricionSection(); if (this.isAsesor()){ this.renderAsesoradosSection();} this.updateDashboard(); lucide.createIcons(); },
+                renderAll() {
+                    this.renderRoutinesSection();
+                    this.renderDietPage();
+                    this.renderWeeklyProgress();
+                    this.renderWorkoutHistorySection();
+                    this.renderProfileSection();
+                    this.renderNutricionSection();
+                    if (this.isAsesor()) {
+                        this.renderAsesoradosSection();
+                    }
+                    this.renderConfigSection();
+                    this.updateCoverPreview();
+                    this.updateDashboard();
+                    this.updateBrandingUI();
+                    this.applyTheme();
+                    lucide.createIcons();
+                },
+
+                renderConfigSection() {
+                    const section = document.getElementById('configuracion');
+                    if (!section) return;
+                    this.ensureBrandingDefaults();
+                    const defaults = this.getDefaultState().branding;
+                    const branding = this.state.branding || defaults;
+                    const logoData = branding.logo?.image || '';
+                    const preview = document.getElementById('branding-logo-preview');
+                    const placeholder = document.getElementById('branding-logo-placeholder');
+                    const removeBtn = document.querySelector('button[data-action="remove-logo-image"]');
+                    const updatedAtLabel = document.getElementById('logo-updated-at');
+
+                    if (preview && placeholder) {
+                        if (logoData) {
+                            preview.src = logoData;
+                            preview.classList.remove('hidden');
+                            placeholder.classList.add('hidden');
+                        } else {
+                            preview.src = '';
+                            preview.classList.add('hidden');
+                            placeholder.classList.remove('hidden');
+                        }
+                    }
+                    if (removeBtn) {
+                        const hasLogo = Boolean(logoData);
+                        removeBtn.disabled = !hasLogo;
+                        removeBtn.classList.toggle('opacity-50', !hasLogo);
+                        removeBtn.classList.toggle('cursor-not-allowed', !hasLogo);
+                    }
+                    if (updatedAtLabel) {
+                        if (branding.logo?.updatedAt) {
+                            const date = new Date(branding.logo.updatedAt);
+                            updatedAtLabel.textContent = `Actualizado el ${date.toLocaleDateString()} a las ${date.toLocaleTimeString()}`;
+                        } else {
+                            updatedAtLabel.textContent = '';
+                        }
+                    }
+
+                    const disableSelfTheme = !this.isAsesor() && Boolean(this.state.coachBranding?.clientTheme);
+                    const appliedNote = document.getElementById('theme-applied-note');
+                    if (appliedNote) {
+                        appliedNote.textContent = disableSelfTheme
+                            ? 'Tema gestionado por tu asesor.'
+                            : 'Los cambios se guardan automáticamente.';
+                    }
+
+                    const themeMode = branding.theme?.mode || 'dark';
+                    document.querySelectorAll('input[name="theme-mode"]').forEach((input) => {
+                        input.checked = input.value === themeMode;
+                        input.disabled = disableSelfTheme;
+                        input.closest('label')?.classList.toggle('opacity-60', disableSelfTheme && input.value !== themeMode);
+                    });
+
+                    const customFields = document.getElementById('custom-theme-fields');
+                    if (customFields) {
+                        customFields.classList.toggle('hidden', themeMode !== 'custom');
+                    }
+                    document.querySelectorAll('[data-theme-color="self"]').forEach((input) => {
+                        const key = input.dataset.colorKey;
+                        const value = branding.theme?.customColors?.[key] || defaults.theme.customColors[key];
+                        input.value = value;
+                        const shouldDisable = disableSelfTheme || themeMode !== 'custom';
+                        input.disabled = shouldDisable;
+                        input.closest('label')?.classList.toggle('opacity-60', shouldDisable);
+                    });
+
+                    const clientBlock = document.getElementById('client-theme-block');
+                    if (clientBlock) {
+                        if (!this.isAsesor()) {
+                            clientBlock.classList.add('hidden');
+                        } else {
+                            clientBlock.classList.remove('hidden');
+                            const clientTheme = branding.clientTheme || defaults.clientTheme;
+                            const clientMode = clientTheme.mode || 'dark';
+                            document.querySelectorAll('input[name="client-theme-mode"]').forEach((input) => {
+                                input.checked = input.value === clientMode;
+                            });
+                            const clientFields = document.getElementById('client-custom-theme-fields');
+                            if (clientFields) {
+                                clientFields.classList.toggle('hidden', clientMode !== 'custom');
+                            }
+                            document.querySelectorAll('[data-theme-color="client"]').forEach((input) => {
+                                const key = input.dataset.colorKey;
+                                const value = clientTheme.customColors?.[key] || defaults.clientTheme.customColors[key];
+                                const disable = clientMode !== 'custom';
+                                input.value = value;
+                                input.disabled = disable;
+                                input.closest('label')?.classList.toggle('opacity-60', disable);
+                            });
+                            const clientNote = document.getElementById('client-theme-note');
+                            if (clientNote) {
+                                clientNote.textContent = 'Se aplicará automáticamente a todos tus asesorados activos.';
+                            }
+                        }
+                    }
+                },
                 showSection(id, animate=true){
                     this.state.currentSection=id;
                     document.querySelectorAll('.section-content').forEach(s=>s.classList.add('hidden'));
@@ -1688,6 +2549,20 @@
                     const { calories, protein, carbs, fats } = this.state.userGoals;
                     const p = (c, g) => Math.min(100, (g > 0 ? c / g : 0) * 100);
 
+                    const goalProteinEl = document.getElementById('dashboard-goal-protein');
+                    if (goalProteinEl) goalProteinEl.textContent = `${protein} g`;
+                    const goalCarbsEl = document.getElementById('dashboard-goal-carbs');
+                    if (goalCarbsEl) goalCarbsEl.textContent = `${carbs} g`;
+                    const goalFatsEl = document.getElementById('dashboard-goal-fats');
+                    if (goalFatsEl) goalFatsEl.textContent = `${fats} g`;
+
+                    const consumedProteinEl = document.getElementById('dashboard-consumed-protein');
+                    if (consumedProteinEl) consumedProteinEl.textContent = Math.round(consumedTotals.p);
+                    const consumedCarbsEl = document.getElementById('dashboard-consumed-carbs');
+                    if (consumedCarbsEl) consumedCarbsEl.textContent = Math.round(consumedTotals.c);
+                    const consumedFatsEl = document.getElementById('dashboard-consumed-fats');
+                    if (consumedFatsEl) consumedFatsEl.textContent = Math.round(consumedTotals.f);
+
                     // Actualizar página de Dieta
                     document.getElementById('diet-total-calories').textContent = Math.round(consumedTotals.cals);
                     document.getElementById('diet-total-protein').textContent = Math.round(consumedTotals.p);
@@ -1781,10 +2656,14 @@
                         const isCompleted = dayEntries.length > 0;
                         const isToday = currentDate.getTime() === today.getTime();
                         if (isCompleted) completedCount++;
+                        const dayNumber = currentDate.getDate();
+                        const circleClass = isCompleted ? 'bg-emerald-400 text-gray-900 shadow-lg shadow-emerald-500/40' : 'bg-gray-800 text-gray-200';
+                        const ringClass = isToday ? 'ring-2 ring-emerald-300/80 ring-offset-2 ring-offset-gray-900' : '';
+                        const statusContent = isCompleted ? '<i data-lucide="check" class="h-4 w-4"></i>' : `<span class="text-sm font-semibold">${dayNumber}</span>`;
                         weekHTML += `
-                            <div class="text-center">
-                                <p class="text-xs text-gray-400">${dayLetters[i]}</p>
-                                <div class="w-8 h-8 rounded-full flex items-center justify-center mt-1 ${isCompleted ? 'bg-emerald-500' : 'bg-gray-600'} ${isToday ? 'ring-2 ring-white' : ''}"></div>
+                            <div class="flex flex-col items-center gap-1">
+                                <span class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-400">${dayLetters[i]}</span>
+                                <span class="flex h-10 w-10 items-center justify-center rounded-full ${circleClass} ${ringClass}">${statusContent}</span>
                             </div>
                         `;
                     }
@@ -1796,41 +2675,233 @@
                         const formattedDate = new Date(lastWorkout.completedAt || `${lastWorkout.date}T00:00:00`).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
                         const intlFormatter = new Intl.NumberFormat('es-ES');
                         statsHtml = `
-                            <div class="mt-4 pt-4 border-t border-gray-600/50">
-                                <div class="flex items-center justify-between">
-                                    <h4 class="text-sm font-semibold text-gray-400 uppercase tracking-wider">Último entrenamiento</h4>
-                                    <button data-action="show-workout-history" class="text-xs font-semibold text-emerald-300 hover:text-emerald-200">Ver historial</button>
-                                </div>
-                                <div class="mt-3 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 p-3">
-                                    <div class="flex items-center gap-3">
-                                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200"><i data-lucide="award" class="h-5 w-5"></i></span>
-                                        <div>
-                                            <p class="font-bold text-white">${lastWorkout.routineName}</p>
-                                            <p class="text-xs text-gray-400 capitalize">${formattedDate}</p>
-                                        </div>
+                            <div class="rounded-3xl border border-white/10 bg-white/5 p-4">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Último entrenamiento</p>
+                                        <p class="mt-1 text-sm font-semibold text-white">${lastWorkout.routineName}</p>
+                                        <p class="text-xs text-gray-400 capitalize">${formattedDate}</p>
                                     </div>
                                     <div class="text-right text-sm text-gray-200">
                                         <p class="font-semibold">${this.formatTime(lastWorkout.totalDuration)}</p>
                                         <p class="text-xs text-gray-400">${intlFormatter.format(Math.round(lastWorkout.totalVolume || 0))} kg·reps</p>
                                     </div>
                                 </div>
+                                <button data-action="show-workout-history" class="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300 transition hover:text-emerald-200">
+                                    Ver historial
+                                    <i data-lucide="arrow-up-right" class="h-4 w-4"></i>
+                                </button>
                             </div>
                         `;
                     } else {
                         statsHtml = `
-                            <div class="mt-4 pt-4 border-t border-gray-600/50 text-center text-gray-500 text-sm">
-                                <p>Completa tu primer entrenamiento para comenzar a ver tus estadísticas.</p>
+                            <div class="rounded-3xl border border-dashed border-white/15 bg-white/5 p-4 text-center text-sm text-gray-400">
+                                <p>Completa tu primer entrenamiento para ver estadísticas detalladas aquí.</p>
+                                <button data-action="show-section" data-section-id="rutinas" class="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-900 transition hover:bg-emerald-400">
+                                    <i data-lucide="play" class="h-4 w-4"></i>
+                                    Ir a rutinas
+                                </button>
                             </div>
                         `;
                     }
 
                     container.innerHTML = `
-                        <h3 class="font-semibold text-lg mb-3">Progreso semanal</h3>
-                        <div class="flex justify-between">${weekHTML}</div>
-                        <p class="text-right text-xs text-gray-400 mt-2">${completedCount} de 7 días completados</p>
-                        ${statsHtml}
+                        <div class="flex flex-col gap-5">
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Actividad semanal</p>
+                                    <h3 class="text-xl font-bold text-white">Seguimiento de entrenamientos</h3>
+                                </div>
+                                <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-200">
+                                    <i data-lucide="calendar-check" class="h-4 w-4"></i>
+                                    ${completedCount} / 7 días
+                                </span>
+                            </div>
+                            <div class="grid grid-cols-7 gap-2">${weekHTML}</div>
+                            ${statsHtml}
+                        </div>
                     `;
                     lucide.createIcons();
+                },
+                updateCoverPreview() {
+                    const preview = document.getElementById('dashboard-cover-preview');
+                    const placeholder = document.getElementById('dashboard-cover-placeholder');
+                    const removeBtn = document.querySelector('button[data-action="remove-cover-image"]');
+                    if (!preview || !placeholder) return;
+
+                    const imageData = this.state.dashboardCover?.image;
+
+                    if (imageData) {
+                        preview.src = imageData;
+                        preview.classList.remove('hidden');
+                        placeholder.classList.add('hidden');
+                    } else {
+                        preview.src = '';
+                        preview.classList.add('hidden');
+                        placeholder.classList.remove('hidden');
+                    }
+
+                    if (removeBtn) {
+                        const hasImage = Boolean(imageData);
+                        removeBtn.disabled = !hasImage;
+                        removeBtn.setAttribute('aria-disabled', hasImage ? 'false' : 'true');
+                        removeBtn.classList.toggle('opacity-40', !hasImage);
+                        removeBtn.classList.toggle('cursor-not-allowed', !hasImage);
+                    }
+                },
+                triggerCoverUpload() {
+                    const input = document.getElementById('dashboard-cover-input');
+                    if (input) {
+                        input.click();
+                    }
+                },
+                async handleCoverFileChange(input) {
+                    if (!input || !input.files || input.files.length === 0) return;
+                    const file = input.files[0];
+                    if (!file.type.startsWith('image/')) {
+                        this.showToast('Por favor selecciona una imagen válida.', 'error');
+                        input.value = '';
+                        return;
+                    }
+                    const maxSize = 5 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        this.showToast('La imagen debe pesar menos de 5MB.', 'error');
+                        input.value = '';
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = async () => {
+                        this.state.dashboardCover = this.state.dashboardCover || { image: '', updatedAt: null };
+                        this.state.dashboardCover.image = reader.result;
+                        this.state.dashboardCover.updatedAt = Date.now();
+                        this.updateCoverPreview();
+                        await this.saveDataToFirestore();
+                        this.showToast('Portada actualizada.');
+                        input.value = '';
+                    };
+                    reader.onerror = () => {
+                        this.showToast('No se pudo cargar la imagen.', 'error');
+                        input.value = '';
+                    };
+                    reader.readAsDataURL(file);
+                },
+                async removeCoverImage() {
+                    if (!this.state.dashboardCover || !this.state.dashboardCover.image) {
+                        return;
+                    }
+                    this.state.dashboardCover.image = '';
+                    this.state.dashboardCover.updatedAt = null;
+                    this.updateCoverPreview();
+                    const input = document.getElementById('dashboard-cover-input');
+                    if (input) input.value = '';
+                    await this.saveDataToFirestore();
+                    this.showToast('Portada eliminada.');
+                },
+
+                triggerLogoUpload() {
+                    const input = document.getElementById('branding-logo-input');
+                    if (input) {
+                        input.click();
+                    }
+                },
+
+                async handleLogoFileChange(input) {
+                    if (!input || !input.files || input.files.length === 0) return;
+                    const file = input.files[0];
+                    if (!file.type.startsWith('image/')) {
+                        this.showToast('Por favor selecciona una imagen válida.', 'error');
+                        input.value = '';
+                        return;
+                    }
+                    const maxSize = 2 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        this.showToast('El logo debe pesar menos de 2MB.', 'error');
+                        input.value = '';
+                        return;
+                    }
+                    const reader = new FileReader();
+                    reader.onload = async () => {
+                        this.ensureBrandingDefaults();
+                        this.state.branding.logo = this.state.branding.logo || { image: '', updatedAt: null };
+                        this.state.branding.logo.image = reader.result;
+                        this.state.branding.logo.updatedAt = Date.now();
+                        this.renderConfigSection();
+                        this.updateBrandingUI();
+                        await this.saveDataToFirestore();
+                        this.showToast('Logo actualizado.');
+                        input.value = '';
+                    };
+                    reader.onerror = () => {
+                        this.showToast('No se pudo cargar el logo.', 'error');
+                        input.value = '';
+                    };
+                    reader.readAsDataURL(file);
+                },
+
+                async removeLogoImage() {
+                    this.ensureBrandingDefaults();
+                    if (!this.state.branding?.logo?.image) {
+                        return;
+                    }
+                    this.state.branding.logo.image = '';
+                    this.state.branding.logo.updatedAt = null;
+                    this.renderConfigSection();
+                    this.updateBrandingUI();
+                    const input = document.getElementById('branding-logo-input');
+                    if (input) input.value = '';
+                    await this.saveDataToFirestore();
+                    this.showToast('Logo eliminado.');
+                },
+
+                async handleThemeModeChange(target, mode) {
+                    this.ensureBrandingDefaults();
+                    if (target === 'client' && !this.isAsesor()) {
+                        return;
+                    }
+                    const defaults = this.getDefaultState().branding;
+                    if (target === 'client') {
+                        const current = this.state.branding.clientTheme || defaults.clientTheme;
+                        this.state.branding.clientTheme = this.mergeThemeConfig(defaults.clientTheme, { ...current, mode, customColors: current.customColors });
+                    } else {
+                        if (!this.isAsesor() && this.state.coachBranding?.clientTheme) {
+                            this.showToast('No puedes modificar el tema asignado por tu asesor.', 'error');
+                            this.renderConfigSection();
+                            return;
+                        }
+                        const currentTheme = this.state.branding.theme || defaults.theme;
+                        this.state.branding.theme = this.mergeThemeConfig(defaults.theme, { ...currentTheme, mode, customColors: currentTheme.customColors });
+                    }
+                    this.renderConfigSection();
+                    this.applyTheme();
+                    await this.saveDataToFirestore();
+                    this.showToast('Tema actualizado.');
+                },
+
+                async handleCustomColorChange(target, key, value) {
+                    this.ensureBrandingDefaults();
+                    const defaults = this.getDefaultState().branding;
+                    if (target === 'client') {
+                        if (!this.isAsesor()) return;
+                        this.state.branding.clientTheme = this.state.branding.clientTheme || defaults.clientTheme;
+                        this.state.branding.clientTheme.customColors = {
+                            ...defaults.clientTheme.customColors,
+                            ...(this.state.branding.clientTheme.customColors || {}),
+                            [key]: value
+                        };
+                    } else {
+                        if (!this.isAsesor() && this.state.coachBranding?.clientTheme) {
+                            return;
+                        }
+                        this.state.branding.theme = this.state.branding.theme || defaults.theme;
+                        this.state.branding.theme.customColors = {
+                            ...defaults.theme.customColors,
+                            ...(this.state.branding.theme.customColors || {}),
+                            [key]: value
+                        };
+                    }
+                    this.applyTheme();
+                    this.renderConfigSection();
+                    await this.saveDataToFirestore();
                 },
                 renderWorkoutHistorySection() {
                     const overviewContainer = document.getElementById('history-overview');
