@@ -948,7 +948,7 @@
                         
                         const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate } = button.dataset;
                         const actionMap = {
-                            'show-section': () => this.showSection(sectionId), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(),
+                            'show-section': () => this.showSection(sectionId), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
                             'routine-creator-switch-group': () => this.routine_creator_switchGroup(groupTarget),
                             'routine-creator-edit-group-image': (evt) => { evt.stopPropagation(); this.routine_creator_showGroupImageModal(groupTarget); },
@@ -2566,7 +2566,9 @@
                                                                 <div>
                                                                     <p class="text-base font-semibold text-white">${ex.name}</p>
                                                                     <div class="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                                                                        ${isAdmin ? `<button data-action="admin-edit-exercise" data-group="${group}" data-subgroup="${subGroup}" data-exercise-index="${exIndex}" class="inline-flex items-center gap-1 text-emerald-300/80 transition hover:text-emerald-100"><i data-lucide="pencil" class="h-3.5 w-3.5"></i>Editar ejercicio</button>` : ''}
                                                                         ${isAdmin ? `<button data-action="admin-edit-media" data-group="${group}" data-subgroup="${subGroup}" data-exercise-index="${exIndex}" class="inline-flex items-center gap-1 text-amber-300/80 transition hover:text-amber-200"><i data-lucide="camera" class="h-3.5 w-3.5"></i>Editar media</button>` : ''}
+                                                                        ${isAdmin ? `<button data-action="admin-confirm-delete-exercise" data-group="${group}" data-subgroup="${subGroup}" data-exercise-index="${exIndex}" class="inline-flex items-center gap-1 text-rose-300/80 transition hover:text-rose-200"><i data-lucide="trash-2" class="h-3.5 w-3.5"></i>Eliminar</button>` : ''}
                                                                         <button data-action="show-exercise-info" data-exercise-name="${ex.name}" class="inline-flex items-center gap-1 text-sky-300/80 transition hover:text-sky-200"><i data-lucide="info" class="h-3.5 w-3.5"></i>Instrucciones</button>
                                                                     </div>
                                                                 </div>
@@ -3175,6 +3177,263 @@
 
                     if (shouldReload) {
                         this.routine_enterCreator(2);
+                    }
+                },
+                admin_showEditExerciseModal(group, subGroup, exerciseIndex) {
+                    if (!this.isAsesor()) return;
+
+                    const index = parseInt(exerciseIndex, 10);
+                    if (Number.isNaN(index)) return;
+
+                    const exercise = this.data.exerciseLibrary?.[group]?.[subGroup]?.[index];
+                    if (!exercise) {
+                        this.showToast('No se encontró el ejercicio seleccionado.', 'error');
+                        return;
+                    }
+
+                    const groupOptions = Object.keys(this.data.exerciseLibrary || {});
+                    if (groupOptions.length === 0) {
+                        this.showToast('No hay grupos disponibles para editar.', 'error');
+                        return;
+                    }
+
+                    const initialSubgroups = Object.keys(this.data.exerciseLibrary[group] || {});
+                    const safeName = (exercise.name || '').replace(/"/g, '&quot;');
+                    const subgroupOptions = initialSubgroups.length
+                        ? initialSubgroups.map(sub => `<option value="${sub}" ${sub === subGroup ? 'selected' : ''}>${sub}</option>`).join('')
+                        : '<option value="" disabled selected>No hay subgrupos disponibles</option>';
+                    const subgroupDisabled = initialSubgroups.length ? '' : 'disabled';
+
+                    const body = `
+                        <div class="space-y-5">
+                            <div class="flex flex-col gap-2">
+                                <label for="admin-edit-exercise-name" class="text-sm font-semibold text-gray-200">Nombre del ejercicio</label>
+                                <input id="admin-edit-exercise-name" type="text" value="${safeName}" class="rounded-2xl border border-white/10 bg-gray-950/60 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400" placeholder="Ej. Press inclinado con mancuernas">
+                            </div>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <div class="flex flex-col gap-2">
+                                    <label for="admin-edit-exercise-group" class="text-sm font-semibold text-gray-200">Grupo muscular</label>
+                                    <select id="admin-edit-exercise-group" class="rounded-2xl border border-white/10 bg-gray-950/60 px-3 py-3 text-sm font-medium text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                        ${groupOptions.map(option => `<option value="${option}" ${option === group ? 'selected' : ''}>${option}</option>`).join('')}
+                                    </select>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <label for="admin-edit-exercise-subgroup" class="text-sm font-semibold text-gray-200">Subgrupo</label>
+                                    <select id="admin-edit-exercise-subgroup" class="rounded-2xl border border-white/10 bg-gray-950/60 px-3 py-3 text-sm font-medium text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400" ${subgroupDisabled}>
+                                        ${subgroupOptions}
+                                    </select>
+                                    <p id="admin-edit-exercise-subgroup-empty" class="text-xs text-amber-300/80 ${initialSubgroups.length ? 'hidden' : ''}">Crea un subgrupo dentro de este grupo para poder asignar el ejercicio.</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-400">Para actualizar la imagen utiliza la opción <strong>Editar media</strong>.</p>
+                        </div>
+                    `;
+
+                    const footer = [
+                        { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                        { text: 'Guardar cambios', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'admin-save-exercise', group, subgroup: subGroup, 'exercise-index': exerciseIndex, id: 'admin-save-exercise-btn' }
+                    ];
+
+                    this.showModal(`Editar ejercicio: ${exercise.name}`, body, footer);
+                    lucide.createIcons();
+
+                    const groupSelect = document.getElementById('admin-edit-exercise-group');
+                    const subgroupSelect = document.getElementById('admin-edit-exercise-subgroup');
+                    const emptyHelper = document.getElementById('admin-edit-exercise-subgroup-empty');
+
+                    const populateSubgroups = (targetGroup, desiredSubgroup) => {
+                        if (!subgroupSelect) return;
+                        const subgroups = Object.keys(this.data.exerciseLibrary[targetGroup] || {});
+                        if (subgroups.length === 0) {
+                            subgroupSelect.innerHTML = '<option value="" disabled selected>No hay subgrupos disponibles</option>';
+                            subgroupSelect.disabled = true;
+                            emptyHelper?.classList.remove('hidden');
+                            return;
+                        }
+
+                        subgroupSelect.disabled = false;
+                        emptyHelper?.classList.add('hidden');
+                        subgroupSelect.innerHTML = subgroups.map(sub => `<option value="${sub}">${sub}</option>`).join('');
+                        subgroupSelect.value = desiredSubgroup && subgroups.includes(desiredSubgroup) ? desiredSubgroup : subgroups[0];
+                    };
+
+                    if (groupSelect) {
+                        groupSelect.addEventListener('change', (event) => {
+                            populateSubgroups(event.target.value, '');
+                        });
+                    }
+
+                    populateSubgroups(group, subGroup);
+                },
+                async admin_saveExerciseChanges(group, subGroup, exerciseIndex) {
+                    if (!this.isAsesor()) {
+                        this.showToast('Acción no permitida.', 'error');
+                        return;
+                    }
+
+                    const originalGroup = group;
+                    const originalSubGroup = subGroup;
+                    const index = parseInt(exerciseIndex, 10);
+                    if (Number.isNaN(index)) return;
+
+                    const nameInput = document.getElementById('admin-edit-exercise-name');
+                    const groupSelect = document.getElementById('admin-edit-exercise-group');
+                    const subgroupSelect = document.getElementById('admin-edit-exercise-subgroup');
+
+                    if (!nameInput || !groupSelect || !subgroupSelect) {
+                        this.showToast('Formulario incompleto.', 'error');
+                        return;
+                    }
+
+                    const newName = nameInput.value.trim();
+                    if (!newName) {
+                        this.showToast('El nombre del ejercicio es obligatorio.', 'error');
+                        nameInput.focus();
+                        return;
+                    }
+
+                    const targetGroup = groupSelect.value;
+                    if (!targetGroup) {
+                        this.showToast('Selecciona un grupo muscular.', 'error');
+                        groupSelect.focus();
+                        return;
+                    }
+
+                    const targetSubgroup = subgroupSelect.value;
+                    if (!targetSubgroup) {
+                        this.showToast('Selecciona un subgrupo.', 'error');
+                        subgroupSelect.focus();
+                        return;
+                    }
+
+                    const normalizedName = newName.toLowerCase();
+                    const targetList = this.data.exerciseLibrary[targetGroup]?.[targetSubgroup] || [];
+                    const hasDuplicate = targetList.some((item, idx) => item.name.toLowerCase() === normalizedName && !(targetGroup === originalGroup && targetSubgroup === originalSubGroup && idx === index));
+                    if (hasDuplicate) {
+                        this.showToast('Ya existe un ejercicio con ese nombre en el subgrupo seleccionado.', 'error');
+                        nameInput.focus();
+                        return;
+                    }
+
+                    const footerButtons = document.getElementById('custom-modal-footer')?.querySelectorAll('button');
+                    footerButtons?.forEach(btn => btn.disabled = true);
+
+                    try {
+                        const updatedLibrary = JSON.parse(JSON.stringify(this.data.exerciseLibrary));
+                        const originalList = updatedLibrary?.[originalGroup]?.[originalSubGroup];
+                        if (!originalList || !originalList[index]) {
+                            this.showToast('No se encontró el ejercicio seleccionado.', 'error');
+                            footerButtons?.forEach(btn => btn.disabled = false);
+                            return;
+                        }
+
+                        const [exerciseData] = originalList.splice(index, 1);
+                        if (originalList.length === 0) {
+                            delete updatedLibrary[originalGroup][originalSubGroup];
+                        }
+                        if (Object.keys(updatedLibrary[originalGroup] || {}).length === 0) {
+                            delete updatedLibrary[originalGroup];
+                        }
+
+                        if (!updatedLibrary[targetGroup]) {
+                            updatedLibrary[targetGroup] = {};
+                        }
+                        if (!Array.isArray(updatedLibrary[targetGroup][targetSubgroup])) {
+                            updatedLibrary[targetGroup][targetSubgroup] = [];
+                        }
+
+                        updatedLibrary[targetGroup][targetSubgroup].push({ ...exerciseData, name: newName });
+                        updatedLibrary[targetGroup][targetSubgroup].sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
+
+                        const docRef = doc(this.db, 'app_data', 'exercise_library');
+                        await setDoc(docRef, updatedLibrary);
+
+                        this.data.exerciseLibrary = updatedLibrary;
+                        this._tempRoutine.activeExerciseGroup = targetGroup;
+
+                        this.showToast('Ejercicio actualizado correctamente.', 'success');
+                        this.hideModal();
+                        this.routine_enterCreator(2);
+                    } catch (error) {
+                        console.error('Error updating exercise:', error);
+                        this.showToast('No se pudo actualizar el ejercicio.', 'error');
+                        footerButtons?.forEach(btn => btn.disabled = false);
+                    }
+                },
+                admin_confirmDeleteExercise(group, subGroup, exerciseIndex) {
+                    if (!this.isAsesor()) return;
+
+                    const index = parseInt(exerciseIndex, 10);
+                    if (Number.isNaN(index)) return;
+
+                    const exercise = this.data.exerciseLibrary?.[group]?.[subGroup]?.[index];
+                    if (!exercise) {
+                        this.showToast('No se encontró el ejercicio seleccionado.', 'error');
+                        return;
+                    }
+
+                    const body = `
+                        <div class="space-y-4">
+                            <p class="text-sm text-gray-300">¿Seguro que deseas eliminar <strong class="text-white">${exercise.name}</strong>? Esta acción no se puede deshacer.</p>
+                            <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-4 text-xs text-gray-400">
+                                <p>Se eliminará del grupo <span class="font-semibold text-emerald-200">${group}</span> y del subgrupo <span class="font-semibold text-emerald-200">${subGroup}</span>.</p>
+                            </div>
+                        </div>
+                    `;
+
+                    const footer = [
+                        { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                        { text: 'Eliminar', class: 'bg-rose-600 text-white hover:bg-rose-500', action: 'admin-delete-exercise', group, subgroup: subGroup, 'exercise-index': exerciseIndex, id: 'admin-delete-exercise-btn' }
+                    ];
+
+                    this.showModal(`Eliminar ejercicio`, body, footer);
+                    lucide.createIcons();
+                },
+                async admin_deleteExercise(group, subGroup, exerciseIndex) {
+                    if (!this.isAsesor()) {
+                        this.showToast('Acción no permitida.', 'error');
+                        return;
+                    }
+
+                    const index = parseInt(exerciseIndex, 10);
+                    if (Number.isNaN(index)) return;
+
+                    const footerButtons = document.getElementById('custom-modal-footer')?.querySelectorAll('button');
+                    footerButtons?.forEach(btn => btn.disabled = true);
+
+                    try {
+                        const updatedLibrary = JSON.parse(JSON.stringify(this.data.exerciseLibrary));
+                        const exercises = updatedLibrary?.[group]?.[subGroup];
+                        if (!exercises || !exercises[index]) {
+                            this.showToast('No se encontró el ejercicio seleccionado.', 'error');
+                            footerButtons?.forEach(btn => btn.disabled = false);
+                            return;
+                        }
+
+                        exercises.splice(index, 1);
+                        if (exercises.length === 0) {
+                            delete updatedLibrary[group][subGroup];
+                        }
+                        if (Object.keys(updatedLibrary[group] || {}).length === 0) {
+                            delete updatedLibrary[group];
+                        }
+
+                        const docRef = doc(this.db, 'app_data', 'exercise_library');
+                        await setDoc(docRef, updatedLibrary);
+
+                        this.data.exerciseLibrary = updatedLibrary;
+
+                        if (!this.data.exerciseLibrary[this._tempRoutine.activeExerciseGroup]) {
+                            this._tempRoutine.activeExerciseGroup = Object.keys(this.data.exerciseLibrary)[0] || '';
+                        }
+
+                        this.showToast('Ejercicio eliminado correctamente.', 'success');
+                        this.hideModal();
+                        this.routine_enterCreator(2);
+                    } catch (error) {
+                        console.error('Error deleting exercise:', error);
+                        this.showToast('No se pudo eliminar el ejercicio.', 'error');
+                        footerButtons?.forEach(btn => btn.disabled = false);
                     }
                 },
                 routine_creator_showGroupImageModal(group) {
