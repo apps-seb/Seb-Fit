@@ -2386,7 +2386,7 @@
                     if (targetStep === 1) {
                         this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, editingClientId: null, assignedClientId: '', activeExerciseGroup: '' };
                     }
-                    const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(targetStep)}</div>`;
+                    const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full min-h-screen flex flex-col overflow-hidden">${this.routine_getCreatorContent(targetStep)}</div>`;
                     this.routine_openFullscreenView(viewHTML);
 
                     if (targetStep === 1) {
@@ -2489,7 +2489,7 @@
                         const isAdmin = this.isAsesor();
                         const assignedClientId = this._tempRoutine.assignedClientId || this._tempRoutine.editingClientId;
                         const assignedClient = assignedClientId ? (this.state.asesorados || []).find(c => c.id === assignedClientId) : null;
-                        const assignmentInfo = assignedClient ? `<p class="mt-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-200/80">Asignada a ${assignedClient.userName}</p>` : '';
+                        const assignmentInfo = assignedClient ? `<div class="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-500/10 px-4 py-1 text-sm font-semibold text-emerald-200/90"><i data-lucide="user-check" class="h-4 w-4"></i><span>Asignada a ${assignedClient.userName}</span></div>` : '';
                         const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex] || { day: '', exercises: [] };
                         const dayName = currentDay.day || `Día ${this._tempRoutine.currentDayIndex + 1}`;
                         const totalDays = this._tempRoutine.plan.length;
@@ -2498,6 +2498,7 @@
                         const groupKeys = Object.keys(this.data.exerciseLibrary);
                         const firstGroup = groupKeys[0] || '';
                         const activeGroup = this._tempRoutine.activeExerciseGroup || firstGroup;
+                        const routineName = (this._tempRoutine.name || '').trim() || 'Rutina sin título';
                         this._tempRoutine.activeExerciseGroup = activeGroup;
                         const groupsNav = `<aside id="exercise-group-nav" class="w-full shrink-0 border-b border-white/5 bg-gray-950/80 md:w-80 md:border-b-0 md:border-r md:max-h-[calc(100vh-8rem)] md:overflow-y-auto">
                             <div class="grid gap-4 p-5">
@@ -2577,55 +2578,110 @@
                             </div>
                         </section>`;
                         return `
-                            <div class="min-h-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
-                                <header class="sticky top-0 z-20 border-b border-white/5 bg-gray-950/80 backdrop-blur">
-                                    <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-                                        <button data-action="routine-close-view" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white"><i data-lucide="arrow-left"></i></button>
+                            <div class="flex min-h-screen flex-col bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+                                <header class="border-b border-white/5 bg-gray-950/80 backdrop-blur">
+                                    <div class="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-5 sm:px-6">
+                                        <button data-action="routine-close-view" class="group inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400 transition hover:border-emerald-400/60 hover:text-white"><i data-lucide="arrow-left" class="h-5 w-5"></i></button>
                                         <div class="min-w-0 text-center">
-                                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300/80">Paso 2 · Planifica tu rutina</p>
-                                            <h3 class="mt-1 truncate text-lg font-semibold text-white">${this._tempRoutine.name}</h3>
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Crear rutina</p>
+                                            <h3 class="mt-2 text-lg font-semibold text-white">Paso 2 · Planifica tu rutina</h3>
                                             ${assignmentInfo}
                                         </div>
-                                        <button data-action="routine-creator-save" class="rounded-2xl bg-white/10 px-4 py-2 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-400/10 hover:text-emerald-200">Guardar</button>
+                                        <div class="hidden h-11 w-11 sm:block"></div>
                                     </div>
-                                    <div class="horizontal-scroll-container flex items-center gap-2 overflow-x-auto px-4 pb-4 sm:px-6" id="routine-day-tabs"></div>
+                                    <div class="h-1 w-full bg-white/5">
+                                        <div class="h-full w-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"></div>
+                                    </div>
                                 </header>
-                                <div class="flex-1 overflow-y-auto">
-                                    <div class="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-8 sm:px-6 sm:py-10">
-                                        <section class="rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8">
-                                            <div class="grid gap-6 sm:grid-cols-3">
-                                                <div class="sm:col-span-2 text-left">
-                                                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Día seleccionado</p>
-                                                    <p class="mt-2 text-2xl font-semibold text-white">${dayName}</p>
-                                                    <p class="mt-3 text-sm text-gray-300">Organiza la experiencia del día con ejercicios cuidadosamente seleccionados y sin elementos que distraigan.</p>
+                                <div class="flex-1 min-h-0 overflow-y-auto px-4 pb-24 pt-8 sm:px-6 lg:pb-12">
+                                    <div class="mx-auto grid w-full max-w-6xl items-start gap-6 lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)]">
+                                        <section class="flex min-h-0 flex-col gap-6 rounded-3xl border border-white/5 bg-white/5 p-6 sm:p-8 shadow-[0_45px_120px_-70px_rgba(16,185,129,0.55)]">
+                                            <div class="space-y-6">
+                                                <div>
+                                                    <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-gray-950/50 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80"><span class="h-2 w-2 rounded-full bg-emerald-400"></span>Paso 2</span>
+                                                    <h2 class="mt-4 text-2xl font-semibold leading-tight text-white">Diseña la jornada con intención</h2>
+                                                    <div class="mt-3 inline-flex items-center gap-2 rounded-full border border-emerald-300/30 bg-emerald-500/10 px-4 py-1 text-xs font-semibold text-emerald-200/90">
+                                                        <i data-lucide="bookmark-check" class="h-4 w-4"></i>
+                                                        <span>${routineName}</span>
+                                                    </div>
+                                                    <p class="mt-3 text-sm leading-relaxed text-gray-300">Presentamos la información esencial del día para que definas cada bloque con claridad y profesionalismo.</p>
                                                 </div>
-                                                <div class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-gray-950/60 p-4 text-sm text-gray-300">
-                                                    <div class="flex items-center justify-between">
-                                                        <span class="text-xs uppercase tracking-[0.3em] text-emerald-200/70">Días totales</span>
-                                                        <span class="text-lg font-semibold text-white">${totalDays}</span>
+                                                <div class="space-y-6 rounded-2xl border border-white/10 bg-gray-950/60 p-6">
+                                                    <div class="flex items-start justify-between gap-4">
+                                                        <div>
+                                                            <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Día en edición</p>
+                                                            <p class="mt-2 text-2xl font-semibold text-white">${dayName}</p>
+                                                        </div>
+                                                        <span class="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-300">
+                                                            <i data-lucide="calendar-check" class="h-6 w-6"></i>
+                                                        </span>
                                                     </div>
-                                                    <div class="flex items-center justify-between">
-                                                        <span class="text-xs uppercase tracking-[0.3em] text-emerald-200/70">Ejercicios hoy</span>
-                                                        <span class="text-lg font-semibold text-white">${totalExercises}</span>
-                                                    </div>
-                                                    <div class="flex items-center gap-2 rounded-xl bg-white/5 px-3 py-2 text-xs text-gray-200">
-                                                        <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
-                                                        <span>Mantén la secuencia clara y concisa.</span>
+                                                    <div class="grid gap-4 sm:grid-cols-2">
+                                                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                                            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Días totales</p>
+                                                            <p class="mt-2 text-2xl font-bold text-white">${totalDays}</p>
+                                                            <p class="mt-1 text-xs text-gray-400">Personaliza tantos días como necesites.</p>
+                                                        </div>
+                                                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                                            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Ejercicios hoy</p>
+                                                            <p class="mt-2 text-2xl font-bold text-white">${totalExercises}</p>
+                                                            <p class="mt-1 text-xs text-gray-400">Equilibra intensidad, descansos y volumen.</p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-5 text-sm text-emerald-100">
+                                                <div class="flex items-start gap-3">
+                                                    <span class="grid h-9 w-9 place-items-center rounded-full bg-emerald-500/20 text-emerald-100">
+                                                        <i data-lucide="lightbulb" class="h-5 w-5"></i>
+                                                    </span>
+                                                    <p>Utiliza la vista de bloques para asegurarte de que cada ejercicio responda a un objetivo claro y acompañe al progreso del asesorado.</p>
+                                                </div>
+                                            </div>
                                         </section>
-                                        <section class="overflow-hidden rounded-3xl border border-white/5 bg-white/5">
-                                            <div class="flex flex-col gap-6 p-6 sm:p-8">
+                                        <section class="flex h-full flex-col gap-6 rounded-3xl border border-white/5 bg-gray-950/70 p-6 sm:p-8 shadow-[0_55px_120px_-80px_rgba(12,74,110,0.55)]">
+                                            <div class="space-y-2">
+                                                <span class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Organización</span>
+                                                <h3 class="text-2xl font-semibold leading-tight text-white">Estructura tu día de entrenamiento</h3>
+                                                <p class="text-sm text-gray-300">Gestiona la secuencia perfecta, añade ejercicios o apóyate en la IA para optimizar cada bloque.</p>
+                                            </div>
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                                <div id="routine-day-tabs" class="flex items-center gap-2 overflow-x-auto pb-1"></div>
+                                            </div>
+                                            <div class="flex flex-1 flex-col gap-6 rounded-2xl border border-white/10 bg-gray-900/60 p-6">
                                                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                                    <div>
-                                                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Listado de ejercicios</p>
-                                                        <p class="mt-1 text-base text-gray-300">Revisa, organiza y edita cada bloque sin desplazamientos innecesarios.</p>
+                                                    <div class="flex items-center gap-3">
+                                                        <span class="grid h-11 w-11 place-items-center rounded-full bg-emerald-500/10 text-emerald-300">
+                                                            <i data-lucide="list-checks" class="h-5 w-5"></i>
+                                                        </span>
+                                                        <div>
+                                                            <p class="text-sm font-semibold text-white">Bloques del día</p>
+                                                            <p class="text-xs text-gray-400">Añade, edita o elimina ejercicios en segundos.</p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex flex-wrap items-center gap-2">
+                                                        <button data-action="routine-creator-suggest-ai" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:border-purple-400/50 hover:text-purple-200">
+                                                            <i data-lucide="sparkles" class="h-4 w-4"></i>
+                                                            <span>Propuesta IA</span>
+                                                        </button>
+                                                        <button data-action="routine-creator-add-exercise" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-5 py-2 text-sm font-semibold text-gray-900 shadow-lg transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                                            <i data-lucide="plus" class="h-4 w-4"></i>
+                                                            <span>Agregar ejercicio</span>
+                                                        </button>
                                                     </div>
                                                 </div>
-                                                <div id="exercise-list-container" class="space-y-4"></div>
-                                                <button data-action="routine-creator-add-exercise" class="w-full rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 py-3 text-sm font-semibold text-gray-900 shadow-lg transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
-                                                    Añadir ejercicio
+                                                <div class="relative flex-1 min-h-0">
+                                                    <div id="exercise-list-container" class="relative flex h-full flex-col gap-4"></div>
+                                                </div>
+                                            </div>
+                                            <div class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-5 sm:flex-row sm:items-center sm:justify-between">
+                                                <div class="flex items-center gap-3 text-sm text-gray-200">
+                                                    <i data-lucide="shield-check" class="h-5 w-5 text-emerald-300"></i>
+                                                    <span>Cuando todo esté listo, guarda la rutina para compartirla con tus asesorados.</span>
+                                                </div>
+                                                <button data-action="routine-creator-save" class="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-gray-900 shadow-lg transition hover:bg-emerald-400">
+                                                    <i data-lucide="save" class="h-5 w-5"></i>
+                                                    <span>Guardar rutina</span>
                                                 </button>
                                             </div>
                                         </section>
@@ -2981,62 +3037,74 @@
 
                     if (exercises.length === 0) {
                         container.innerHTML = `
-                        <div class="flex flex-col items-center justify-center text-center p-6 h-full">
-                            <div class="bg-gray-800/50 border-2 border-dashed border-gray-700 rounded-2xl p-8 max-w-sm">
-                                <i data-lucide="list-plus" class="w-16 h-16 mx-auto text-gray-600"></i>
-                                <h3 class="mt-4 text-xl font-bold text-white">Tu día de entrenamiento está vacío</h3>
-                                <p class="mt-2 text-gray-400">Comienza a construir tu rutina añadiendo ejercicios o deja que nuestra IA te inspire.</p>
-                                <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-                                    <button data-action="routine-creator-add-exercise" class="w-full sm:w-auto flex-1 bg-emerald-500 font-bold py-3 px-4 rounded-lg hover:bg-emerald-400 transition flex items-center justify-center gap-2 text-gray-900">
-                                        <i data-lucide="plus"></i><span>Añadir Manualmente</span>
-                                    </button>
-                                    <button data-action="routine-creator-suggest-ai" class="w-full sm:w-auto flex-1 bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-4 rounded-lg hover:opacity-90 transition flex items-center justify-center gap-2">
-                                        <i data-lucide="sparkles"></i><span>Sugerir con IA</span>
-                                    </button>
-                                </div>
+                        <div class="flex h-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/10 bg-gray-900/50 p-10 text-center">
+                            <span class="grid h-16 w-16 place-items-center rounded-full bg-emerald-500/10 text-emerald-300 shadow-[0_0_35px_rgba(16,185,129,0.35)]">
+                                <i data-lucide="list-plus" class="h-8 w-8"></i>
+                            </span>
+                            <h3 class="mt-4 text-xl font-semibold text-white">Tu día aún está vacío</h3>
+                            <p class="mt-2 max-w-sm text-sm text-gray-400">Añade ejercicios manualmente o deja que nuestra IA cree una propuesta equilibrada para comenzar.</p>
+                            <div class="mt-6 flex flex-col items-center gap-3 sm:flex-row">
+                                <button data-action="routine-creator-add-exercise" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-6 py-3 text-sm font-semibold text-gray-900 shadow-lg transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                    <i data-lucide="plus" class="h-4 w-4"></i>
+                                    <span>Añadir manualmente</span>
+                                </button>
+                                <button data-action="routine-creator-suggest-ai" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:border-purple-400/50 hover:text-purple-200">
+                                    <i data-lucide="sparkles" class="h-4 w-4"></i>
+                                    <span>Sugerir con IA</span>
+                                </button>
                             </div>
                         </div>`;
                     } else {
                         container.innerHTML = exercises.map((ex, index) => {
                             if (this._tempRoutine.editingIndex === index) {
                                 return `
-                                <div class="bg-gray-700/50 border border-emerald-500/50 p-4 rounded-xl space-y-4 section-fade-in shadow-lg" data-exercise-index="${index}">
-                                    <p class="font-bold text-lg text-white">${ex.name}</p>
-                                    <div class="grid grid-cols-3 gap-3">
+                                <div class="section-fade-in rounded-2xl border border-emerald-400/40 bg-emerald-500/10 p-5 shadow-[0_25px_80px_-50px_rgba(16,185,129,0.75)]" data-exercise-index="${index}">
+                                    <div class="flex items-start justify-between gap-4">
                                         <div>
-                                            <label class="text-xs font-medium text-gray-400">SERIES</label>
-                                            <input id="sets-input-${index}" type="number" value="${ex.sets}" class="w-full bg-gray-800 p-2 rounded-lg text-center text-white mt-1">
+                                            <p class="text-lg font-semibold text-white">${ex.name}</p>
+                                            <p class="mt-1 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-200/80">Editando bloque</p>
+                                        </div>
+                                        <button data-action="routine-creator-remove-exercise" data-exercise-index="${index}" class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-red-300 transition hover:bg-red-500/20">
+                                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                        </button>
+                                    </div>
+                                    <div class="mt-5 grid gap-4 sm:grid-cols-3">
+                                        <div>
+                                            <label class="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-100/80">Series</label>
+                                            <input id="sets-input-${index}" type="number" value="${ex.sets}" class="mt-2 w-full rounded-xl border border-white/10 bg-gray-950/70 px-3 py-2 text-center text-white focus:border-emerald-400/60 focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
                                         </div>
                                         <div>
-                                            <label class="text-xs font-medium text-gray-400">REPS</label>
-                                            <input id="reps-input-${index}" type="text" value="${ex.reps}" class="w-full bg-gray-800 p-2 rounded-lg text-center text-white mt-1">
+                                            <label class="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-100/80">Reps</label>
+                                            <input id="reps-input-${index}" type="text" value="${ex.reps}" class="mt-2 w-full rounded-xl border border-white/10 bg-gray-950/70 px-3 py-2 text-center text-white focus:border-emerald-400/60 focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
                                         </div>
                                         <div>
-                                            <label class="text-xs font-medium text-gray-400">DESC. (s)</label>
-                                            <input id="rest-input-${index}" type="text" value="${ex.rest}" class="w-full bg-gray-800 p-2 rounded-lg text-center text-white mt-1">
+                                            <label class="text-xs font-semibold uppercase tracking-[0.25em] text-emerald-100/80">Descanso</label>
+                                            <input id="rest-input-${index}" type="text" value="${ex.rest}" class="mt-2 w-full rounded-xl border border-white/10 bg-gray-950/70 px-3 py-2 text-center text-white focus:border-emerald-400/60 focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
                                         </div>
                                     </div>
-                                    <button data-action="routine-creator-save-exercise-details" data-exercise-index="${index}" class="w-full bg-emerald-500 text-gray-900 font-bold py-2.5 rounded-lg mt-2 flex items-center justify-center gap-2">
-                                        <i data-lucide="check-circle" class="w-5 h-5"></i><span>Guardar Cambios</span>
+                                    <button data-action="routine-creator-save-exercise-details" data-exercise-index="${index}" class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-500 px-6 py-3 text-sm font-semibold text-gray-900 shadow-lg transition hover:bg-emerald-400">
+                                        <i data-lucide="check-circle" class="h-5 w-5"></i>
+                                        <span>Guardar cambios</span>
                                     </button>
                                 </div>`;
                             } else {
                                 return `
-                                <div class="bg-gray-800 p-3 rounded-xl flex items-center gap-4 section-fade-in" data-exercise-index="${index}">
-                                    <div class="bg-gray-900/50 w-12 h-12 rounded-lg flex items-center justify-center font-bold text-emerald-400 text-2xl flex-shrink-0">${index + 1}</div>
-                                    <div class="flex-grow">
-                                        <p class="font-semibold text-white">${ex.name}</p>
-                                        <div class="flex items-center gap-4 text-sm text-gray-400 mt-1">
-                                            <span class="flex items-center gap-1.5"><i data-lucide="layers" class="w-3.5 h-3.5"></i>${ex.sets} series</span>
-                                            <span class="flex items-center gap-1.5"><i data-lucide="repeat" class="w-3.5 h-3.5"></i>${ex.reps} reps</span>
+                                <div class="section-fade-in flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/5 p-5 shadow-[0_25px_80px_-60px_rgba(56,189,248,0.4)] sm:flex-row sm:items-center" data-exercise-index="${index}">
+                                    <div class="grid h-14 w-14 place-items-center rounded-2xl bg-emerald-500/10 text-xl font-semibold text-emerald-300">${index + 1}</div>
+                                    <div class="flex-1">
+                                        <p class="text-base font-semibold text-white">${ex.name}</p>
+                                        <div class="mt-2 flex flex-wrap items-center gap-2 text-xs text-gray-300">
+                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-900/60 px-3 py-1"><i data-lucide="layers" class="h-3.5 w-3.5"></i>${ex.sets} series</span>
+                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-900/60 px-3 py-1"><i data-lucide="repeat" class="h-3.5 w-3.5"></i>${ex.reps} reps</span>
+                                            <span class="inline-flex items-center gap-1.5 rounded-full bg-gray-900/60 px-3 py-1"><i data-lucide="timer" class="h-3.5 w-3.5"></i>${ex.rest}</span>
                                         </div>
                                     </div>
-                                    <div class="flex items-center gap-1 flex-shrink-0">
-                                        <button data-action="routine-creator-edit-exercise" class="p-2 rounded-full text-gray-400 hover:text-white hover:bg-gray-700/50 transition-colors">
-                                            <i data-lucide="edit" class="w-5 h-5"></i>
+                                    <div class="flex flex-shrink-0 items-center gap-2">
+                                        <button data-action="routine-creator-edit-exercise" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-emerald-400/50 hover:text-white">
+                                            <i data-lucide="edit" class="h-4 w-4"></i>
                                         </button>
-                                        <button data-action="routine-creator-remove-exercise" data-exercise-index="${index}" class="p-2 rounded-full text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-                                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                                        <button data-action="routine-creator-remove-exercise" data-exercise-index="${index}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-red-500/30 bg-red-500/10 text-red-300 transition hover:bg-red-500/20">
+                                            <i data-lucide="trash-2" class="h-4 w-4"></i>
                                         </button>
                                     </div>
                                 </div>`;
