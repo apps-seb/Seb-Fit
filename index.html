@@ -195,6 +195,10 @@
                         <i data-lucide="history"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Historial</span>
                     </button>
+                    <button id="nav-comunidad" data-section="comunidad" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="trophy"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Ranking</span>
+                    </button>
                     <button data-section="perfil" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="user"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Perfil</span>
@@ -208,6 +212,10 @@
                     <button data-section="rutinas" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
                         <i data-lucide="clipboard-list"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">Rutinas</span>
+                    </button>
+                    <button data-section="comunidad" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
+                        <i data-lucide="trophy"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">Ranking</span>
                     </button>
                     <button data-section="dieta" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
                         <i data-lucide="utensils"></i>
@@ -367,7 +375,7 @@
                     <div id="weekly-progress-card" class="rounded-3xl border border-white/10 bg-gray-900/60 p-6 shadow-lg shadow-emerald-500/10"></div>
                 </div>
 
-                <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
                     <button data-action="show-section" data-section-id="rutinas" class="rounded-3xl border border-white/10 bg-white/5 p-4 text-left shadow-lg shadow-emerald-500/10 transition hover:border-emerald-400/50 hover:bg-emerald-500/10">
                         <div class="flex items-center gap-3">
                             <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-300">
@@ -398,6 +406,17 @@
                             <div>
                                 <p class="text-sm font-semibold text-white">Mi dieta</p>
                                 <p class="text-xs text-gray-400">Gestiona comidas y seguimiento diario.</p>
+                            </div>
+                        </div>
+                    </button>
+                    <button data-action="show-section" data-section-id="comunidad" class="rounded-3xl border border-white/10 bg-white/5 p-4 text-left shadow-lg shadow-emerald-500/10 transition hover:border-emerald-400/50 hover:bg-emerald-500/10">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-300">
+                                <i data-lucide="trophy" class="h-5 w-5"></i>
+                            </span>
+                            <div>
+                                <p class="text-sm font-semibold text-white">Ranking global</p>
+                                <p class="text-xs text-gray-400">Descubre quién lidera la comunidad esta semana.</p>
                             </div>
                         </div>
                     </button>
@@ -529,6 +548,26 @@
     
     <template id="template-dieta"><section id="dieta" class="section-content hidden"><div class="space-y-6"><div><h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Plan de Dieta de Hoy</span></h2><p class="text-gray-400">Objetivo: <span id="diet-goal-calories" class="font-bold text-emerald-400">2500</span> kcal</p></div><div class="bg-gray-700/80 p-4 rounded-xl space-y-3"><div class="flex justify-between items-center text-sm"><span class="text-gray-300">Consumido</span><span class="font-bold"><span id="diet-total-calories">0</span> kcal</span></div><div class="h-2.5 w-full rounded-full bg-gray-600"><div id="diet-progress-bar" class="bg-emerald-500 h-2.5 rounded-full w-0"></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="space-y-1"><p class="font-semibold text-blue-300">Proteína</p><div class="h-1.5 w-full rounded-full bg-blue-500/20"><div id="diet-protein-bar" class="bg-blue-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-protein">0</span>g / <span id="diet-goal-protein">188</span>g</p></div><div class="space-y-1"><p class="font-semibold text-yellow-300">Carbs</p><div class="h-1.5 w-full rounded-full bg-yellow-500/20"><div id="diet-carbs-bar" class="bg-yellow-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-carbs">0</span>g / <span id="diet-goal-carbs">250</span>g</p></div><div class="space-y-1"><p class="font-semibold text-red-300">Grasas</p><div class="h-1.5 w-full rounded-full bg-red-500/20"><div id="diet-fats-bar" class="bg-red-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-fats">0</span>g / <span id="diet-goal-fats">83</span>g</p></div></div></div><div id="diet-management-tools"><div class="my-4"><button data-action="generate-plan" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 font-bold py-3 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2 shadow-lg"><i data-lucide="sparkles" class="w-5 h-5 p-e-none"></i><span class="p-e-none">✨ Generar Plan con IA</span></button></div><div class="bg-gray-700/50 p-4 rounded-xl space-y-3 mb-6"><h3 class="font-semibold flex items-center gap-2"><i data-lucide="brain-circuit" class="w-5 h-5 text-sky-400"></i>Analizador de Comidas IA</h3><p class="text-sm text-gray-400">Describe una comida y la IA estimará sus macros para añadirla a tu dieta.</p><textarea id="food-analysis-input" placeholder="Ej: un tazón de avena con plátano y nueces" class="w-full bg-gray-700 rounded-lg p-2 h-16 resize-none"></textarea><button data-action="analyze-food" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 font-bold py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2"><span class="p-e-none">✨ Analizar y Añadir</span></button></div></div><div id="meal-sections" class="space-y-4"></div><div id="add-food-section" class="space-y-4 mt-4"><h3 class="text-xl font-bold">Añadir Alimentos</h3><div class="relative"><input type="text" id="food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 p-e-none"><i data-lucide="search" class="text-gray-400"></i></div></div><div id="food-list" class="space-y-2 pr-2"></div></div></div></section></template>
     <template id="template-historial"><section id="historial" class="section-content hidden"><div class="space-y-6"><div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h2 class="text-2xl font-bold flex items-center gap-3"><span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-300 shadow-inner shadow-emerald-500/20"><i data-lucide="history" class="h-6 w-6"></i></span><span>Historial de Progreso</span></h2><p class="text-sm text-gray-400">Visualiza la evolución de tus entrenamientos, tiempos y cargas.</p></div><button data-action="show-workout-history" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10"><i data-lucide="gallery-vertical-end" class="h-4 w-4"></i>Ver resumen detallado</button></div><div id="history-overview" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div><div id="history-cards" class="space-y-4"></div></div></section></template>
+    <template id="template-comunidad">
+        <section id="comunidad" class="section-content hidden">
+            <div id="community-root" class="space-y-8">
+                <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-6 shadow-lg">
+                    <div class="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="space-y-1">
+                            <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">Ranking en vivo</span>
+                            <h2 class="text-2xl font-bold text-white">Comunidad FitTrack</h2>
+                            <p class="text-sm text-gray-400">Consulta el top de atletas, retos colectivos y avances destacados.</p>
+                        </div>
+                        <button data-action="community-refresh" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-100 transition hover:border-emerald-400/60 hover:text-emerald-200">
+                            <i data-lucide="refresh-cw" class="h-4 w-4"></i>
+                            Actualizar datos
+                        </button>
+                    </div>
+                    <p class="mt-6 text-sm text-gray-400">Cargando métricas de la comunidad...</p>
+                </div>
+            </div>
+        </section>
+    </template>
     
     <template id="template-perfil">
         <section id="perfil" class="section-content hidden">
@@ -691,7 +730,20 @@
                         activeWorkout: null,
                         timer: { status: 'idle', timeLeft: 0, intervalId: null, initialRestTime: 0 },
                         dashboardCover: { image: '', storagePath: '', updatedAt: null },
-                        isMobileMenuOpen: false
+                        isMobileMenuOpen: false,
+                        community: {
+                            stats: { totalAthletes: 0, totalVolume: 0, totalSessions: 0 },
+                            leaderboards: { volume: [], sessions: [], progress: [] },
+                            highlights: [],
+                            feed: [],
+                            challenges: [],
+                            podium: [],
+                            spotlight: null,
+                            activeLeaderboard: 'volume',
+                            lastUpdated: null,
+                            isEmpty: true
+                        },
+                        isCommunityLoading: false
                     };
                 },
 
@@ -864,9 +916,10 @@
                     await this.loadExerciseGroupImagesFromFirestore();
                     await this.loadAndMergeFoodData(); // Cargar alimentos
                     this.loadTemplates();
+                    await this.loadCommunityData();
                     this.populateNutritionForm();
                     this.adjustUIForRole();
-                    this.renderAll(); 
+                    this.renderAll();
                     this.getDailyTip();
                     this.showSection(this.state.currentSection, false);
                     this.updateUserInfoUI();
@@ -905,7 +958,7 @@
                 async saveDataToFirestore() {
                     if (!this.state.currentUser) return;
                     const dataToSave = { ...this.state };
-                    ['currentUser', 'activeWorkout', 'timer', 'currentSection', 'asesorados', 'isMobileMenuOpen'].forEach(key => delete dataToSave[key]);
+                    ['currentUser', 'activeWorkout', 'timer', 'currentSection', 'asesorados', 'isMobileMenuOpen', 'community', 'isCommunityLoading'].forEach(key => delete dataToSave[key]);
                     const userRef = doc(this.db, "users", this.state.currentUser.uid);
                     try {
                         await setDoc(userRef, dataToSave, { merge: true });
@@ -950,6 +1003,8 @@
                                 });
                                 this.state.workoutHistory = normalizedHistory;
                             }
+                            this.state.community = { ...defaultState.community };
+                            this.state.isCommunityLoading = false;
                         } else {
                             this.state = defaultState;
                             this.state.currentUser = this.auth.currentUser;
@@ -1011,6 +1066,410 @@
                     } catch (error) {
                         console.error("Error loading exercise group images: ", error);
                     }
+                },
+
+                async loadCommunityData(showSuccessToast = false) {
+                    if (!this.db) {
+                        return;
+                    }
+
+                    const previousActive = this.state?.community?.activeLeaderboard || 'volume';
+                    this.state.isCommunityLoading = true;
+                    this.renderCommunitySection();
+
+                    try {
+                        const usersSnapshot = await getDocs(collection(this.db, "users"));
+                        const now = new Date();
+                        now.setHours(0, 0, 0, 0);
+                        const dayMs = 86_400_000;
+                        const thirtyDaysAgo = new Date(now.getTime() - 29 * dayMs);
+                        const lastSevenStart = new Date(now.getTime() - 6 * dayMs);
+                        const previousSevenStart = new Date(now.getTime() - 13 * dayMs);
+
+                        const intl = new Intl.NumberFormat('es-ES');
+                        const normalizeDateValue = (value, fallbackDate) => {
+                            if (!value) {
+                                return new Date(`${fallbackDate}T00:00:00`);
+                            }
+                            if (value instanceof Date) {
+                                return value;
+                            }
+                            if (typeof value === 'object') {
+                                if (typeof value.toDate === 'function') {
+                                    return value.toDate();
+                                }
+                                if (typeof value.seconds === 'number') {
+                                    return new Date(value.seconds * 1000);
+                                }
+                            }
+                            const parsed = new Date(value);
+                            return Number.isNaN(parsed.getTime()) ? new Date(`${fallbackDate}T00:00:00`) : parsed;
+                        };
+
+                        const members = [];
+
+                        usersSnapshot.forEach(userDoc => {
+                            const data = userDoc.data() || {};
+                            const name = data.userName || 'Atleta';
+                            const history = data.workoutHistory || {};
+                            const normalizedEntries = [];
+
+                            Object.entries(history).forEach(([dateKey, record]) => {
+                                if (!record) {
+                                    return;
+                                }
+                                const pushEntry = (entry) => {
+                                    if (!entry) return;
+                                    const normalized = this._normalizeWorkoutEntry({
+                                        ...entry,
+                                        completedAt: entry?.completedAt ? normalizeDateValue(entry.completedAt, dateKey).toISOString() : entry?.completedAt
+                                    }, dateKey);
+                                    const parsedDate = normalizeDateValue(normalized.completedAt, dateKey);
+                                    normalizedEntries.push({ ...normalized, parsedDate });
+                                };
+
+                                if (Array.isArray(record)) {
+                                    record.forEach(item => pushEntry(item));
+                                } else if (typeof record === 'object') {
+                                    pushEntry(record);
+                                }
+                            });
+
+                            normalizedEntries.sort((a, b) => a.parsedDate - b.parsedDate);
+
+                            const last30Entries = normalizedEntries.filter(entry => entry.parsedDate >= thirtyDaysAgo);
+                            const weeklyEntries = normalizedEntries.filter(entry => entry.parsedDate >= lastSevenStart);
+                            const previousWeeklyEntries = normalizedEntries.filter(entry => entry.parsedDate >= previousSevenStart && entry.parsedDate < lastSevenStart);
+
+                            const toDateKey = (entry) => entry.date || entry.parsedDate.toISOString().split('T')[0];
+                            const trainingDaysSet = new Set(last30Entries.map(toDateKey));
+                            const allDaysSet = new Set(normalizedEntries.map(toDateKey));
+
+                            const entryVolume = (entry) => typeof entry.totalVolume === 'number'
+                                ? entry.totalVolume
+                                : (Array.isArray(entry.exerciseDetails)
+                                    ? entry.exerciseDetails.reduce((sum, ex) => sum + (ex.volume || 0), 0)
+                                    : 0);
+
+                            const totalVolume30 = last30Entries.reduce((sum, entry) => sum + entryVolume(entry), 0);
+                            const weeklyVolume = weeklyEntries.reduce((sum, entry) => sum + entryVolume(entry), 0);
+                            const previousWeeklyVolume = previousWeeklyEntries.reduce((sum, entry) => sum + entryVolume(entry), 0);
+                            const volumeTrend = weeklyVolume - previousWeeklyVolume;
+
+                            let bestLiftWeight = 0;
+                            let bestLiftName = '';
+                            normalizedEntries.forEach(entry => {
+                                if (!Array.isArray(entry.exerciseDetails)) {
+                                    return;
+                                }
+                                entry.exerciseDetails.forEach(detail => {
+                                    const weight = typeof detail.bestWeight === 'number' ? detail.bestWeight : 0;
+                                    if (weight > bestLiftWeight) {
+                                        bestLiftWeight = weight;
+                                        bestLiftName = detail.name || '';
+                                    }
+                                });
+                            });
+
+                            let latestWorkout = null;
+                            if (normalizedEntries.length > 0) {
+                                const entry = normalizedEntries[normalizedEntries.length - 1];
+                                latestWorkout = {
+                                    date: entry.parsedDate,
+                                    routineName: entry.routineName,
+                                    totalVolume: entryVolume(entry),
+                                    totalDuration: entry.totalDuration || 0
+                                };
+                            }
+
+                            const weightLog = Array.isArray(data.weightLog)
+                                ? data.weightLog
+                                    .filter(item => item && item.date && typeof item.weight === 'number')
+                                    .map(item => ({ ...item, parsedDate: normalizeDateValue(item.date, item.date) }))
+                                    .sort((a, b) => a.parsedDate - b.parsedDate)
+                                : [];
+
+                            const weightDelta = weightLog.length > 1
+                                ? weightLog[weightLog.length - 1].weight - weightLog[0].weight
+                                : 0;
+
+                            const weightLabel = weightLog.length > 1
+                                ? `${weightDelta > 0 ? '+' : ''}${weightDelta.toFixed(1)} kg desde ${weightLog[0].parsedDate.toLocaleDateString('es-ES')}`
+                                : 'Registra tu peso para medir cambios';
+
+                            let streak = 0;
+                            if (allDaysSet.size > 0) {
+                                const cursor = new Date(now);
+                                while (cursor >= thirtyDaysAgo) {
+                                    const key = cursor.toISOString().split('T')[0];
+                                    if (allDaysSet.has(key)) {
+                                        streak += 1;
+                                        cursor.setDate(cursor.getDate() - 1);
+                                    } else {
+                                        break;
+                                    }
+                                }
+                            }
+
+                            const volumeTrendLabel = (weeklyVolume === 0 && previousWeeklyVolume === 0)
+                                ? 'Sin cargas registradas esta semana'
+                                : (previousWeeklyVolume === 0 && weeklyVolume > 0)
+                                    ? 'Nuevo pico semanal'
+                                    : `${volumeTrend >= 0 ? '+' : ''}${intl.format(Math.round(volumeTrend))} kg vs semana pasada`;
+
+                            const progressLabelParts = [];
+                            if (weeklyVolume > 0) {
+                                progressLabelParts.push(previousWeeklyVolume > 0
+                                    ? `${volumeTrend >= 0 ? '+' : ''}${intl.format(Math.round(volumeTrend))} kg semana a semana`
+                                    : 'Primer registro semanal');
+                            }
+                            if (weightLog.length > 1) {
+                                progressLabelParts.push(`${weightDelta > 0 ? '+' : ''}${weightDelta.toFixed(1)} kg totales`);
+                            }
+                            const progressLabel = progressLabelParts.length > 0
+                                ? progressLabelParts.join(' · ')
+                                : 'Suma actividad para ver tu progreso';
+
+                            const progressScore = Math.max(0, previousWeeklyVolume > 0
+                                ? (volumeTrend / previousWeeklyVolume) * 100
+                                : (weeklyVolume > 0 ? 75 : 0))
+                                + (weightDelta < 0
+                                    ? Math.min(100, Math.abs(weightDelta) * 15)
+                                    : weightDelta > 0
+                                        ? Math.min(100, weightDelta * 10)
+                                        : 0);
+
+                            const initials = name
+                                .split(/\s+/)
+                                .filter(Boolean)
+                                .map(word => word[0])
+                                .join('')
+                                .slice(0, 2)
+                                .toUpperCase() || name.charAt(0).toUpperCase();
+
+                            members.push({
+                                id: userDoc.id,
+                                name,
+                                initials,
+                                totalVolume30,
+                                weeklyVolume,
+                                previousWeeklyVolume,
+                                volumeTrend,
+                                volumeTrendLabel,
+                                trainingDays30: trainingDaysSet.size,
+                                sessionCount30: last30Entries.length,
+                                streak,
+                                bestLiftWeight,
+                                bestLiftName,
+                                latestWorkout,
+                                weightDelta,
+                                weightLabel,
+                                progressScore,
+                                progressLabel
+                            });
+                        });
+
+                        const stats = {
+                            totalAthletes: usersSnapshot.size,
+                            totalVolume: members.reduce((sum, member) => sum + member.totalVolume30, 0),
+                            totalSessions: members.reduce((sum, member) => sum + member.sessionCount30, 0)
+                        };
+
+                        const formatKg = (value) => `${intl.format(Math.round(value))} kg`;
+                        const formatDays = (value) => `${value} día${value === 1 ? '' : 's'}`;
+
+                        const mapLeaderboardEntry = (member, index, formattedValue, subLabel, trendLabel) => ({
+                            rank: index + 1,
+                            id: member.id,
+                            name: member.name,
+                            initials: member.initials,
+                            formattedValue,
+                            subLabel,
+                            trendLabel,
+                            streak: member.streak,
+                            progressScore: Math.round(member.progressScore),
+                            progressLabel: member.progressLabel,
+                            weightLabel: member.weightLabel,
+                            bestLiftLabel: member.bestLiftWeight > 0 ? `${member.bestLiftWeight.toFixed(0)} kg en ${member.bestLiftName}` : 'Registra tu 1RM'
+                        });
+
+                        const volumeLeaderboard = members
+                            .filter(member => member.totalVolume30 > 0)
+                            .sort((a, b) => b.totalVolume30 - a.totalVolume30)
+                            .slice(0, 5)
+                            .map((member, index) => mapLeaderboardEntry(
+                                member,
+                                index,
+                                formatKg(member.totalVolume30),
+                                `${formatDays(member.trainingDays30)} activos`,
+                                member.volumeTrendLabel
+                            ));
+
+                        const sessionsLeaderboard = members
+                            .filter(member => member.trainingDays30 > 0)
+                            .sort((a, b) => (b.trainingDays30 === a.trainingDays30)
+                                ? b.streak - a.streak
+                                : b.trainingDays30 - a.trainingDays30)
+                            .slice(0, 5)
+                            .map((member, index) => mapLeaderboardEntry(
+                                member,
+                                index,
+                                formatDays(member.trainingDays30),
+                                `${member.sessionCount30} sesiones registradas`,
+                                member.streak > 0 ? `${member.streak} días de racha` : 'Sin racha activa'
+                            ));
+
+                        const progressLeaderboard = members
+                            .filter(member => member.progressScore > 0)
+                            .sort((a, b) => b.progressScore - a.progressScore)
+                            .slice(0, 5)
+                            .map((member, index) => mapLeaderboardEntry(
+                                member,
+                                index,
+                                `${Math.round(member.progressScore)} pts`,
+                                member.progressLabel,
+                                member.weightLabel
+                            ));
+
+                        const podium = volumeLeaderboard.slice(0, 3);
+
+                        const bestLiftChampion = members.reduce((best, current) => {
+                            if (!best || current.bestLiftWeight > best.bestLiftWeight) {
+                                return current;
+                            }
+                            return best;
+                        }, null);
+
+                        const spotlight = bestLiftChampion && bestLiftChampion.bestLiftWeight > 0
+                            ? {
+                                name: bestLiftChampion.name,
+                                metric: `${bestLiftChampion.bestLiftWeight.toFixed(0)} kg`,
+                                description: bestLiftChampion.bestLiftName ? `Nuevo récord en ${bestLiftChampion.bestLiftName}` : 'Nuevo récord personal',
+                                detail: bestLiftChampion.volumeTrendLabel,
+                                streak: bestLiftChampion.streak
+                            }
+                            : null;
+
+                        const highlights = [];
+                        if (volumeLeaderboard[0]) {
+                            highlights.push({
+                                id: 'volume',
+                                title: `${volumeLeaderboard[0].name} domina la carga`,
+                                badge: 'Carga total',
+                                metric: volumeLeaderboard[0].formattedValue,
+                                detail: volumeLeaderboard[0].trendLabel
+                            });
+                        }
+                        if (sessionsLeaderboard[0]) {
+                            highlights.push({
+                                id: 'sessions',
+                                title: `${sessionsLeaderboard[0].name} lidera la constancia`,
+                                badge: 'Días activos',
+                                metric: sessionsLeaderboard[0].formattedValue,
+                                detail: sessionsLeaderboard[0].trendLabel
+                            });
+                        }
+                        if (progressLeaderboard[0]) {
+                            highlights.push({
+                                id: 'progress',
+                                title: `${progressLeaderboard[0].name} es tendencia`,
+                                badge: 'Progreso',
+                                metric: progressLeaderboard[0].formattedValue,
+                                detail: progressLeaderboard[0].subLabel
+                            });
+                        }
+
+                        const feed = members
+                            .filter(member => member.latestWorkout)
+                            .sort((a, b) => b.latestWorkout.date - a.latestWorkout.date)
+                            .slice(0, 6)
+                            .map(member => ({
+                                name: member.name,
+                                initials: member.initials,
+                                routineName: member.latestWorkout.routineName || 'Sesión libre',
+                                completedAt: member.latestWorkout.date.toISOString(),
+                                volume: member.latestWorkout.totalVolume,
+                                duration: member.latestWorkout.totalDuration,
+                                highlight: member.volumeTrendLabel
+                            }));
+
+                        const streakLeader = sessionsLeaderboard[0];
+                        const progressLeader = progressLeaderboard[0];
+
+                        const challenges = [
+                            {
+                                id: 'streak',
+                                title: 'Reto 21 días sin excusas',
+                                description: 'Encadena entrenamientos diarios sin romper la racha.',
+                                progress: Math.min(100, streakLeader ? (streakLeader.streak / 21) * 100 : 0),
+                                status: streakLeader ? `${streakLeader.name} lleva ${streakLeader.streak} días seguidos` : 'Aún no hay una racha destacada.',
+                                icon: 'flame'
+                            },
+                            {
+                                id: 'volume',
+                                title: 'Power Team 50K',
+                                description: 'Alcancen 50.000 kg totales registrados en el mes.',
+                                progress: Math.min(100, stats.totalVolume > 0 ? (stats.totalVolume / 50_000) * 100 : 0),
+                                status: `${this.formatNumberCompact(stats.totalVolume)} / 50k kg acumulados`,
+                                icon: 'dumbbell'
+                            },
+                            {
+                                id: 'progress',
+                                title: 'Transformación del mes',
+                                description: 'Reconoce a quien más evoluciona semana a semana.',
+                                progress: Math.min(100, progressLeader ? progressLeader.progressScore : 0),
+                                status: progressLeader ? `${progressLeader.name}: ${progressLeader.subLabel}` : 'Registra tus métricas para entrar al ranking.',
+                                icon: 'sparkles'
+                            }
+                        ];
+
+                        const leaderboards = { volume: volumeLeaderboard, sessions: sessionsLeaderboard, progress: progressLeaderboard };
+                        let resolvedActive = previousActive;
+                        if (!leaderboards[resolvedActive] || leaderboards[resolvedActive].length === 0) {
+                            const fallback = Object.entries(leaderboards).find(([, list]) => list.length > 0);
+                            resolvedActive = fallback ? fallback[0] : 'volume';
+                        }
+
+                        this.state.community = {
+                            ...this.state.community,
+                            stats,
+                            leaderboards,
+                            highlights,
+                            feed,
+                            challenges,
+                            podium,
+                            spotlight,
+                            activeLeaderboard: resolvedActive,
+                            lastUpdated: new Date().toISOString(),
+                            isEmpty: members.length === 0
+                        };
+                        this.state.isCommunityLoading = false;
+                        this.renderCommunitySection();
+
+                        if (showSuccessToast) {
+                            this.showToast('Ranking actualizado');
+                        }
+                    } catch (error) {
+                        console.error('Error loading community data: ', error);
+                        this.state.isCommunityLoading = false;
+                        this.renderCommunitySection();
+                        this.showToast('No se pudo cargar el ranking comunitario.', 'error');
+                    }
+                },
+
+                switchCommunityLeaderboard(leaderboardId) {
+                    if (!leaderboardId || !this.state?.community?.leaderboards) {
+                        return;
+                    }
+                    if (!this.state.community.leaderboards[leaderboardId] || this.state.community.leaderboards[leaderboardId].length === 0) {
+                        return;
+                    }
+                    this.state.community.activeLeaderboard = leaderboardId;
+                    this.renderCommunitySection();
+                },
+
+                async refreshCommunityData() {
+                    await this.loadCommunityData(true);
                 },
 
                 setupAuthListeners() {
@@ -1118,7 +1577,7 @@
                             return; 
                         }
                         
-                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate } = button.dataset;
+                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate, leaderboard } = button.dataset;
                         const actionMap = {
                             'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
@@ -1141,6 +1600,8 @@
                             'client-diet-save-custom-food': () => this._saveCustomFood(),
                             'confirm-delete-custom-food': () => this._confirmDeleteCustomFood(foodId),
                             'delete-custom-food': () => this._deleteCustomFood(foodId),
+                            'community-switch-leaderboard': () => this.switchCommunityLeaderboard(leaderboard),
+                            'community-refresh': () => this.refreshCommunityData(),
                         };
                         
                         // Prevenir que el checkbox dispare el evento del label padre
@@ -1295,7 +1756,7 @@
                     }
                 },
 
-                renderAll() { this.renderRoutinesSection(); this.renderDietPage(); this.renderWeeklyProgress(); this.renderWorkoutHistorySection(); this.renderProfileSection(); this.renderNutricionSection(); if (this.isAsesor()){ this.renderAsesoradosSection();} this.updateCoverPreview(); this.updateDashboard(); lucide.createIcons(); },
+                renderAll() { this.renderRoutinesSection(); this.renderDietPage(); this.renderWeeklyProgress(); this.renderWorkoutHistorySection(); this.renderProfileSection(); this.renderNutricionSection(); this.renderCommunitySection(); if (this.isAsesor()){ this.renderAsesoradosSection();} this.updateCoverPreview(); this.updateDashboard(); lucide.createIcons(); },
                 showSection(id, animate=true){
                     this.state.currentSection=id;
                     document.querySelectorAll('.section-content').forEach(s=>s.classList.add('hidden'));
@@ -1315,6 +1776,7 @@
                         this.closeMobileMenu(true);
                     }
                     if(id==='dieta'){this.renderFoodList();}
+                    if(id==='comunidad'){this.animateCommunityCounters();}
                 },
                 
                 async renderAsesoradosSection() {
@@ -2536,6 +2998,66 @@
                 hideModal(){const m=document.getElementById('custom-modal'),p=document.getElementById('custom-modal-panel');p.classList.add('modal-fade-out');p.addEventListener('animationend',()=>m.classList.add('hidden'),{once:true});},
                 showToast(m,t='success'){const c=document.getElementById('toast-container'),el=document.createElement('div');el.className=`toast ${t==='success'?'bg-emerald-500':'bg-red-500'} text-white font-bold py-2 px-4 rounded-lg shadow-lg`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.remove(),3000);},
             formatTime(seconds) { const m = Math.floor(seconds / 60); const s = seconds % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; },
+            formatNumberCompact(value) {
+                const numeric = typeof value === 'number' ? value : parseFloat(value);
+                if (!numeric || Number.isNaN(numeric)) {
+                    return '0';
+                }
+                return new Intl.NumberFormat('es-ES', { notation: 'compact', maximumFractionDigits: 1 }).format(numeric);
+            },
+            formatRelativeTime(dateInput) {
+                if (!dateInput) {
+                    return '';
+                }
+                const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+                if (Number.isNaN(date.getTime())) {
+                    return '';
+                }
+                const diffSeconds = Math.floor((Date.now() - date.getTime()) / 1000);
+                if (diffSeconds < 60) {
+                    return 'justo ahora';
+                }
+                const diffMinutes = Math.floor(diffSeconds / 60);
+                if (diffMinutes < 60) {
+                    return `hace ${diffMinutes} min`;
+                }
+                const diffHours = Math.floor(diffMinutes / 60);
+                if (diffHours < 24) {
+                    return `hace ${diffHours} h`;
+                }
+                const diffDays = Math.floor(diffHours / 24);
+                if (diffDays < 7) {
+                    return `hace ${diffDays} d`;
+                }
+                return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+            },
+            animateCommunityCounters() {
+                const counters = document.querySelectorAll('[data-community-counter][data-animated="false"]');
+                counters.forEach(counter => {
+                    const target = parseFloat(counter.dataset.counterValue || '0');
+                    if (!target) {
+                        counter.textContent = '0';
+                        counter.dataset.animated = 'true';
+                        return;
+                    }
+                    const duration = 1000;
+                    const startTime = performance.now();
+                    const animate = (now) => {
+                        const elapsed = now - startTime;
+                        const progress = Math.min(1, elapsed / duration);
+                        const eased = 1 - Math.pow(1 - progress, 3);
+                        const currentValue = target * eased;
+                        counter.textContent = this.formatNumberCompact(currentValue);
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        } else {
+                            counter.textContent = this.formatNumberCompact(target);
+                            counter.dataset.animated = 'true';
+                        }
+                    };
+                    requestAnimationFrame(animate);
+                });
+            },
             parseRepsValue(reps) {
                 if (typeof reps === 'number' && !Number.isNaN(reps)) {
                     return reps;
@@ -4094,6 +4616,306 @@
                         }).join('');
                     }
                     lucide.createIcons();
+                },
+
+                renderCommunitySection() {
+                    const root = document.getElementById('community-root');
+                    if (!root) {
+                        return;
+                    }
+
+                    if (this.state.isCommunityLoading) {
+                        root.innerHTML = `
+                            <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-6 text-center text-sm text-gray-400">
+                                <div class="flex flex-col items-center gap-3">
+                                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-300">
+                                        <i data-lucide="loader-2" class="h-5 w-5 animate-spin"></i>
+                                    </span>
+                                    <p>Actualizando estadísticas de la comunidad...</p>
+                                </div>
+                            </div>
+                        `;
+                        lucide.createIcons();
+                        return;
+                    }
+
+                    const community = this.state.community || {};
+                    const isEmpty = Boolean(community.isEmpty);
+                    const stats = community.stats || { totalAthletes: 0, totalVolume: 0, totalSessions: 0 };
+                    const counters = [
+                        { label: 'Atletas activos', description: 'Miembros registrados', icon: 'users', value: stats.totalAthletes },
+                        { label: 'Kg registrados (30 días)', description: 'Carga acumulada', icon: 'activity', value: stats.totalVolume },
+                        { label: 'Entrenos en 30 días', description: 'Sesiones registradas', icon: 'calendar-check', value: stats.totalSessions }
+                    ];
+
+                    const countersHtml = counters.map((counter) => {
+                        const value = typeof counter.value === 'number' ? counter.value : 0;
+                        return `
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">${counter.label}</p>
+                                        <p class="mt-2 text-3xl font-bold text-white" data-community-counter data-counter-value="${value}" data-animated="false">0</p>
+                                    </div>
+                                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-200">
+                                        <i data-lucide="${counter.icon}" class="h-5 w-5"></i>
+                                    </span>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-400">${counter.description}</p>
+                            </div>
+                        `;
+                    }).join('');
+
+                    const updatedLabel = community.lastUpdated
+                        ? `Actualizado ${this.formatRelativeTime(community.lastUpdated)}`
+                        : 'Listo para registrar datos';
+
+                    const podium = Array.isArray(community.podium) ? community.podium : [];
+                    const podiumStyles = [
+                        'from-amber-500/20 via-amber-500/10 to-transparent border border-amber-400/40 text-amber-100',
+                        'from-slate-500/20 via-slate-500/10 to-transparent border border-slate-400/30 text-slate-100',
+                        'from-orange-500/20 via-orange-500/10 to-transparent border border-orange-400/30 text-orange-100'
+                    ];
+                    const podiumEmojis = ['🥇', '🥈', '🥉'];
+                    const podiumHtml = podium.length > 0
+                        ? podium.map((entry, index) => `
+                            <div class="rounded-2xl bg-gradient-to-br ${podiumStyles[index] || 'from-gray-700/20 via-gray-800/20 to-transparent border border-white/10 text-gray-200'} p-4 text-center">
+                                <span class="text-2xl">${podiumEmojis[index] || `#${entry.rank}`}</span>
+                                <p class="mt-2 text-sm font-semibold text-white">${entry.name}</p>
+                                <p class="text-xs text-gray-200">${entry.formattedValue}</p>
+                                ${entry.trendLabel ? `<p class="mt-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200">${entry.trendLabel}</p>` : ''}
+                            </div>
+                        `).join('')
+                        : `<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-4 text-sm text-gray-400">Aún no hay atletas con cargas registradas.</div>`;
+
+                    const leaderboardTabs = [
+                        { id: 'volume', label: 'Carga total', icon: 'dumbbell' },
+                        { id: 'sessions', label: 'Días activos', icon: 'calendar-check' },
+                        { id: 'progress', label: 'Progreso', icon: 'trending-up' }
+                    ];
+                    const activeLeaderboard = community.activeLeaderboard || 'volume';
+                    const tabButtons = leaderboardTabs.map(tab => {
+                        const isActive = tab.id === activeLeaderboard;
+                        return `
+                            <button data-action="community-switch-leaderboard" data-leaderboard="${tab.id}" class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] transition ${isActive ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10'}">
+                                <i data-lucide="${tab.icon}" class="h-4 w-4"></i>
+                                ${tab.label}
+                            </button>
+                        `;
+                    }).join('');
+
+                    const leaderboardData = community.leaderboards?.[activeLeaderboard] || [];
+                    const leaderboardItemsHtml = leaderboardData.length > 0
+                        ? `<ul class="space-y-3">
+                            ${leaderboardData.map((entry, index) => {
+                                const rankBadge = index === 0
+                                    ? 'bg-amber-500/20 text-amber-300 border border-amber-400/40'
+                                    : index === 1
+                                        ? 'bg-slate-500/20 text-slate-200 border border-slate-400/30'
+                                        : index === 2
+                                            ? 'bg-orange-500/20 text-orange-200 border border-orange-400/30'
+                                            : 'bg-gray-800 text-gray-300 border border-gray-700';
+                                const detailLine = activeLeaderboard === 'volume'
+                                    ? entry.bestLiftLabel
+                                    : activeLeaderboard === 'progress'
+                                        ? entry.weightLabel
+                                        : entry.weightLabel;
+                                return `
+                                    <li class="rounded-2xl border border-white/10 bg-white/5 p-4 flex items-center justify-between gap-4">
+                                        <div class="flex items-center gap-3">
+                                            <span class="flex h-10 w-10 items-center justify-center rounded-full ${rankBadge} text-base font-bold">${entry.rank}</span>
+                                            <div>
+                                                <p class="text-sm font-semibold text-white">${entry.name}</p>
+                                                <p class="text-xs text-gray-400">${entry.subLabel}</p>
+                                                ${entry.trendLabel ? `<p class="text-xs text-emerald-300">${entry.trendLabel}</p>` : ''}
+                                            </div>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-white">${entry.formattedValue}</p>
+                                            ${detailLine ? `<p class="text-xs text-gray-400">${detailLine}</p>` : ''}
+                                        </div>
+                                    </li>
+                                `;
+                            }).join('')}
+                        </ul>`
+                        : `<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-center text-sm text-gray-400">${isEmpty ? 'Sé la primera persona en aparecer registrando tu próximo entrenamiento.' : 'Registra entrenamientos para activar este ranking.'}</div>`;
+
+                    const spotlight = community.spotlight;
+                    const spotlightHtml = spotlight
+                        ? `
+                            <div class="rounded-3xl border border-amber-400/40 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-5 shadow-lg shadow-amber-500/20">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-amber-200">Récord destacado</p>
+                                        <h4 class="text-lg font-bold text-white">${spotlight.name}</h4>
+                                        <p class="text-sm text-amber-100/80">${spotlight.description}</p>
+                                    </div>
+                                    <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20 text-amber-200 text-lg font-bold">${spotlight.metric}</span>
+                                </div>
+                                <div class="mt-4 flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-amber-200/80">
+                                    ${spotlight.detail ? `<span class="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1"><i data-lucide="trending-up" class="h-4 w-4"></i>${spotlight.detail}</span>` : ''}
+                                    ${spotlight.streak ? `<span class="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1"><i data-lucide="flame" class="h-4 w-4"></i>${spotlight.streak} días de racha</span>` : ''}
+                                </div>
+                            </div>
+                        `
+                        : `<div class="rounded-3xl border border-white/10 bg-white/5 p-5 text-sm text-gray-400">Registra tus pesos máximos para destacar los nuevos récords de la comunidad.</div>`;
+
+                    const highlights = Array.isArray(community.highlights) ? community.highlights : [];
+                    const highlightsHtml = highlights.length > 0
+                        ? highlights.map(item => `
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200">${item.badge}</span>
+                                        <p class="mt-2 text-sm font-semibold text-white">${item.title}</p>
+                                        <p class="text-xs text-gray-400">${item.detail}</p>
+                                    </div>
+                                    <p class="text-lg font-bold text-emerald-300">${item.metric}</p>
+                                </div>
+                            </div>
+                        `).join('')
+                        : `<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-4 text-sm text-gray-400">Cuando la comunidad registre entrenamientos verás aquí a los protagonistas.</div>`;
+
+                    const feed = Array.isArray(community.feed) ? community.feed : [];
+                    const feedHtml = feed.length > 0
+                        ? feed.map(item => `
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4 flex items-center justify-between gap-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200 font-bold">${item.initials}</span>
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">${item.name}</p>
+                                        <p class="text-xs text-gray-400">${item.routineName}</p>
+                                    </div>
+                                </div>
+                                <div class="text-right text-xs text-gray-400">
+                                    <p>${this.formatRelativeTime(item.completedAt)}</p>
+                                    <p>${this.formatNumberCompact(item.volume || 0)} kg · ${this.formatTime(Math.round(item.duration || 0))}</p>
+                                </div>
+                            </div>
+                        `).join('')
+                        : `<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-gray-400 text-center">Cuando registres entrenamientos aparecerán aquí los últimos movimientos.</div>`;
+
+                    const challenges = Array.isArray(community.challenges) ? community.challenges : [];
+                    const challengesHtml = challenges.length > 0
+                        ? challenges.map(challenge => {
+                            const progress = Math.round(Math.min(100, challenge.progress || 0));
+                            return `
+                                <div class="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200">${challenge.title}</p>
+                                            <p class="text-sm text-gray-300">${challenge.description}</p>
+                                        </div>
+                                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-200">
+                                            <i data-lucide="${challenge.icon}" class="h-5 w-5"></i>
+                                        </span>
+                                    </div>
+                                    <div class="h-2.5 w-full rounded-full bg-gray-800">
+                                        <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400" style="width: ${progress}%"></div>
+                                    </div>
+                                    <div class="flex items-center justify-between text-xs text-gray-400">
+                                        <span>${challenge.status}</span>
+                                        <span class="font-semibold text-emerald-200">${progress}%</span>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')
+                        : `<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-gray-400 text-center">Activa retos comunitarios compartiendo tus entrenamientos.</div>`;
+
+                    const emptyBannerHtml = isEmpty
+                        ? `<div class="rounded-2xl border border-dashed border-emerald-400/40 bg-emerald-500/5 p-4 text-sm text-emerald-100">
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200">
+                                            <i data-lucide="sparkles" class="h-5 w-5"></i>
+                                        </span>
+                                        <div>
+                                            <p class="font-semibold text-emerald-100">Activa el ranking registrando tus sesiones</p>
+                                            <p class="text-xs text-emerald-100/80">Completa un entrenamiento o carga tus métricas de peso para desbloquear la tabla.</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80">
+                                        <i data-lucide="cloud" class="h-4 w-4"></i>
+                                        Datos en vivo desde Firebase
+                                    </div>
+                                </div>
+                            </div>`
+                        : '';
+
+                    root.innerHTML = `
+                        <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-gray-900 p-6 sm:p-8 shadow-xl shadow-emerald-500/20">
+                            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.25),transparent_55%)]"></div>
+                            <div class="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                                <div class="flex-1 space-y-6">
+                                    <div class="space-y-3">
+                                        <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">Ranking en vivo</span>
+                                        <h2 class="text-3xl font-bold text-white sm:text-4xl">Comunidad FitTrack</h2>
+                                        <p class="max-w-xl text-sm text-emerald-50/80 sm:text-base">Inspírate con los atletas que rompen récords y suma tus datos para aparecer en el top global.</p>
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-100/80">
+                                        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1">
+                                            <i data-lucide="clock-3" class="h-4 w-4"></i>
+                                            ${updatedLabel}
+                                        </span>
+                                        <button data-action="community-refresh" class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-emerald-200 hover:bg-emerald-400/20">
+                                            <i data-lucide="refresh-cw" class="h-4 w-4"></i>
+                                            Actualizar
+                                        </button>
+                                    </div>
+                                    <div class="grid gap-3 sm:grid-cols-3">
+                                        ${countersHtml}
+                                    </div>
+                                    ${emptyBannerHtml}
+                                </div>
+                                <div class="flex-1 rounded-3xl border border-white/10 bg-gray-900/60 p-4 shadow-inner shadow-emerald-500/10">
+                                    <h3 class="text-sm font-semibold uppercase tracking-[0.35em] text-gray-400">Top cargas (30 días)</h3>
+                                    <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                        ${podiumHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid gap-6 xl:grid-cols-[2fr,1fr]">
+                            <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-5 sm:p-6 space-y-4">
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Tabla general</p>
+                                        <h3 class="text-xl font-bold text-white">Leaderboard global</h3>
+                                    </div>
+                                    <div class="flex flex-wrap gap-2">${tabButtons}</div>
+                                </div>
+                                ${leaderboardItemsHtml}
+                            </div>
+                            <div class="space-y-4">
+                                ${spotlightHtml}
+                                <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-5 space-y-3">
+                                    <h3 class="text-sm font-semibold uppercase tracking-[0.35em] text-gray-400">Logros destacados</h3>
+                                    ${highlightsHtml}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid gap-6 lg:grid-cols-2">
+                            <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-5 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-bold text-white">Actividad en vivo</h3>
+                                    <span class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Últimos registros</span>
+                                </div>
+                                ${feedHtml}
+                            </div>
+                            <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-5 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <h3 class="text-lg font-bold text-white">Retos comunitarios</h3>
+                                    <span class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Progreso en tiempo real</span>
+                                </div>
+                                ${challengesHtml}
+                            </div>
+                        </div>
+                    `;
+
+                    lucide.createIcons();
+                    if (this.state.currentSection === 'comunidad' && !this.state.isCommunityLoading) {
+                        this.animateCommunityCounters();
+                    }
                 },
                 
                 routine_addDay() { const dayCount = this._tempRoutine.plan.length + 1; this._tempRoutine.plan.push({ day: `Día ${dayCount}`, exercises: [] }); this._tempRoutine.currentDayIndex = dayCount - 1; this.routine_refreshDayTabs(); this.routine_refreshExerciseList(); },
