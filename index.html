@@ -3,25 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-        <meta name="viewport" content="ancho=ancho-del-dispositivo, escala-inicial=1.0, escalable-por-usuario=no">
-    <meta name="color del tema" contenido="#10b981">
-    <meta name="description" content="FitTrack es tu asistente personal de fitness con rutinas guiadas, seguimiento en vivo y herramientas nutricionales.">
-    <meta name="nombre-de-la-aplicación" content="FitTrack">
-    <meta name="apple-mobile-web-app-capable" content="sí">
-    <meta name="apple-mobile-web-app-status-bar-style" content="negro-translúcido">
-    <meta nombre="apple-mobile-web-app-title" contenido="FitTrack">
-    <meta name="compatible con aplicaciones web móviles" content="sí">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="color-scheme" content="oscuro claro">
-    <meta name="msapplication-TileColor" contenido="#0f172a">
     <title>FitTrack - Tu Asistente Fitness Personal</title>
-    
-    <link rel="manifiesto" href="manifiesto.webmanifest">
-    <link rel="icono" tipo="imagen/png" tamaños="192x192" href="iconos/icono-192.png">
-    <link rel="icono" tipo="imagen/png" tamaños="512x512" href="iconos/icono-512.png">
-    <link rel="icono de acceso directo" href="icons/icon-192.png" type="image/png">
-    <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
-    <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -6062,40 +6044,6 @@
         } else {
             bootstrapApp();
         }
-</script>
-
-    <guión>
-    (() => {
-        if (!('serviceWorker' en el navegador)) {
-            console.warn('Los Service Workers no son compatibles con este navegador.');
-            devolver;
-        }
-
-        constante registerServiceWorker = async () => {
-            intentar {
-                const registro = await navigator.serviceWorker.register('service-worker.js', { scope: './' });
-                console.info('Service Worker registrado exitosamente:', registration.scope);
-            } captura (error) {
-                console.error('Error al registrar el Service Worker:', error);
-            }
-        };
-
-        si (documento.readyState === 'completo') {
-            registrarServiceWorker();
-        } demás {
-            ventana.addEventListener('load', registerServiceWorker, { una vez: verdadero });
-        }
-
-        ventana.addEventListener('beforeinstallprompt', evento => {
-            evento.preventDefault();
-            ventana.deferredPWAInstallPrompt = evento;
-        });
-
-        ventana.addEventListener('appinstalled', () => {
-            ventana.deferredPWAInstallPrompt = nulo;
-            console.info('La aplicación se instaló correctamente.');
-        });
-    })();
 </script>
 
 </body>
