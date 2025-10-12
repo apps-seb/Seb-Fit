@@ -562,7 +562,187 @@
         </section>
     </template>
     
-    <template id="template-dieta"><section id="dieta" class="section-content hidden"><div class="space-y-6"><div><h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Plan de Dieta de Hoy</span></h2><p class="text-gray-400">Objetivo: <span id="diet-goal-calories" class="font-bold text-emerald-400">2500</span> kcal</p></div><div class="bg-gray-700/80 p-4 rounded-xl space-y-3"><div class="flex justify-between items-center text-sm"><span class="text-gray-300">Consumido</span><span class="font-bold"><span id="diet-total-calories">0</span> kcal</span></div><div class="h-2.5 w-full rounded-full bg-gray-600"><div id="diet-progress-bar" class="bg-emerald-500 h-2.5 rounded-full w-0"></div></div><div class="grid grid-cols-3 gap-2 text-center text-xs"><div class="space-y-1"><p class="font-semibold text-blue-300">Proteína</p><div class="h-1.5 w-full rounded-full bg-blue-500/20"><div id="diet-protein-bar" class="bg-blue-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-protein">0</span>g / <span id="diet-goal-protein">188</span>g</p></div><div class="space-y-1"><p class="font-semibold text-yellow-300">Carbs</p><div class="h-1.5 w-full rounded-full bg-yellow-500/20"><div id="diet-carbs-bar" class="bg-yellow-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-carbs">0</span>g / <span id="diet-goal-carbs">250</span>g</p></div><div class="space-y-1"><p class="font-semibold text-red-300">Grasas</p><div class="h-1.5 w-full rounded-full bg-red-500/20"><div id="diet-fats-bar" class="bg-red-400 h-1.5 rounded-full w-0"></div></div><p><span id="diet-total-fats">0</span>g / <span id="diet-goal-fats">83</span>g</p></div></div></div><div id="diet-management-tools"><div class="my-4"><button data-action="generate-plan" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 font-bold py-3 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2 shadow-lg"><i data-lucide="sparkles" class="w-5 h-5 p-e-none"></i><span class="p-e-none">✨ Generar Plan con IA</span></button></div><div class="bg-gray-700/50 p-4 rounded-xl space-y-3 mb-6"><h3 class="font-semibold flex items-center gap-2"><i data-lucide="brain-circuit" class="w-5 h-5 text-sky-400"></i>Analizador de Comidas IA</h3><p class="text-sm text-gray-400">Describe una comida y la IA estimará sus macros para añadirla a tu dieta.</p><textarea id="food-analysis-input" placeholder="Ej: un tazón de avena con plátano y nueces" class="w-full bg-gray-700 rounded-lg p-2 h-16 resize-none"></textarea><button data-action="analyze-food" class="w-full bg-gradient-to-r from-sky-500 to-cyan-600 font-bold py-2 rounded-lg hover:opacity-90 transition flex items-center justify-center space-x-2"><span class="p-e-none">✨ Analizar y Añadir</span></button></div></div><div id="meal-sections" class="space-y-4"></div><div id="add-food-section" class="space-y-4 mt-4"><h3 class="text-xl font-bold">Añadir Alimentos</h3><div class="relative"><input type="text" id="food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 p-e-none"><i data-lucide="search" class="text-gray-400"></i></div></div><div id="food-list" class="space-y-2 pr-2"></div></div></div></section></template>
+    <template id="template-dieta">
+        <section id="dieta" class="section-content hidden">
+            <div class="space-y-8">
+                <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                    <div class="space-y-2">
+                        <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
+                            <i data-lucide="leaf" class="h-4 w-4"></i>
+                            Nutrición inteligente
+                        </span>
+                        <h2 class="flex items-center gap-3 text-3xl font-bold text-white">
+                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-500/15 text-emerald-300 shadow-inner shadow-emerald-500/30">
+                                <i data-lucide="apple" class="h-6 w-6"></i>
+                            </span>
+                            <span>Diseña tu combustible diario</span>
+                        </h2>
+                        <p class="max-w-2xl text-sm text-gray-400">Planifica tus comidas, controla macros y mantén a tus asesorados alineados con sus objetivos.</p>
+                    </div>
+                    <div id="diet-admin-actions" class="flex flex-wrap items-center gap-3">
+                        <button data-action="generate-plan" class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-purple-500 via-violet-500 to-indigo-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-purple-500/40 transition hover:from-purple-400 hover:via-violet-400 hover:to-indigo-400">
+                            <i data-lucide="sparkles" class="h-4 w-4"></i>
+                            Generar plan con IA
+                        </button>
+                        <button data-action="client-diet-create-food-modal" class="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-400/60 bg-emerald-400/10 px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-300 hover:bg-emerald-400/20">
+                            <i data-lucide="plus-circle" class="h-4 w-4"></i>
+                            Nuevo alimento
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] items-start">
+                    <article class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900/95 via-gray-900/60 to-gray-900/90 p-6 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.85)]">
+                        <div class="pointer-events-none absolute -top-24 right-0 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl"></div>
+                        <div class="relative space-y-6">
+                            <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                                <div class="space-y-3">
+                                    <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
+                                        <i data-lucide="activity" class="h-4 w-4"></i>
+                                        Seguimiento diario
+                                    </span>
+                                    <div>
+                                        <h2 class="text-3xl font-semibold text-white">Plan de Dieta de Hoy</h2>
+                                        <p class="text-sm text-gray-400">Objetivo calórico: <span id="diet-goal-calories" class="font-semibold text-emerald-300">2500</span> kcal</p>
+                                    </div>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-right shadow-inner">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Consumido hoy</p>
+                                    <p class="text-4xl font-bold text-white">
+                                        <span id="diet-total-calories">0</span>
+                                        <span class="text-base font-semibold text-gray-400">kcal</span>
+                                    </p>
+                                    <p class="text-xs text-gray-500">Actualizado con tus comidas registradas.</p>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.25em] text-gray-400">
+                                    <span>Progreso diario</span>
+                                    <span><span id="diet-total-calories-progress">0</span>%</span>
+                                </div>
+                                <div class="mt-3 h-3 w-full overflow-hidden rounded-full bg-gray-800">
+                                    <div id="diet-progress-bar" class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                            <div class="grid gap-4 sm:grid-cols-3">
+                                <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-gray-900/60 p-4 shadow-inner">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2 text-sm font-semibold text-blue-200">
+                                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/20 text-blue-100">
+                                                <i data-lucide="shield-half" class="h-4 w-4"></i>
+                                            </span>
+                                            Proteína
+                                        </div>
+                                        <span class="text-xs uppercase tracking-[0.3em] text-blue-200/60">Macro</span>
+                                    </div>
+                                    <p class="mt-4 text-3xl font-bold text-white">
+                                        <span id="diet-total-protein">0</span><span class="text-base font-semibold text-gray-400"> g</span>
+                                    </p>
+                                    <p class="text-xs text-gray-500">Objetivo <span id="diet-goal-protein">188</span> g</p>
+                                    <div class="mt-4 h-2.5 rounded-full bg-blue-500/20">
+                                        <div id="diet-protein-bar" class="h-full rounded-full bg-gradient-to-r from-blue-400 via-sky-400 to-emerald-300" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-yellow-500/10 via-amber-500/5 to-gray-900/60 p-4 shadow-inner">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2 text-sm font-semibold text-yellow-200">
+                                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-yellow-500/20 text-yellow-100">
+                                                <i data-lucide="wheat" class="h-4 w-4"></i>
+                                            </span>
+                                            Carbohidratos
+                                        </div>
+                                        <span class="text-xs uppercase tracking-[0.3em] text-yellow-200/60">Macro</span>
+                                    </div>
+                                    <p class="mt-4 text-3xl font-bold text-white">
+                                        <span id="diet-total-carbs">0</span><span class="text-base font-semibold text-gray-400"> g</span>
+                                    </p>
+                                    <p class="text-xs text-gray-500">Objetivo <span id="diet-goal-carbs">250</span> g</p>
+                                    <div class="mt-4 h-2.5 rounded-full bg-yellow-500/20">
+                                        <div id="diet-carbs-bar" class="h-full rounded-full bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-300" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-rose-500/10 via-pink-500/5 to-gray-900/60 p-4 shadow-inner">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2 text-sm font-semibold text-rose-200">
+                                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500/20 text-rose-100">
+                                                <i data-lucide="droplets" class="h-4 w-4"></i>
+                                            </span>
+                                            Grasas saludables
+                                        </div>
+                                        <span class="text-xs uppercase tracking-[0.3em] text-rose-200/60">Macro</span>
+                                    </div>
+                                    <p class="mt-4 text-3xl font-bold text-white">
+                                        <span id="diet-total-fats">0</span><span class="text-base font-semibold text-gray-400"> g</span>
+                                    </p>
+                                    <p class="text-xs text-gray-500">Objetivo <span id="diet-goal-fats">83</span> g</p>
+                                    <div class="mt-4 h-2.5 rounded-full bg-rose-500/20">
+                                        <div id="diet-fats-bar" class="h-full rounded-full bg-gradient-to-r from-rose-300 via-pink-300 to-purple-300" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                    <aside id="diet-management-tools" class="space-y-5 rounded-3xl border border-white/10 bg-gray-900/70 p-6 shadow-[0_35px_90px_-55px_rgba(59,130,246,0.55)]">
+                        <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                            <h3 class="text-sm font-semibold text-white">Control rápido</h3>
+                            <p class="mt-1 text-xs text-gray-400">Organiza objetivos, registra nuevas comidas y mantén al día a tus asesorados.</p>
+                            <ul class="mt-3 space-y-2 text-xs text-gray-400">
+                                <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="mt-0.5 h-3.5 w-3.5 text-emerald-300"></i><span>Ajusta metas nutricionales en segundos.</span></li>
+                                <li class="flex items-start gap-2"><i data-lucide="clock-4" class="mt-0.5 h-3.5 w-3.5 text-sky-300"></i><span>Anticipa el día con recordatorios inteligentes.</span></li>
+                                <li class="flex items-start gap-2"><i data-lucide="stars" class="mt-0.5 h-3.5 w-3.5 text-purple-300"></i><span>Optimiza por macros o tipo de comida.</span></li>
+                            </ul>
+                        </div>
+                        <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-sky-500/15 via-cyan-500/10 to-gray-900/60 p-4 shadow-inner">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <h4 class="flex items-center gap-2 text-sm font-semibold text-white">
+                                        <i data-lucide="brain-circuit" class="h-4 w-4 text-sky-300"></i>
+                                        Analizador de comidas IA
+                                    </h4>
+                                    <p class="text-xs text-gray-300">Describe tu plato y obtén una estimación aproximada de calorías y macros.</p>
+                                </div>
+                            </div>
+                            <textarea id="food-analysis-input" placeholder="Ej: bowl de avena con plátano y nueces" class="mt-4 h-28 w-full rounded-xl border border-white/10 bg-gray-900/80 p-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-500/40"></textarea>
+                            <button data-action="analyze-food" class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 via-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:from-sky-400 hover:via-cyan-400 hover:to-teal-400">
+                                <i data-lucide="sparkle" class="h-4 w-4"></i>
+                                Analizar y añadir
+                            </button>
+                        </div>
+                    </aside>
+                </div>
+
+                <div class="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] items-start">
+                    <article class="space-y-6 rounded-3xl border border-white/10 bg-gray-900/70 p-6">
+                        <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="space-y-1">
+                                <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                    <i data-lucide="calendar-check" class="h-4 w-4"></i>
+                                    Agenda nutricional
+                                </div>
+                                <h3 class="text-2xl font-semibold text-white">Tus comidas planificadas</h3>
+                                <p class="text-sm text-gray-400">Marca lo que vayas consumiendo y mantén tus macros alineados.</p>
+                            </div>
+                        </header>
+                        <div id="meal-sections" class="space-y-5"></div>
+                    </article>
+
+                    <aside id="add-food-section" class="space-y-5 rounded-3xl border border-white/10 bg-gray-900/70 p-6 shadow-[0_35px_90px_-55px_rgba(45,212,191,0.55)]">
+                        <div class="space-y-2">
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Biblioteca de alimentos</p>
+                            <h3 class="text-xl font-semibold text-white">Añade alimentos al plan</h3>
+                            <p class="text-xs text-gray-500">Busca en la base de datos o crea tus propios alimentos.</p>
+                        </div>
+                        <div class="relative">
+                            <i data-lucide="search" class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"></i>
+                            <input type="text" id="food-search" placeholder="Busca por nombre o macro" class="w-full rounded-2xl border border-white/10 bg-gray-900/60 py-3 pl-11 pr-4 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                        </div>
+                        <div id="food-list" class="space-y-4"></div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </template>
+
     <template id="template-historial"><section id="historial" class="section-content hidden"><div class="space-y-6"><div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h2 class="text-2xl font-bold flex items-center gap-3"><span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-300 shadow-inner shadow-emerald-500/20"><i data-lucide="history" class="h-6 w-6"></i></span><span>Historial de Progreso</span></h2><p class="text-sm text-gray-400">Visualiza la evolución de tus entrenamientos, tiempos y cargas.</p></div><button data-action="show-workout-history" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10"><i data-lucide="gallery-vertical-end" class="h-4 w-4"></i>Ver resumen detallado</button></div><div id="history-overview" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div><div id="history-cards" class="space-y-4"></div></div></section></template>
     <template id="template-comunidad">
         <section id="comunidad" class="section-content hidden">
@@ -948,6 +1128,7 @@
                     const predefinedRoutines = document.getElementById('predefined-routines-section');
                     const dietManagementTools = document.getElementById('diet-management-tools');
                     const addFoodSection = document.getElementById('add-food-section');
+                    const dietAdminActions = document.getElementById('diet-admin-actions');
 
                     if (this.isAsesor()) {
                         navAsesorados.style.display = 'flex';
@@ -956,6 +1137,7 @@
                         if (predefinedRoutines) predefinedRoutines.style.display = 'block';
                         if (dietManagementTools) dietManagementTools.style.display = 'block';
                         if (addFoodSection) addFoodSection.style.display = 'block';
+                        if (dietAdminActions) dietAdminActions.style.display = 'flex';
                         const navRutinasText = document.querySelector('#nav-rutinas .nav-label');
                         if (navRutinasText) navRutinasText.textContent = 'Rutinas';
 
@@ -966,6 +1148,7 @@
                         if (predefinedRoutines) predefinedRoutines.style.display = 'none';
                         if (dietManagementTools) dietManagementTools.style.display = 'none';
                         if (addFoodSection) addFoodSection.style.display = 'none';
+                        if (dietAdminActions) dietAdminActions.style.display = 'none';
                         const navRutinasText = document.querySelector('#nav-rutinas .nav-label');
                         if (navRutinasText) navRutinasText.textContent = 'Mi Rutina';
                     }
@@ -1593,7 +1776,7 @@
                             return; 
                         }
                         
-                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate, leaderboard } = button.dataset;
+                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate, leaderboard, storagePath } = button.dataset;
                         const actionMap = {
                             'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
@@ -1614,8 +1797,11 @@
                             'client-diet-show-calculator': () => this._showClientCalculatorModal(clientId),
                             'client-diet-create-food-modal': () => this._showCreateFoodModal(),
                             'client-diet-save-custom-food': () => this._saveCustomFood(),
+                            'client-diet-edit-food-modal': () => this._showEditFoodModal(foodId),
+                            'client-diet-update-custom-food': () => this._updateCustomFood(),
+                            'client-diet-remove-food-image': () => this._handleRemoveFoodImageFromForm(button),
                             'confirm-delete-custom-food': () => this._confirmDeleteCustomFood(foodId),
-                            'delete-custom-food': () => this._deleteCustomFood(foodId),
+                            'delete-custom-food': () => this._deleteCustomFood(foodId, storagePath),
                             'community-switch-leaderboard': () => this.switchCommunityLeaderboard(leaderboard),
                             'community-refresh': () => this.refreshCommunityData(),
                         };
@@ -2236,19 +2422,58 @@
                 },
                 _showCreateFoodModal() {
                     const body = `
-                        <p class="text-sm text-gray-400 mb-4">Añade un nuevo alimento a tu librería personal. Los valores deben ser por cada 100g.</p>
-                        <form id="create-food-form" class="space-y-3">
-                            <div><label class="text-xs text-gray-300">Nombre del Alimento</label><input type="text" name="name" required class="w-full bg-gray-700 p-2 rounded-lg mt-1"></div>
-                            <div class="grid grid-cols-2 gap-3">
-                                <div><label class="text-xs text-gray-300">Calorías (kcal)</label><input type="number" name="cals" required class="w-full bg-gray-700 p-2 rounded-lg mt-1"></div>
-                                <div><label class="text-xs text-gray-300">Proteína (g)</label><input type="number" name="p" required class="w-full bg-gray-700 p-2 rounded-lg mt-1"></div>
-                                <div><label class="text-xs text-gray-300">Carbs (g)</label><input type="number" name="c" required class="w-full bg-gray-700 p-2 rounded-lg mt-1"></div>
-                                <div><label class="text-xs text-gray-300">Grasas (g)</label><input type="number" name="f" required class="w-full bg-gray-700 p-2 rounded-lg mt-1"></div>
+                        <p class="text-sm text-gray-300 mb-4">Añade un nuevo alimento a tu librería personal con valores por cada 100&nbsp;g para mantener tus cálculos precisos.</p>
+                        <form id="create-food-form" class="space-y-5">
+                            <div>
+                                <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Nombre del alimento</label>
+                                <input type="text" name="name" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Calorías (kcal)</label>
+                                    <input type="number" name="cals" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Proteína (g)</label>
+                                    <input type="number" name="p" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Carbohidratos (g)</label>
+                                    <input type="number" name="c" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Grasas (g)</label>
+                                    <input type="number" name="f" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                </div>
+                            </div>
+                            <div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/60 p-4">
+                                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Imagen opcional</p>
+                                <div id="custom-food-image-preview" class="mt-3 rounded-xl border border-dashed border-white/10 bg-gray-900/50 p-4"></div>
+                                <div class="mt-3 flex flex-wrap items-center gap-3">
+                                    <label class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400 hover:text-white">
+                                        <i data-lucide="upload-cloud" class="h-3.5 w-3.5"></i>
+                                        Subir imagen
+                                        <input type="file" id="custom-food-image-input" accept="image/*" class="hidden">
+                                    </label>
+                                    <button type="button" id="remove-food-image-btn" data-action="client-diet-remove-food-image" class="inline-flex items-center gap-2 rounded-full border border-rose-400/40 bg-rose-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-rose-200 opacity-60 transition hover:border-rose-300 hover:bg-rose-500/20 disabled:cursor-not-allowed" disabled>
+                                        <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                        Quitar imagen
+                                    </button>
+                                </div>
+                                <input type="hidden" id="custom-food-remove-image" value="false">
                             </div>
                         </form>
                     `;
                     const footer = [{ text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' }, { text: 'Crear Alimento', class: 'bg-emerald-600 text-gray-900', action: 'client-diet-save-custom-food' }];
                     this.showModal('Crear Nuevo Alimento', body, footer);
+                    const preview = document.getElementById('custom-food-image-preview');
+                    this.renderFoodImagePlaceholder(preview);
+                    this.setupFoodImagePreview('custom-food-image-input', 'custom-food-image-preview', 'custom-food-remove-image', 'remove-food-image-btn');
+                    const removeBtn = document.getElementById('remove-food-image-btn');
+                    if (removeBtn) {
+                        removeBtn.dataset.originalInnerHTML = removeBtn.innerHTML;
+                    }
+                    lucide.createIcons();
                 },
                 async _saveCustomFood() {
                     const form = document.getElementById('create-food-form');
@@ -2261,17 +2486,193 @@
                     if (!name || isNaN(cals) || isNaN(p) || isNaN(c) || isNaN(f)) {
                         return this.showToast("Todos los campos son obligatorios y deben ser números.", "error");
                     }
+                    this.setModalButtonLoading('client-diet-save-custom-food', true);
+
                     const newFood = { name, cals, p, c, f };
                     try {
+                        const fileInput = document.getElementById('custom-food-image-input');
+                        if (fileInput && fileInput.files && fileInput.files[0]) {
+                            const { url, storagePath } = await this.uploadImageToStorage(fileInput.files[0], { pathPrefix: 'foods' });
+                            if (url) {
+                                newFood.imageUrl = url;
+                                newFood.storagePath = storagePath;
+                            }
+                        }
+
                         const customFoodsRef = collection(this.db, "users", this.state.currentUser.uid, "customFoods");
                         await addDoc(customFoodsRef, newFood);
                         this.showToast("Alimento creado y guardado en tu librería.", "success");
                         await this.loadAndMergeFoodData();
-                        this.renderFoodList(document.getElementById('client-food-search').value, 'client-food-list');
+                        const clientSearch = document.getElementById('client-food-search');
+                        if (clientSearch) {
+                            this.renderFoodList(clientSearch.value, 'client-food-list');
+                        }
+                        const mainSearch = document.getElementById('food-search');
+                        this.renderFoodList(mainSearch ? mainSearch.value : '');
                         this.hideModal();
                     } catch (error) {
                         console.error("Error creating custom food:", error);
                         this.showToast("No se pudo guardar el alimento.", "error");
+                    } finally {
+                        this.setModalButtonLoading('client-diet-save-custom-food', false, 'Crear alimento');
+                    }
+                },
+                _showEditFoodModal(foodId) {
+                    const food = this.getFoodById(foodId);
+                    if (!food) {
+                        this.showToast('Alimento no encontrado.', 'error');
+                        return;
+                    }
+
+                    const body = `
+                        <p class="text-sm text-gray-400 mb-4">Actualiza los valores por cada 100&nbsp;g para mantener tus registros precisos.</p>
+                        <form id="edit-food-form" class="space-y-4" data-food-id="${foodId}" data-storage-path="${food.storagePath || ''}" data-image-url="${food.imageUrl || ''}">
+                            <div>
+                                <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Nombre del alimento</label>
+                                <input type="text" name="name" value="${food.name}" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Calorías (kcal)</label>
+                                    <input type="number" name="cals" value="${food.cals}" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Proteína (g)</label>
+                                    <input type="number" name="p" value="${food.p}" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Carbohidratos (g)</label>
+                                    <input type="number" name="c" value="${food.c}" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Grasas (g)</label>
+                                    <input type="number" name="f" value="${food.f}" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Imagen</p>
+                                <div class="mt-2 flex flex-col gap-3">
+                                    <div id="custom-food-image-preview" class="rounded-xl border border-dashed border-white/10 bg-gray-900/40 p-4"></div>
+                                    <div class="flex flex-wrap items-center gap-3">
+                                        <label class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400 hover:text-white">
+                                            <i data-lucide="upload-cloud" class="h-4 w-4"></i>
+                                            Subir nueva imagen
+                                            <input type="file" id="custom-food-image-input" accept="image/*" class="hidden">
+                                        </label>
+                                        <button type="button" id="remove-food-image-btn" data-action="client-diet-remove-food-image" class="inline-flex items-center gap-2 rounded-full border border-rose-400/40 bg-rose-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-rose-200 transition hover:border-rose-300 hover:bg-rose-500/20 ${food.imageUrl ? '' : 'opacity-60 cursor-not-allowed'}" ${food.imageUrl ? '' : 'disabled'}>
+                                            <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                            Quitar imagen
+                                        </button>
+                                    </div>
+                                    <input type="hidden" id="custom-food-remove-image" value="false">
+                                </div>
+                            </div>
+                        </form>
+                    `;
+                    const footer = [
+                        { text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' },
+                        { text: 'Guardar cambios', class: 'bg-emerald-600 text-gray-900', action: 'client-diet-update-custom-food' }
+                    ];
+                    this.showModal(`Editar Alimento`, body, footer);
+
+                    const preview = document.getElementById('custom-food-image-preview');
+                    if (food.imageUrl) {
+                        preview.innerHTML = `<img src="${food.imageUrl}" alt="${food.name}" class="h-24 w-full rounded-xl border border-white/10 object-cover">`;
+                    } else {
+                        this.renderFoodImagePlaceholder(preview);
+                    }
+                    const removeBtn = document.getElementById('remove-food-image-btn');
+                    if (removeBtn) {
+                        removeBtn.dataset.originalInnerHTML = removeBtn.innerHTML;
+                        if (food.imageUrl) {
+                            removeBtn.disabled = false;
+                            removeBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                        } else {
+                            removeBtn.disabled = true;
+                            removeBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                        }
+                    }
+                    this.setupFoodImagePreview('custom-food-image-input', 'custom-food-image-preview', 'custom-food-remove-image', 'remove-food-image-btn');
+                    lucide.createIcons();
+                },
+                async _updateCustomFood() {
+                    const form = document.getElementById('edit-food-form');
+                    if (!form) {
+                        return;
+                    }
+
+                    const foodId = form.dataset.foodId;
+                    if (!foodId) {
+                        this.showToast('No se pudo identificar el alimento.', 'error');
+                        return;
+                    }
+
+                    const name = form.name.value.trim();
+                    const cals = parseFloat(form.cals.value);
+                    const p = parseFloat(form.p.value);
+                    const c = parseFloat(form.c.value);
+                    const f = parseFloat(form.f.value);
+                    const removeImage = document.getElementById('custom-food-remove-image')?.value === 'true';
+
+                    if (!name || isNaN(cals) || isNaN(p) || isNaN(c) || isNaN(f)) {
+                        this.showToast('Todos los campos son obligatorios y deben ser números.', 'error');
+                        return;
+                    }
+
+                    this.setModalButtonLoading('client-diet-update-custom-food', true, 'Guardar cambios');
+
+                    const updates = { name, cals, p, c, f };
+                    const fileInput = document.getElementById('custom-food-image-input');
+                    const previousPath = form.dataset.storagePath || '';
+
+                    try {
+                        if (fileInput && fileInput.files && fileInput.files[0]) {
+                            const { url, storagePath } = await this.uploadImageToStorage(fileInput.files[0], { pathPrefix: 'foods', previousPath });
+                            updates.imageUrl = url;
+                            updates.storagePath = storagePath;
+                        } else if (removeImage && previousPath) {
+                            await this.deleteStorageAsset(previousPath);
+                            updates.imageUrl = '';
+                            updates.storagePath = '';
+                        }
+
+                        const foodRef = doc(this.db, "users", this.state.currentUser.uid, "customFoods", foodId);
+                        await updateDoc(foodRef, updates);
+                        this.showToast('Alimento actualizado.', 'success');
+                        this.hideModal();
+                        await this.loadAndMergeFoodData();
+                        const clientSearch = document.getElementById('client-food-search');
+                        if (clientSearch) {
+                            this.renderFoodList(clientSearch.value, 'client-food-list');
+                        }
+                        const mainSearch = document.getElementById('food-search');
+                        this.renderFoodList(mainSearch ? mainSearch.value : '');
+                    } catch (error) {
+                        console.error('Error updating custom food:', error);
+                        this.showToast('No se pudo actualizar el alimento.', 'error');
+                    } finally {
+                        this.setModalButtonLoading('client-diet-update-custom-food', false, 'Guardar cambios');
+                    }
+                },
+                _handleRemoveFoodImageFromForm(button) {
+                    const preview = document.getElementById('custom-food-image-preview');
+                    const removeInput = document.getElementById('custom-food-remove-image');
+                    const fileInput = document.getElementById('custom-food-image-input');
+                    if (removeInput) {
+                        removeInput.value = 'true';
+                    }
+                    if (fileInput) {
+                        fileInput.value = '';
+                    }
+                    this.renderFoodImagePlaceholder(preview);
+                    if (button) {
+                        if (!button.dataset.originalInnerHTML) {
+                            button.dataset.originalInnerHTML = button.innerHTML;
+                        }
+                        button.disabled = true;
+                        button.classList.add('opacity-60', 'cursor-not-allowed');
+                        button.innerHTML = `<i data-lucide="check" class="h-4 w-4"></i> Eliminada`;
+                        lucide.createIcons();
                     }
                 },
                 _confirmDeleteCustomFood(foodId) {
@@ -2280,23 +2681,26 @@
                     const body = `¿Estás seguro de que quieres eliminar permanentemente el alimento "<strong>${food.name}</strong>"? Esta acción no se puede deshacer.`;
                     const footer = [
                         { text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' },
-                        { text: 'Eliminar', class: 'bg-red-600', action: 'delete-custom-food', 'food-id': foodId }
+                        { text: 'Eliminar', class: 'bg-red-600', action: 'delete-custom-food', 'food-id': foodId, 'storage-path': food.storagePath || '' }
                     ];
                     this.showModal('Confirmar Eliminación', body, footer);
                 },
-                async _deleteCustomFood(foodId) {
+                async _deleteCustomFood(foodId, storagePath = '') {
                     try {
                         const foodRef = doc(this.db, "users", this.state.currentUser.uid, "customFoods", foodId);
                         await deleteDoc(foodRef);
+                        if (storagePath) {
+                            await this.deleteStorageAsset(storagePath);
+                        }
                         this.showToast('Alimento eliminado con éxito.', 'success');
                         this.hideModal();
                         await this.loadAndMergeFoodData();
                         const clientSearchInput = document.getElementById('client-food-search');
                         if (clientSearchInput) {
                             this.renderFoodList(clientSearchInput.value, 'client-food-list');
-                        } else {
-                            this.renderFoodList();
                         }
+                        const mainSearch = document.getElementById('food-search');
+                        this.renderFoodList(mainSearch ? mainSearch.value : '');
                     } catch (error) {
                         console.error("Error deleting custom food:", error);
                         this.showToast('No se pudo eliminar el alimento.', 'error');
@@ -2365,14 +2769,18 @@
                     document.getElementById('diet-total-protein').textContent = Math.round(consumedTotals.p);
                     document.getElementById('diet-total-carbs').textContent = Math.round(consumedTotals.c);
                     document.getElementById('diet-total-fats').textContent = Math.round(consumedTotals.f);
-                    
-                    document.getElementById('diet-progress-bar').style.width = `${p(consumedTotals.cals, calories)}%`;
+
+                    const consumedCalsPercent = p(consumedTotals.cals, calories);
+                    document.getElementById('diet-progress-bar').style.width = `${consumedCalsPercent}%`;
+                    const dietProgressText = document.getElementById('diet-total-calories-progress');
+                    if (dietProgressText) {
+                        dietProgressText.textContent = Math.round(consumedCalsPercent);
+                    }
                     document.getElementById('diet-protein-bar').style.width = `${p(consumedTotals.p, protein)}%`;
                     document.getElementById('diet-carbs-bar').style.width = `${p(consumedTotals.c, carbs)}%`;
                     document.getElementById('diet-fats-bar').style.width = `${p(consumedTotals.f, fats)}%`;
 
                     // Actualizar Dashboard
-                    const consumedCalsPercent = p(consumedTotals.cals, calories);
                     document.getElementById('dashboard-consumed-calories').textContent = `${Math.round(consumedTotals.cals)} Kcal`;
                     document.getElementById('dashboard-progress-bar').style.width = `${consumedCalsPercent}%`;
                     document.getElementById('dashboard-progress-text').textContent = Math.round(consumedCalsPercent);
@@ -2384,50 +2792,89 @@
 
                     const isClientEditor = containerId === 'client-food-list';
                     const action = isClientEditor ? 'client-diet-add-food-modal' : 'show-add-food-modal';
-
-                    const renderFoodItem = (item) => {
-                        let deleteButton = '';
-                        // Los alimentos personalizados tienen un ID de texto, los predefinidos tienen números.
-                        if (this.isAsesor() && typeof item.id === 'string') {
-                            deleteButton = `
-                                <button data-action="confirm-delete-custom-food" data-food-id="${item.id}" title="Eliminar Alimento Personalizado" class="text-red-500 hover:text-red-400 p-2 rounded-full hover:bg-red-500/10 transition-colors">
-                                    <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
-                                </button>
-                            `;
-                        }
-
-                        return `
-                        <div class="bg-gray-700 p-3 rounded-lg flex justify-between items-center">
-                            <div>
-                                <p class="font-semibold text-white">${item.name}</p>
-                                <p class="text-xs text-gray-400">${item.cals} kcal por 100g</p>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                ${deleteButton}
-                                <button data-action="${action}" data-food-id="${item.id}" class="bg-emerald-500 rounded-full w-8 h-8 flex-shrink-0 flex items-center justify-center text-gray-900 font-bold text-xl">+</button>
-                            </div>
-                        </div>`;
-                    };
-                    
-                    const term = searchTerm.toLowerCase().trim();
                     const foodSource = this.data.foodLibrary || [];
+                    const term = searchTerm.toLowerCase().trim();
+
+                    const renderFoodCard = (item) => {
+                        const isCustom = typeof item.id === 'string';
+                        const image = item.imageUrl
+                            ? `<img src="${item.imageUrl}" alt="${item.name}" class="h-full w-full object-cover">`
+                            : `<div class="flex h-full w-full items-center justify-center bg-gray-900/60 text-gray-500"><i data-lucide="image-off" class="h-5 w-5"></i></div>`;
+                        const macros = `<div class="mt-3 grid grid-cols-3 gap-2 text-[11px] text-gray-400">
+                                <span class="flex items-center gap-1 text-blue-200">P <strong>${Math.round(item.p || 0)}g</strong></span>
+                                <span class="flex items-center gap-1 text-yellow-200">C <strong>${Math.round(item.c || 0)}g</strong></span>
+                                <span class="flex items-center gap-1 text-rose-200">G <strong>${Math.round(item.f || 0)}g</strong></span>
+                            </div>`;
+                        const customBadge = this.isAsesor() && isCustom
+                            ? `<span class="mt-2 inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200"><i data-lucide="star" class="h-3 w-3"></i>Personal</span>`
+                            : '';
+                        const editButton = this.isAsesor() && isCustom
+                            ? `<button data-action="client-diet-edit-food-modal" data-food-id="${item.id}" class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-200 transition hover:border-amber-300 hover:bg-amber-500/20">
+                                    <i data-lucide="pencil" class="h-4 w-4"></i>
+                                </button>`
+                            : '';
+                        const deleteButton = this.isAsesor() && isCustom
+                            ? `<button data-action="confirm-delete-custom-food" data-food-id="${item.id}" class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-rose-400/40 bg-rose-500/10 text-rose-200 transition hover:border-rose-300 hover:bg-rose-500/20">
+                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                </button>`
+                            : '';
+                        const adminControls = (editButton || deleteButton)
+                            ? `<div class="flex items-center gap-2">${editButton}${deleteButton}</div>`
+                            : '';
+
+                        return `<div class="group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 shadow-sm transition hover:border-emerald-400/40">
+                                <div class="h-16 w-16 overflow-hidden rounded-xl border border-white/10 bg-gray-900/60 flex-shrink-0">${image}</div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-sm font-semibold text-white">${item.name}</p>
+                                    <p class="text-xs text-gray-400">${Math.round(item.cals || 0)} kcal · por 100g</p>
+                                    ${macros}
+                                    ${customBadge}
+                                </div>
+                                <div class="flex flex-col items-end gap-2">
+                                    <button data-action="${action}" data-food-id="${item.id}" class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-gray-900 shadow-lg shadow-emerald-400/30 transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                        <i data-lucide="plus" class="h-4 w-4"></i>
+                                    </button>
+                                    ${adminControls}
+                                </div>
+                            </div>`;
+                    };
+
+                    const sortByName = (arr) => arr.slice().sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
+
                     if (term) {
                         const results = foodSource.filter(item => item.name.toLowerCase().includes(term));
-                        container.innerHTML = results.length > 0 ? results.map(renderFoodItem).join('') : `<p class="text-gray-400 text-center p-4">No se encontraron alimentos.</p>`;
-                    } else {
-                        const grouped = {
-                            'Mis Alimentos': foodSource.filter(f => typeof f.id === 'string'),
-                            ...Object.entries(this.data.foodDatabase).reduce((acc, [cat, items]) => {
-                                acc[cat] = items;
-                                return acc;
-                            }, {})
-                        };
-                        
-                        container.innerHTML = Object.entries(grouped).map(([category, items]) => {
-                            if (items.length === 0) return '';
-                            return `<details class="bg-gray-700/50 rounded-lg open:bg-gray-700/80 transition-colors" ${category === 'Mis Alimentos' ? 'open' : ''}><summary class="p-3 font-semibold cursor-pointer list-none flex justify-between items-center">${category}<i data-lucide="chevron-down" class="w-5 h-5 transition-transform transform details-open:rotate-180"></i></summary><div class="p-3 border-t border-gray-600/50 space-y-2">${items.map(renderFoodItem).join('')}</div></details>`;
-                        }).join('');
+                        container.innerHTML = results.length > 0
+                            ? results.sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' })).map(renderFoodCard).join('')
+                            : `<div class="rounded-2xl border border-dashed border-white/15 bg-white/5 p-6 text-center text-sm text-gray-400">No se encontraron alimentos que coincidan con tu búsqueda.</div>`;
+                        lucide.createIcons();
+                        return;
                     }
+
+                    const grouped = {
+                        'Mis Alimentos': sortByName(foodSource.filter(f => typeof f.id === 'string')),
+                        ...Object.entries(this.data.foodDatabase).reduce((acc, [cat, items]) => {
+                            acc[cat] = sortByName(items);
+                            return acc;
+                        }, {})
+                    };
+
+                    const sections = Object.entries(grouped)
+                        .map(([category, items]) => {
+                            if (!items || items.length === 0) return '';
+                            return `<details class="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition" ${category === 'Mis Alimentos' ? 'open' : ''}>
+                                    <summary class="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-white">
+                                        <span>${category}</span>
+                                        <i data-lucide="chevron-down" class="h-4 w-4 transition-transform group-open:rotate-180"></i>
+                                    </summary>
+                                    <div class="space-y-3 border-t border-white/10 bg-gray-900/40 px-4 py-3">
+                                        ${items.map(renderFoodCard).join('')}
+                                    </div>
+                                </details>`;
+                        })
+                        .filter(Boolean)
+                        .join('');
+
+                    container.innerHTML = sections || `<div class="rounded-2xl border border-dashed border-white/15 bg-white/5 p-6 text-center text-sm text-gray-400">Aún no hay alimentos en la biblioteca.</div>`;
                     lucide.createIcons();
                 },
                 
@@ -3010,6 +3457,105 @@
                 showEditProfileModal() { const { userName, physicalStats } = this.state; const body = `<form id="edit-profile-form" class="space-y-4"><div><label for="profile-edit-name" class="block text-sm font-medium text-gray-300 mb-1">Nombre</label><input type="text" id="profile-edit-name" value="${userName}" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></div><div class="grid grid-cols-3 gap-3"><div><label for="profile-edit-age" class="block text-sm font-medium text-gray-300 mb-1">Edad</label><input type="number" id="profile-edit-age" value="${physicalStats.age}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="profile-edit-weight" class="block text-sm font-medium text-gray-300 mb-1">Peso (kg)</label><input type="number" step="0.1" id="profile-edit-weight" value="${physicalStats.weight}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="profile-edit-height" class="block text-sm font-medium text-gray-300 mb-1">Altura (cm)</label><input type="number" id="profile-edit-height" value="${physicalStats.height}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div></div><div class="mt-4"><p class="block text-sm font-medium text-gray-300 mb-2">Género</p><div class="grid grid-cols-2 gap-4"><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="profile-edit-gender" value="male" class="sr-only" ${physicalStats.gender === 'male' ? 'checked' : ''}> Hombre</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="profile-edit-gender" value="female" class="sr-only" ${physicalStats.gender === 'female' ? 'checked' : ''}> Mujer</label></div></div></form>`; const footer = [{ text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },{ text: 'Guardar Cambios', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'save-profile-changes' }]; this.showModal('Editar Perfil', body, footer); },
                 async handleUpdateProfile() { const name = document.getElementById('profile-edit-name').value.trim(); const age = parseInt(document.getElementById('profile-edit-age').value); const weight = parseFloat(document.getElementById('profile-edit-weight').value); const height = parseInt(document.getElementById('profile-edit-height').value); const gender = document.querySelector('input[name="profile-edit-gender"]:checked').value; if (!name || isNaN(age) || isNaN(weight) || isNaN(height)) { this.showToast("Por favor, rellena todos los campos correctamente.", "error"); return; } this.state.userName = name; this.state.physicalStats = { ...this.state.physicalStats, age, weight, height, gender }; await this.saveDataToFirestore(); this.renderAll(); this.updateUserInfoUI(); this.populateNutritionForm(); this.hideModal(); this.showToast("¡Perfil actualizado con éxito!"); },
                 updateDashboard() { document.getElementById('dashboard-calories').textContent=`${this.state.userGoals.calories} kcal`; this.updateDietSummary(); },
+                async uploadImageToStorage(file, { pathPrefix = 'uploads', previousPath = '' } = {}) {
+                    if (!file || !this.storage) {
+                        return { url: '', storagePath: '' };
+                    }
+
+                    const sanitizedName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
+                    const ownerId = this.state.currentUser?.uid || 'public';
+                    const storagePath = `${pathPrefix}/${ownerId}/${Date.now()}-${sanitizedName}`;
+                    const storageRefInstance = ref(this.storage, storagePath);
+                    const uploadTask = uploadBytesResumable(storageRefInstance, file);
+
+                    await new Promise((resolve, reject) => {
+                        uploadTask.on('state_changed', null, reject, () => resolve());
+                    });
+
+                    const downloadURL = await getDownloadURL(storageRefInstance);
+
+                    if (previousPath && previousPath !== storagePath) {
+                        await this.deleteStorageAsset(previousPath);
+                    }
+
+                    return { url: downloadURL, storagePath };
+                },
+                async deleteStorageAsset(storagePath) {
+                    if (!storagePath || !this.storage) {
+                        return;
+                    }
+                    try {
+                        await deleteObject(ref(this.storage, storagePath));
+                    } catch (error) {
+                        console.warn('No se pudo eliminar el archivo de Storage:', error);
+                    }
+                },
+                renderFoodImagePlaceholder(previewEl) {
+                    if (!previewEl) return;
+                    previewEl.innerHTML = `<div class="flex h-24 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/10 bg-gray-900/60 text-xs text-gray-400"><i data-lucide="image-off" class="h-4 w-4"></i><span>Sin imagen</span></div>`;
+                    lucide.createIcons();
+                },
+                setupFoodImagePreview(inputId, previewId, removeInputId = null, removeButtonId = null) {
+                    const fileInput = document.getElementById(inputId);
+                    const preview = document.getElementById(previewId);
+                    const removeInput = removeInputId ? document.getElementById(removeInputId) : null;
+                    const removeButton = removeButtonId ? document.getElementById(removeButtonId) : null;
+
+                    if (!fileInput || !preview) {
+                        return;
+                    }
+
+                    if (!preview.innerHTML.trim()) {
+                        this.renderFoodImagePlaceholder(preview);
+                    }
+
+                    if (removeButton && !removeButton.dataset.originalInnerHTML) {
+                        removeButton.dataset.originalInnerHTML = removeButton.innerHTML;
+                    }
+
+                    fileInput.addEventListener('change', () => {
+                        if (fileInput.files && fileInput.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = (event) => {
+                                preview.innerHTML = `<img src="${event.target.result}" alt="Vista previa del alimento" class="h-24 w-full rounded-xl border border-white/10 object-cover">`;
+                            };
+                            reader.readAsDataURL(fileInput.files[0]);
+                            if (removeInput) {
+                                removeInput.value = 'false';
+                            }
+                            if (removeButton) {
+                                removeButton.disabled = false;
+                                removeButton.classList.remove('opacity-60', 'cursor-not-allowed');
+                                if (removeButton.dataset.originalInnerHTML) {
+                                    removeButton.innerHTML = removeButton.dataset.originalInnerHTML;
+                                }
+                                lucide.createIcons();
+                            }
+                        } else {
+                            this.renderFoodImagePlaceholder(preview);
+                            if (removeButton) {
+                                removeButton.disabled = true;
+                                removeButton.classList.add('opacity-60', 'cursor-not-allowed');
+                                lucide.createIcons();
+                            }
+                        }
+                    });
+                },
+                setModalButtonLoading(action, isLoading, fallbackText = 'Guardar') {
+                    const button = document.querySelector(`#custom-modal-footer button[data-action="${action}"]`);
+                    if (!button) return;
+
+                    if (isLoading) {
+                        button.dataset.originalText = button.textContent;
+                        button.disabled = true;
+                        button.innerHTML = `<i data-lucide="loader-2" class="h-4 w-4 animate-spin"></i>`;
+                        lucide.createIcons();
+                    } else {
+                        button.disabled = false;
+                        const text = button.dataset.originalText || fallbackText;
+                        button.textContent = text;
+                    }
+                },
                 showModal(t,b,f=[]){document.getElementById('custom-modal-title').textContent=t;document.getElementById('custom-modal-body').innerHTML=b;const ft=document.getElementById('custom-modal-footer');ft.innerHTML=f.map(btn=>{const d=Object.entries(btn).filter(([k])=>k!=='text'&&k!=='class').map(([k,v])=>`data-${k}="${v}"`).join(' ');return`<button ${d} class="font-bold py-2 px-4 rounded-lg transition ${btn.class}">${btn.text}</button>`}).join('');document.getElementById('custom-modal').classList.remove('hidden');document.getElementById('custom-modal-panel').classList.remove('modal-fade-out');},
                 hideModal(){const m=document.getElementById('custom-modal'),p=document.getElementById('custom-modal-panel');p.classList.add('modal-fade-out');p.addEventListener('animationend',()=>m.classList.add('hidden'),{once:true});},
                 showToast(m,t='success'){const c=document.getElementById('toast-container'),el=document.createElement('div');el.className=`toast ${t==='success'?'bg-emerald-500':'bg-red-500'} text-white font-bold py-2 px-4 rounded-lg shadow-lg`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.remove(),3000);},
@@ -3163,62 +3709,99 @@
                     const todayLog = this.state.dietLog ? (this.state.dietLog[today] || {}) : {};
 
                     if (!Array.isArray(this.state.dailyDiet)) {
-                        container.innerHTML = `<p class="text-center text-gray-500">Formato de dieta no válido.</p>`;
+                        container.innerHTML = `<div class="rounded-3xl border border-dashed border-white/15 bg-white/5 p-6 text-center text-sm text-gray-400">Formato de dieta no válido.</div>`;
                         return;
                     }
 
                     container.innerHTML = this.state.dailyDiet.map((meal, mealIndex) => {
-                        const totalCals = meal.items.reduce((sum, item) => sum + item.totalCals, 0);
+                        const totalCals = meal.items.reduce((sum, item) => sum + (item.totalCals || 0), 0);
                         const mealLog = todayLog[meal.id] || [];
+                        const normalizedName = (meal.name || '').toLowerCase();
+                        let icon = 'chef-hat';
+                        if (normalizedName.includes('desay')) icon = 'sunrise';
+                        else if (normalizedName.includes('almuerzo') || normalizedName.includes('comida')) icon = 'utensils';
+                        else if (normalizedName.includes('cena')) icon = 'moon-star';
+                        else if (normalizedName.includes('snack') || normalizedName.includes('colac')) icon = 'coffee';
 
                         const itemsHTML = meal.items.length > 0
                             ? meal.items.map((item, itemIndex) => {
                                 const isCompleted = mealLog[itemIndex] === true;
-                                const textClasses = isCompleted ? 'line-through text-gray-500' : 'text-white';
-                                
-                                if (this.isAsesor()) {
-                                    return `<div class="bg-gray-800/50 p-2 rounded-md flex justify-between items-center text-sm">
-                                        <div>
-                                            <p class="${textClasses}">${item.name} <span class="text-gray-400">(${item.amount || 'N/A'}g)</span></p>
-                                            <p class="text-xs text-gray-400">P:${item.totalP}g C:${item.totalC}g G:${item.totalF}g</p>
-                                        </div>
-                                        <div class="flex items-center space-x-2">
-                                            <span class="font-semibold text-emerald-400">${item.totalCals} kcal</span>
-                                            <button data-action="confirm-remove-food" data-meal-index="${mealIndex}" data-item-index="${itemIndex}" class="text-red-400 hover:text-red-300 text-xl leading-none p-1">&times;</button>
-                                        </div>
-                                    </div>`;
+                                const nameClasses = (!this.isAsesor() && isCompleted) ? 'text-gray-400 line-through' : 'text-white';
+                                const rowClasses = ['flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-3 transition'];
+                                if (!this.isAsesor()) {
+                                    rowClasses.push('hover:border-emerald-400/40');
+                                    if (isCompleted) {
+                                        rowClasses.push('opacity-60');
+                                    }
                                 }
-                                
-                                return `<div class="bg-gray-800/50 p-2 rounded-md flex justify-between items-center text-sm">
-                                    <label class="flex items-center space-x-3 flex-grow cursor-pointer">
-                                        <input type="checkbox" data-action="toggle-food-completion" data-meal-index="${mealIndex}" data-item-index="${itemIndex}" class="w-5 h-5 bg-gray-700 border-gray-600 rounded text-emerald-500 focus:ring-emerald-500/50" ${isCompleted ? 'checked' : ''}>
-                                        <div>
-                                            <p class="${textClasses}">${item.name} <span class="text-gray-400">(${item.amount || 'N/A'}g)</span></p>
-                                            <p class="text-xs text-gray-400">P:${item.totalP}g C:${item.totalC}g G:${item.totalF}g</p>
-                                        </div>
-                                    </label>
-                                    <span class="font-semibold text-emerald-400 ml-2">${item.totalCals} kcal</span>
-                                </div>`;
-                              }).join('')
-                            : `<p class="text-sm text-gray-500">${this.isAsesor() ? 'Añade alimentos a esta comida.' : 'No hay alimentos asignados.'}</p>`;
 
-                        const recipeButton = meal.items.length > 0 && this.isAsesor() ? `<button data-action="get-recipe" data-meal-index="${mealIndex}" class="text-xs bg-purple-600/50 hover:bg-purple-600/80 text-purple-200 font-semibold py-1 px-2 rounded-md flex items-center gap-1"><i data-lucide="sparkles" class="w-3 h-3"></i>Receta</button>` : '';
-                        
-                        return `<div class="bg-gray-700/50 p-4 rounded-xl">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <h3 class="font-bold text-lg text-white">${meal.name}</h3>
-                                    <p class="text-xs text-gray-400 font-mono"><i data-lucide="clock" class="w-3 h-3 inline-block -mt-0.5"></i> ${meal.time}</p>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    ${recipeButton}
-                                    <p class="text-sm text-gray-400">Total: <span class="font-bold text-white">${Math.round(totalCals)} kcal</span></p>
-                                </div>
-                            </div>
-                            <div class="mt-2 space-y-2">${itemsHTML}</div>
-                        </div>`;
+                                const imageContent = item.imageUrl
+                                    ? `<img src="${item.imageUrl}" alt="${item.name}" class="h-full w-full object-cover">`
+                                    : `<div class="flex h-full w-full items-center justify-center bg-gray-900/60 text-gray-500"><i data-lucide="image-off" class="h-5 w-5"></i></div>`;
+
+                                const macrosRow = `<div class="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                                        <span class="flex items-center gap-1 text-blue-200">P <strong>${item.totalP || 0}g</strong></span>
+                                        <span class="flex items-center gap-1 text-yellow-200">C <strong>${item.totalC || 0}g</strong></span>
+                                        <span class="flex items-center gap-1 text-rose-200">G <strong>${item.totalF || 0}g</strong></span>
+                                    </div>`;
+                                const amountLabel = item.amount && item.amount !== 'N/A' ? ` (${item.amount}g)` : '';
+
+                                const adminActions = `<div class="flex items-center gap-2">
+                                        <span class="text-sm font-semibold text-emerald-300">${item.totalCals || 0} kcal</span>
+                                        <button data-action="confirm-remove-food" data-meal-index="${mealIndex}" data-item-index="${itemIndex}" class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-rose-500/40 bg-rose-500/10 text-rose-300 transition hover:border-rose-400 hover:bg-rose-500/20">
+                                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                        </button>
+                                    </div>`;
+
+                                const userActions = `<div class="flex items-center gap-3">
+                                        <span class="text-sm font-semibold text-emerald-300">${item.totalCals || 0} kcal</span>
+                                        <label class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-gray-200">
+                                            <input type="checkbox" data-action="toggle-food-completion" data-meal-index="${mealIndex}" data-item-index="${itemIndex}" class="h-4 w-4 rounded border-gray-600 bg-gray-800 text-emerald-400 focus:ring-emerald-400/50" ${isCompleted ? 'checked' : ''}>
+                                            <span>Hecho</span>
+                                        </label>
+                                    </div>`;
+
+                                return `<div class="${rowClasses.join(' ')}">
+                                        <div class="relative h-16 w-16 overflow-hidden rounded-xl border border-white/10 bg-gray-900/60 flex-shrink-0">${imageContent}</div>
+                                        <div class="min-w-0 flex-1">
+                                            <p class="text-sm font-semibold ${nameClasses}">${item.name}${amountLabel ? `<span class="text-gray-400">${amountLabel}</span>` : ''}</p>
+                                            ${macrosRow}
+                                        </div>
+                                        ${this.isAsesor() ? adminActions : userActions}
+                                    </div>`;
+                            }).join('')
+                            : `<div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/40 p-4 text-center text-sm text-gray-400">${this.isAsesor() ? 'Añade alimentos a esta comida.' : 'No hay alimentos asignados.'}</div>`;
+
+                        const recipeButton = meal.items.length > 0 && this.isAsesor()
+                            ? `<button data-action="get-recipe" data-meal-index="${mealIndex}" class="inline-flex items-center gap-1 rounded-full border border-purple-400/40 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-200 transition hover:border-purple-300 hover:bg-purple-500/20">
+                                    <i data-lucide="sparkles" class="h-3.5 w-3.5"></i>
+                                    Receta
+                                </button>`
+                            : '';
+
+                        return `<article class="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-[0_35px_90px_-60px_rgba(16,185,129,0.45)]">
+                                <header class="flex flex-wrap items-center justify-between gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/10 text-emerald-200">
+                                            <i data-lucide="${icon}" class="h-6 w-6"></i>
+                                        </span>
+                                        <div>
+                                            <p class="text-lg font-semibold text-white">${meal.name}</p>
+                                            <p class="flex items-center gap-1 text-xs text-gray-400">
+                                                <i data-lucide="clock" class="h-3.5 w-3.5"></i>
+                                                ${meal.time}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-wrap items-center gap-3">
+                                        ${recipeButton}
+                                        <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">${Math.round(totalCals)} kcal</span>
+                                    </div>
+                                </header>
+                                <div class="mt-4 space-y-3">${itemsHTML}</div>
+                            </article>`;
                     }).join('');
-                    
+
                     lucide.createIcons();
                 },
 
@@ -3242,7 +3825,59 @@
                     this.updateDietSummary();
                 },
 
-                showAddFoodModal(foodId){const f = this.getFoodById(foodId);if(!f)return;const b=`<p class="mb-4">Añadir <strong>${f.name}</strong> a una comida.</p><div><label for="food-amount" class="block text-sm font-medium text-gray-300 mb-1">Cantidad (g)</label><input type="number" id="food-amount" value="100" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div class="mt-4"><label class="block text-sm font-medium text-gray-300 mb-2">Selecciona la comida</label><div class="grid grid-cols-2 gap-2">${this.state.dailyDiet.map((m,i)=>`<button data-action="add-food-to-meal" data-food-id="${f.id}" data-meal-index="${i}" class="bg-gray-600 p-2 rounded-lg hover:bg-gray-500">${m.name}</button>`).join('')}</div></div>`;this.showModal('Añadir Alimento',b,[{text:'Cancelar',class:'bg-gray-600 hover:bg-gray-500',action:'hide-modal'}]);},
+                showAddFoodModal(foodId) {
+                    const food = this.getFoodById(foodId);
+                    if (!food) return;
+
+                    const image = food.imageUrl
+                        ? `<img src="${food.imageUrl}" alt="${food.name}" class="h-16 w-16 rounded-xl border border-white/10 object-cover">`
+                        : `<div class="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-white/10 bg-gray-900/60 text-gray-500"><i data-lucide="image-off" class="h-5 w-5"></i></div>`;
+
+                    const macros = `<div class="grid grid-cols-3 gap-3 text-xs text-gray-400">
+                            <div class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center">
+                                <p class="text-[10px] uppercase tracking-[0.35em] text-blue-200">Proteína</p>
+                                <p class="text-sm font-semibold text-white">${Math.round(food.p || 0)} g</p>
+                            </div>
+                            <div class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center">
+                                <p class="text-[10px] uppercase tracking-[0.35em] text-yellow-200">Carbs</p>
+                                <p class="text-sm font-semibold text-white">${Math.round(food.c || 0)} g</p>
+                            </div>
+                            <div class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center">
+                                <p class="text-[10px] uppercase tracking-[0.35em] text-rose-200">Grasas</p>
+                                <p class="text-sm font-semibold text-white">${Math.round(food.f || 0)} g</p>
+                            </div>
+                        </div>`;
+
+                    const mealButtons = this.state.dailyDiet.map((meal, index) => `
+                        <button data-action="add-food-to-meal" data-food-id="${food.id}" data-meal-index="${index}" class="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-gray-200 transition hover:border-emerald-400 hover:text-white">
+                            ${meal.name}
+                        </button>
+                    `).join('');
+
+                    const body = `
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                ${image}
+                                <div>
+                                    <h3 class="text-lg font-semibold text-white">${food.name}</h3>
+                                    <p class="text-sm text-gray-400">${Math.round(food.cals || 0)} kcal · valores por 100 g</p>
+                                </div>
+                            </div>
+                            ${macros}
+                            <div>
+                                <label for="food-amount" class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Cantidad a añadir (g)</label>
+                                <input type="number" id="food-amount" value="100" class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-center text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                            </div>
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300 mb-2">Elige la comida</p>
+                                <div class="grid grid-cols-2 gap-2">${mealButtons}</div>
+                            </div>
+                        </div>
+                    `;
+
+                    this.showModal('Añadir Alimento', body, [{ text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }]);
+                    lucide.createIcons();
+                },
                 async addFoodToMealFromModal(foodId,mealIndex){const a=parseInt(document.getElementById('food-amount').value);if(isNaN(a)||a<=0){this.showToast("Cantidad inválida.","error");return;}const f = this.getFoodById(foodId);if (!f) { this.showToast("Alimento no encontrado.", "error"); return; }const fac=a/100;this.state.dailyDiet[mealIndex].items.push({...f,amount:a,totalCals:Math.round((f.cals || 0)*fac),totalP:Math.round((f.p || 0)*fac),totalC:Math.round((f.c || 0)*fac),totalF:Math.round((f.f || 0)*fac)});await this.saveDataToFirestore();this.renderAll();this.hideModal();this.showToast(`${f.name} añadido a ${this.state.dailyDiet[mealIndex].name}.`);},
                 confirmRemoveFoodFromMeal(mealIndex,itemIndex){this.showModal('Confirmar Eliminación','¿Seguro que quieres eliminar este alimento?',[{text:'Cancelar',class:'bg-gray-600 hover:bg-gray-500',action:'hide-modal'},{text:'Eliminar',class:'bg-red-600 hover:bg-red-500',action:'remove-food','meal-index':mealIndex,'item-index':itemIndex}]);},
                 async removeFoodFromMeal(mealIndex,itemIndex){this.state.dailyDiet[mealIndex].items.splice(itemIndex,1);await this.saveDataToFirestore();this.renderAll();this.hideModal();this.showToast('Alimento eliminado.','error');},
