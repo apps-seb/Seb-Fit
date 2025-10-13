@@ -6061,29 +6061,32 @@
                         const activeGroup = this._tempRoutine.activeExerciseGroup || firstGroup;
                         this._tempRoutine.activeExerciseGroup = activeGroup;
                         const groupsNav = `<aside id="exercise-group-nav" class="w-full shrink-0 border-b border-white/5 bg-gray-950/80 md:w-80 md:border-b-0 md:border-r md:max-h-[calc(100vh-8rem)] md:overflow-y-auto">
-                            <div class="grid gap-4 p-5">
+                            <div class="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 md:grid-cols-1">
                                 ${groupKeys.map(group => {
                                         const rawUrl = groupImages[group] || '';
                                         const sanitizedUrl = rawUrl.replace(/'/g, "\'");
-                                        const backgroundStyle = rawUrl
-                                            ? `background-image: url('${sanitizedUrl}');`
-                                            : 'background-image: linear-gradient(135deg, rgba(16,185,129,0.55), rgba(59,130,246,0.45));';
+                                        const hasImage = Boolean(rawUrl);
+                                        const imageContent = hasImage
+                                            ? `<img src="${sanitizedUrl}" alt="Grupo muscular ${group}" class="h-full w-full object-cover" loading="lazy">`
+                                            : `<div class=\"flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-500/30 via-teal-500/20 to-sky-500/20 text-emerald-100/80\"><i data-lucide=\"dumbbell\" class=\"h-10 w-10\"></i></div>`;
                                         const editButton = isAdmin
-                                            ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/60 text-white shadow-lg transition hover:bg-emerald-400 hover:text-gray-900"><i data-lucide="image-plus" class="h-4 w-4"></i></button>`
+                                            ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-gray-950/80 text-white shadow-lg transition hover:border-emerald-400/80 hover:bg-emerald-400 hover:text-gray-900"><i data-lucide="image-up" class="h-5 w-5"></i></button>`
                                             : '';
                                         const isActiveGroup = group === activeGroup;
                                         return `
-                                        <button type="button" data-action="routine-creator-switch-group" data-group-target="${group}" data-active="${isActiveGroup}" class="group relative flex h-44 w-full flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-white/5 text-left shadow-[0_25px_60px_-40px_rgba(16,185,129,0.75)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300/60 data-[active=true]:border-emerald-300 data-[active=true]:shadow-emerald-400/40">
-                                            <div class="absolute inset-0 overflow-hidden">
-                                                <div class="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105" style="${backgroundStyle}"></div>
-                                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                                        <article role="button" tabindex="0" data-action="routine-creator-switch-group" data-group-target="${group}" data-active="${isActiveGroup}" class="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-3xl border border-white/10 bg-gray-900/70 text-left shadow-[0_25px_70px_-45px_rgba(20,184,166,0.65)] transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 hover:-translate-y-0.5 hover:border-emerald-300/60 data-[active=true]:border-emerald-300 data-[active=true]:ring-2 data-[active=true]:ring-emerald-400/60">
+                                            <div class="relative aspect-[4/3] w-full overflow-hidden">
+                                                ${imageContent}
+                                                <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                                                ${editButton}
                                             </div>
-                                            ${editButton}
-                                            <div class="relative z-10 flex w-full flex-col gap-2 p-5">
-                                                <span class="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/90 backdrop-blur">Grupo muscular</span>
-                                                <p class="text-2xl font-semibold leading-tight text-white drop-shadow-xl">${group}</p>
+                                            <div class="flex items-center justify-between gap-3 px-5 py-4">
+                                                <p class="text-base font-semibold leading-snug text-white sm:text-lg">Grupo muscular <span class="block text-xl font-bold text-emerald-200 sm:inline sm:ml-1 sm:text-xl">${group}</span></p>
+                                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-emerald-200 transition group-hover:translate-x-1 group-data-[active=true]:border-emerald-300 group-data-[active=true]:bg-emerald-400/10 group-data-[active=true]:text-emerald-100">
+                                                    <i data-lucide="arrow-right" class="h-5 w-5"></i>
+                                                </span>
                                             </div>
-                                        </button>
+                                        </article>
                                     `;
                                 }).join('')}
                             </div>
