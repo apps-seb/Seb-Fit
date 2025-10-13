@@ -41,6 +41,11 @@
         .toast { animation: toastIn 0.5s ease-out forwards, toastOut 0.5s ease-in 2.5s forwards; }
         #timer-progress-ring { transition: stroke-dashoffset 1s linear; }
 
+        .launch-spinner-wrapper { position: relative; width: 80px; height: 80px; display: inline-flex; align-items: center; justify-content: center; }
+        .launch-spinner { width: 64px; height: 64px; border-radius: 50%; border: 4px solid rgba(52, 211, 153, 0.2); border-top-color: #34d399; animation: spin 1s linear infinite, pulse 2.4s ease-in-out infinite; box-shadow: 0 0 30px rgba(52, 211, 153, 0.25); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 20px rgba(52, 211, 153, 0.15); } 50% { box-shadow: 0 0 35px rgba(52, 211, 153, 0.35); } }
+
         #mobile-menu-backdrop { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         #mobile-menu-backdrop.is-visible { opacity: 1; pointer-events: auto; }
 
@@ -115,7 +120,23 @@
         }
     </script>
 
-    <div id="auth-container" class="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-gray-900 to-gray-800">
+    <div id="launch-screen" class="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-gray-900 via-gray-900 to-gray-800 text-center space-y-6">
+        <div class="flex items-center justify-center space-x-3">
+            <div class="h-14 w-14 rounded-3xl bg-emerald-500 text-gray-900 flex items-center justify-center shadow-2xl shadow-emerald-500/40">
+                <i data-lucide="dumbbell" class="w-7 h-7"></i>
+            </div>
+            <div class="text-left">
+                <p class="text-sm font-semibold tracking-[0.45em] text-emerald-300 uppercase">FitTrack</p>
+                <p class="text-3xl font-black">Preparando tu experiencia</p>
+            </div>
+        </div>
+        <p class="max-w-md text-gray-300 text-sm sm:text-base">Estamos sincronizando tu progreso y configurando tu panel personal. Esto tomará sólo un instante.</p>
+        <div class="launch-spinner-wrapper">
+            <div class="launch-spinner"></div>
+        </div>
+    </div>
+
+    <div id="auth-container" class="hidden min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-gray-900 to-gray-800">
         <div class="w-full max-w-md mx-auto">
             <div class="flex items-center justify-center space-x-3 mb-8">
                 <i data-lucide="dumbbell" class="text-emerald-400 w-10 h-10"></i>
@@ -1194,6 +1215,7 @@
                     this.storage = getStorage(this.firebaseApp);
                     this.setupAuthListeners();
                     this.setupEventListeners();
+                    this.showLaunchScreen();
                     lucide.createIcons();
                 },
 
@@ -1817,7 +1839,22 @@
                     });
                 },
 
-                async handleLogin(e) { e.preventDefault(); const email = document.getElementById('login-email').value; const password = document.getElementById('login-password').value; const button = e.target.querySelector('button[type="submit"]'); this.setButtonLoading(button, true); try { await signInWithEmailAndPassword(this.auth, email, password); } catch (error) { this.showToast(this.getFirebaseAuthErrorMessage(error), 'error'); } finally { this.setButtonLoading(button, false); } },
+                async handleLogin(e) {
+                    e.preventDefault();
+                    const email = document.getElementById('login-email').value;
+                    const password = document.getElementById('login-password').value;
+                    const button = e.target.querySelector('button[type="submit"]');
+                    this.setButtonLoading(button, true);
+                    this.showLaunchScreen();
+                    try {
+                        await signInWithEmailAndPassword(this.auth, email, password);
+                    } catch (error) {
+                        this.hideLaunchScreen();
+                        this.showToast(this.getFirebaseAuthErrorMessage(error), 'error');
+                    } finally {
+                        this.setButtonLoading(button, false);
+                    }
+                },
                 
                 async handleRegister(e) {
                     e.preventDefault();
@@ -1826,6 +1863,7 @@
                     const password = document.getElementById('register-password').value;
                     const button = e.target.querySelector('button[type="submit"]');
                     this.setButtonLoading(button, true);
+                    this.showLaunchScreen();
 
                     try {
                         const invitationsRef = collection(this.db, "invitations");
@@ -1869,6 +1907,7 @@
                         }
 
                     } catch (error) {
+                        this.hideLaunchScreen();
                         this.showToast(this.getFirebaseAuthErrorMessage(error), 'error');
                         console.error("Registration error:", error);
                     } finally {
@@ -1877,8 +1916,37 @@
                 },
 
                 async handleLogout() { try { await signOut(this.auth); } catch (error) { this.showToast('Error al cerrar sesión.', 'error'); } },
-                showAppUI() { document.getElementById('auth-container').classList.add('hidden'); document.getElementById('app-container').classList.remove('hidden'); },
-                showAuthUI() { document.getElementById('app-container').classList.add('hidden'); document.getElementById('auth-container').classList.remove('hidden'); document.getElementById('sections-wrapper').innerHTML = ''; },
+                showAppUI() {
+                    this.hideLaunchScreen();
+                    document.getElementById('auth-container').classList.add('hidden');
+                    document.getElementById('app-container').classList.remove('hidden');
+                },
+                showAuthUI() {
+                    this.hideLaunchScreen();
+                    document.getElementById('app-container').classList.add('hidden');
+                    document.getElementById('auth-container').classList.remove('hidden');
+                    document.getElementById('sections-wrapper').innerHTML = '';
+                },
+                showLaunchScreen() {
+                    const launch = document.getElementById('launch-screen');
+                    const authContainer = document.getElementById('auth-container');
+                    const appContainer = document.getElementById('app-container');
+                    if (launch) {
+                        launch.classList.remove('hidden');
+                    }
+                    if (authContainer) {
+                        authContainer.classList.add('hidden');
+                    }
+                    if (appContainer) {
+                        appContainer.classList.add('hidden');
+                    }
+                },
+                hideLaunchScreen() {
+                    const launch = document.getElementById('launch-screen');
+                    if (launch) {
+                        launch.classList.add('hidden');
+                    }
+                },
                 toggleAuthForms() { const loginContainer = document.getElementById('login-form-container'); const registerContainer = document.getElementById('register-form-container'); loginContainer.classList.toggle('form-visible'); loginContainer.classList.toggle('form-hidden'); registerContainer.classList.toggle('form-visible'); registerContainer.classList.toggle('form-hidden'); },
                 setButtonLoading(button, isLoading) { if (isLoading) { button.disabled = true; button.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`; lucide.createIcons(); } else { button.disabled = false; button.innerHTML = `<span>${button.closest('form').id === 'login-form' ? 'Iniciar Sesión' : 'Crear Cuenta'}</span>`; } },
                 updateUserInfoUI() { const name = this.state.userName || 'Usuario'; document.getElementById('welcome-message').textContent = `Hola, ${name.split(' ')[0]}`; const avatar = document.getElementById('user-avatar').querySelector('span'); avatar.textContent = name.charAt(0).toUpperCase(); },
