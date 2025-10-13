@@ -756,126 +756,140 @@
     <template id="template-dieta">
         <section id="dieta" class="section-content hidden">
             <div class="space-y-8">
-                <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/12 via-emerald-400/5 to-gray-900/60 p-6 sm:p-8 shadow-[0_45px_95px_-60px_rgba(16,185,129,0.65)]">
-                    <div class="space-y-8">
-                        <div class="space-y-4">
-                            <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/60 bg-emerald-500/15 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100 shadow-[0_10px_35px_-20px_rgba(16,185,129,0.65)]">
-                                <i data-lucide="leaf" class="h-4 w-4"></i>
-                                Nutrición inteligente
-                            </span>
-                            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                                <div class="flex items-start gap-4">
-                                    <span class="inline-flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-3xl bg-emerald-500/20 text-emerald-200 shadow-inner shadow-emerald-500/40">
-                                        <i data-lucide="apple" class="h-7 w-7"></i>
-                                    </span>
-                                    <div class="space-y-2">
-                                        <h2 class="text-3xl font-bold text-white sm:text-4xl sm:leading-tight">Diseña un ecosistema nutricional a medida</h2>
-                                        <p class="max-w-2xl text-sm text-emerald-100/80 sm:text-base">Orquesta planes estratégicos, coordina entregables con tu equipo y brinda experiencias gastronómicas alineadas a cada objetivo.</p>
+                <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-gray-900 p-6 sm:p-8 shadow-xl shadow-emerald-500/20">
+                    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.22),transparent_55%)]"></div>
+                    <div class="relative flex flex-col gap-7 lg:flex-row lg:items-start">
+                        <div class="flex-1 space-y-7">
+                            <header class="space-y-4">
+                                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <span class="inline-flex w-fit items-center rounded-full border border-emerald-400/60 bg-emerald-500/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100 shadow-[0_10px_35px_-20px_rgba(16,185,129,0.65)]">Nutrición inteligente</span>
+                                </div>
+                                <div class="space-y-3">
+                                    <h2 class="text-3xl font-bold text-white sm:text-4xl sm:leading-tight">Diseña un ecosistema nutricional a medida</h2>
+                                    <p class="text-sm leading-relaxed text-emerald-100/80 sm:text-base">Coordina un plan gastronómico de lujo calibrado por IA que ajusta macros en tiempo real, mantiene la narrativa premium de tu progreso y preserva una experiencia móvil elegante sin fricciones.</p>
+                                </div>
+                            </header>
+                            <div class="space-y-6 rounded-2xl border border-white/10 bg-gray-900/65 p-4 shadow-inner sm:p-5">
+                                <div class="grid gap-4 sm:grid-cols-3">
+                                    <div class="flex items-start gap-3">
+                                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/30 via-emerald-400/20 to-emerald-500/10 text-emerald-100 shadow-[0_12px_35px_-20px_rgba(16,185,129,0.75)]">
+                                            <i data-lucide="goal" class="h-5 w-5"></i>
+                                        </span>
+                                        <div class="space-y-1">
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/70">Objetivo activo</p>
+                                            <p class="text-base font-semibold text-white sm:text-lg">+3.2 kg de masa magra</p>
+                                            <p class="text-[11px] text-emerald-100/60">Enfoque: recomposición premium</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500/30 via-emerald-400/25 to-emerald-500/15 text-emerald-100 shadow-[0_12px_35px_-20px_rgba(6,182,212,0.65)]">
+                                            <i data-lucide="calendar-clock" class="h-5 w-5"></i>
+                                        </span>
+                                        <div class="space-y-1">
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/70">Proyección</p>
+                                            <p class="text-sm font-semibold text-emerald-200 sm:text-base">6 semanas para alcanzar la meta</p>
+                                            <p class="text-[11px] text-emerald-100/60">Ruta planificada en 3 microciclos</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start gap-3">
+                                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400/25 via-cyan-400/20 to-sky-400/10 text-emerald-100 shadow-[0_12px_35px_-20px_rgba(59,130,246,0.45)]">
+                                            <i data-lucide="navigation-2" class="h-5 w-5"></i>
+                                        </span>
+                                        <div class="space-y-1">
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/70">Fase actual</p>
+                                            <p class="text-base font-semibold text-white sm:text-lg">Semana 4 · Intensidad controlada</p>
+                                            <p class="text-[11px] text-emerald-100/60">Ritmo sostenido de +0.8 kg/sem</p>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-400/20 bg-gray-900/40 px-4 py-3 text-xs text-emerald-100/80 sm:text-sm">
-                                    <div class="flex items-center gap-2 font-semibold text-emerald-200">
-                                        <i data-lucide="shield-check" class="h-4 w-4"></i>
-                                        <span>Protocolo activo</span>
+                                <div class="space-y-4">
+                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                                        <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/70">
+                                            <i data-lucide="activity" class="h-4 w-4"></i>
+                                            Línea de avance del protocolo
+                                        </div>
+                                        <div class="flex items-center gap-2 text-xs text-emerald-100/80">
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.3em]">45% completado</span>
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-500/5 px-2.5 py-1 text-[10px] uppercase tracking-[0.3em] text-emerald-100/70">Objetivo: kilos ganados</span>
+                                        </div>
                                     </div>
-                                    <span class="rounded-full border border-emerald-300/30 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-emerald-100/70 sm:text-[11px]">Premium</span>
+                                    <div class="relative">
+                                        <div class="h-3 w-full overflow-hidden rounded-full bg-gray-900/70">
+                                            <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400" style="width: 45%;"></div>
+                                        </div>
+                                        <div class="pointer-events-none absolute inset-0">
+                                            <span class="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full border border-emerald-400/40 bg-emerald-500/20 shadow-[0_0_18px_rgba(16,185,129,0.45)]"></span>
+                                            <span class="absolute left-[45%] top-1/2 -translate-x-1/2 -translate-y-1/2 h-5 w-5 rounded-full border-2 border-emerald-300/80 bg-emerald-400 shadow-[0_0_25px_rgba(6,182,212,0.55)]"></span>
+                                            <span class="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full border border-emerald-300/50 bg-emerald-500/20 shadow-[0_0_18px_rgba(59,130,246,0.35)]"></span>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start justify-between text-[10px] font-medium text-emerald-100/80 sm:text-xs">
+                                        <div class="flex flex-col gap-1 text-left">
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] uppercase tracking-[0.3em] text-emerald-100/70"><i data-lucide="sparkles" class="h-3 w-3"></i>Inicio</span>
+                                            <span class="text-emerald-200/70">Semana 0 · Peso inicial 78 kg</span>
+                                        </div>
+                                        <div class="flex flex-col items-center gap-1">
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-400/15 px-2 py-1 text-[10px] uppercase tracking-[0.3em] text-emerald-100"><i data-lucide="flame" class="h-3 w-3"></i>Actual</span>
+                                            <span class="text-center text-emerald-200 font-semibold">Semana 4 · +2.1 kg</span>
+                                        </div>
+                                        <div class="flex flex-col gap-1 text-right">
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] uppercase tracking-[0.3em] text-emerald-100/70"><i data-lucide="star" class="h-3 w-3"></i>Meta</span>
+                                            <span class="text-emerald-200/70">Semana 10 · 82.5 kg proyectados</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid gap-3 sm:grid-cols-3">
+                                    <div class="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                                        <div class="flex items-center justify-between text-xs font-semibold text-emerald-200/80">
+                                            <span class="flex items-center gap-1">
+                                                <i data-lucide="activity" class="h-4 w-4"></i>
+                                                Adherencia
+                                            </span>
+                                            <span class="text-[10px] uppercase tracking-[0.3em] text-emerald-200/60">Últimas 2 sem.</span>
+                                        </div>
+                                        <p class="mt-3 text-2xl font-bold text-white">92%</p>
+                                        <p class="text-[11px] text-emerald-100/70">Sesiones cumplidas según plan.</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                                        <div class="flex items-center justify-between text-xs font-semibold text-emerald-200/80">
+                                            <span class="flex items-center gap-1">
+                                                <i data-lucide="utensils-crossed" class="h-4 w-4"></i>
+                                                Promedio calórico
+                                            </span>
+                                            <span class="text-[10px] uppercase tracking-[0.3em] text-emerald-200/60">Diario</span>
+                                        </div>
+                                        <p class="mt-3 text-2xl font-bold text-white">2&nbsp;380 kcal</p>
+                                        <p class="text-[11px] text-emerald-100/70">Margen de desviación ±110 kcal.</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                                        <div class="flex items-center justify-between text-xs font-semibold text-emerald-200/80">
+                                            <span class="flex items-center gap-1">
+                                                <i data-lucide="medal" class="h-4 w-4"></i>
+                                                Hito clave
+                                            </span>
+                                            <span class="text-[10px] uppercase tracking-[0.3em] text-emerald-200/60">Próximo</span>
+                                        </div>
+                                        <p class="mt-3 text-2xl font-bold text-white">+1.2 kg</p>
+                                        <p class="text-[11px] text-emerald-100/70">Revisión de progreso en 2 semanas.</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="grid gap-6 lg:grid-cols-[minmax(0,1.65fr)_minmax(0,1fr)] lg:items-stretch">
-                            <div class="space-y-6">
-                                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4 shadow-[0_25px_50px_-35px_rgba(20,184,166,0.8)]">
-                                        <div class="flex items-center gap-2 text-sm font-semibold text-emerald-200">
-                                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-200">
-                                                <i data-lucide="chef-hat" class="h-4 w-4"></i>
-                                            </span>
-                                            Briefing culinario
-                                        </div>
-                                        <p class="mt-2 text-xs text-emerald-50/70 sm:text-[13px]">Presenta menú semanal con storytelling nutricional y foco en adherencia.</p>
-                                    </div>
-                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4 shadow-[0_25px_50px_-35px_rgba(20,184,166,0.65)]">
-                                        <div class="flex items-center gap-2 text-sm font-semibold text-emerald-200">
-                                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-200">
-                                                <i data-lucide="layout-dashboard" class="h-4 w-4"></i>
-                                            </span>
-                                            Macros dinámicos
-                                        </div>
-                                        <p class="mt-2 text-xs text-emerald-50/70 sm:text-[13px]">Define escenarios por día, refeeds y protocolos express con claridad.</p>
-                                    </div>
-                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4 shadow-[0_25px_50px_-35px_rgba(20,184,166,0.5)]">
-                                        <div class="flex items-center gap-2 text-sm font-semibold text-emerald-200">
-                                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-200">
-                                                <i data-lucide="share-2" class="h-4 w-4"></i>
-                                            </span>
-                                            Experiencia premium
-                                        </div>
-                                        <p class="mt-2 text-xs text-emerald-50/70 sm:text-[13px]">Comparte entregables elegantes con recordatorios, notas y recomendaciones.</p>
-                                    </div>
+                        <div id="diet-admin-actions" class="rounded-3xl border border-white/10 bg-gradient-to-br from-fuchsia-500/20 via-indigo-500/15 to-gray-950/80 p-4 shadow-[0_35px_90px_-45px_rgba(168,85,247,0.6)] sm:p-5 lg:w-[280px]">
+                            <div class="space-y-4">
+                                <div class="space-y-1">
+                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-fuchsia-100/80">Panel rápido</p>
+                                    <p class="text-sm font-medium text-fuchsia-50/90">Activa recursos clave en segundos.</p>
                                 </div>
-                                <div class="rounded-2xl border border-white/10 bg-gray-950/60 p-5 shadow-[0_35px_90px_-55px_rgba(16,185,129,0.75)]">
-                                    <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                                        <div class="space-y-1">
-                                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Blueprint semanal</p>
-                                            <h3 class="text-lg font-semibold text-white sm:text-xl">Define la arquitectura del plan maestro</h3>
-                                        </div>
-                                        <div class="inline-flex items-center gap-2 rounded-xl border border-emerald-400/20 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-100/80">
-                                            <i data-lucide="calendar-check" class="h-4 w-4"></i>
-                                            Actualizado hoy
-                                        </div>
-                                    </div>
-                                    <div class="mt-5 grid gap-3 sm:grid-cols-3">
-                                        <div class="rounded-2xl border border-white/10 bg-gray-900/80 p-4">
-                                            <p class="text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-300/80">Escenarios</p>
-                                            <p class="mt-2 text-2xl font-bold text-white">3</p>
-                                            <p class="text-xs text-emerald-50/60">Metabólico, fuerza y descanso activo.</p>
-                                        </div>
-                                        <div class="rounded-2xl border border-white/10 bg-gray-900/80 p-4">
-                                            <p class="text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-300/80">Refuerzos</p>
-                                            <p class="mt-2 text-2xl font-bold text-white">2</p>
-                                            <p class="text-xs text-emerald-50/60">Refeeds estratégicos cada 6 días.</p>
-                                        </div>
-                                        <div class="rounded-2xl border border-white/10 bg-gray-900/80 p-4">
-                                            <p class="text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-300/80">Alerts</p>
-                                            <p class="mt-2 text-2xl font-bold text-white">Activas</p>
-                                            <p class="text-xs text-emerald-50/60">Recordatorios de hidratación y micronutrientes.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="diet-admin-actions" class="space-y-5 rounded-2xl border border-white/10 bg-gray-950/70 p-5 shadow-[0_30px_80px_-50px_rgba(79,70,229,0.65)] backdrop-blur">
-                                <div class="space-y-2 text-left">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.4em] text-gray-400">Panel rápido</p>
-                                    <h3 class="text-lg font-semibold text-white sm:text-xl">Gestiona y lanza acciones clave</h3>
-                                    <p class="text-xs text-gray-400 sm:text-sm">Activa automatizaciones o edita manualmente cada módulo en segundos.</p>
-                                </div>
-                                <div class="space-y-3 text-xs text-gray-400 sm:text-sm">
-                                    <div class="flex flex-col gap-3 rounded-2xl border border-emerald-400/10 bg-emerald-500/5 p-4">
-                                        <div class="flex flex-wrap items-center justify-between gap-3 text-emerald-200">
-                                            <span class="flex items-center gap-2 text-sm font-semibold"><i data-lucide="sparkles" class="h-4 w-4"></i>Motor IA asistido</span>
-                                            <span class="rounded-full border border-emerald-400/30 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Beta</span>
-                                        </div>
-                                        <p>Genera propuestas personalizadas y ajusta cada bloque nutricional antes de compartir.</p>
-                                    </div>
-                                </div>
-                                <div class="grid gap-3 sm:gap-4">
-                                    <button data-action="generate-plan" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-500 via-violet-500 to-indigo-500 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-purple-500/40 transition focus:outline-none focus:ring-2 focus:ring-purple-400/40 hover:from-purple-400 hover:via-violet-400 hover:to-indigo-400 sm:text-base">
-                                        <i data-lucide="wand-2" class="h-5 w-5"></i>
+                                <div class="grid gap-3">
+                                    <button data-action="generate-plan" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-300 via-orange-400 to-rose-400 px-4 py-3 text-xs font-semibold text-gray-900 shadow-[0_20px_50px_-18px_rgba(251,191,36,0.75)] transition hover:from-amber-200 hover:via-orange-300 hover:to-rose-300 focus:outline-none focus:ring-2 focus:ring-amber-200/40 sm:text-sm">
+                                        <i data-lucide="sparkles" class="h-4 w-4"></i>
                                         Generar plan con IA
                                     </button>
-                                    <button data-action="client-diet-create-food-modal" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-400/60 bg-emerald-500/10 px-5 py-3.5 text-sm font-semibold uppercase tracking-[0.3em] text-emerald-100 transition focus:outline-none focus:ring-2 focus:ring-emerald-400/30 hover:border-emerald-300 hover:text-white sm:text-base">
-                                        <i data-lucide="plus" class="h-5 w-5"></i>
+                                    <button data-action="client-diet-create-food-modal" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-fuchsia-200/60 bg-white/10 px-4 py-3 text-xs font-semibold uppercase tracking-[0.28em] text-fuchsia-100 transition hover:bg-fuchsia-500/15 focus:outline-none focus:ring-2 focus:ring-fuchsia-200/40 sm:text-sm">
+                                        <i data-lucide="plus" class="h-4 w-4"></i>
                                         Nuevo alimento
                                     </button>
-                                </div>
-                                <div class="flex flex-col gap-3 rounded-2xl border border-white/5 bg-gray-900/60 p-4 sm:flex-row sm:items-center sm:justify-between">
-                                    <div class="space-y-1 text-left text-xs text-gray-400 sm:text-sm">
-                                        <p class="font-semibold uppercase tracking-[0.35em] text-gray-500">Sugerencias</p>
-                                        <p>Refresca el plan maestro cada semana para mantener la adherencia.</p>
-                                    </div>
-                                    <span class="inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-2xl bg-purple-500/20 text-purple-200">
-                                        <i data-lucide="clock" class="h-5 w-5"></i>
-                                    </span>
                                 </div>
                             </div>
                         </div>
