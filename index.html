@@ -474,10 +474,180 @@
         </section>
     </template>
     
-    <template id="template-rutinas"><section id="rutinas" class="section-content hidden"><div class="space-y-8"><div class="flex justify-between items-center"><h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Rutinas</span></h2><button id="create-routine-btn" data-action="routine-create" class="flex items-center gap-2 bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20"><i data-lucide="plus" class="w-5 h-5"></i><span>Crear Rutina</span></button></div><div id="user-routines-section">
-        <h3 class="font-semibold text-lg mb-3 text-gray-300">Mis Rutinas</h3>
-        <div id="user-routines-container" class="horizontal-scroll-container flex overflow-x-auto gap-4 -mx-4 px-4 pb-4 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-6 lg:overflow-visible lg:mx-0 lg:px-0"></div>
-    </div><div id="predefined-routines-section"><h3 class="font-semibold text-lg mb-3 text-gray-300">Explorar Rutinas</h3><div id="predefined-routines-container" class="space-y-3"></div></div></div></section></template>
+    <template id="template-rutinas">
+        <section id="rutinas" class="section-content hidden">
+            <div class="space-y-12">
+                <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/15 via-gray-900 to-gray-900 p-8 shadow-2xl shadow-emerald-500/10">
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(16,185,129,0.18),_transparent_45%)]"></div>
+                    <div class="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl"></div>
+                    <div class="relative flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="max-w-2xl space-y-4">
+                            <p class="text-xs uppercase tracking-[0.35em] text-emerald-300">Experiencia inmersiva</p>
+                            <h2 class="text-3xl font-black text-white sm:text-4xl">Diseña, vive y comparte tus rutinas con estilo premium</h2>
+                            <p class="text-base text-gray-300 sm:text-lg">Curamos tus entrenamientos con visuales envolventes, métricas en tiempo real y playlists energéticas para transformar cada sesión en un ritual memorable.</p>
+                            <div class="flex flex-wrap gap-3">
+                                <button id="create-routine-btn" data-action="routine-create" class="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-100">
+                                    <i data-lucide="plus" class="h-5 w-5"></i>
+                                    <span>Crear rutina magistral</span>
+                                </button>
+                                <button data-action="show-section" data-section-id="rutinas" class="inline-flex items-center gap-2 rounded-2xl border border-white/20 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-emerald-400/40 hover:bg-emerald-500/10">
+                                    <i data-lucide="wand2" class="h-5 w-5 text-emerald-300"></i>
+                                    <span>Explorar experiencia</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="grid w-full max-w-sm grid-cols-2 gap-4 rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur lg:max-w-md">
+                            <div class="space-y-3 rounded-2xl bg-gray-900/60 p-4 shadow-lg shadow-emerald-500/10">
+                                <div class="flex items-center justify-between text-xs font-semibold text-emerald-300">
+                                    <span>Sesión de hoy</span>
+                                    <span class="flex items-center gap-1 text-emerald-200"><i data-lucide="activity" class="h-4 w-4"></i> Intensidad</span>
+                                </div>
+                                <p class="text-2xl font-bold text-white">Pecho + Core</p>
+                                <div class="space-y-2 text-sm text-gray-300">
+                                    <p>Calorías estimadas: <span class="font-semibold text-white">520 kcal</span></p>
+                                    <p>Duración total: <span class="font-semibold text-white">48 min</span></p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300">
+                                        <i data-lucide="play" class="h-5 w-5"></i>
+                                    </div>
+                                    <div>
+                                        <p class="text-xs font-semibold uppercase tracking-wider text-gray-400">Próxima acción</p>
+                                        <p class="text-sm font-semibold text-white">Iniciar calentamiento</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col justify-between rounded-2xl bg-gray-900/60 p-4 shadow-lg shadow-emerald-500/10">
+                                <div class="space-y-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-300"><i data-lucide="clock" class="h-4 w-4"></i></span>
+                                        <div>
+                                            <p class="text-xs uppercase tracking-wider text-gray-400">Racha activa</p>
+                                            <p class="text-lg font-bold text-white">12 días</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-300"><i data-lucide="flame" class="h-4 w-4"></i></span>
+                                        <div>
+                                            <p class="text-xs uppercase tracking-wider text-gray-400">Nivel de energía</p>
+                                            <p class="text-lg font-bold text-white">95%</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="rounded-2xl bg-gradient-to-r from-emerald-500/20 via-emerald-400/10 to-transparent p-4">
+                                    <p class="text-xs uppercase tracking-[0.35em] text-emerald-300">Próximo hito</p>
+                                    <p class="text-sm font-semibold text-white">Domina la rutina Élite en 4 sesiones</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="user-routines-section" class="space-y-4">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                        <div>
+                            <h3 class="text-xl font-semibold text-white">Mis Rutinas Personalizadas</h3>
+                            <p class="text-sm text-gray-400">Accede a tus colecciones exclusivas, listas para ejecutar con una experiencia inmersiva en cada paso.</p>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs uppercase tracking-wide text-gray-400">
+                            <span class="flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><i data-lucide="badge-check" class="h-4 w-4 text-emerald-300"></i> Certificadas</span>
+                            <span class="flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><i data-lucide="cpu" class="h-4 w-4 text-emerald-300"></i> Smart Coach</span>
+                        </div>
+                    </div>
+                    <div class="relative">
+                        <div class="pointer-events-none absolute -inset-y-8 -left-16 hidden w-24 bg-gradient-to-r from-gray-900 to-transparent lg:block"></div>
+                        <div class="pointer-events-none absolute -inset-y-8 -right-16 hidden w-24 bg-gradient-to-l from-gray-900 to-transparent lg:block"></div>
+                        <div id="user-routines-container" class="horizontal-scroll-container flex gap-5 overflow-x-auto pb-6 pt-2 pl-1 pr-6 lg:grid lg:grid-cols-2 xl:grid-cols-3 lg:gap-6 lg:overflow-visible lg:p-0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <h3 class="text-xl font-semibold text-white">Entrenamiento en casa</h3>
+                            <p class="text-sm text-gray-400">Diseñado para espacios reducidos, con progresiones creativas, respiración guiada y playlists sincronizadas.</p>
+                        </div>
+                        <a href="#" class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-300 hover:text-emerald-200">
+                            Ver guía completa
+                            <i data-lucide="arrow-up-right" class="h-4 w-4"></i>
+                        </a>
+                    </div>
+                    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+                        <article class="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-gray-800/80 via-gray-900 to-gray-900 p-6 shadow-lg shadow-emerald-500/10">
+                            <div class="absolute inset-0 opacity-0 transition group-hover:opacity-100">
+                                <div class="h-full w-full bg-[radial-gradient(circle_at_center,_rgba(16,185,129,0.22),_transparent_55%)]"></div>
+                            </div>
+                            <div class="relative space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-200">Bodyweight Élite</span>
+                                    <i data-lucide="home" class="h-5 w-5 text-emerald-200"></i>
+                                </div>
+                                <h4 class="text-lg font-semibold text-white">Flow Metabólico 360°</h4>
+                                <p class="text-sm text-gray-300">Circuitos intensivos de alta energía con respiración consciente y visualización para mantener la mente enfocada.</p>
+                                <ul class="space-y-1 text-sm text-gray-400">
+                                    <li class="flex items-center gap-2"><i data-lucide="wand2" class="h-4 w-4 text-emerald-300"></i>15 min de activación neuromuscular</li>
+                                    <li class="flex items-center gap-2"><i data-lucide="move-horizontal" class="h-4 w-4 text-emerald-300"></i>5 bloques de fuerza dinámica</li>
+                                    <li class="flex items-center gap-2"><i data-lucide="wind" class="h-4 w-4 text-emerald-300"></i>Meditación guiada post-sesión</li>
+                                </ul>
+                            </div>
+                        </article>
+                        <article class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-slate-800/80 via-gray-900 to-gray-900 p-6 shadow-lg shadow-emerald-500/10">
+                            <div class="absolute inset-0 opacity-0 transition hover:opacity-100">
+                                <div class="h-full w-full bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.22),_transparent_55%)]"></div>
+                            </div>
+                            <div class="relative space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="rounded-full bg-blue-500/20 px-3 py-1 text-xs font-semibold text-blue-200">Minimal Equipment</span>
+                                    <i data-lucide="dumbbell" class="h-5 w-5 text-blue-200"></i>
+                                </div>
+                                <h4 class="text-lg font-semibold text-white">Studio Sculpt en casa</h4>
+                                <p class="text-sm text-gray-300">Ritmos bajos con bandas y mancuernas ligeras para esculpir, acompañado de ambientaciones sonoras inmersivas.</p>
+                                <ul class="space-y-1 text-sm text-gray-400">
+                                    <li class="flex items-center gap-2"><i data-lucide="radio" class="h-4 w-4 text-blue-300"></i>Playlist chill-hop exclusiva</li>
+                                    <li class="flex items-center gap-2"><i data-lucide="layers" class="h-4 w-4 text-blue-300"></i>3 fases de progresión consciente</li>
+                                    <li class="flex items-center gap-2"><i data-lucide="droplets" class="h-4 w-4 text-blue-300"></i>Sección de estiramientos líquidos</li>
+                                </ul>
+                            </div>
+                        </article>
+                        <article class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-rose-800/60 via-gray-900 to-gray-900 p-6 shadow-lg shadow-emerald-500/10">
+                            <div class="absolute inset-0 opacity-0 transition hover:opacity-100">
+                                <div class="h-full w-full bg-[radial-gradient(circle_at_bottom_right,_rgba(244,114,182,0.25),_transparent_55%)]"></div>
+                            </div>
+                            <div class="relative space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="rounded-full bg-rose-500/20 px-3 py-1 text-xs font-semibold text-rose-200">Mindful Reset</span>
+                                    <i data-lucide="wand2" class="h-5 w-5 text-rose-200"></i>
+                                </div>
+                                <h4 class="text-lg font-semibold text-white">Sunrise Mobility Ritual</h4>
+                                <p class="text-sm text-gray-300">Secuencias suaves para despertar articulaciones y alinear postura con respiración guiada y visuales amanecer.</p>
+                                <ul class="space-y-1 text-sm text-gray-400">
+                                    <li class="flex items-center gap-2"><i data-lucide="sunrise" class="h-4 w-4 text-rose-300"></i>Respiraciones diafragmáticas</li>
+                                    <li class="flex items-center gap-2"><i data-lucide="infinity" class="h-4 w-4 text-rose-300"></i>Movilidad en flujo continuo</li>
+                                    <li class="flex items-center gap-2"><i data-lucide="headphones" class="h-4 w-4 text-rose-300"></i>Audio binaural restaurador</li>
+                                </ul>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+
+                <div id="predefined-routines-section" class="space-y-5">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="space-y-2">
+                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300/70">Curaduría oficial</p>
+                            <h3 class="text-2xl font-semibold text-white">Colecciones editoriales de alto rendimiento</h3>
+                            <p class="text-sm text-gray-400 max-w-2xl">Explora compilaciones premium diseñadas por coaches élite con narrativa inmersiva, métricas listas y lanzadores instantáneos para cada sesión.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-400">
+                            <span class="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 bg-gray-800/60"><i data-lucide="sparkles" class="h-4 w-4 text-emerald-300"></i> Live Sync</span>
+                            <span class="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 bg-gray-800/60"><i data-lucide="zap" class="h-4 w-4 text-emerald-300"></i> Intensidad calibrada</span>
+                        </div>
+                    </div>
+                    <div id="predefined-routines-container" class="space-y-6"></div>
+                </div>
+            </div>
+        </section>
+    </template>
     
     <template id="template-asesorados">
         <section id="asesorados" class="section-content hidden">
@@ -4332,7 +4502,155 @@
                 async analyzeWorkoutPerformance(e) {const button = e.target.closest('[data-action="analyze-workout-performance"]');const logDataString = button.dataset.logData;const log = JSON.parse(decodeURIComponent(logDataString));const goal = document.querySelector('#nutrition-form input[name="goal"]:checked')?.value || 'maintain';const goalMap = { lose: 'perder peso', maintain: 'mantenimiento', gain: 'ganar músculo' };const userGoalText = goalMap[goal];const prompt = `Eres un entrenador de fitness positivo y motivador. Mi objetivo principal es ${userGoalText}. Este es mi registro de entrenamiento de hoy: ${JSON.stringify(log)}. Proporciona un análisis breve (menos de 75 palabras), en español, sobre mi rendimiento. Destaca un aspecto positivo y sugiere una mejora simple y específica para mi próxima sesión. Envuelve el aspecto positivo en etiquetas <strong> y la sugerencia en etiquetas <em>.`;try {const analysisText = await this.callGeminiAPI(prompt, button);const container = document.getElementById('ai-analysis-container');if (container) { container.innerHTML = `<div class="mt-4 pt-4 border-t border-gray-700 text-left"><h4 class="font-bold text-gray-200 flex items-center gap-2"><i data-lucide="sparkles" class="w-5 h-5 text-purple-400"></i>Análisis del Coach IA</h4><p class="text-sm text-gray-300 mt-2 bg-gray-900/50 p-3 rounded-lg">${analysisText}</p></div>`; lucide.createIcons(); button.style.display = 'none'; }} catch (error) {}},
                 routine_showAiSuggestionModal() { const body = `<p class="text-gray-300 mb-4">Describe el objetivo para este día de entrenamiento y la IA te sugerirá ejercicios.</p><div><label for="ai-goal-input" class="block text-sm font-medium text-gray-400 mb-1">Objetivo del día</label><input type="text" id="ai-goal-input" class="w-full bg-gray-700 rounded-lg p-2 mt-1 border border-gray-600" placeholder="Ej: Hipertrofia para pecho y hombro"></div>`; const footer = [ {text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal'}, {text: '✨ Generar', class: 'bg-emerald-600 hover:bg-emerald-500 text-gray-900', action: 'generate-exercises-ai'} ]; this.showModal('Sugerencias de la IA', body, footer); setTimeout(() => document.getElementById('ai-goal-input').focus(), 100); },
                 getExerciseByName(name) { for (const group in this.data.exerciseLibrary) { for (const subGroup in this.data.exerciseLibrary[group]) { const exercise = this.data.exerciseLibrary[group][subGroup].find(ex => ex.name === name); if (exercise) return exercise; } } return null; },
-                renderRoutinesSection() { const userRoutinesContainer = document.getElementById('user-routines-container'); const predefinedRoutinesContainer = document.getElementById('predefined-routines-section'); if (!userRoutinesContainer || !predefinedRoutinesContainer) return; if (this.state.userRoutines && this.state.userRoutines.length > 0) { userRoutinesContainer.innerHTML = this.state.userRoutines.map(r => this.routine_createUserCardHTML(r)).join(''); } else { userRoutinesContainer.innerHTML = `<div class="flex flex-col items-center justify-center w-64 h-40 text-center p-4 bg-gray-700/50 rounded-2xl border-2 border-dashed border-gray-600"><i data-lucide="folder-plus" class="w-8 h-8 text-gray-500 mb-2"></i><p class="text-gray-400 text-sm">${this.isAsesor() ? 'Crea tu primera rutina' : 'No tienes una rutina asignada.'}</p></div>`; } let predefinedHtml = ''; const categoryTitles = { "Clásicos de Hipertrofia": "🏆 Clásicos de Hipertrofia", "Fuerza y Potencia": "⚡ Fuerza y Potencia", "Enfoque Femenino": "🌸 Enfoque Femenino", "Alta Intensidad": "🔥 Alta Intensidad", "Quema de Grasa": "💧 Quema de Grasa" }; for (const category in this.data.predefinedRoutines) { const title = categoryTitles[category] || category.replace(/_/g, ' '); predefinedHtml += `<div class="mb-6"><h4 class="font-bold text-xl mb-3 text-emerald-300 capitalize">${title}</h4><div class="space-y-3">`; const routinesInCategory = this.data.predefinedRoutines[category]; predefinedHtml += routinesInCategory.map(r => this.routine_createPredefinedCardHTML(r)).join(''); predefinedHtml += `</div></div>`; } predefinedRoutinesContainer.innerHTML = predefinedHtml; lucide.createIcons(); },
+                renderRoutinesSection() {
+                    const userRoutinesContainer = document.getElementById('user-routines-container');
+                    const predefinedRoutinesContainer = document.getElementById('predefined-routines-container');
+                    if (!userRoutinesContainer || !predefinedRoutinesContainer) return;
+
+                    if (this.state.userRoutines && this.state.userRoutines.length > 0) {
+                        userRoutinesContainer.innerHTML = this.state.userRoutines.map(r => this.routine_createUserCardHTML(r)).join('');
+                    } else {
+                        userRoutinesContainer.innerHTML = `<div class="flex flex-col items-center justify-center w-64 h-40 text-center p-4 bg-gray-700/50 rounded-2xl border-2 border-dashed border-gray-600"><i data-lucide="folder-plus" class="w-8 h-8 text-gray-500 mb-2"></i><p class="text-gray-400 text-sm">${this.isAsesor() ? 'Crea tu primera rutina' : 'No tienes una rutina asignada.'}</p></div>`;
+                    }
+
+                    const defaultTheme = {
+                        emoji: '✨',
+                        badgeLabel: 'Colección signature',
+                        title: '',
+                        tagline: 'Rituales inmersivos listos para ejecutar en tu calendario.',
+                        heroGradient: 'from-emerald-500/20 via-cyan-500/10 to-gray-900/90',
+                        chipClasses: 'bg-emerald-500/15 text-emerald-200',
+                        glow: 'shadow-[0_45px_120px_-65px_rgba(16,185,129,0.65)]',
+                        cardGradient: 'from-emerald-500/15 via-gray-900 to-gray-900',
+                        cardIconWrap: 'bg-emerald-500/15 text-emerald-200',
+                        cardOverlay: 'from-emerald-400/25 via-transparent to-transparent',
+                        cardStatAccent: 'text-emerald-200'
+                    };
+
+                    const categoryThemes = {
+                        'Clásicos de Hipertrofia': {
+                            emoji: '🏆',
+                            badgeLabel: 'Legado Pro',
+                            title: 'Clásicos de Hipertrofia',
+                            tagline: 'Divisiones legendarias reeditadas con seguimiento moderno para volumen sostenido.',
+                            heroGradient: 'from-amber-500/25 via-emerald-500/10 to-gray-950/80',
+                            chipClasses: 'bg-amber-500/20 text-amber-200',
+                            glow: 'shadow-[0_55px_140px_-70px_rgba(245,158,11,0.6)]',
+                            cardGradient: 'from-amber-500/15 via-slate-900/80 to-gray-950',
+                            cardIconWrap: 'bg-amber-500/15 text-amber-200',
+                            cardOverlay: 'from-amber-400/20 via-transparent to-transparent',
+                            cardStatAccent: 'text-amber-200'
+                        },
+                        'Fuerza y Potencia': {
+                            emoji: '⚡',
+                            badgeLabel: 'Output Máximo',
+                            title: 'Fuerza y Potencia',
+                            tagline: 'Periodizaciones explosivas con foco neural y métricas de potencia listas para registrar.',
+                            heroGradient: 'from-sky-500/30 via-cyan-500/15 to-gray-950/85',
+                            chipClasses: 'bg-sky-500/20 text-sky-200',
+                            glow: 'shadow-[0_55px_140px_-70px_rgba(56,189,248,0.55)]',
+                            cardGradient: 'from-sky-500/20 via-slate-900/80 to-gray-950',
+                            cardIconWrap: 'bg-sky-500/20 text-sky-200',
+                            cardOverlay: 'from-sky-400/20 via-transparent to-transparent',
+                            cardStatAccent: 'text-sky-200'
+                        },
+                        'Enfoque Femenino': {
+                            emoji: '🌸',
+                            badgeLabel: 'Flow Curves',
+                            title: 'Enfoque Femenino',
+                            tagline: 'Secuencias estilizadas para esculpir, equilibrar y potenciar energía femenina.',
+                            heroGradient: 'from-rose-400/30 via-fuchsia-500/15 to-gray-950/85',
+                            chipClasses: 'bg-rose-500/20 text-rose-200',
+                            glow: 'shadow-[0_55px_140px_-70px_rgba(244,114,182,0.55)]',
+                            cardGradient: 'from-rose-400/20 via-slate-900/80 to-gray-950',
+                            cardIconWrap: 'bg-rose-500/20 text-rose-200',
+                            cardOverlay: 'from-rose-400/25 via-transparent to-transparent',
+                            cardStatAccent: 'text-rose-200'
+                        },
+                        'Alta Intensidad': {
+                            emoji: '🔥',
+                            badgeLabel: 'Impact Chamber',
+                            title: 'Alta Intensidad',
+                            tagline: 'Microciclos concentrados para atletas avanzados con descansos calculados al segundo.',
+                            heroGradient: 'from-orange-500/25 via-red-500/15 to-gray-950/85',
+                            chipClasses: 'bg-orange-500/20 text-orange-200',
+                            glow: 'shadow-[0_55px_140px_-70px_rgba(249,115,22,0.55)]',
+                            cardGradient: 'from-orange-500/20 via-slate-900/80 to-gray-950',
+                            cardIconWrap: 'bg-orange-500/20 text-orange-200',
+                            cardOverlay: 'from-orange-500/25 via-transparent to-transparent',
+                            cardStatAccent: 'text-orange-200'
+                        },
+                        'Quema de Grasa': {
+                            emoji: '💧',
+                            badgeLabel: 'Metabolic Wave',
+                            title: 'Quema de Grasa',
+                            tagline: 'Protocolos híbridos que combinan fuerza funcional y cardio para maximizar el gasto energético.',
+                            heroGradient: 'from-lime-400/25 via-emerald-500/15 to-gray-950/85',
+                            chipClasses: 'bg-lime-500/20 text-lime-200',
+                            glow: 'shadow-[0_55px_140px_-70px_rgba(163,230,53,0.55)]',
+                            cardGradient: 'from-lime-400/20 via-slate-900/80 to-gray-950',
+                            cardIconWrap: 'bg-lime-500/20 text-lime-200',
+                            cardOverlay: 'from-lime-400/25 via-transparent to-transparent',
+                            cardStatAccent: 'text-lime-200'
+                        }
+                    };
+
+                    let predefinedHtml = '';
+
+                    for (const [category, routinesInCategory] of Object.entries(this.data.predefinedRoutines)) {
+                        const theme = { ...defaultTheme, ...(categoryThemes[category] || {}) };
+                        const routinesCount = routinesInCategory.length;
+                        const totalSessions = routinesInCategory.reduce((sum, routine) => sum + ((routine.plan || []).length), 0);
+                        const totalExercises = routinesInCategory.reduce((sum, routine) => sum + (routine.plan || []).reduce((acc, day) => acc + ((day.exercises || []).length), 0), 0);
+                        const totalSets = routinesInCategory.reduce((sum, routine) => sum + (routine.plan || []).reduce((acc, day) => acc + (day.exercises || []).reduce((setSum, exercise) => setSum + (Number(exercise.sets) || 0), 0), 0), 0);
+                        const avgExercisesPerSession = totalSessions ? Math.round(totalExercises / totalSessions) : 0;
+                        const avgSetsPerSession = totalSessions ? Math.round(totalSets / totalSessions) : 0;
+
+                        predefinedHtml += `
+                            <section class="relative overflow-hidden rounded-3xl border border-white/8 bg-gray-900/60 p-6 lg:p-8 ${theme.glow}">
+                                <div class="pointer-events-none absolute inset-0 opacity-90 bg-gradient-to-br ${theme.heroGradient}"></div>
+                                <div class="relative z-10 space-y-6">
+                                    <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                                        <div class="space-y-4 max-w-3xl">
+                                            <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                                <span class="rounded-full px-3 py-1 ${theme.chipClasses}">${theme.badgeLabel}</span>
+                                                <span class="rounded-full px-3 py-1 bg-white/5 text-gray-200/80">${theme.emoji} ${category}</span>
+                                            </div>
+                                            <h4 class="text-2xl font-bold text-white">${theme.title || category}</h4>
+                                            <p class="text-sm text-gray-200/90">${theme.tagline}</p>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-3 text-center text-xs uppercase tracking-[0.25em] text-gray-300 sm:grid-cols-4 lg:max-w-md">
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                                <p class="text-lg font-semibold text-white">${routinesCount}</p>
+                                                <p class="mt-1 text-[11px] text-gray-400">Rutinas</p>
+                                            </div>
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                                <p class="text-lg font-semibold text-white">${totalSessions}</p>
+                                                <p class="mt-1 text-[11px] text-gray-400">Sesiones</p>
+                                            </div>
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                                <p class="text-lg font-semibold text-white">${avgExercisesPerSession}</p>
+                                                <p class="mt-1 text-[11px] text-gray-400">Ejerc./sesión</p>
+                                            </div>
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3 hidden sm:block">
+                                                <p class="text-lg font-semibold text-white">${avgSetsPerSession}</p>
+                                                <p class="mt-1 text-[11px] text-gray-400">Sets/sesión</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="rounded-3xl border border-white/10 bg-gray-950/40 p-4 lg:p-6">
+                                        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                            ${routinesInCategory.map(r => this.routine_createPredefinedCardHTML(r, theme)).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        `;
+                    }
+
+                    predefinedRoutinesContainer.innerHTML = predefinedHtml;
+                    lucide.createIcons();
+                },
                 routine_createUserCardHTML(routine) {
     const days = routine.plan.length;
     const totalExercises = routine.plan.reduce((acc, day) => acc + day.exercises.length, 0);
@@ -4362,7 +4680,42 @@
             </div>
         </button>`;
 },
-                routine_createPredefinedCardHTML(routine) { return `<button data-action="routine-show-details" data-routine-id="${routine.id}" class="w-full bg-gray-700 rounded-2xl p-4 flex items-center space-x-4 text-left hover:bg-gray-600/80 transition-colors"><div class="bg-gray-800 p-3 rounded-lg"><i data-lucide="${routine.icon || 'activity'}" class="text-emerald-400"></i></div><div class="flex-1"><h4 class="font-bold text-white">${routine.name}</h4><p class="text-sm text-gray-400">${routine.description}</p></div><i data-lucide="chevron-right" class="text-gray-500"></i></button>`; },
+                routine_createPredefinedCardHTML(routine, theme = {}) {
+                    const plan = routine.plan || [];
+                    const days = plan.length;
+                    const totalExercises = plan.reduce((sum, day) => sum + ((day.exercises || []).length), 0);
+                    const totalSets = plan.reduce((sum, day) => sum + (day.exercises || []).reduce((acc, exercise) => acc + (Number(exercise.sets) || 0), 0), 0);
+
+                    const cardGradient = theme.cardGradient || 'from-emerald-500/15 via-gray-900 to-gray-900';
+                    const iconWrap = theme.cardIconWrap || 'bg-emerald-500/15 text-emerald-200';
+                    const overlay = theme.cardOverlay || 'from-emerald-400/25 via-transparent to-transparent';
+                    const statAccent = theme.cardStatAccent || 'text-emerald-200';
+
+                    return `
+                        <button data-action="routine-show-details" data-routine-id="${routine.id}"
+                            class="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${cardGradient} p-5 text-left shadow-[0_25px_70px_-45px_rgba(16,185,129,0.45)] transition-all duration-500 hover:-translate-y-1 hover:border-emerald-400/60 hover:shadow-[0_35px_90px_-40px_rgba(16,185,129,0.55)]">
+                            <span class="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100 bg-gradient-to-br ${overlay}"></span>
+                            <div class="relative z-10 flex flex-col gap-4">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div class="flex items-center gap-3">
+                                        <span class="flex h-12 w-12 items-center justify-center rounded-xl ${iconWrap}"><i data-lucide="${routine.icon || 'activity'}" class="w-5 h-5"></i></span>
+                                        <div>
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Programa signature</p>
+                                            <h4 class="text-lg font-bold text-white leading-tight">${routine.name}</h4>
+                                        </div>
+                                    </div>
+                                    <i data-lucide="arrow-up-right" class="h-5 w-5 text-gray-400 transition group-hover:text-white"></i>
+                                </div>
+                                <p class="text-sm text-gray-300 line-clamp-3">${routine.description || 'Sesión curada por expertos, lista para ejecutarse.'}</p>
+                                <div class="flex flex-wrap gap-2 text-xs font-semibold text-gray-300">
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-black/40 px-3 py-1"><i data-lucide="calendar" class="h-3.5 w-3.5 ${statAccent}"></i>${days} ${days === 1 ? 'día' : 'días'}</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-black/40 px-3 py-1"><i data-lucide="list-checks" class="h-3.5 w-3.5 ${statAccent}"></i>${totalExercises} ejercicios</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-black/40 px-3 py-1"><i data-lucide="repeat-2" class="h-3.5 w-3.5 ${statAccent}"></i>${totalSets} sets</span>
+                                </div>
+                            </div>
+                        </button>
+                    `;
+                },
                 
                 routine_showDetails(routineId) {
                     const allRoutines = [...(this.state.userRoutines || []), ...Object.values(this.data.predefinedRoutines).flat()];
@@ -4372,9 +4725,62 @@
                     const today = new Date().toISOString().split('T')[0];
                     const todayEntries = Array.isArray(this.state.workoutHistory?.[today]) ? this.state.workoutHistory[today] : [];
 
-                    const daysHTML = routine.plan.map((day, dayIndex) => {
+                    const plan = routine.plan || [];
+                    const totalDays = plan.length;
+                    const totalExercises = plan.reduce((sum, day) => sum + ((day.exercises || []).length), 0);
+                    const totalSets = plan.reduce((sum, day) => sum + (day.exercises || []).reduce((acc, exercise) => acc + (Number(exercise.sets) || 0), 0), 0);
+
+                    const heroSectionHTML = `
+                        <section class="relative overflow-hidden rounded-3xl border border-white/10 bg-gray-900/70 p-6 lg:p-8 shadow-[0_35px_120px_-70px_rgba(16,185,129,0.75)]">
+                            <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-emerald-500/25 via-cyan-500/10 to-transparent opacity-80"></div>
+                            <div class="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                                <div class="space-y-5 max-w-3xl">
+                                    <div class="flex items-center gap-4">
+                                        <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
+                                            <i data-lucide="${routine.icon || 'dumbbell'}" class="h-7 w-7 text-emerald-200"></i>
+                                        </span>
+                                        <div class="space-y-1">
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Colección premium</p>
+                                            <h2 class="text-2xl sm:text-3xl font-bold leading-tight text-white">${routine.name}</h2>
+                                        </div>
+                                    </div>
+                                    <p class="text-sm text-gray-200/90 max-w-2xl">${routine.description}</p>
+                                    <div class="flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.25em] text-gray-300">
+                                        <span class="flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2"><i data-lucide="calendar-range" class="h-4 w-4 text-emerald-200"></i>${totalDays} ${totalDays === 1 ? 'día' : 'días'}</span>
+                                        <span class="flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2"><i data-lucide="list-ordered" class="h-4 w-4 text-emerald-200"></i>${totalExercises} ejercicios</span>
+                                        <span class="flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2"><i data-lucide="hash" class="h-4 w-4 text-emerald-200"></i>${totalSets} sets</span>
+                                    </div>
+                                </div>
+                                ${plan.length ? `
+                                <div class="flex flex-col gap-4 rounded-3xl border border-emerald-400/30 bg-emerald-500/10 p-5 text-emerald-100 shadow-[0_25px_70px_-45px_rgba(16,185,129,0.65)]">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Lanzamiento rápido</p>
+                                    <p class="text-lg font-semibold text-white leading-snug">Activa el modo inmersivo y deja que la app marque el ritmo.</p>
+                                    <button data-action="start-workout" data-routine-id="${routine.id}" data-day-index="0" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-semibold text-gray-900 shadow-lg shadow-emerald-500/40 transition hover:bg-emerald-100"><i data-lucide="play" class="h-5 w-5"></i><span>Comenzar Día 1</span></button>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </section>
+                    `;
+
+                    const daysHTML = plan.map((day, dayIndex) => {
                         const latestEntryToday = todayEntries.slice().reverse().find(entry => entry.routineId === routine.id && entry.dayIndex === dayIndex);
                         const isCompletedToday = Boolean(latestEntryToday);
+
+                        const exercisesHTML = (day.exercises || []).map((ex, exerciseIndex) => `
+                            <div class="flex items-start justify-between gap-3 rounded-2xl bg-gray-900/60 p-3 lg:p-4">
+                                <div class="flex items-start gap-3">
+                                    <span class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-[11px] font-semibold text-gray-400">${String(exerciseIndex + 1).padStart(2, '0')}</span>
+                                    <div class="space-y-1">
+                                        <button data-action="show-exercise-info" data-exercise-name="${ex.name}" class="flex items-center gap-2 text-left text-sm font-semibold text-white/90 transition hover:text-emerald-200">
+                                            <i data-lucide="info" class="hidden h-4 w-4 text-gray-500 md:block"></i>
+                                            <span>${ex.name}</span>
+                                        </button>
+                                        <p class="text-xs text-gray-400">Descanso ${ex.rest || '60s'}</p>
+                                    </div>
+                                </div>
+                                <span class="rounded-full bg-gray-950/80 px-3 py-1 text-xs font-mono text-gray-300">${ex.sets} x ${ex.reps}</span>
+                            </div>
+                        `).join('');
 
                         let actionBlockHTML = '';
                         if (isCompletedToday) {
@@ -4382,31 +4788,84 @@
                                 ? latestEntryToday.exerciseDetails.reduce((total, exercise) => total + exercise.weights.reduce((sum, weight) => sum + weight, 0), 0)
                                 : 0;
                             actionBlockHTML = `
-                            <div class="mt-4 bg-emerald-900/50 border border-emerald-500/30 text-emerald-300 rounded-xl p-4 space-y-3">
-                                <p class="text-center font-bold text-lg flex items-center justify-center gap-2"><i data-lucide="check-circle-2"></i> COMPLETADO HOY</p>
-                                <div class="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                                    <div class="flex justify-between border-b border-white/10 pb-1"><span>Peso total:</span> <span class="font-bold">${totalWeight.toFixed(1)} kg</span></div>
-                                    <div class="flex justify-between border-b border-white/10 pb-1"><span>Tiempo activo:</span> <span class="font-bold">${this.formatTime(latestEntryToday.totalActive)}</span></div>
-                                    <div class="flex justify-between border-b border-white/10 pb-1"><span>Descanso:</span> <span class="font-bold">${this.formatTime(latestEntryToday.totalRest)}</span></div>
-                                    <div class="flex justify-between border-b border-white/10 pb-1"><span>Volumen:</span> <span class="font-bold">${new Intl.NumberFormat('es-ES').format(Math.round(latestEntryToday.totalVolume || 0))} kg·reps</span></div>
+                                <div class="mt-5 space-y-3 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm text-emerald-100">
+                                    <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200"><i data-lucide="sparkles" class="h-4 w-4"></i>Logro del día</div>
+                                    <div class="grid grid-cols-2 gap-3 text-center text-xs sm:grid-cols-4">
+                                        <div class="rounded-xl bg-emerald-500/10 p-3">
+                                            <p class="text-lg font-bold text-white">${totalWeight.toFixed(1)} kg</p>
+                                            <p class="mt-1 text-[10px] uppercase tracking-[0.3em] text-emerald-200/70">Peso total</p>
+                                        </div>
+                                        <div class="rounded-xl bg-emerald-500/10 p-3">
+                                            <p class="text-lg font-bold text-white">${this.formatTime(latestEntryToday.totalActive)}</p>
+                                            <p class="mt-1 text-[10px] uppercase tracking-[0.3em] text-emerald-200/70">Tiempo activo</p>
+                                        </div>
+                                        <div class="rounded-xl bg-emerald-500/10 p-3">
+                                            <p class="text-lg font-bold text-white">${this.formatTime(latestEntryToday.totalRest)}</p>
+                                            <p class="mt-1 text-[10px] uppercase tracking-[0.3em] text-emerald-200/70">Descanso</p>
+                                        </div>
+                                        <div class="rounded-xl bg-emerald-500/10 p-3">
+                                            <p class="text-lg font-bold text-white">${new Intl.NumberFormat('es-ES').format(Math.round(latestEntryToday.totalVolume || 0))}</p>
+                                            <p class="mt-1 text-[10px] uppercase tracking-[0.3em] text-emerald-200/70">Volumen</p>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>`;
+                            `;
                         } else {
-                            actionBlockHTML = `<button data-action="start-workout" data-routine-id="${routine.id}" data-day-index="${dayIndex}" class="w-full bg-emerald-600 text-gray-900 font-bold py-2.5 rounded-lg mt-3 hover:bg-emerald-500 transition flex items-center justify-center gap-2"><i data-lucide="play" class="w-5 h-5"></i><span>Comenzar Entrenamiento</span></button>`;
+                            actionBlockHTML = `
+                                <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                    <p class="text-sm text-gray-400">Prepara tu espacio, conecta el temporizador y lanza la sesión guiada.</p>
+                                    <button data-action="start-workout" data-routine-id="${routine.id}" data-day-index="${dayIndex}" class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-2.5 font-semibold text-gray-900 shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-400"><i data-lucide="play" class="h-5 w-5"></i><span>Iniciar sesión</span></button>
+                                </div>
+                            `;
                         }
 
-                        return `<div class="bg-gray-900/50 rounded-xl p-4">
-                                    <h4 class="font-bold text-lg text-emerald-300">${day.day}</h4>
-                                    <ul class="text-gray-300 space-y-2 text-sm divide-y divide-gray-700/50 mt-3">
-                                        ${day.exercises.map(ex => `<li class="flex justify-between items-center pt-2"><button data-action="show-exercise-info" data-exercise-name="${ex.name}" class="flex items-center gap-2 text-left flex-1 pr-4 group"><i data-lucide="help-circle" class="w-4 h-4 text-gray-500 group-hover:text-sky-400 transition-colors"></i><span class="group-hover:text-white transition-colors">${ex.name}</span></button> <span class="text-gray-400 font-mono bg-gray-700/80 px-2 py-1 text-xs rounded-md">${ex.sets}x${ex.reps}</span></li>`).join('')}
-                                    </ul>
-                                    ${actionBlockHTML}
-                                </div>`;
+                        return `
+                            <article class="relative overflow-hidden rounded-3xl border ${isCompletedToday ? 'border-emerald-400/60 bg-emerald-500/5 shadow-[0_35px_100px_-60px_rgba(16,185,129,0.75)]' : 'border-white/10 bg-gray-900/60 hover:border-emerald-400/40 hover:shadow-[0_30px_90px_-60px_rgba(16,185,129,0.55)]'} p-5 lg:p-6 transition-all duration-500">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="space-y-1">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Sesión ${dayIndex + 1}</p>
+                                        <h3 class="text-xl font-bold text-white">${day.day}</h3>
+                                    </div>
+                                    <span class="inline-flex items-center gap-2 rounded-full ${isCompletedToday ? 'bg-emerald-500/20 text-emerald-200' : 'bg-white/10 text-gray-300'} px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em]">
+                                        <i data-lucide="${isCompletedToday ? 'check-circle-2' : 'timer'}" class="h-4 w-4"></i>
+                                        ${isCompletedToday ? 'Completado hoy' : 'Listo' }
+                                    </span>
+                                </div>
+                                <div class="mt-4 space-y-3">
+                                    ${exercisesHTML}
+                                </div>
+                                ${actionBlockHTML}
+                            </article>
+                        `;
                     }).join('');
 
-                    const isUserRoutine = routine.id.startsWith('manual-'); 
-                    const deleteButtonHTML = isUserRoutine && this.isAsesor() ? `<button data-action="routine-confirm-delete" data-routine-id="${routine.id}" class="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-red-500/10"><i data-lucide="trash-2" class="w-5 h-5"></i></button>` : '<div class="w-9 h-9"></div>'; 
-                    const viewHTML = `<div id="routine-details-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col"><header class="p-4 flex items-center justify-between bg-gray-900/80 backdrop-blur-sm sticky top-0"><button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button><h3 class="text-lg font-bold truncate px-4">${routine.name}</h3>${deleteButtonHTML}</header><div class="flex-grow p-4 overflow-y-auto space-y-4"><p class="text-gray-400 bg-gray-700/50 p-3 rounded-lg text-sm">${routine.description}</p>${daysHTML}</div></div>`;
+                    const isUserRoutine = routine.id.startsWith('manual-');
+                    const deleteButtonHTML = isUserRoutine && this.isAsesor()
+                        ? `<button data-action="routine-confirm-delete" data-routine-id="${routine.id}" class="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-red-500/10"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`
+                        : '<div class="w-9 h-9"></div>';
+
+                    const viewHTML = `
+                        <div id="routine-details-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col">
+                            <header class="sticky top-0 z-10 flex items-center justify-between border-b border-white/5 bg-gray-900/85 px-4 py-4 backdrop-blur">
+                                <button data-action="routine-close-view" class="rounded-full bg-white/5 p-2 text-gray-200 transition hover:bg-white/10"><i data-lucide="arrow-left"></i></button>
+                                <h3 class="text-lg font-bold text-white truncate px-4">${routine.name}</h3>
+                                ${deleteButtonHTML}
+                            </header>
+                            <div class="flex-grow overflow-y-auto space-y-6 px-4 pb-8 pt-4">
+                                ${heroSectionHTML}
+                                <section class="space-y-4">
+                                    <div class="flex items-center justify-between">
+                                        <h4 class="text-lg font-semibold text-white">Sesiones guiadas</h4>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">${totalDays} ${totalDays === 1 ? 'sesión' : 'sesiones'}</p>
+                                    </div>
+                                    <div class="space-y-5">
+                                        ${daysHTML}
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    `;
+
                     this.routine_openFullscreenView(viewHTML);
                 },
 
