@@ -586,31 +586,48 @@
     <template id="template-dieta">
         <section id="dieta" class="section-content hidden">
             <div class="space-y-8">
-                <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-                    <div class="space-y-2">
-                        <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
-                            <i data-lucide="leaf" class="h-4 w-4"></i>
-                            Nutrición inteligente
-                        </span>
-                        <h2 class="flex items-center gap-3 text-3xl font-bold text-white">
-                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-500/15 text-emerald-300 shadow-inner shadow-emerald-500/30">
-                                <i data-lucide="apple" class="h-6 w-6"></i>
+                <article class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900/95 via-gray-900/75 to-gray-900/90 p-6 shadow-[0_45px_120px_-70px_rgba(16,185,129,0.9)]">
+                    <div class="pointer-events-none absolute -top-16 -right-12 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl"></div>
+                    <div class="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="space-y-3">
+                            <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
+                                <i data-lucide="leaf" class="h-4 w-4"></i>
+                                Nutrición inteligente
                             </span>
-                            <span>Diseña tu combustible diario</span>
-                        </h2>
-                        <p class="max-w-2xl text-sm text-gray-400">Planifica tus comidas, controla macros y mantén a tus asesorados alineados con sus objetivos.</p>
+                            <h2 class="flex flex-col gap-3 text-3xl font-bold text-white sm:flex-row sm:items-center">
+                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-3xl bg-emerald-500/15 text-emerald-300 shadow-inner shadow-emerald-500/30">
+                                    <i data-lucide="apple" class="h-6 w-6"></i>
+                                </span>
+                                <span>Diseña tu combustible diario</span>
+                            </h2>
+                            <p class="max-w-2xl text-sm text-gray-400">Planifica tus comidas, controla macros y mantén a tus asesorados alineados con sus objetivos. Toma decisiones rápidas con herramientas más intuitivas y una experiencia visual consistente.</p>
+                        </div>
+                        <div id="diet-admin-actions" class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <button data-action="generate-plan" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-500 via-violet-500 to-indigo-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-500/40 transition hover:from-purple-400 hover:via-violet-400 hover:to-indigo-400 sm:w-auto">
+                                <i data-lucide="sparkles" class="h-5 w-5"></i>
+                                Generar plan con IA
+                            </button>
+                            <button data-action="client-diet-create-food-modal" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-emerald-400/60 bg-emerald-400/10 px-6 py-3 text-sm font-semibold uppercase tracking-[0.28em] text-emerald-200 transition hover:border-emerald-300 hover:bg-emerald-400/20 sm:w-auto">
+                                <i data-lucide="plus-circle" class="h-5 w-5"></i>
+                                Nuevo alimento
+                            </button>
+                        </div>
                     </div>
-                    <div id="diet-admin-actions" class="flex flex-wrap items-center gap-3">
-                        <button data-action="generate-plan" class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-purple-500 via-violet-500 to-indigo-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-purple-500/40 transition hover:from-purple-400 hover:via-violet-400 hover:to-indigo-400">
-                            <i data-lucide="sparkles" class="h-4 w-4"></i>
-                            Generar plan con IA
-                        </button>
-                        <button data-action="client-diet-create-food-modal" class="inline-flex items-center justify-center gap-2 rounded-full border border-emerald-400/60 bg-emerald-400/10 px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-300 hover:bg-emerald-400/20">
-                            <i data-lucide="plus-circle" class="h-4 w-4"></i>
-                            Nuevo alimento
-                        </button>
+                    <div class="relative mt-6 grid gap-4 sm:grid-cols-3">
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-gray-400">Planifica con claridad</p>
+                            <p class="mt-2 text-sm text-gray-300">Define objetivos diarios, semanales o por comida con la precisión que tus asesorados necesitan.</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-gray-400">Optimiza cada plato</p>
+                            <p class="mt-2 text-sm text-gray-300">Equilibra calorías y macros con sugerencias dinámicas impulsadas por IA.</p>
+                        </div>
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                            <p class="text-xs font-semibold uppercase tracking-[0.28em] text-gray-400">Comunica con estilo</p>
+                            <p class="mt-2 text-sm text-gray-300">Comparte planes visuales y consistentes que motivan a cada cliente a seguir su estrategia.</p>
+                        </div>
                     </div>
-                </div>
+                </article>
 
                 <div class="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] items-start">
                     <article class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900/95 via-gray-900/60 to-gray-900/90 p-6 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.85)]">
