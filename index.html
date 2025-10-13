@@ -6061,29 +6061,162 @@
                         const activeGroup = this._tempRoutine.activeExerciseGroup || firstGroup;
                         this._tempRoutine.activeExerciseGroup = activeGroup;
                         const groupsNav = `<aside id="exercise-group-nav" class="w-full shrink-0 border-b border-white/5 bg-gray-950/80 md:w-80 md:border-b-0 md:border-r md:max-h-[calc(100vh-8rem)] md:overflow-y-auto">
-                            <div class="grid gap-4 p-5">
+                            <div class="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 md:grid-cols-1">
                                 ${groupKeys.map(group => {
                                         const rawUrl = groupImages[group] || '';
                                         const sanitizedUrl = rawUrl.replace(/'/g, "\'");
-                                        const backgroundStyle = rawUrl
-                                            ? `background-image: url('${sanitizedUrl}');`
-                                            : 'background-image: linear-gradient(135deg, rgba(16,185,129,0.55), rgba(59,130,246,0.45));';
+                                        const hasImage = Boolean(rawUrl);
+                                        const imageContent = hasImage
+                                            ? `<img src="${sanitizedUrl}" alt="Grupo muscular ${group}" class="h-full w-full object-cover" loading="lazy">`
+                                            : `<div class=\"flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-500/30 via-teal-500/20 to-sky-500/20 text-emerald-100/80\"><i data-lucide=\"dumbbell\" class=\"h-10 w-10\"></i></div>`;
                                         const editButton = isAdmin
-                                            ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-4 top-4 inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-black/60 text-white shadow-lg transition hover:bg-emerald-400 hover:text-gray-900"><i data-lucide="image-plus" class="h-4 w-4"></i></button>`
+                                            ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-gray-950/85 text-white shadow-lg transition hover:-translate-y-0.5 hover:border-white/40 hover:bg-white hover:text-gray-900"><i data-lucide="image-up" class="h-5 w-5"></i></button>`
                                             : '';
                                         const isActiveGroup = group === activeGroup;
+                                        const accentConfig = (() => {
+                                            const base = {
+                                                icon: 'dumbbell',
+                                                highlight: 'text-emerald-200',
+                                                badgeLabel: 'Activación total',
+                                                badgeClass: 'border border-emerald-400/40 bg-emerald-500/15 text-emerald-100',
+                                                gradientBorder: 'from-emerald-500/40 via-teal-500/20 to-sky-500/35',
+                                                glowOne: 'bg-emerald-500/30',
+                                                glowTwo: 'bg-sky-500/20',
+                                                tagline: 'Activa y fortalece este grupo muscular con precisión y control.',
+                                                ctaGradient: 'from-emerald-300 via-teal-300 to-sky-300',
+                                                ctaTextClass: 'text-gray-900'
+                                            };
+                                            const key = group.toLowerCase();
+                                            if (key.includes('pecho')) {
+                                                return {
+                                                    ...base,
+                                                    icon: 'activity',
+                                                    highlight: 'text-rose-200',
+                                                    badgeLabel: 'Foco torácico',
+                                                    badgeClass: 'border border-rose-400/40 bg-rose-500/15 text-rose-100',
+                                                    gradientBorder: 'from-rose-500/45 via-fuchsia-500/25 to-amber-400/20',
+                                                    glowOne: 'bg-rose-500/30',
+                                                    glowTwo: 'bg-amber-400/25',
+                                                    tagline: 'Expande la potencia del pecho con ángulos completos y controlados.',
+                                                    ctaGradient: 'from-rose-300 via-fuchsia-300 to-amber-200'
+                                                };
+                                            }
+                                            if (key.includes('espalda')) {
+                                                return {
+                                                    ...base,
+                                                    icon: 'layers',
+                                                    highlight: 'text-sky-200',
+                                                    badgeLabel: 'Tracción suprema',
+                                                    badgeClass: 'border border-sky-400/40 bg-sky-500/15 text-sky-100',
+                                                    gradientBorder: 'from-sky-500/45 via-cyan-500/25 to-indigo-400/20',
+                                                    glowOne: 'bg-sky-500/30',
+                                                    glowTwo: 'bg-indigo-400/25',
+                                                    tagline: 'Amplía tu espalda con movimientos de tracción envolventes.',
+                                                    ctaGradient: 'from-sky-300 via-cyan-300 to-indigo-200'
+                                                };
+                                            }
+                                            if (key.includes('pierna') || key.includes('glúte') || key.includes('glute')) {
+                                                return {
+                                                    ...base,
+                                                    icon: 'mountain',
+                                                    highlight: 'text-lime-200',
+                                                    badgeLabel: 'Potencia inferior',
+                                                    badgeClass: 'border border-lime-400/40 bg-lime-500/15 text-lime-100',
+                                                    gradientBorder: 'from-lime-400/45 via-emerald-500/25 to-green-400/20',
+                                                    glowOne: 'bg-lime-400/30',
+                                                    glowTwo: 'bg-emerald-500/25',
+                                                    tagline: 'Desarrolla piernas explosivas con secuencias estables y fluidas.',
+                                                    ctaGradient: 'from-lime-300 via-emerald-300 to-green-200'
+                                                };
+                                            }
+                                            if (key.includes('hombro') || key.includes('delto')) {
+                                                return {
+                                                    ...base,
+                                                    icon: 'sun',
+                                                    highlight: 'text-amber-200',
+                                                    badgeLabel: 'Rotación 360°',
+                                                    badgeClass: 'border border-amber-400/40 bg-amber-500/15 text-amber-100',
+                                                    gradientBorder: 'from-amber-500/40 via-orange-500/25 to-emerald-400/20',
+                                                    glowOne: 'bg-amber-500/30',
+                                                    glowTwo: 'bg-orange-400/25',
+                                                    tagline: 'Ilumina tus hombros con patrones de rotación controlados.',
+                                                    ctaGradient: 'from-amber-300 via-orange-300 to-emerald-200'
+                                                };
+                                            }
+                                            if (key.includes('brazo') || key.includes('bíceps') || key.includes('tríceps') || key.includes('biceps') || key.includes('triceps')) {
+                                                return {
+                                                    ...base,
+                                                    icon: 'sparkle',
+                                                    highlight: 'text-purple-200',
+                                                    badgeLabel: 'Fuerza definida',
+                                                    badgeClass: 'border border-purple-400/40 bg-purple-500/15 text-purple-100',
+                                                    gradientBorder: 'from-purple-500/45 via-violet-500/25 to-indigo-400/20',
+                                                    glowOne: 'bg-purple-500/30',
+                                                    glowTwo: 'bg-indigo-400/25',
+                                                    tagline: 'Moldea brazos definidos con tempos precisos y conectados.',
+                                                    ctaGradient: 'from-purple-300 via-violet-300 to-indigo-200'
+                                                };
+                                            }
+                                            if (key.includes('core') || key.includes('abdomen') || key.includes('abdominal')) {
+                                                return {
+                                                    ...base,
+                                                    icon: 'orb',
+                                                    highlight: 'text-cyan-200',
+                                                    badgeLabel: 'Estabilidad central',
+                                                    badgeClass: 'border border-cyan-400/40 bg-cyan-500/15 text-cyan-100',
+                                                    gradientBorder: 'from-cyan-500/45 via-sky-500/25 to-blue-400/20',
+                                                    glowOne: 'bg-cyan-500/30',
+                                                    glowTwo: 'bg-blue-400/25',
+                                                    tagline: 'Construye un núcleo firme con respiración consciente y control.',
+                                                    ctaGradient: 'from-cyan-300 via-sky-300 to-blue-200'
+                                                };
+                                            }
+                                            return base;
+                                        })();
                                         return `
-                                        <button type="button" data-action="routine-creator-switch-group" data-group-target="${group}" data-active="${isActiveGroup}" class="group relative flex h-44 w-full flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-white/5 text-left shadow-[0_25px_60px_-40px_rgba(16,185,129,0.75)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300/60 data-[active=true]:border-emerald-300 data-[active=true]:shadow-emerald-400/40">
-                                            <div class="absolute inset-0 overflow-hidden">
-                                                <div class="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105" style="${backgroundStyle}"></div>
-                                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                                        <article role="button" tabindex="0" data-action="routine-creator-switch-group" data-group-target="${group}" data-active="${isActiveGroup}" class="group relative isolate flex h-full cursor-pointer flex-col overflow-hidden rounded-3xl border border-white/10 bg-gray-950/75 text-left shadow-[0_25px_80px_-50px_rgba(20,184,166,0.55)] transition-all duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 hover:-translate-y-1 hover:border-emerald-300/60 hover:shadow-[0_35px_120px_-60px_rgba(20,184,166,0.7)] data-[active=true]:border-emerald-300 data-[active=true]:shadow-[0_45px_140px_-60px_rgba(16,185,129,0.85)]">
+                                            <div class="pointer-events-none absolute inset-0 overflow-hidden">
+                                                <div class="absolute -inset-px rounded-[28px] bg-gradient-to-br ${accentConfig.gradientBorder} opacity-0 transition duration-500 group-hover:opacity-100 data-[active=true]:opacity-100"></div>
+                                                <div class="absolute inset-x-10 -top-16 h-28 ${accentConfig.glowOne} blur-3xl transition duration-500 group-hover:scale-110 data-[active=true]:scale-110"></div>
+                                                <div class="absolute inset-x-12 bottom-0 h-32 ${accentConfig.glowTwo} blur-[120px] transition duration-500 group-hover:opacity-90"></div>
                                             </div>
-                                            ${editButton}
-                                            <div class="relative z-10 flex w-full flex-col gap-2 p-5">
-                                                <span class="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/90 backdrop-blur">Grupo muscular</span>
-                                                <p class="text-2xl font-semibold leading-tight text-white drop-shadow-xl">${group}</p>
+                                            <div class="relative z-10 flex h-full flex-col">
+                                                <div class="relative aspect-[4/3] w-full overflow-hidden">
+                                                    ${imageContent}
+                                                    <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent"></div>
+                                                    <div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+                                                    <div class="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/60 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/80">
+                                                        <i data-lucide="aperture" class="h-3.5 w-3.5"></i>
+                                                        Zona clave
+                                                    </div>
+                                                    ${editButton}
+                                                </div>
+                                                <div class="flex flex-1 flex-col justify-between px-5 pb-5 pt-6">
+                                                    <div class="space-y-4">
+                                                        <div class="flex items-center gap-3">
+                                                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-lg ${accentConfig.highlight}">
+                                                                <i data-lucide="${accentConfig.icon}" class="h-6 w-6"></i>
+                                                            </span>
+                                                            <div class="space-y-1">
+                                                                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Grupo muscular</p>
+                                                                <h3 class="text-2xl font-bold leading-tight text-white">${group}</h3>
+                                                            </div>
+                                                        </div>
+                                                        <p class="text-sm leading-relaxed text-gray-300">${accentConfig.tagline}</p>
+                                                    </div>
+                                                    <div class="mt-6 flex items-center justify-between gap-3">
+                                                        <span class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] ${accentConfig.badgeClass}">
+                                                            <i data-lucide="sparkles" class="h-4 w-4"></i>
+                                                            ${accentConfig.badgeLabel}
+                                                        </span>
+                                                        <span class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${accentConfig.ctaGradient} px-4 py-2 text-xs font-semibold ${accentConfig.ctaTextClass} shadow-[0_18px_45px_-25px_rgba(20,184,166,0.9)] transition group-hover:translate-x-1 group-data-[active=true]:translate-x-1">
+                                                            Explorar
+                                                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </button>
+                                        </article>
                                     `;
                                 }).join('')}
                             </div>
