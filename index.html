@@ -22,7 +22,19 @@
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body.mobile-menu-open { overflow: hidden; }
-        ::-webkit-scrollbar { width: 6px; } 
+        #profile-avatar.has-photo,
+        #user-avatar.has-photo {
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-color: transparent !important;
+            color: transparent;
+        }
+        #profile-avatar.has-photo span,
+        #user-avatar.has-photo span {
+            display: none;
+        }
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; } 
         ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; } 
         ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
@@ -1279,12 +1291,22 @@
                     </div>
                     <div class="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
                         <div class="flex flex-col sm:flex-row sm:items-center gap-6">
-                            <div class="relative">
-                                <div id="profile-avatar" class="flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-400 text-4xl font-black text-gray-900 shadow-[0_20px_45px_-25px_rgba(16,185,129,0.9)]">
-                                    <span></span>
+                            <div class="flex flex-col items-center gap-3 sm:items-start">
+                                <div class="relative">
+                                    <div id="profile-avatar" class="flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-400 text-4xl font-black text-gray-900 shadow-[0_20px_45px_-25px_rgba(16,185,129,0.9)]">
+                                        <span></span>
+                                    </div>
+                                    <div class="absolute -bottom-2 -right-2 rounded-full bg-gray-900/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
+                                        Activo
+                                    </div>
                                 </div>
-                                <div class="absolute -bottom-2 -right-2 rounded-full bg-gray-900/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
-                                    Activo
+                                <div class="flex w-full flex-col items-center gap-1 sm:items-start">
+                                    <button data-action="trigger-profile-photo-upload" class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400/60 hover:text-emerald-200">
+                                        <i data-lucide="upload-cloud" class="h-4 w-4"></i>
+                                        Cambiar foto
+                                    </button>
+                                    <p class="text-[11px] text-gray-400">PNG o JPG hasta 2MB</p>
+                                    <input id="profile-photo-input" type="file" accept="image/*" class="hidden">
                                 </div>
                             </div>
                             <div class="space-y-3">
@@ -1551,6 +1573,7 @@
                         activeWorkout: null,
                         timer: { status: 'idle', timeLeft: 0, intervalId: null, initialRestTime: 0 },
                         dashboardCover: { image: '', storagePath: '', updatedAt: null },
+                        profilePhoto: { url: '', storagePath: '', updatedAt: null },
                         isMobileMenuOpen: false,
                         community: {
                             stats: { totalAthletes: 0, totalVolume: 0, totalSessions: 0 },
@@ -1813,8 +1836,8 @@
                     foodLibrary: [], // Se llenará con la base de datos + alimentos personalizados
                 },
                 
-                init() { 
-                    if(typeof lucide === 'undefined'){ setTimeout(() => this.init(), 50); return; } 
+                init() {
+                    if(typeof lucide === 'undefined'){ setTimeout(() => this.init(), 50); return; }
                     this.state = this.getDefaultState();
                     this.auth = getAuth(this.firebaseApp);
                     this.db = getFirestore(this.firebaseApp);
@@ -1874,15 +1897,17 @@
                 },
 
                 async saveDataToFirestore() {
-                    if (!this.state.currentUser) return;
+                    if (!this.state.currentUser) return false;
                     const dataToSave = { ...this.state };
-                    ['currentUser', 'activeWorkout', 'timer', 'currentSection', 'asesorados', 'isMobileMenuOpen', 'community', 'isCommunityLoading'].forEach(key => delete dataToSave[key]);
+                    ['currentUser', 'activeWorkout', 'timer', 'currentSection', 'asesorados', 'isMobileMenuOpen', 'community', 'isCommunityLoading', 'theme'].forEach(key => delete dataToSave[key]);
                     const userRef = doc(this.db, "users", this.state.currentUser.uid);
                     try {
                         await setDoc(userRef, dataToSave, { merge: true });
+                        return true;
                     } catch (error) {
                         console.error("Error saving data to Firestore: ", error);
                         this.showToast("Error al guardar datos.", "error");
+                        return false;
                     }
                 },
                 
@@ -1894,6 +1919,7 @@
                         if (docSnap.exists()) {
                             const data = docSnap.data();
                             this.state = { ...defaultState, currentUser: this.state.currentUser, ...data };
+                            delete this.state.theme;
                             this.state.physicalStats = { ...defaultState.physicalStats, ...data.physicalStats };
                             this.state.userGoals = { ...defaultState.userGoals, ...data.userGoals };
                             if (data.dashboardCover) {
@@ -1904,6 +1930,15 @@
                                 }
                             } else {
                                 this.state.dashboardCover = { ...defaultState.dashboardCover };
+                            }
+                            if (data.profilePhoto) {
+                                if (typeof data.profilePhoto === 'string') {
+                                    this.state.profilePhoto = { ...defaultState.profilePhoto, url: data.profilePhoto };
+                                } else {
+                                    this.state.profilePhoto = { ...defaultState.profilePhoto, ...data.profilePhoto };
+                                }
+                            } else {
+                                this.state.profilePhoto = { ...defaultState.profilePhoto };
                             }
                             // Compatibilidad hacia atrás para la estructura de dieta
                             if (data.dailyDiet && !Array.isArray(data.dailyDiet)) {
@@ -2606,7 +2641,78 @@
                     });
                 },
                 setButtonLoading(button, isLoading) { if (isLoading) { button.disabled = true; button.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`; lucide.createIcons(); } else { button.disabled = false; button.innerHTML = `<span>${button.closest('form').id === 'login-form' ? 'Iniciar Sesión' : 'Crear Cuenta'}</span>`; } },
-                updateUserInfoUI() { const name = this.state.userName || 'Usuario'; document.getElementById('welcome-message').textContent = `Hola, ${name.split(' ')[0]}`; const avatar = document.getElementById('user-avatar').querySelector('span'); avatar.textContent = name.charAt(0).toUpperCase(); },
+                updateUserInfoUI() {
+                    const name = this.state.userName || 'Usuario';
+                    const welcome = document.getElementById('welcome-message');
+                    if (welcome) {
+                        welcome.textContent = `Hola, ${name.split(' ')[0]}`;
+                    }
+                    const avatarContainer = document.getElementById('user-avatar');
+                    if (avatarContainer) {
+                        this.applyProfilePhotoToAvatar(avatarContainer);
+                        if (!this.state.profilePhoto?.url) {
+                            const span = avatarContainer.querySelector('span');
+                            if (span) {
+                                span.textContent = name.charAt(0).toUpperCase();
+                            }
+                        }
+                    }
+                },
+                applyProfilePhotoToAvatar(element) {
+                    if (!element) return;
+                    const photoUrl = this.state?.profilePhoto?.url || '';
+                    const span = element.querySelector('span');
+                    if (photoUrl) {
+                        element.classList.add('has-photo');
+                        element.style.backgroundImage = `url('${photoUrl}')`;
+                        if (span) {
+                            span.textContent = '';
+                        }
+                    } else {
+                        element.classList.remove('has-photo');
+                        element.style.backgroundImage = '';
+                        if (span) {
+                            const initial = (this.state?.userName || 'U').charAt(0).toUpperCase();
+                            span.textContent = initial;
+                        }
+                    }
+                },
+                triggerProfilePhotoUpload() {
+                    const input = document.getElementById('profile-photo-input');
+                    if (input) {
+                        input.click();
+                    }
+                },
+                async handleProfilePhotoSelected(file) {
+                    if (!file) return;
+                    const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                    if (!validTypes.includes(file.type)) {
+                        this.showToast('Selecciona una imagen JPG o PNG.', 'error');
+                        return;
+                    }
+                    const maxSize = 2 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        this.showToast('La imagen debe pesar menos de 2MB.', 'error');
+                        return;
+                    }
+                    try {
+                        const previousPath = this.state.profilePhoto?.storagePath || '';
+                        const uploadResult = await this.uploadImageToStorage(file, { pathPrefix: 'profile_photos', previousPath });
+                        if (!uploadResult.url) {
+                            this.showToast('No se pudo subir la foto de perfil.', 'error');
+                            return;
+                        }
+                        this.state.profilePhoto = { url: uploadResult.url, storagePath: uploadResult.storagePath, updatedAt: new Date().toISOString() };
+                        await this.saveDataToFirestore();
+                        this.renderProfileSection();
+                        this.updateUserInfoUI();
+                        lucide.createIcons();
+                        this.showToast('Foto de perfil actualizada.', 'success');
+                    } catch (error) {
+                        console.error('Error uploading profile photo:', error);
+                        this.showToast('No se pudo subir la foto de perfil.', 'error');
+                    }
+                },
                 getFirebaseAuthErrorMessage(error) { switch (error.code) { case 'auth/invalid-email': return 'Email no válido.'; case 'auth/user-not-found': return 'Usuario no encontrado.'; case 'auth/wrong-password': return 'Contraseña incorrecta.'; case 'auth/email-already-in-use': return 'Este email ya está registrado.'; case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.'; case 'auth/invalid-credential': return 'Credenciales inválidas.'; default: return error.message || 'Ha ocurrido un error. Inténtalo de nuevo.'; } },
                 loadTemplates() { const wrapper = document.getElementById('sections-wrapper'); if(wrapper.children.length > 0) return; const templates = document.querySelectorAll('template'); templates.forEach(template => { const content = template.content.cloneNode(true); wrapper.appendChild(content); }); },
                 
@@ -2627,6 +2733,10 @@
                         }
                         
                         const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate, leaderboard, storagePath } = button.dataset;
+                        if (action === 'trigger-profile-photo-upload') {
+                            this.triggerProfilePhotoUpload();
+                            return;
+                        }
                         const actionMap = {
                             'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
@@ -2670,6 +2780,12 @@
                     document.body.addEventListener('submit', (e) => { e.preventDefault(); if (e.target.id === 'nutrition-form') { this.calculateNutrition(); } if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); } if (e.target.id === '1rm-form') { this.calculate1RM(); } if (e.target.id === 'invite-form') { this.handleInviteClient(e); } if (e.target.id === 'diet-create-food-form') { this._handleInlineFoodCreate(); } });
                     document.body.addEventListener('input', (e) => { if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); } if (e.target.id === 'exercise-search-input') { this.routine_filterExerciseLibrary(e.target.value); } if (e.target.id === 'client-food-search') { this.renderFoodList(e.target.value, 'client-food-list'); } if (e.target.closest('#client-diet-editor')) { const mealIndex = e.target.dataset.mealIndex; if (mealIndex) { this._updateMealDataFromUI(parseInt(mealIndex)); } } });
                     document.body.addEventListener('change', (e) => {
+                        if (e.target.id === 'profile-photo-input') {
+                            const file = e.target.files && e.target.files[0];
+                            this.handleProfilePhotoSelected(file);
+                            e.target.value = '';
+                            return;
+                        }
                         if (e.target.id === 'dashboard-cover-input') {
                             this.handleCoverFileChange(e.target);
                             return;
@@ -2810,7 +2926,21 @@
                     }
                 },
 
-                renderAll() { this.renderRoutinesSection(); this.renderDietPage(); this.renderWeeklyProgress(); this.renderWorkoutHistorySection(); this.renderProfileSection(); this.renderNutricionSection(); this.renderCommunitySection(); if (this.isAsesor()){ this.renderAsesoradosSection();} this.updateCoverPreview(); this.updateDashboard(); lucide.createIcons(); },
+                renderAll() {
+                    this.renderRoutinesSection();
+                    this.renderDietPage();
+                    this.renderWeeklyProgress();
+                    this.renderWorkoutHistorySection();
+                    this.renderProfileSection();
+                    this.renderNutricionSection();
+                    this.renderCommunitySection();
+                    if (this.isAsesor()) {
+                        this.renderAsesoradosSection();
+                    }
+                    this.updateCoverPreview();
+                    this.updateDashboard();
+                    lucide.createIcons();
+                },
                 showSection(id, animate=true){
                     this.state.currentSection=id;
                     document.querySelectorAll('.section-content').forEach(s=>s.classList.add('hidden'));
@@ -4672,8 +4802,7 @@
                     const { userName, currentUser, physicalStats, targetWeight } = this.state;
                     const avatar = document.getElementById('profile-avatar');
                     if (avatar) {
-                        const span = avatar.querySelector('span');
-                        if (span) span.textContent = (userName || 'U').charAt(0).toUpperCase();
+                        this.applyProfilePhotoToAvatar(avatar);
                     }
                     const nameEl = document.getElementById('profile-name');
                     if (nameEl) nameEl.textContent = userName || 'Usuario';
