@@ -136,58 +136,120 @@
         </div>
     </div>
 
-    <div id="auth-container" class="hidden min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-gray-900 to-gray-800">
-        <div class="w-full max-w-md mx-auto">
-            <div class="flex items-center justify-center space-x-3 mb-8">
-                <i data-lucide="dumbbell" class="text-emerald-400 w-10 h-10"></i>
-                <h1 class="text-4xl font-bold tracking-tight">FitTrack</h1>
+    <div id="auth-container" class="hidden min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+        <div class="w-full max-w-5xl mx-auto">
+            <div class="flex flex-col items-center gap-3 mb-10 text-center">
+                <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-emerald-200">
+                    <i data-lucide="dumbbell" class="h-4 w-4"></i>
+                    FitTrack
+                </span>
+                <h1 class="text-3xl sm:text-4xl font-black text-white">Tu espacio fitness, listo para despegar</h1>
+                <p class="text-sm text-gray-400 max-w-2xl">Conecta entrenamientos, nutrición y progreso en un mismo panel envolvente diseñado para mantenerte inspirado.</p>
             </div>
-            
-            <div id="auth-card" class="bg-gray-800/50 backdrop-blur-lg border border-gray-700 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-                <div id="login-form-container" class="auth-form-container form-visible">
-                    <h2 class="text-2xl font-bold text-center mb-1">Bienvenido de Nuevo</h2>
-                    <p class="text-center text-gray-400 mb-6">Inicia sesión para continuar tu progreso.</p>
-                    <form id="login-form" class="space-y-4">
-                        <div>
-                            <label for="login-email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                            <input type="email" id="login-email" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
-                        </div>
-                        <div>
-                            <label for="login-password" class="block text-sm font-medium text-gray-300 mb-1">Contraseña</label>
-                            <input type="password" id="login-password" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
-                        </div>
-                        <button type="submit" class="w-full bg-emerald-500 text-gray-900 font-bold py-3 rounded-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 flex items-center justify-center">
-                            <span>Iniciar Sesión</span>
-                        </button>
-                    </form>
-                    <p class="text-center text-sm text-gray-400 mt-6">
-                        ¿No tienes una cuenta? <button data-action="toggle-auth" class="font-semibold text-emerald-400 hover:underline">Regístrate aquí</button>
-                    </p>
+
+            <div id="auth-card" class="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-gray-900/70 backdrop-blur-xl shadow-[0_45px_120px_-45px_rgba(16,185,129,0.75)]">
+                <div class="pointer-events-none absolute inset-0">
+                    <div class="absolute -top-32 -left-36 h-72 w-72 rounded-full bg-emerald-500/20 blur-3xl"></div>
+                    <div class="absolute -bottom-40 right-0 h-80 w-80 rounded-full bg-cyan-500/10 blur-3xl"></div>
                 </div>
 
-                <div id="register-form-container" class="auth-form-container form-hidden">
-                    <h2 class="text-2xl font-bold text-center mb-1">Crea tu Cuenta</h2>
-                    <p class="text-center text-gray-400 mb-6">Empieza tu viaje fitness hoy mismo.</p>
-                    <form id="register-form" class="space-y-4">
-                        <div>
-                            <label for="register-name" class="block text-sm font-medium text-gray-300 mb-1">Nombre</label>
-                            <input type="text" id="register-name" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                <div class="relative grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] items-stretch">
+                    <div class="hidden lg:flex flex-col justify-between rounded-[2rem] border border-white/5 bg-gradient-to-br from-white/10 via-white/5 to-transparent p-10 text-left">
+                        <div class="space-y-6">
+                            <p class="text-xs font-semibold uppercase tracking-[0.45em] text-emerald-200/80">Experiencia inmersiva</p>
+                            <h2 class="text-4xl font-semibold leading-tight text-white">Diseñado como tu asistente fitness personal</h2>
+                            <p class="text-sm text-gray-300">Descubre paneles dinámicos, seguimiento inteligente de peso y recomendaciones sincronizadas con tus metas nutricionales.</p>
                         </div>
-                        <div>
-                            <label for="register-email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                            <input type="email" id="register-email" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400/20 text-emerald-200">
+                                    <i data-lucide="sparkles" class="h-5 w-5"></i>
+                                </span>
+                                <div>
+                                    <p class="text-sm font-semibold text-white">Todo en un mismo flujo</p>
+                                    <p class="text-xs text-gray-400">Sincroniza tu progreso físico con tu plan de alimentación.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/20 text-cyan-200">
+                                    <i data-lucide="fingerprint" class="h-5 w-5"></i>
+                                </span>
+                                <div>
+                                    <p class="text-sm font-semibold text-white">Acceso seguro y rápido</p>
+                                    <p class="text-xs text-gray-400">Inicia sesión en segundos y continúa justo donde lo dejaste.</p>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label for="register-password" class="block text-sm font-medium text-gray-300 mb-1">Contraseña</label>
-                            <input type="password" id="register-password" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                    </div>
+
+                    <div class="relative p-6 sm:p-10">
+                        <div class="mb-6 rounded-full border border-white/10 bg-white/5 p-1 text-xs font-semibold text-gray-400">
+                            <div class="grid grid-cols-2">
+                                <button data-action="toggle-auth" data-auth-target="login" class="inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-white bg-emerald-500/20 shadow-[0_12px_25px_-20px_rgba(16,185,129,0.65)] transition">
+                                    <i data-lucide="log-in" class="h-4 w-4"></i>
+                                    Iniciar sesión
+                                </button>
+                                <button data-action="toggle-auth" data-auth-target="register" class="inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-gray-300 transition hover:text-white">
+                                    <i data-lucide="user-plus" class="h-4 w-4"></i>
+                                    Crear cuenta
+                                </button>
+                            </div>
                         </div>
-                        <button type="submit" class="w-full bg-emerald-500 text-gray-900 font-bold py-3 rounded-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 flex items-center justify-center">
-                            <span>Crear Cuenta</span>
-                        </button>
-                    </form>
-                    <p class="text-center text-sm text-gray-400 mt-6">
-                        ¿Ya tienes una cuenta? <button data-action="toggle-auth" class="font-semibold text-emerald-400 hover:underline">Inicia sesión</button>
-                    </p>
+
+                        <div class="relative">
+                            <div id="login-form-container" class="auth-form-container form-visible space-y-6">
+                                <div class="space-y-2 text-center">
+                                    <h2 class="text-3xl font-bold text-white">Reanuda tu progreso</h2>
+                                    <p class="text-sm text-gray-400">Accede a tu panel personalizado y retoma la motivación.</p>
+                                </div>
+                                <form id="login-form" class="space-y-5">
+                                    <div>
+                                        <label for="login-email" class="block text-sm font-semibold text-gray-300 uppercase tracking-[0.35em]">Email</label>
+                                        <input type="email" id="login-email" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                    </div>
+                                    <div>
+                                        <label for="login-password" class="block text-sm font-semibold text-gray-300 uppercase tracking-[0.35em]">Contraseña</label>
+                                        <input type="password" id="login-password" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                    </div>
+                                    <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-400 py-3.5 text-sm font-semibold uppercase tracking-[0.3em] text-gray-900 shadow-[0_15px_45px_-20px_rgba(16,185,129,0.95)] transition hover:from-emerald-300 hover:via-emerald-400 hover:to-teal-300">
+                                        Iniciar sesión
+                                    </button>
+                                </form>
+                                <p class="text-center text-sm text-gray-400">
+                                    ¿No tienes una cuenta? <button data-action="toggle-auth" class="font-semibold text-emerald-400 hover:underline">Regístrate aquí</button>
+                                </p>
+                            </div>
+
+                            <div id="register-form-container" class="auth-form-container form-hidden space-y-6">
+                                <div class="space-y-2 text-center">
+                                    <h2 class="text-3xl font-bold text-white">Crea tu cuaderno digital</h2>
+                                    <p class="text-sm text-gray-400">Configura objetivos claros y deja que FitTrack guíe cada paso.</p>
+                                </div>
+                                <form id="register-form" class="space-y-5">
+                                    <div class="grid gap-4 sm:grid-cols-2">
+                                        <div class="sm:col-span-2">
+                                            <label for="register-name" class="block text-sm font-semibold text-gray-300 uppercase tracking-[0.35em]">Nombre</label>
+                                            <input type="text" id="register-name" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                        </div>
+                                        <div>
+                                            <label for="register-email" class="block text-sm font-semibold text-gray-300 uppercase tracking-[0.35em]">Email</label>
+                                            <input type="email" id="register-email" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                        </div>
+                                        <div>
+                                            <label for="register-password" class="block text-sm font-semibold text-gray-300 uppercase tracking-[0.35em]">Contraseña</label>
+                                            <input type="password" id="register-password" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-cyan-400 via-sky-400 to-emerald-400 py-3.5 text-sm font-semibold uppercase tracking-[0.3em] text-gray-900 shadow-[0_15px_45px_-20px_rgba(56,189,248,0.8)] transition hover:from-cyan-300 hover:via-sky-300 hover:to-emerald-300">
+                                        Crear cuenta
+                                    </button>
+                                </form>
+                                <p class="text-center text-sm text-gray-400">
+                                    ¿Ya tienes una cuenta? <button data-action="toggle-auth" class="font-semibold text-emerald-400 hover:underline">Inicia sesión</button>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -897,96 +959,143 @@
                 </div>
 
                 <div class="grid gap-6 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)] items-start">
-                    <article class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900/95 via-gray-900/60 to-gray-900/90 p-6 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.85)]">
-                        <div class="pointer-events-none absolute -top-24 right-0 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl"></div>
-                        <div class="relative space-y-6">
-                            <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-                                <div class="space-y-3">
-                                    <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
-                                        <i data-lucide="activity" class="h-4 w-4"></i>
-                                        Seguimiento diario
-                                    </span>
+                    <div class="space-y-5">
+                        <article class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900/95 via-gray-900/60 to-gray-900/90 p-6 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.85)]">
+                            <div class="pointer-events-none absolute -top-24 right-0 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl"></div>
+                            <div class="relative space-y-8">
+                                <header class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                                    <div class="space-y-3">
+                                        <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
+                                            <i data-lucide="activity" class="h-4 w-4"></i>
+                                            Plan de dieta hoy
+                                        </span>
+                                        <div class="space-y-2">
+                                            <h2 class="text-3xl font-semibold text-white">Control diario de energía</h2>
+                                            <p class="text-sm text-emerald-100/80">Objetivo actual: <span id="diet-goal-calories" class="font-semibold text-emerald-300">2500</span> kcal sincronizadas con tu plan.</p>
+                                        </div>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-right shadow-inner">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Consumido hoy</p>
+                                        <p class="text-4xl font-bold text-white">
+                                            <span id="diet-total-calories">0</span>
+                                            <span class="text-base font-semibold text-gray-400">kcal</span>
+                                        </p>
+                                        <p id="diet-today-status" class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Sin datos</p>
+                                    </div>
+                                </header>
+                                <div class="space-y-6">
                                     <div>
-                                        <h2 class="text-3xl font-semibold text-white">Plan de Dieta de Hoy</h2>
-                                        <p class="text-sm text-gray-400">Objetivo calórico: <span id="diet-goal-calories" class="font-semibold text-emerald-300">2500</span> kcal</p>
-                                    </div>
-                                </div>
-                                <div class="rounded-2xl border border-white/10 bg-white/5 px-6 py-4 text-right shadow-inner">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Consumido hoy</p>
-                                    <p class="text-4xl font-bold text-white">
-                                        <span id="diet-total-calories">0</span>
-                                        <span class="text-base font-semibold text-gray-400">kcal</span>
-                                    </p>
-                                    <p class="text-xs text-gray-500">Actualizado con tus comidas registradas.</p>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.25em] text-gray-400">
-                                    <span>Progreso diario</span>
-                                    <span><span id="diet-total-calories-progress">0</span>%</span>
-                                </div>
-                                <div class="mt-3 h-3 w-full overflow-hidden rounded-full bg-gray-800">
-                                    <div id="diet-progress-bar" class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400" style="width: 0%;"></div>
-                                </div>
-                            </div>
-                            <div class="grid gap-4 sm:grid-cols-3">
-                                <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-gray-900/60 p-4 shadow-inner">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-2 text-sm font-semibold text-blue-200">
-                                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-blue-500/20 text-blue-100">
-                                                <i data-lucide="shield-half" class="h-4 w-4"></i>
-                                            </span>
-                                            Proteína
+                                        <div class="flex flex-col gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-100/70 sm:flex-row sm:items-center sm:justify-between">
+                                            <span>Progreso calórico</span>
+                                            <span id="diet-today-progress-label">0% del objetivo</span>
                                         </div>
-                                        <span class="text-xs uppercase tracking-[0.3em] text-blue-200/60">Macro</span>
-                                    </div>
-                                    <p class="mt-4 text-3xl font-bold text-white">
-                                        <span id="diet-total-protein">0</span><span class="text-base font-semibold text-gray-400"> g</span>
-                                    </p>
-                                    <p class="text-xs text-gray-500">Objetivo <span id="diet-goal-protein">188</span> g</p>
-                                    <div class="mt-4 h-2.5 rounded-full bg-blue-500/20">
-                                        <div id="diet-protein-bar" class="h-full rounded-full bg-gradient-to-r from-blue-400 via-sky-400 to-emerald-300" style="width: 0%;"></div>
-                                    </div>
-                                </div>
-                                <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-yellow-500/10 via-amber-500/5 to-gray-900/60 p-4 shadow-inner">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-2 text-sm font-semibold text-yellow-200">
-                                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-yellow-500/20 text-yellow-100">
-                                                <i data-lucide="wheat" class="h-4 w-4"></i>
-                                            </span>
-                                            Carbohidratos
+                                        <div class="mt-3 h-3 w-full overflow-hidden rounded-full bg-gray-800/80">
+                                            <div id="diet-progress-bar" class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400" style="width: 0%;"></div>
                                         </div>
-                                        <span class="text-xs uppercase tracking-[0.3em] text-yellow-200/60">Macro</span>
+                                        <p id="diet-today-delta" class="mt-2 text-sm text-emerald-100/70">Planifica tu primera comida para comenzar.</p>
                                     </div>
-                                    <p class="mt-4 text-3xl font-bold text-white">
-                                        <span id="diet-total-carbs">0</span><span class="text-base font-semibold text-gray-400"> g</span>
-                                    </p>
-                                    <p class="text-xs text-gray-500">Objetivo <span id="diet-goal-carbs">250</span> g</p>
-                                    <div class="mt-4 h-2.5 rounded-full bg-yellow-500/20">
-                                        <div id="diet-carbs-bar" class="h-full rounded-full bg-gradient-to-r from-yellow-300 via-amber-300 to-orange-300" style="width: 0%;"></div>
-                                    </div>
-                                </div>
-                                <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-rose-500/10 via-pink-500/5 to-gray-900/60 p-4 shadow-inner">
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-2 text-sm font-semibold text-rose-200">
-                                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-rose-500/20 text-rose-100">
-                                                <i data-lucide="droplets" class="h-4 w-4"></i>
-                                            </span>
-                                            Grasas saludables
+                                    <div class="grid gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+                                        <div class="space-y-3 rounded-2xl border border-white/10 bg-gray-900/70 p-4">
+                                            <div class="flex flex-col gap-2 text-xs text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+                                                <span id="diet-plan-coverage">Añade comidas para proyectar tu día.</span>
+                                                <span id="diet-plan-diff" class="font-semibold text-emerald-200/80"></span>
+                                            </div>
+                                            <div id="diet-today-macro-badges" class="grid gap-3 sm:grid-cols-3"></div>
                                         </div>
-                                        <span class="text-xs uppercase tracking-[0.3em] text-rose-200/60">Macro</span>
-                                    </div>
-                                    <p class="mt-4 text-3xl font-bold text-white">
-                                        <span id="diet-total-fats">0</span><span class="text-base font-semibold text-gray-400"> g</span>
-                                    </p>
-                                    <p class="text-xs text-gray-500">Objetivo <span id="diet-goal-fats">83</span> g</p>
-                                    <div class="mt-4 h-2.5 rounded-full bg-rose-500/20">
-                                        <div id="diet-fats-bar" class="h-full rounded-full bg-gradient-to-r from-rose-300 via-pink-300 to-purple-300" style="width: 0%;"></div>
+                                        <div class="space-y-3 rounded-2xl border border-white/10 bg-gray-900/70 p-4">
+                                            <div>
+                                                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Check-ins</p>
+                                                <p id="diet-today-meal-progress" class="text-lg font-semibold text-white">0 de 0 comidas registradas</p>
+                                                <p id="diet-today-checkins" class="text-xs text-gray-500">0% completado</p>
+                                            </div>
+                                            <div class="rounded-xl border border-white/10 bg-gray-800/70 px-4 py-3">
+                                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Próximo hito</p>
+                                                <p id="diet-today-next-meal" class="text-sm text-emerald-200/80">Añade comidas para activar recordatorios.</p>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                        </article>
+                        <div class="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+                            <article class="relative overflow-hidden rounded-3xl border border-white/10 bg-gray-900/80 p-6 shadow-[0_35px_90px_-55px_rgba(16,185,129,0.65)]">
+                                <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.18),transparent_65%)]"></div>
+                                <div class="relative space-y-5">
+                                    <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                        <div class="space-y-2">
+                                            <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200">Objetivo activo</span>
+                                            <h3 id="diet-goal-label" class="text-xl font-semibold text-white">Define un objetivo</h3>
+                                            <p id="diet-goal-direction" class="text-sm text-emerald-100/70">Conecta tu meta de peso para personalizar el plan.</p>
+                                        </div>
+                                        <div class="space-y-1 text-right">
+                                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Peso actual</p>
+                                            <p class="text-3xl font-bold text-white"><span id="diet-current-weight">--</span><span class="ml-1 text-base font-semibold text-gray-400">kg</span></p>
+                                            <p id="diet-last-weigh-in" class="text-[11px] text-gray-500">Registra tu peso para comenzar.</p>
+                                        </div>
+                                    </header>
+                                    <div class="space-y-2 rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">Objetivo</p>
+                                                <p class="text-lg font-semibold text-emerald-200"><span id="diet-target-weight">--</span> kg</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">Diferencia</p>
+                                                <p id="diet-weight-diff" class="text-lg font-semibold text-white">-- kg</p>
+                                            </div>
+                                        </div>
+                                        <p id="diet-goal-diff" class="text-xs text-emerald-100/70">Conecta tus registros para ver el avance.</p>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                                            <span>Progreso hacia la meta</span>
+                                            <span id="diet-weight-progress-label">0%</span>
+                                        </div>
+                                        <div class="h-2.5 w-full overflow-hidden rounded-full bg-gray-800/80">
+                                            <div id="diet-weight-progress" class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-sky-400 to-cyan-300" style="width: 0%;"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-start justify-between rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                        <div>
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">Ritmo actual</p>
+                                            <p id="diet-goal-trend" class="text-sm font-semibold text-emerald-200">Sin datos</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">Inicio</p>
+                                            <p id="diet-goal-start" class="text-sm text-gray-400">-- kg</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                            <article class="rounded-3xl border border-white/10 bg-gray-900/80 p-6 shadow-[0_35px_90px_-55px_rgba(59,130,246,0.55)]">
+                                <div class="space-y-4">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <span class="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-cyan-100">Proyección</span>
+                                            <h3 class="mt-2 text-xl font-semibold text-white">Ruta estimada</h3>
+                                        </div>
+                                        <span id="diet-projection-badge" class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-300">Sin datos</span>
+                                    </div>
+                                    <p id="diet-projection-summary" class="text-sm text-gray-300">Añade registros de peso para proyectar tu fecha objetivo.</p>
+                                    <div class="space-y-3 rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                        <div class="flex items-center justify-between text-xs text-gray-400">
+                                            <span>Fecha estimada</span>
+                                            <span id="diet-projection-date" class="text-sm font-semibold text-white">--</span>
+                                        </div>
+                                        <div class="flex items-center justify-between text-xs text-gray-400">
+                                            <span>Semanas restantes</span>
+                                            <span id="diet-projection-weeks" class="text-sm font-semibold text-white">--</span>
+                                        </div>
+                                        <div class="flex items-center justify-between text-xs text-gray-400">
+                                            <span>Faltante para la meta</span>
+                                            <span id="diet-projection-helper" class="text-sm font-semibold text-white">--</span>
+                                        </div>
+                                    </div>
+                                    <p id="diet-projection-pace" class="text-xs text-gray-500">Actualiza tus pesajes para refinar el pronóstico.</p>
+                                </div>
+                            </article>
                         </div>
-                    </article>
+                    </div>
                     <aside id="diet-management-tools" class="space-y-5 rounded-3xl border border-white/10 bg-gray-900/70 p-6 shadow-[0_35px_90px_-55px_rgba(59,130,246,0.55)]">
                         <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
                             <h3 class="text-sm font-semibold text-white">Control rápido</h3>
@@ -1009,7 +1118,7 @@
                             </div>
                             <textarea id="food-analysis-input" placeholder="Ej: bowl de avena con plátano y nueces" class="mt-4 h-28 w-full rounded-xl border border-white/10 bg-gray-900/80 p-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-500/40"></textarea>
                             <button data-action="analyze-food" class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 via-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:from-sky-400 hover:via-cyan-400 hover:to-teal-400">
-                                <i data-lucide="sparkle" class="h-4 w-4"></i>
+                                <i data-lucide="sparkles" class="h-4 w-4"></i>
                                 Analizar y añadir
                             </button>
                         </div>
@@ -1162,72 +1271,193 @@
     
     <template id="template-perfil">
         <section id="perfil" class="section-content hidden">
-            <div class="space-y-6 pb-8">
-                <div class="flex items-center space-x-4">
-                    <div id="profile-avatar" class="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-gray-900 text-3xl flex-shrink-0">
-                        <span></span>
+            <div class="space-y-10 pb-12">
+                <div class="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-gradient-to-br from-gray-900/90 via-gray-900/70 to-gray-900/50 p-8 sm:p-10 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.85)]">
+                    <div class="pointer-events-none absolute inset-0">
+                        <div class="absolute -top-28 -left-20 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl"></div>
+                        <div class="absolute -bottom-32 right-0 h-72 w-72 rounded-full bg-teal-500/15 blur-3xl"></div>
                     </div>
-                    <div>
-                        <h2 id="profile-name" class="text-2xl font-bold"></h2>
-                        <p id="profile-email" class="text-sm text-gray-400"></p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-3 text-center">
-                    <div class="bg-gray-700/80 p-3 rounded-xl">
-                        <p id="profile-stat-workouts" class="text-xl font-bold">0</p>
-                        <p class="text-xs text-gray-400">Entrenos</p>
-                    </div>
-                    <div class="bg-gray-700/80 p-3 rounded-xl">
-                        <p id="profile-stat-hours" class="text-xl font-bold">0</p>
-                        <p class="text-xs text-gray-400">Horas</p>
-                    </div>
-                    <div class="bg-gray-700/80 p-3 rounded-xl">
-                        <p id="profile-stat-streak" class="text-xl font-bold">0</p>
-                        <p class="text-xs text-gray-400">Racha 🔥</p>
-                    </div>
-                </div>
-
-                <div class="bg-gray-700/80 p-4 rounded-2xl">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-semibold text-lg">Información Personal</h3>
-                        <button data-action="edit-profile" class="flex items-center gap-1.5 text-sm text-emerald-400 font-semibold hover:text-emerald-300">
-                            <i data-lucide="edit-3" class="w-4 h-4"></i>
-                            <span>Editar</span>
-                        </button>
-                    </div>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between"><span class="text-gray-400">Edad</span><span id="profile-info-age" class="font-medium"></span></div>
-                        <div class="flex justify-between"><span class="text-gray-400">Peso</span><span id="profile-info-weight" class="font-medium"></span></div>
-                        <div class="flex justify-between"><span class="text-gray-400">Altura</span><span id="profile-info-height" class="font-medium"></span></div>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-700/80 p-4 rounded-2xl">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-semibold text-lg">Seguimiento de Peso</h3>
-                        <button data-action="edit-target-weight" class="flex items-center gap-1.5 text-sm text-emerald-400 font-semibold hover:text-emerald-300"><i data-lucide="edit-3" class="w-4 h-4"></i><span>Editar Objetivo</span></button>
-                    </div>
-                    <div class="grid grid-cols-3 gap-3 text-center">
-                        <div><p class="text-xl font-bold"><span id="current-weight-display"></span> <span class="text-sm font-normal text-gray-400">kg</span></p><p class="text-xs text-gray-400">Actual</p></div>
-                        <div><p class="text-xl font-bold text-emerald-400"><span id="target-weight-display"></span> <span class="text-sm font-normal text-gray-400">kg</span></p><p class="text-xs text-gray-400">Objetivo</p></div>
-                        <div><p class="text-xl font-bold"><span id="weight-diff-display"></span> <span class="text-sm font-normal text-gray-400">kg</span></p><p class="text-xs text-gray-400">Diferencia</p></div>
-                    </div>
-                     <form id="weight-log-form" class="flex gap-3 mt-4">
-                         <input type="number" step="0.1" id="new-weight-input" placeholder="Añadir peso de hoy (kg)" class="w-full bg-gray-700 rounded-lg p-2 text-center" required>
-                         <button type="submit" data-action="add-weight-log" class="bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition">Añadir</button>
-                     </form>
-                </div>
-
-                <div class="bg-gray-700/80 p-4 rounded-2xl">
-                    <h3 class="font-semibold text-lg mb-4">Actividad Reciente (Últimas 4 Semanas)</h3>
-                    <div id="profile-activity-chart" class="h-32 flex items-end justify-around gap-2 text-center">
+                    <div class="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-6">
+                            <div class="relative">
+                                <div id="profile-avatar" class="flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-400 text-4xl font-black text-gray-900 shadow-[0_20px_45px_-25px_rgba(16,185,129,0.9)]">
+                                    <span></span>
+                                </div>
+                                <div class="absolute -bottom-2 -right-2 rounded-full bg-gray-900/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
+                                    Activo
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
+                                    <i data-lucide="sparkles" class="h-4 w-4"></i>
+                                    Perfil sincronizado
+                                </div>
+                                <div>
+                                    <h2 id="profile-name" class="text-3xl font-bold text-white"></h2>
+                                    <p id="profile-email" class="text-sm text-gray-400"></p>
+                                </div>
+                                <p id="profile-last-update" class="text-xs text-gray-400"></p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full sm:w-auto">
+                            <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center">
+                                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Entrenos</p>
+                                <p id="profile-stat-workouts" class="mt-1 text-3xl font-bold text-white">0</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center">
+                                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Horas</p>
+                                <p id="profile-stat-hours" class="mt-1 text-3xl font-bold text-white">0</p>
+                            </div>
+                            <div class="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-center">
+                                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">Racha</p>
+                                <p id="profile-stat-streak" class="mt-1 text-3xl font-bold text-white">0</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="space-y-3">
-                    <h3 class="font-semibold text-lg">Historial de Entrenamientos</h3>
-                    <div id="profile-workout-history" class="space-y-2">
+                <div class="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] items-start">
+                    <div class="space-y-6">
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_30px_80px_-50px_rgba(148,163,184,0.45)]">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Datos principales</p>
+                                    <h3 class="mt-1 text-xl font-semibold text-white">Información personal</h3>
+                                </div>
+                                <button data-action="edit-profile" class="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100">
+                                    <i data-lucide="edit-3" class="h-4 w-4"></i>
+                                    Editar
+                                </button>
+                            </div>
+                            <div class="mt-6 grid gap-4 sm:grid-cols-2">
+                                <div class="rounded-2xl border border-white/5 bg-gray-900/60 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">Edad</p>
+                                    <p id="profile-info-age" class="mt-2 text-2xl font-semibold text-white"></p>
+                                </div>
+                                <div class="rounded-2xl border border-white/5 bg-gray-900/60 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">Altura</p>
+                                    <p id="profile-info-height" class="mt-2 text-2xl font-semibold text-white"></p>
+                                </div>
+                                <div class="rounded-2xl border border-white/5 bg-gray-900/60 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">Peso actual</p>
+                                    <p id="profile-info-weight" class="mt-2 text-2xl font-semibold text-white"></p>
+                                </div>
+                                <div class="rounded-2xl border border-white/5 bg-gray-900/60 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">Actividad</p>
+                                    <p id="profile-info-activity" class="mt-2 text-base font-semibold text-emerald-200"></p>
+                                </div>
+                                <div class="rounded-2xl border border-white/5 bg-gray-900/60 p-4 sm:col-span-2">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">Género</p>
+                                    <p id="profile-info-gender" class="mt-2 text-base font-semibold text-gray-200"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative overflow-hidden rounded-3xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-sky-500/10 p-6 shadow-[0_40px_95px_-55px_rgba(16,185,129,0.95)]">
+                            <div class="pointer-events-none absolute inset-0">
+                                <div class="absolute -top-16 right-10 h-40 w-40 rounded-full bg-white/10 blur-3xl"></div>
+                            </div>
+                            <div class="relative space-y-6">
+                                <div class="flex flex-wrap items-center justify-between gap-3">
+                                    <div>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-100/80">Seguimiento de peso</p>
+                                        <h3 class="text-2xl font-semibold text-white">Trayectoria hacia tu objetivo</h3>
+                                    </div>
+                                    <button data-action="edit-target-weight" class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/50 bg-emerald-200/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-emerald-100 transition hover:border-emerald-100 hover:text-white">
+                                        <i data-lucide="target" class="h-4 w-4"></i>
+                                        Ajustar objetivo
+                                    </button>
+                                </div>
+                                <div class="grid gap-4 sm:grid-cols-3">
+                                    <div class="rounded-2xl border border-white/20 bg-white/10 p-4 text-center">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-emerald-100/80">Actual</p>
+                                        <p class="mt-2 text-3xl font-bold text-white"><span id="current-weight-display"></span><span class="ml-1 text-sm font-semibold text-emerald-100/80">kg</span></p>
+                                    </div>
+                                    <div class="rounded-2xl border border-emerald-200/70 bg-emerald-200/10 p-4 text-center">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-emerald-100/80">Objetivo</p>
+                                        <p class="mt-2 text-3xl font-bold text-white"><span id="target-weight-display"></span><span class="ml-1 text-sm font-semibold text-emerald-100/80">kg</span></p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/20 bg-white/10 p-4 text-center">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-emerald-100/80">Diferencia</p>
+                                        <p class="mt-2 text-3xl font-bold text-white"><span id="weight-diff-display"></span><span class="ml-1 text-sm font-semibold text-emerald-100/80">kg</span></p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.3em] text-emerald-100/70">
+                                        <span>Progreso hacia la meta</span>
+                                        <span id="weight-progress-label">0%</span>
+                                    </div>
+                                    <div class="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-white/10">
+                                        <div id="weight-progress-bar" class="h-full rounded-full bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                                <div class="rounded-2xl border border-white/20 bg-white/5 p-4">
+                                    <p id="weight-trend-label" class="text-sm text-emerald-100/90"></p>
+                                </div>
+                                <div class="space-y-3">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-100/70">Registro reciente</p>
+                                    <div id="weight-log-list" class="space-y-2"></div>
+                                </div>
+                                <form id="weight-log-form" class="relative flex flex-col gap-3 rounded-2xl border border-white/10 bg-gray-900/70 p-4 backdrop-blur">
+                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                        <label for="new-weight-input" class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Añadir nuevo peso</label>
+                                        <span id="weight-last-entry" class="text-xs text-gray-500 sm:ml-auto"></span>
+                                    </div>
+                                    <div class="flex flex-col gap-3 sm:flex-row">
+                                        <input type="number" step="0.1" id="new-weight-input" placeholder="Peso de hoy (kg)" class="w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-center text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40" required>
+                                        <button type="submit" data-action="add-weight-log" class="w-full sm:w-auto rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-400 px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-gray-900 shadow-[0_18px_45px_-20px_rgba(16,185,129,0.95)] transition hover:from-emerald-300 hover:via-emerald-400 hover:to-teal-300">Registrar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Actividad semanal</p>
+                                    <h3 class="mt-1 text-xl font-semibold text-white">Últimas 4 semanas</h3>
+                                </div>
+                                <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-300">
+                                    <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
+                                    Ritmo
+                                </span>
+                            </div>
+                            <div id="profile-activity-chart" class="mt-6 h-36 flex items-end justify-around gap-2 text-center"></div>
+                        </div>
+
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Instantánea corporal</p>
+                                    <h3 class="mt-1 text-xl font-semibold text-white">Resumen en base a tus datos</h3>
+                                </div>
+                                <button data-action="calculate-body-metrics" class="inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.28em] text-sky-200 transition hover:border-sky-300 hover:text-sky-100">
+                                    <i data-lucide="scan-line" class="h-4 w-4"></i>
+                                    Actualizar
+                                </button>
+                            </div>
+                            <div class="mt-6 space-y-4">
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">IMC estimado</p>
+                                    <div class="mt-2 flex items-center gap-3">
+                                        <p id="profile-bmi-value" class="text-3xl font-bold text-white">--</p>
+                                        <p id="profile-bmi-label" class="text-sm font-semibold text-emerald-200"></p>
+                                    </div>
+                                </div>
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Hidratación diaria</p>
+                                        <p id="profile-hydration" class="mt-2 text-xl font-semibold text-white">--</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Peso saludable</p>
+                                        <p id="profile-ideal-weight" class="mt-2 text-xl font-semibold text-white">--</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2119,7 +2349,10 @@
                     document.getElementById('register-form').addEventListener('submit', (e) => this.handleRegister(e));
                     document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
                     document.querySelectorAll('[data-action="toggle-auth"]').forEach(btn => {
-                        btn.addEventListener('click', () => this.toggleAuthForms());
+                        btn.addEventListener('click', (event) => {
+                            const target = event.currentTarget.dataset.authTarget || null;
+                            this.toggleAuthForms(target);
+                        });
                     });
                 },
 
@@ -2210,6 +2443,15 @@
                     document.getElementById('app-container').classList.add('hidden');
                     document.getElementById('auth-container').classList.remove('hidden');
                     document.getElementById('sections-wrapper').innerHTML = '';
+                    const loginContainer = document.getElementById('login-form-container');
+                    const registerContainer = document.getElementById('register-form-container');
+                    if (loginContainer && registerContainer) {
+                        loginContainer.classList.add('form-visible');
+                        loginContainer.classList.remove('form-hidden');
+                        registerContainer.classList.add('form-hidden');
+                        registerContainer.classList.remove('form-visible');
+                    }
+                    this.updateAuthTabState('login');
                 },
                 showLaunchScreen() {
                     const launch = document.getElementById('launch-screen');
@@ -2231,7 +2473,46 @@
                         launch.classList.add('hidden');
                     }
                 },
-                toggleAuthForms() { const loginContainer = document.getElementById('login-form-container'); const registerContainer = document.getElementById('register-form-container'); loginContainer.classList.toggle('form-visible'); loginContainer.classList.toggle('form-hidden'); registerContainer.classList.toggle('form-visible'); registerContainer.classList.toggle('form-hidden'); },
+                toggleAuthForms(target) {
+                    const loginContainer = document.getElementById('login-form-container');
+                    const registerContainer = document.getElementById('register-form-container');
+
+                    if (!loginContainer || !registerContainer) return;
+
+                    const isLoginVisible = loginContainer.classList.contains('form-visible');
+                    let showLogin;
+
+                    if (target === 'login') {
+                        showLogin = true;
+                    } else if (target === 'register') {
+                        showLogin = false;
+                    } else {
+                        showLogin = !isLoginVisible;
+                    }
+
+                    if (showLogin) {
+                        loginContainer.classList.add('form-visible');
+                        loginContainer.classList.remove('form-hidden');
+                        registerContainer.classList.add('form-hidden');
+                        registerContainer.classList.remove('form-visible');
+                    } else {
+                        loginContainer.classList.add('form-hidden');
+                        loginContainer.classList.remove('form-visible');
+                        registerContainer.classList.add('form-visible');
+                        registerContainer.classList.remove('form-hidden');
+                    }
+
+                    this.updateAuthTabState(showLogin ? 'login' : 'register');
+                },
+                updateAuthTabState(activeTarget) {
+                    document.querySelectorAll('[data-auth-target]').forEach(tab => {
+                        const isActive = tab.dataset.authTarget === activeTarget;
+                        tab.classList.toggle('bg-emerald-500/20', isActive);
+                        tab.classList.toggle('text-white', isActive);
+                        tab.classList.toggle('shadow-[0_12px_25px_-20px_rgba(16,185,129,0.65)]', isActive);
+                        tab.classList.toggle('text-gray-300', !isActive);
+                    });
+                },
                 setButtonLoading(button, isLoading) { if (isLoading) { button.disabled = true; button.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`; lucide.createIcons(); } else { button.disabled = false; button.innerHTML = `<span>${button.closest('form').id === 'login-form' ? 'Iniciar Sesión' : 'Crear Cuenta'}</span>`; } },
                 updateUserInfoUI() { const name = this.state.userName || 'Usuario'; document.getElementById('welcome-message').textContent = `Hola, ${name.split(' ')[0]}`; const avatar = document.getElementById('user-avatar').querySelector('span'); avatar.textContent = name.charAt(0).toUpperCase(); },
                 getFirebaseAuthErrorMessage(error) { switch (error.code) { case 'auth/invalid-email': return 'Email no válido.'; case 'auth/user-not-found': return 'Usuario no encontrado.'; case 'auth/wrong-password': return 'Contraseña incorrecta.'; case 'auth/email-already-in-use': return 'Este email ya está registrado.'; case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.'; case 'auth/invalid-credential': return 'Credenciales inválidas.'; default: return error.message || 'Ha ocurrido un error. Inténtalo de nuevo.'; } },
@@ -3395,62 +3676,300 @@
                 // --- FIN DE NUEVAS FUNCIONES ---
                 
                 updateDietSummary() {
-                    let consumedTotals = { cals: 0, p: 0, c: 0, f: 0 };
-                    
+                    const setText = (id, value) => {
+                        const el = document.getElementById(id);
+                        if (el !== null) {
+                            el.textContent = value;
+                        }
+                    };
+                    const toNumber = (value) => {
+                        const parsed = Number(value);
+                        return Number.isFinite(parsed) ? parsed : 0;
+                    };
+
+                    const goals = this.state.userGoals || { calories: 0, protein: 0, carbs: 0, fats: 0 };
+
+                    const weightMetrics = this._getWeightProgressMetrics();
+                    this._applyWeightMetrics(weightMetrics);
+
+                    const consumedTotals = { cals: 0, p: 0, c: 0, f: 0 };
+                    const plannedTotals = { cals: 0, p: 0, c: 0, f: 0 };
+                    const mealStats = { totalMeals: 0, completedMeals: 0, plannedItems: 0, completedItems: 0 };
+                    let nextMealLabel = '';
+
                     const today = new Date().toISOString().split('T')[0];
                     const todayLog = this.state.dietLog ? (this.state.dietLog[today] || {}) : {};
-                    
-                    if (this.state.dailyDiet && Array.isArray(this.state.dailyDiet)) {
-                        this.state.dailyDiet.forEach((meal, mealIndex) => {
+                    const isCoach = this.isAsesor();
+
+                    if (Array.isArray(this.state.dailyDiet)) {
+                        this.state.dailyDiet.forEach((meal) => {
+                            const items = Array.isArray(meal.items) ? meal.items : [];
+                            if (items.length > 0) {
+                                mealStats.totalMeals += 1;
+                            }
                             const mealLog = todayLog[meal.id] || [];
-                            meal.items.forEach((item, itemIndex) => {
-                                if (mealLog[itemIndex] === true || this.isAsesor()) { // Asesor ve el 100% como "consumido"
-                                    if (item.totalCals) consumedTotals.cals += item.totalCals;
-                                    if (item.totalP) consumedTotals.p += item.totalP;
-                                    if (item.totalC) consumedTotals.c += item.totalC;
-                                    if (item.totalF) consumedTotals.f += item.totalF;
+                            let mealCompleted = items.length > 0;
+
+                            items.forEach((item, index) => {
+                                const totals = {
+                                    cals: toNumber(item.totalCals),
+                                    p: toNumber(item.totalP),
+                                    c: toNumber(item.totalC),
+                                    f: toNumber(item.totalF)
+                                };
+
+                                plannedTotals.cals += totals.cals;
+                                plannedTotals.p += totals.p;
+                                plannedTotals.c += totals.c;
+                                plannedTotals.f += totals.f;
+
+                                mealStats.plannedItems += 1;
+
+                                const isConsumed = isCoach || mealLog[index] === true;
+                                if (isConsumed) {
+                                    consumedTotals.cals += totals.cals;
+                                    consumedTotals.p += totals.p;
+                                    consumedTotals.c += totals.c;
+                                    consumedTotals.f += totals.f;
+                                    mealStats.completedItems += 1;
+                                } else {
+                                    mealCompleted = false;
                                 }
                             });
+
+                            if (items.length > 0) {
+                                if (mealCompleted) {
+                                    mealStats.completedMeals += 1;
+                                } else if (!nextMealLabel) {
+                                    const time = meal.time ? ` · ${meal.time}` : '';
+                                    nextMealLabel = `${meal.name}${time}`;
+                                }
+                            }
                         });
                     }
 
-                    const { calories, protein, carbs, fats } = this.state.userGoals;
-                    const p = (c, g) => Math.min(100, (g > 0 ? c / g : 0) * 100);
+                    const caloriesGoal = toNumber(goals.calories);
+                    const consumedCalories = Math.round(consumedTotals.cals);
+                    const consumedPercentRaw = caloriesGoal > 0 ? (consumedTotals.cals / caloriesGoal) * 100 : 0;
+                    const consumedPercent = Math.round(Math.max(0, Math.min(consumedPercentRaw, 150)));
+                    const planCalories = Math.round(plannedTotals.cals);
+                    const planCoveragePercent = caloriesGoal > 0 ? Math.round(Math.max(0, Math.min((plannedTotals.cals / caloriesGoal) * 100, 200))) : 0;
+                    const planDiff = planCalories - caloriesGoal;
+                    const calorieDelta = caloriesGoal - consumedTotals.cals;
 
-                    const goalProteinEl = document.getElementById('dashboard-goal-protein');
-                    if (goalProteinEl) goalProteinEl.textContent = `${protein} g`;
-                    const goalCarbsEl = document.getElementById('dashboard-goal-carbs');
-                    if (goalCarbsEl) goalCarbsEl.textContent = `${carbs} g`;
-                    const goalFatsEl = document.getElementById('dashboard-goal-fats');
-                    if (goalFatsEl) goalFatsEl.textContent = `${fats} g`;
-
-                    const consumedProteinEl = document.getElementById('dashboard-consumed-protein');
-                    if (consumedProteinEl) consumedProteinEl.textContent = Math.round(consumedTotals.p);
-                    const consumedCarbsEl = document.getElementById('dashboard-consumed-carbs');
-                    if (consumedCarbsEl) consumedCarbsEl.textContent = Math.round(consumedTotals.c);
-                    const consumedFatsEl = document.getElementById('dashboard-consumed-fats');
-                    if (consumedFatsEl) consumedFatsEl.textContent = Math.round(consumedTotals.f);
-
-                    // Actualizar página de Dieta
-                    document.getElementById('diet-total-calories').textContent = Math.round(consumedTotals.cals);
-                    document.getElementById('diet-total-protein').textContent = Math.round(consumedTotals.p);
-                    document.getElementById('diet-total-carbs').textContent = Math.round(consumedTotals.c);
-                    document.getElementById('diet-total-fats').textContent = Math.round(consumedTotals.f);
-
-                    const consumedCalsPercent = p(consumedTotals.cals, calories);
-                    document.getElementById('diet-progress-bar').style.width = `${consumedCalsPercent}%`;
-                    const dietProgressText = document.getElementById('diet-total-calories-progress');
-                    if (dietProgressText) {
-                        dietProgressText.textContent = Math.round(consumedCalsPercent);
+                    let statusLabel = 'Sin registros';
+                    let statusClass = 'text-gray-400';
+                    if (consumedPercent >= 100 && caloriesGoal > 0) {
+                        statusLabel = 'Meta cubierta';
+                        statusClass = 'text-emerald-200/90';
+                    } else if (consumedPercent >= 75) {
+                        statusLabel = 'Cierre final';
+                        statusClass = 'text-amber-200/80';
+                    } else if (consumedPercent > 0) {
+                        statusLabel = 'En curso';
+                        statusClass = 'text-emerald-200/80';
                     }
-                    document.getElementById('diet-protein-bar').style.width = `${p(consumedTotals.p, protein)}%`;
-                    document.getElementById('diet-carbs-bar').style.width = `${p(consumedTotals.c, carbs)}%`;
-                    document.getElementById('diet-fats-bar').style.width = `${p(consumedTotals.f, fats)}%`;
 
-                    // Actualizar Dashboard
-                    document.getElementById('dashboard-consumed-calories').textContent = `${Math.round(consumedTotals.cals)} Kcal`;
-                    document.getElementById('dashboard-progress-bar').style.width = `${consumedCalsPercent}%`;
-                    document.getElementById('dashboard-progress-text').textContent = Math.round(consumedCalsPercent);
+                    let deltaText = 'Planifica tu primera comida para comenzar.';
+                    let deltaClass = 'text-emerald-100/70';
+                    if (caloriesGoal <= 0) {
+                        deltaText = 'Configura tu objetivo calórico desde la pestaña de nutrición.';
+                        deltaClass = 'text-gray-400';
+                    } else if (consumedTotals.cals === 0) {
+                        deltaText = 'Registra tu primera comida para iniciar el seguimiento.';
+                    } else if (Math.abs(calorieDelta) < 25) {
+                        deltaText = 'Estás alineado con tu objetivo diario.';
+                        deltaClass = 'text-emerald-200/80';
+                    } else if (calorieDelta > 0) {
+                        deltaText = `Restan ${Math.round(calorieDelta)} kcal para cerrar el día.`;
+                        deltaClass = 'text-emerald-200/80';
+                    } else if (calorieDelta < 0) {
+                        deltaText = `Te excediste ${Math.abs(Math.round(calorieDelta))} kcal. Ajusta el resto del día.`;
+                        deltaClass = 'text-amber-200/80';
+                    }
+
+                    const planCoverageText = planCalories > 0
+                        ? `${planCalories} kcal planificadas${caloriesGoal > 0 ? ` (${planCoveragePercent}% del objetivo)` : ''}`
+                        : 'Añade comidas para proyectar tu día.';
+                    let planDiffText = '';
+                    let planDiffClass = 'text-gray-500';
+                    if (planCalories > 0 && caloriesGoal > 0) {
+                        if (Math.abs(planDiff) < 25) {
+                            planDiffText = 'Plan alineado con el objetivo.';
+                            planDiffClass = 'text-emerald-200/80';
+                        } else if (planDiff > 0) {
+                            planDiffText = `+${Math.round(planDiff)} kcal sobre el objetivo.`;
+                            planDiffClass = 'text-amber-200/80';
+                        } else {
+                            planDiffText = `${Math.round(planDiff)} kcal por debajo del objetivo.`;
+                            planDiffClass = 'text-sky-200/80';
+                        }
+                    } else if (caloriesGoal > 0) {
+                        planDiffText = 'Define el detalle de tus comidas para validar el plan.';
+                    } else {
+                        planDiffText = 'Configura tu objetivo calórico para validar el plan.';
+                    }
+
+                    const mealProgressText = mealStats.totalMeals > 0
+                        ? `${mealStats.completedMeals} de ${mealStats.totalMeals} comidas completadas`
+                        : 'Planifica tus comidas para iniciar el seguimiento.';
+                    const checkinsPercent = mealStats.plannedItems > 0
+                        ? Math.round((mealStats.completedItems / mealStats.plannedItems) * 100)
+                        : 0;
+                    const checkinsText = mealStats.plannedItems > 0
+                        ? `${checkinsPercent}% de tus platos confirmados`
+                        : 'Sin registros hoy';
+                    let checkinsClass = 'text-gray-500';
+                    if (mealStats.plannedItems > 0) {
+                        if (checkinsPercent >= 80) {
+                            checkinsClass = 'text-emerald-200/80';
+                        } else if (checkinsPercent > 0) {
+                            checkinsClass = 'text-emerald-100/70';
+                        }
+                    }
+
+                    let nextMealText;
+                    let nextMealClass = 'text-emerald-200/80';
+                    if (mealStats.totalMeals === 0) {
+                        nextMealText = 'Añade comidas para activar recordatorios.';
+                        nextMealClass = 'text-gray-400';
+                    } else if (!nextMealLabel) {
+                        nextMealText = 'Todo listo. Celebra tu disciplina.';
+                    } else {
+                        nextMealText = `Próximo: ${nextMealLabel}`;
+                    }
+
+                    const macroContainer = document.getElementById('diet-today-macro-badges');
+                    if (macroContainer && macroContainer.childElementCount === 0) {
+                        const macroTemplate = [
+                            { key: 'protein', label: 'Proteína', icon: 'shield-half', accent: 'text-blue-200', badge: 'bg-blue-500/20 text-blue-100', gradient: 'from-blue-500/10 via-blue-500/5 to-gray-900/60', meter: 'bg-blue-500/20', bar: 'from-blue-400 via-sky-400 to-emerald-300' },
+                            { key: 'carbs', label: 'Carbohidratos', icon: 'wheat', accent: 'text-yellow-200', badge: 'bg-yellow-500/20 text-yellow-100', gradient: 'from-yellow-500/10 via-amber-500/5 to-gray-900/60', meter: 'bg-yellow-500/20', bar: 'from-yellow-300 via-amber-300 to-orange-300' },
+                            { key: 'fats', label: 'Grasas saludables', icon: 'droplets', accent: 'text-rose-200', badge: 'bg-rose-500/20 text-rose-100', gradient: 'from-rose-500/10 via-pink-500/5 to-gray-900/60', meter: 'bg-rose-500/20', bar: 'from-rose-300 via-pink-300 to-purple-300' }
+                        ].map(macro => `
+                            <div class="space-y-3 rounded-2xl border border-white/10 bg-gradient-to-br ${macro.gradient} p-4 shadow-inner">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2 text-sm font-semibold ${macro.accent}">
+                                        <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl ${macro.badge}">
+                                            <i data-lucide="${macro.icon}" class="h-4 w-4"></i>
+                                        </span>
+                                        ${macro.label}
+                                    </div>
+                                    <span class="text-xs uppercase tracking-[0.3em] text-gray-300">Macro</span>
+                                </div>
+                                <p class="text-3xl font-bold text-white">
+                                    <span id="diet-total-${macro.key}">0</span><span class="text-base font-semibold text-gray-400"> g</span>
+                                </p>
+                                <p class="text-xs text-gray-400">Objetivo <span id="diet-goal-${macro.key}">0</span> g</p>
+                                <div class="h-2.5 w-full overflow-hidden rounded-full ${macro.meter}">
+                                    <div id="diet-${macro.key}-bar" class="h-full rounded-full bg-gradient-to-r ${macro.bar}" style="width: 0%;"></div>
+                                </div>
+                                <p id="diet-${macro.key}-remaining" class="text-xs text-gray-400">Añade comida para calcularlo.</p>
+                            </div>
+                        `).join('');
+                        macroContainer.innerHTML = macroTemplate;
+                    }
+
+                    setText('diet-goal-calories', Math.round(caloriesGoal));
+                    setText('diet-total-calories', consumedCalories);
+
+                    const progressLabel = document.getElementById('diet-today-progress-label');
+                    if (progressLabel) {
+                        progressLabel.textContent = caloriesGoal > 0 ? `${consumedPercent}% del objetivo` : 'Define tu objetivo calórico';
+                    }
+                    const progressValue = Math.max(0, Math.min(consumedPercent, 110));
+                    const progressBar = document.getElementById('diet-progress-bar');
+                    if (progressBar) progressBar.style.width = `${progressValue}%`;
+                    const progressTextEl = document.getElementById('diet-total-calories-progress');
+                    if (progressTextEl) progressTextEl.textContent = consumedPercent;
+
+                    const statusEl = document.getElementById('diet-today-status');
+                    if (statusEl) {
+                        statusEl.className = `text-xs font-semibold uppercase tracking-[0.3em] ${statusClass}`;
+                        statusEl.textContent = statusLabel;
+                    }
+
+                    const deltaEl = document.getElementById('diet-today-delta');
+                    if (deltaEl) {
+                        deltaEl.className = `mt-2 text-sm ${deltaClass}`;
+                        deltaEl.textContent = deltaText;
+                    }
+
+                    const planCoverageEl = document.getElementById('diet-plan-coverage');
+                    if (planCoverageEl) planCoverageEl.textContent = planCoverageText;
+                    const planDiffEl = document.getElementById('diet-plan-diff');
+                    if (planDiffEl) {
+                        planDiffEl.className = `font-semibold ${planDiffClass}`;
+                        planDiffEl.textContent = planDiffText;
+                    }
+
+                    const mealProgressEl = document.getElementById('diet-today-meal-progress');
+                    if (mealProgressEl) mealProgressEl.textContent = mealProgressText;
+                    const checkinsEl = document.getElementById('diet-today-checkins');
+                    if (checkinsEl) {
+                        checkinsEl.className = `text-xs ${checkinsClass}`;
+                        checkinsEl.textContent = checkinsText;
+                    }
+                    const nextMealEl = document.getElementById('diet-today-next-meal');
+                    if (nextMealEl) {
+                        nextMealEl.className = `text-sm ${nextMealClass}`;
+                        nextMealEl.textContent = nextMealText;
+                    }
+
+                    const macrosData = [
+                        { key: 'protein', consumed: consumedTotals.p, goal: goals.protein },
+                        { key: 'carbs', consumed: consumedTotals.c, goal: goals.carbs },
+                        { key: 'fats', consumed: consumedTotals.f, goal: goals.fats }
+                    ];
+                    macrosData.forEach(({ key, consumed, goal }) => {
+                        const consumedValue = Math.round(consumed);
+                        const goalValue = Math.round(toNumber(goal));
+                        setText(`diet-total-${key}`, consumedValue);
+                        setText(`diet-goal-${key}`, goalValue);
+
+                        const percent = goalValue > 0 ? Math.round(Math.max(0, Math.min((consumed / goalValue) * 100, 150))) : 0;
+                        const bar = document.getElementById(`diet-${key}-bar`);
+                        if (bar) bar.style.width = `${Math.max(0, Math.min(percent, 110))}%`;
+
+                        const remaining = goalValue - consumed;
+                        const roundedRemaining = Math.round(remaining);
+                        let remainingText = goalValue > 0 ? 'Meta cubierta por hoy.' : 'Define tu objetivo para calcularlo.';
+                        let remainingClass = goalValue > 0 ? 'text-emerald-200/80' : 'text-gray-400';
+                        if (goalValue > 0) {
+                            if (Math.abs(roundedRemaining) < 1) {
+                                remainingText = 'Meta cubierta por hoy.';
+                                remainingClass = 'text-emerald-200/80';
+                            } else if (roundedRemaining > 0) {
+                                remainingText = `Restan ${roundedRemaining} g`;
+                                remainingClass = 'text-emerald-200/80';
+                            } else {
+                                remainingText = `+${Math.abs(roundedRemaining)} g`;
+                                remainingClass = 'text-amber-200/80';
+                            }
+                        }
+                        const remainingEl = document.getElementById(`diet-${key}-remaining`);
+                        if (remainingEl) {
+                            remainingEl.className = `text-xs ${remainingClass}`;
+                            remainingEl.textContent = remainingText;
+                        }
+                    });
+
+                    setText('dashboard-goal-protein', `${Math.round(toNumber(goals.protein))} g`);
+                    setText('dashboard-goal-carbs', `${Math.round(toNumber(goals.carbs))} g`);
+                    setText('dashboard-goal-fats', `${Math.round(toNumber(goals.fats))} g`);
+                    setText('dashboard-consumed-protein', Math.round(consumedTotals.p));
+                    setText('dashboard-consumed-carbs', Math.round(consumedTotals.c));
+                    setText('dashboard-consumed-fats', Math.round(consumedTotals.f));
+
+                    const dashboardCalories = document.getElementById('dashboard-consumed-calories');
+                    if (dashboardCalories) dashboardCalories.textContent = `${consumedCalories} Kcal`;
+                    const dashboardProgressBar = document.getElementById('dashboard-progress-bar');
+                    if (dashboardProgressBar) dashboardProgressBar.style.width = `${progressValue}%`;
+                    const dashboardProgressText = document.getElementById('dashboard-progress-text');
+                    if (dashboardProgressText) dashboardProgressText.textContent = consumedPercent;
+
+                    if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                        lucide.createIcons();
+                    }
                 },
 
                 renderFoodList(searchTerm = '', containerId = 'food-list') {
@@ -4059,44 +4578,198 @@
                 renderProfileSection() {
                     if (!this.state.currentUser) return;
                     const { userName, currentUser, physicalStats, targetWeight } = this.state;
-                    document.getElementById('profile-avatar').querySelector('span').textContent = (userName || 'U').charAt(0).toUpperCase();
-                    document.getElementById('profile-name').textContent = userName || 'Usuario';
-                    document.getElementById('profile-email').textContent = currentUser.email;
+                    const avatar = document.getElementById('profile-avatar');
+                    if (avatar) {
+                        const span = avatar.querySelector('span');
+                        if (span) span.textContent = (userName || 'U').charAt(0).toUpperCase();
+                    }
+                    const nameEl = document.getElementById('profile-name');
+                    if (nameEl) nameEl.textContent = userName || 'Usuario';
+                    const emailEl = document.getElementById('profile-email');
+                    if (emailEl) emailEl.textContent = currentUser.email;
 
                     const historyEntries = this.getWorkoutHistoryEntries();
                     const totalWorkouts = historyEntries.length;
                     const totalDurationSeconds = historyEntries.reduce((acc, entry) => acc + (entry.totalDuration || 0), 0);
-                    const totalHours = (totalDurationSeconds / 3600).toFixed(1);
+                    const totalHours = (totalDurationSeconds / 3600);
 
-                    document.getElementById('profile-stat-workouts').textContent = totalWorkouts;
-                    document.getElementById('profile-stat-hours').textContent = totalHours;
-                    document.getElementById('profile-stat-streak').textContent = this.calculateWorkoutStreak();
+                    const workoutsEl = document.getElementById('profile-stat-workouts');
+                    if (workoutsEl) workoutsEl.textContent = totalWorkouts;
+                    const hoursEl = document.getElementById('profile-stat-hours');
+                    if (hoursEl) hoursEl.textContent = totalHours.toFixed(1);
+                    const streakEl = document.getElementById('profile-stat-streak');
+                    if (streakEl) streakEl.textContent = this.calculateWorkoutStreak();
 
-                    document.getElementById('profile-info-age').textContent = `${physicalStats.age} años`;
-                    document.getElementById('profile-info-weight').textContent = `${physicalStats.weight} kg`;
-                    document.getElementById('profile-info-height').textContent = `${physicalStats.height} cm`;
-                    document.getElementById('current-weight-display').textContent = physicalStats.weight.toFixed(1);
-                    document.getElementById('target-weight-display').textContent = targetWeight.toFixed(1);
-                    const diff = (targetWeight - physicalStats.weight).toFixed(1);
-                    document.getElementById('weight-diff-display').textContent = diff;
+                    const weightLog = Array.isArray(this.state.weightLog) ? [...this.state.weightLog] : [];
+                    weightLog.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    const lastEntry = weightLog.length ? weightLog[weightLog.length - 1] : null;
+                    const firstEntry = weightLog.length ? weightLog[0] : null;
+
+                    const formatDate = (dateStr, options = { day: 'numeric', month: 'short', year: 'numeric' }) => {
+                        if (!dateStr) return '';
+                        const dateObj = new Date(`${dateStr}T00:00:00`);
+                        return dateObj.toLocaleDateString('es-ES', options);
+                    };
+
+                    const profileUpdateEl = document.getElementById('profile-last-update');
+                    if (profileUpdateEl) {
+                        profileUpdateEl.textContent = lastEntry
+                            ? `Último registro: ${formatDate(lastEntry.date, { day: 'numeric', month: 'long', year: 'numeric' })}`
+                            : 'Aún no has registrado tu peso. ¡Empieza hoy para seguir tu evolución!';
+                    }
+                    const weightLastEntryEl = document.getElementById('weight-last-entry');
+                    if (weightLastEntryEl) {
+                        weightLastEntryEl.textContent = lastEntry
+                            ? `Último: ${formatDate(lastEntry.date)}`
+                            : 'Sin registros previos';
+                    }
+
+                    const weightValue = typeof physicalStats.weight === 'number' ? physicalStats.weight : parseFloat(physicalStats.weight) || 0;
+                    const goalWeight = typeof targetWeight === 'number' ? targetWeight : weightValue;
+                    const diffValue = goalWeight && weightValue
+                        ? (goalWeight - weightValue)
+                        : 0;
+
+                    const ageEl = document.getElementById('profile-info-age');
+                    if (ageEl) ageEl.textContent = physicalStats.age ? `${physicalStats.age} años` : '--';
+                    const heightEl = document.getElementById('profile-info-height');
+                    if (heightEl) heightEl.textContent = physicalStats.height ? `${physicalStats.height} cm` : '--';
+                    const weightInfoEl = document.getElementById('profile-info-weight');
+                    if (weightInfoEl) weightInfoEl.textContent = weightValue ? `${weightValue.toFixed(1)} kg` : '--';
+                    const activityEl = document.getElementById('profile-info-activity');
+                    if (activityEl) {
+                        const activityMap = {
+                            '1.2': 'Sedentario',
+                            '1.375': 'Ligero',
+                            '1.55': 'Moderado',
+                            '1.725': 'Activo',
+                            '1.9': 'Muy activo'
+                        };
+                        const activityKey = physicalStats.activity ? physicalStats.activity.toString() : '';
+                        const activityLabel = activityMap[activityKey] ? `${activityMap[activityKey]} · x${physicalStats.activity}` : (physicalStats.activity ? `x${physicalStats.activity}` : 'Sin definir');
+                        activityEl.textContent = activityLabel;
+                    }
+                    const genderEl = document.getElementById('profile-info-gender');
+                    if (genderEl) {
+                        const genderLabel = physicalStats.gender === 'male'
+                            ? 'Masculino'
+                            : physicalStats.gender === 'female'
+                                ? 'Femenino'
+                                : 'Sin especificar';
+                        genderEl.textContent = genderLabel;
+                    }
+
+                    const currentWeightEl = document.getElementById('current-weight-display');
+                    if (currentWeightEl) currentWeightEl.textContent = weightValue ? weightValue.toFixed(1) : '--';
+                    const targetWeightEl = document.getElementById('target-weight-display');
+                    if (targetWeightEl) targetWeightEl.textContent = goalWeight ? goalWeight.toFixed(1) : '--';
+                    const diffEl = document.getElementById('weight-diff-display');
+                    if (diffEl) diffEl.textContent = `${diffValue > 0 ? '+' : ''}${diffValue.toFixed(1)}`;
+
+                    let progressPercent = 0;
+                    if (firstEntry && goalWeight && goalWeight !== firstEntry.weight) {
+                        const goalDelta = goalWeight - firstEntry.weight;
+                        if (goalDelta !== 0) {
+                            progressPercent = ((weightValue - firstEntry.weight) / goalDelta) * 100;
+                            progressPercent = Math.min(100, Math.max(0, progressPercent));
+                        }
+                    }
+                    const progressBar = document.getElementById('weight-progress-bar');
+                    if (progressBar) progressBar.style.width = `${Math.max(0, Math.min(100, progressPercent))}%`;
+                    const progressLabel = document.getElementById('weight-progress-label');
+                    if (progressLabel) progressLabel.textContent = `${Math.round(Math.max(0, Math.min(100, progressPercent)))}%`;
+
+                    const trendEl = document.getElementById('weight-trend-label');
+                    if (trendEl) {
+                        if (firstEntry && lastEntry) {
+                            const totalChange = lastEntry.weight - firstEntry.weight;
+                            const dayDiff = Math.max(1, Math.round((new Date(`${lastEntry.date}T00:00:00`) - new Date(`${firstEntry.date}T00:00:00`)) / (1000 * 60 * 60 * 24)));
+                            if (Math.abs(totalChange) < 0.05) {
+                                trendEl.textContent = `Peso estable desde ${formatDate(firstEntry.date, { day: 'numeric', month: 'long' })}.`;
+                            } else {
+                                const direction = totalChange > 0 ? 'ganado' : 'perdido';
+                                trendEl.textContent = `Has ${direction} ${Math.abs(totalChange).toFixed(1)} kg en ${dayDiff} día(s).`;
+                            }
+                        } else {
+                            trendEl.textContent = 'Añade tu primer registro para visualizar la tendencia.';
+                        }
+                    }
+
+                    const timelineContainer = document.getElementById('weight-log-list');
+                    if (timelineContainer) {
+                        if (weightLog.length) {
+                            const recentEntries = [...weightLog].reverse().slice(0, 5);
+                            timelineContainer.innerHTML = recentEntries.map((entry, index) => {
+                                const previous = index < recentEntries.length - 1 ? recentEntries[index + 1] : null;
+                                const delta = previous ? entry.weight - previous.weight : 0;
+                                let deltaLabel = '—';
+                                let deltaClass = 'text-gray-400';
+                                if (previous) {
+                                    deltaLabel = `${delta > 0 ? '+' : ''}${delta.toFixed(1)} kg`;
+                                    if (delta > 0.05) deltaClass = 'text-amber-200';
+                                    else if (delta < -0.05) deltaClass = 'text-emerald-200';
+                                }
+                                const isLatest = index === 0;
+                                return `
+                                    <div class="flex items-center justify-between rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                        <div>
+                                            <p class="text-sm font-semibold text-white">${formatDate(entry.date)}</p>
+                                            <p class="text-xs ${isLatest ? 'text-emerald-200/90' : 'text-gray-500'}">${isLatest ? 'Registro más reciente' : 'Seguimiento registrado'}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-white">${entry.weight.toFixed(1)}<span class="ml-1 text-sm text-emerald-100/80">kg</span></p>
+                                            <p class="text-xs ${deltaClass}">${deltaLabel}</p>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('');
+                        } else {
+                            timelineContainer.innerHTML = `<div class="rounded-2xl border border-dashed border-white/15 bg-white/5 px-4 py-6 text-center text-sm text-gray-400">Sin registros todavía. ¡Agrega tu primer peso para comenzar a visualizar la evolución!</div>`;
+                        }
+                    }
 
                     const chartContainer = document.getElementById('profile-activity-chart');
-                    const weeklyData = this.getWeeklyActivityData();
-                    const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 1);
-                    chartContainer.innerHTML = weeklyData.map(week => {
-                        const barHeight = (week.count / maxWorkouts) * 100;
-                        return `<div class="flex flex-col items-center justify-end h-full w-1/4"><p class="text-sm font-bold text-white">${week.count}</p><div class="w-3/5 h-full flex items-end"><div class="w-full bg-emerald-500 rounded-t-sm chart-bar" style="height: ${barHeight}%;"></div></div><p class="text-xs text-gray-400 mt-1">${week.label}</p></div>`;
-                    }).join('');
-
-                    const historyContainer = document.getElementById('profile-workout-history');
-                    if (historyEntries.length > 0) {
-                        historyContainer.innerHTML = historyEntries.slice(0, 5).map(entry => {
-                            const formattedDate = new Date(entry.completedAt || `${entry.date}T00:00:00`).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-                            return `<div class="bg-gray-700/60 p-3 rounded-lg flex justify-between items-center"><div><p class="font-semibold text-white">${entry.routineName}</p><p class="text-xs text-gray-400 capitalize">${formattedDate}</p></div><div class="text-sm font-medium text-gray-300">${this.formatTime(entry.totalDuration)}</div></div>`;
+                    if (chartContainer) {
+                        const weeklyData = this.getWeeklyActivityData();
+                        const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 1);
+                        chartContainer.innerHTML = weeklyData.map(week => {
+                            const barHeight = (week.count / maxWorkouts) * 100;
+                            return `<div class="flex h-full w-1/4 flex-col items-center justify-end"><div class="flex h-full w-3/5 items-end"><div class="chart-bar w-full rounded-t-md bg-gradient-to-t from-emerald-500 via-teal-400 to-cyan-300" style="height: ${barHeight}%;"></div></div><p class="mt-2 text-sm font-bold text-white">${week.count}</p><p class="text-xs text-gray-400">${week.label}</p></div>`;
                         }).join('');
-                    } else {
-                        historyContainer.innerHTML = `<p class="text-center text-gray-500 text-sm p-4">No hay entrenamientos registrados.</p>`;
                     }
+
+                    const bmiValueEl = document.getElementById('profile-bmi-value');
+                    const bmiLabelEl = document.getElementById('profile-bmi-label');
+                    const hydrationEl = document.getElementById('profile-hydration');
+                    const idealWeightEl = document.getElementById('profile-ideal-weight');
+
+                    if (physicalStats.height && weightValue) {
+                        const heightInMeters = physicalStats.height / 100;
+                        const bmi = weightValue / (heightInMeters * heightInMeters);
+                        let bmiLabel = '';
+                        if (bmi < 18.5) bmiLabel = 'Bajo peso';
+                        else if (bmi < 25) bmiLabel = 'Saludable';
+                        else if (bmi < 30) bmiLabel = 'Sobrepeso';
+                        else bmiLabel = 'Obesidad';
+                        if (bmiValueEl) bmiValueEl.textContent = bmi.toFixed(1);
+                        if (bmiLabelEl) bmiLabelEl.textContent = bmiLabel;
+                        if (hydrationEl) {
+                            const waterLiters = (weightValue * 35) / 1000;
+                            hydrationEl.textContent = `${waterLiters.toFixed(1)} L`; 
+                        }
+                        if (idealWeightEl) {
+                            const idealMin = 18.5 * (heightInMeters * heightInMeters);
+                            const idealMax = 24.9 * (heightInMeters * heightInMeters);
+                            idealWeightEl.textContent = `${idealMin.toFixed(1)} - ${idealMax.toFixed(1)} kg`;
+                        }
+                    } else {
+                        if (bmiValueEl) bmiValueEl.textContent = '--';
+                        if (bmiLabelEl) bmiLabelEl.textContent = '';
+                        if (hydrationEl) hydrationEl.textContent = '--';
+                        if (idealWeightEl) idealWeightEl.textContent = '--';
+                    }
+
+                    this.updateDietWeightInfo();
                 },
                 calculateWorkoutStreak() {
                     const dates = this.state.workoutHistory
@@ -4422,10 +5095,284 @@
                 renderBmiCard(weight, height) { if(!weight || !height) { document.getElementById('bmi-value').textContent = '--'; document.getElementById('bmi-category').textContent = 'Sin calcular'; document.getElementById('bmi-category').className = 'font-semibold text-gray-400'; document.getElementById('bmi-marker').style.left = '0%'; return 0; } const heightInMeters = height / 100; const bmi = (weight / (heightInMeters * heightInMeters)); let category = '', colorClass = '', markerPosition = 0; if (bmi < 18.5) { category = 'Bajo Peso'; colorClass = 'text-sky-400'; markerPosition = (bmi / 18.5) * 25; } else if (bmi >= 18.5 && bmi < 25) { category = 'Normal'; colorClass = 'text-emerald-400'; markerPosition = 25 + ((bmi - 18.5) / (25 - 18.5)) * 30; } else if (bmi >= 25 && bmi < 30) { category = 'Sobrepeso'; colorClass = 'text-yellow-400'; markerPosition = 55 + ((bmi - 25) / (30 - 25)) * 25; } else { category = 'Obesidad'; colorClass = 'text-red-400'; markerPosition = 80 + ((bmi - 30) / (40 - 30)) * 20; } markerPosition = Math.max(2, Math.min(98, markerPosition)); document.getElementById('bmi-value').textContent = bmi.toFixed(1); const categoryEl = document.getElementById('bmi-category'); categoryEl.textContent = category; categoryEl.className = `font-semibold ${colorClass}`; document.getElementById('bmi-marker').style.left = `${markerPosition}%`; return bmi; },
                 calculate1RM() { const weight = parseFloat(document.getElementById('1rm-weight').value); const reps = parseInt(document.getElementById('1rm-reps').value); if(!weight || !reps || weight <= 0 || reps <= 0) { this.showToast("Ingresa un peso y repeticiones válidos.", "error"); return; } if (reps > 12) { this.showToast("El cálculo es menos preciso con más de 12 reps.", "error"); } const oneRepMax = weight / (1.0278 - 0.0278 * reps); document.getElementById('1rm-result-value').textContent = `${oneRepMax.toFixed(1)} kg`; const projectionsContainer = document.getElementById('1rm-projections'); const repRanges = [3, 5, 8, 10, 12, 15]; projectionsContainer.innerHTML = repRanges.map(r => { const projectedWeight = oneRepMax * (1.0278 - 0.0278 * r); return `<div class="bg-gray-800/70 p-2 rounded-lg"><p class="font-bold text-lg text-purple-200">${projectedWeight.toFixed(1)}<span class="text-xs text-gray-400"> kg</span></p><p class="text-xs text-gray-400">${r} RM</p></div>`; }).join(''); document.getElementById('1rm-results').classList.remove('hidden'); },
                 showEditTargetWeightModal() { const body = `<p class="text-gray-300 mb-4">Define el peso que quieres alcanzar.</p><input type="number" step="0.1" id="target-weight-input" value="${this.state.targetWeight}" class="w-full bg-gray-700 rounded-lg p-3 text-center text-xl">`; const footer = [ { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }, { text: 'Guardar', class: 'bg-emerald-600 text-gray-900', action: 'save-target-weight' } ]; this.showModal('Editar Peso Objetivo', body, footer); },
-                async handleUpdateTargetWeight() { const input = document.getElementById('target-weight-input'); const newTarget = parseFloat(input.value); if (isNaN(newTarget) || newTarget <= 0) { this.showToast('Por favor, introduce un peso válido.', 'error'); return; } this.state.targetWeight = newTarget; await this.saveDataToFirestore(); this.renderProfileSection(); this.hideModal(); this.showToast('Objetivo de peso actualizado.'); },
+                async handleUpdateTargetWeight() { const input = document.getElementById('target-weight-input'); const newTarget = parseFloat(input.value); if (isNaN(newTarget) || newTarget <= 0) { this.showToast('Por favor, introduce un peso válido.', 'error'); return; } this.state.targetWeight = newTarget; await this.saveDataToFirestore(); this.renderProfileSection(); this.renderDietPage(); this.hideModal(); this.showToast('Objetivo de peso actualizado.'); },
                 async handleAddWeightLog() { const input = document.getElementById('new-weight-input'); const newWeight = parseFloat(input.value); if (isNaN(newWeight) || newWeight <= 0) { this.showToast('Por favor, introduce un peso válido.', 'error'); return; } const today = new Date().toISOString().split('T')[0]; if(!this.state.weightLog) this.state.weightLog = []; const existingIndex = this.state.weightLog.findIndex(entry => entry.date === today); if (existingIndex > -1) { this.state.weightLog[existingIndex].weight = newWeight; } else { this.state.weightLog.push({ date: today, weight: newWeight }); } this.state.physicalStats.weight = newWeight; input.value = ''; await this.saveDataToFirestore(); this.renderAll(); this.showToast('Nuevo peso registrado.'); },
                 async saveNutritionGoals(){if(this._tempResults){this.state.userGoals={...this._tempResults};await this.saveDataToFirestore();this.renderAll();this.showToast("¡Meta guardada!");this.showSection('dieta');}},
-                renderDietPage(){if(!this.state.userGoals) return; const{calories,protein,carbs,fats}=this.state.userGoals;document.getElementById('diet-goal-calories').textContent=calories;document.getElementById('diet-goal-protein').textContent=protein;document.getElementById('diet-goal-carbs').textContent=carbs;document.getElementById('diet-goal-fats').textContent=fats;this.renderMealSections();this._hydrateDietFoodCreator();this.updateDietSummary();},
+                _getWeightProgressMetrics() {
+                    const parseWeight = (value) => {
+                        if (typeof value === 'number' && Number.isFinite(value)) {
+                            return value;
+                        }
+                        const parsed = parseFloat(value);
+                        return Number.isFinite(parsed) ? parsed : 0;
+                    };
+                    const formatDate = (dateStr, options = { day: 'numeric', month: 'short', year: 'numeric' }) => {
+                        if (!dateStr) return null;
+                        const date = new Date(`${dateStr}T00:00:00`);
+                        if (Number.isNaN(date.getTime())) return null;
+                        return date.toLocaleDateString('es-ES', options);
+                    };
+                    const formatDateFromObject = (date, options) => {
+                        if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+                        return date.toLocaleDateString('es-ES', options);
+                    };
+
+                    const weightValue = parseWeight(this.state?.physicalStats?.weight);
+                    const targetValue = parseWeight(this.state?.targetWeight);
+                    const goalWeight = targetValue > 0 ? targetValue : weightValue;
+
+                    const weightLog = Array.isArray(this.state.weightLog) ? [...this.state.weightLog] : [];
+                    weightLog.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+                    const firstEntry = weightLog.length ? weightLog[0] : null;
+                    const lastEntry = weightLog.length ? weightLog[weightLog.length - 1] : null;
+                    const startWeight = firstEntry ? parseWeight(firstEntry.weight) : (weightValue || goalWeight);
+                    const currentWeight = lastEntry ? parseWeight(lastEntry.weight) : (weightValue || startWeight);
+
+                    const lastWeighInLabel = lastEntry && formatDate(lastEntry.date)
+                        ? `Actualizado el ${formatDate(lastEntry.date)}`
+                        : 'Registra tu peso para comenzar.';
+
+                    const totalDiff = goalWeight - startWeight;
+                    let progressPercent = 0;
+                    if (Math.abs(totalDiff) < 0.001) {
+                        progressPercent = goalWeight > 0 && currentWeight > 0 ? 100 : 0;
+                    } else {
+                        const rawProgress = ((currentWeight - startWeight) / totalDiff) * 100;
+                        progressPercent = Math.max(0, Math.min(rawProgress, 150));
+                    }
+                    const progressPercentClamped = Math.max(0, Math.min(progressPercent, 100));
+
+                    const diffToGoal = goalWeight - currentWeight;
+                    const diffLabel = (goalWeight > 0 && Number.isFinite(diffToGoal))
+                        ? `${diffToGoal > 0 ? '+' : ''}${diffToGoal.toFixed(1)} kg`
+                        : '-- kg';
+                    let diffToneClass = 'text-gray-300';
+                    if (goalWeight > 0 && Number.isFinite(diffToGoal)) {
+                        if (Math.abs(diffToGoal) < 0.1) {
+                            diffToneClass = 'text-emerald-200';
+                        } else if (diffToGoal > 0) {
+                            diffToneClass = 'text-emerald-200';
+                        } else {
+                            diffToneClass = 'text-amber-200';
+                        }
+                    }
+
+                    const deltaNeeded = goalWeight - startWeight;
+                    let directionLabel = 'Define un objetivo';
+                    let directionDescription = 'Conecta tu meta de peso para personalizar el plan.';
+                    if (goalWeight > 0) {
+                        if (Math.abs(deltaNeeded) < 0.1) {
+                            directionLabel = 'Mantenimiento inteligente';
+                            directionDescription = 'Mantén consistencia registrando tus pesajes.';
+                        } else if (deltaNeeded > 0) {
+                            directionLabel = 'Ganancia controlada';
+                            directionDescription = `Buscas sumar ${Math.abs(deltaNeeded).toFixed(1)} kg respecto a tu inicio.`;
+                        } else if (deltaNeeded < 0) {
+                            directionLabel = 'Definición guiada';
+                            directionDescription = `Buscas recortar ${Math.abs(deltaNeeded).toFixed(1)} kg respecto a tu inicio.`;
+                        }
+                    }
+
+                    let goalDiffText = 'Registra tus pesajes para medir el avance.';
+                    let goalDiffClass = 'text-gray-400';
+                    if (goalWeight > 0 && Number.isFinite(diffToGoal)) {
+                        if (Math.abs(diffToGoal) < 0.1) {
+                            goalDiffText = 'Meta alcanzada, mantén la consistencia.';
+                            goalDiffClass = 'text-emerald-200';
+                        } else if (diffToGoal > 0) {
+                            goalDiffText = `Faltan ${diffToGoal.toFixed(1)} kg para la meta.`;
+                            goalDiffClass = 'text-emerald-200/80';
+                        } else {
+                            goalDiffText = `Has superado la meta por ${Math.abs(diffToGoal).toFixed(1)} kg.`;
+                            goalDiffClass = 'text-amber-200/80';
+                        }
+                    }
+
+                    let totalChange = 0;
+                    let totalDays = 0;
+                    const parseDate = (dateStr) => {
+                        if (!dateStr) return null;
+                        const d = new Date(`${dateStr}T00:00:00`);
+                        return Number.isNaN(d.getTime()) ? null : d;
+                    };
+                    for (let i = 1; i < weightLog.length; i++) {
+                        const prev = weightLog[i - 1];
+                        const curr = weightLog[i];
+                        const prevDate = parseDate(prev.date);
+                        const currDate = parseDate(curr.date);
+                        if (!prevDate || !currDate) continue;
+                        const diffMs = currDate - prevDate;
+                        const days = diffMs / 86400000;
+                        if (days <= 0) continue;
+                        const change = parseWeight(curr.weight) - parseWeight(prev.weight);
+                        totalChange += change;
+                        totalDays += days;
+                    }
+                    const dailyRate = totalDays > 0 ? totalChange / totalDays : 0;
+                    const weeklyRate = dailyRate * 7;
+                    let trendLabel = 'Sin tendencia aún';
+                    let trendClass = 'text-gray-400';
+                    if (Math.abs(weeklyRate) > 0.01) {
+                        trendLabel = `${weeklyRate > 0 ? '+' : ''}${weeklyRate.toFixed(1)} kg/sem`;
+                        const sameDirection = Math.abs(diffToGoal) < 0.1 || Math.sign(weeklyRate) === Math.sign(diffToGoal);
+                        trendClass = sameDirection ? 'text-emerald-200' : 'text-amber-200';
+                    }
+
+                    let projectionBadgeText = 'Sin datos';
+                    let projectionBadgeClasses = 'border-white/10 bg-white/5 text-gray-300';
+                    let projectionSummary = 'Añade registros de peso para proyectar tu fecha objetivo.';
+                    let projectionDateLabel = '--';
+                    let projectionWeeksLabel = '--';
+                    let projectionHelper = goalWeight > 0 && Number.isFinite(diffToGoal)
+                        ? `${diffToGoal > 0 ? 'Faltan' : 'Exceso'} ${Math.abs(diffToGoal).toFixed(1)} kg`
+                        : 'Define tu objetivo de peso.';
+                    let projectionPaceText = Math.abs(weeklyRate) > 0.01
+                        ? `Ritmo actual: ${weeklyRate > 0 ? '+' : ''}${weeklyRate.toFixed(1)} kg/sem`
+                        : 'Registra al menos dos pesajes recientes para estimar el ritmo.';
+
+                    if (goalWeight > 0 && Math.abs(diffToGoal) < 0.1) {
+                        projectionBadgeText = 'Completado';
+                        projectionBadgeClasses = 'border-emerald-400/40 bg-emerald-500/10 text-emerald-100';
+                        projectionSummary = 'Tu objetivo actual está completado.';
+                        projectionDateLabel = lastEntry && formatDate(lastEntry.date, { day: 'numeric', month: 'short' }) ? formatDate(lastEntry.date, { day: 'numeric', month: 'short' }) : 'Hoy';
+                        projectionWeeksLabel = '0';
+                        projectionHelper = 'Diferencia 0.0 kg';
+                        projectionPaceText = Math.abs(weeklyRate) > 0.01
+                            ? `Mantén un ritmo de ${weeklyRate > 0 ? '+' : ''}${weeklyRate.toFixed(1)} kg/sem`
+                            : 'Registra nuevos pesajes para mantener la métrica.';
+                    } else if (goalWeight > 0 && Math.abs(weeklyRate) > 0.01) {
+                        if (Math.sign(weeklyRate) !== Math.sign(diffToGoal) && Math.abs(diffToGoal) >= 0.1) {
+                            projectionBadgeText = 'Desviación';
+                            projectionBadgeClasses = 'border-amber-400/40 bg-amber-500/10 text-amber-100';
+                            projectionSummary = diffToGoal > 0
+                                ? 'Tu tendencia actual se aleja del objetivo, ajusta tu estrategia.'
+                                : 'Tu tendencia actual supera la meta, considera estabilizarte.';
+                            projectionPaceText = `Tendencia actual: ${weeklyRate > 0 ? '+' : ''}${weeklyRate.toFixed(1)} kg/sem`;
+                        } else if (diffToGoal !== 0 && dailyRate !== 0) {
+                            const estimatedDays = Math.ceil(Math.abs(diffToGoal / dailyRate));
+                            const lastDate = lastEntry && parseDate(lastEntry.date) ? parseDate(lastEntry.date) : new Date();
+                            const estimatedDate = new Date(lastDate.getTime() + estimatedDays * 86400000);
+                            projectionBadgeText = 'En curso';
+                            projectionBadgeClasses = 'border-emerald-400/40 bg-emerald-500/10 text-emerald-100';
+                            const summaryDateLabel = formatDateFromObject(estimatedDate, { day: 'numeric', month: 'long' });
+                            projectionSummary = summaryDateLabel
+                                ? `A ritmo actual alcanzarías la meta el ${summaryDateLabel}.`
+                                : 'Mantén tus registros para proyectar la fecha objetivo.';
+                            projectionDateLabel = formatDateFromObject(estimatedDate, { day: 'numeric', month: 'short' }) || '--';
+                            projectionWeeksLabel = `${(estimatedDays / 7).toFixed(1)} sem`;
+                            projectionHelper = `${diffToGoal > 0 ? 'Faltan' : 'Exceso'} ${Math.abs(diffToGoal).toFixed(1)} kg`;
+                            projectionPaceText = `Ritmo actual: ${weeklyRate > 0 ? '+' : ''}${weeklyRate.toFixed(1)} kg/sem`;
+                        }
+                    }
+
+                    const formatWeight = (value) => (Number.isFinite(value) && value > 0 ? value.toFixed(1) : '--');
+
+                    return {
+                        currentWeight,
+                        goalWeight,
+                        startWeight,
+                        currentWeightLabel: formatWeight(currentWeight),
+                        goalWeightLabel: formatWeight(goalWeight),
+                        startWeightLabel: `${formatWeight(startWeight)} kg`,
+                        diffToGoal,
+                        diffLabel,
+                        diffToneClass,
+                        goalDiffText,
+                        goalDiffClass,
+                        directionLabel,
+                        directionDescription,
+                        progressPercent: Math.round(progressPercentClamped),
+                        lastWeighInLabel,
+                        trendLabel,
+                        trendClass,
+                        projection: {
+                            badgeText: projectionBadgeText,
+                            badgeClasses: projectionBadgeClasses,
+                            summary: projectionSummary,
+                            dateLabel: projectionDateLabel,
+                            weeksLabel: projectionWeeksLabel,
+                            helperText: projectionHelper,
+                            paceText: projectionPaceText
+                        }
+                    };
+                },
+                _applyWeightMetrics(metrics) {
+                    if (!metrics) return;
+                    const setText = (id, value) => {
+                        const el = document.getElementById(id);
+                        if (el !== null) {
+                            el.textContent = value;
+                        }
+                    };
+
+                    setText('diet-current-weight', metrics.currentWeightLabel);
+                    setText('diet-target-weight', metrics.goalWeightLabel);
+                    setText('diet-last-weigh-in', metrics.lastWeighInLabel);
+                    setText('diet-goal-label', metrics.directionLabel);
+                    const directionEl = document.getElementById('diet-goal-direction');
+                    if (directionEl) directionEl.textContent = metrics.directionDescription;
+
+                    const diffEl = document.getElementById('diet-weight-diff');
+                    if (diffEl) {
+                        diffEl.className = `text-lg font-semibold ${metrics.diffToneClass}`;
+                        diffEl.textContent = metrics.diffLabel;
+                    }
+
+                    const goalDiffEl = document.getElementById('diet-goal-diff');
+                    if (goalDiffEl) {
+                        goalDiffEl.className = `text-xs ${metrics.goalDiffClass}`;
+                        goalDiffEl.textContent = metrics.goalDiffText;
+                    }
+
+                    const progressBar = document.getElementById('diet-weight-progress');
+                    if (progressBar) {
+                        const width = Math.max(0, Math.min(metrics.progressPercent, 110));
+                        progressBar.style.width = `${width}%`;
+                    }
+                    const progressLabel = document.getElementById('diet-weight-progress-label');
+                    if (progressLabel) progressLabel.textContent = `${metrics.progressPercent}%`;
+
+                    setText('diet-goal-start', metrics.startWeightLabel);
+
+                    const trendEl = document.getElementById('diet-goal-trend');
+                    if (trendEl) {
+                        trendEl.className = `text-sm font-semibold ${metrics.trendClass}`;
+                        trendEl.textContent = metrics.trendLabel;
+                    }
+
+                    const projectionBadge = document.getElementById('diet-projection-badge');
+                    if (projectionBadge) {
+                        projectionBadge.className = `inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] ${metrics.projection.badgeClasses}`;
+                        projectionBadge.textContent = metrics.projection.badgeText;
+                    }
+                    setText('diet-projection-summary', metrics.projection.summary);
+                    setText('diet-projection-date', metrics.projection.dateLabel);
+                    setText('diet-projection-weeks', metrics.projection.weeksLabel);
+                    setText('diet-projection-helper', metrics.projection.helperText);
+                    const projectionPace = document.getElementById('diet-projection-pace');
+                    if (projectionPace) projectionPace.textContent = metrics.projection.paceText;
+                },
+                updateDietWeightInfo() {
+                    const metrics = this._getWeightProgressMetrics();
+                    this._applyWeightMetrics(metrics);
+                },
+                renderDietPage(){
+                    this.updateDietWeightInfo();
+                    if(!this.state.userGoals) return;
+                    const { calories, protein, carbs, fats } = this.state.userGoals;
+                    const goalCaloriesEl = document.getElementById('diet-goal-calories');
+                    if (goalCaloriesEl) goalCaloriesEl.textContent = calories;
+                    const goalProteinEl = document.getElementById('diet-goal-protein');
+                    if (goalProteinEl) goalProteinEl.textContent = protein;
+                    const goalCarbsEl = document.getElementById('diet-goal-carbs');
+                    if (goalCarbsEl) goalCarbsEl.textContent = carbs;
+                    const goalFatsEl = document.getElementById('diet-goal-fats');
+                    if (goalFatsEl) goalFatsEl.textContent = fats;
+                    this.renderMealSections();
+                    this._hydrateDietFoodCreator();
+                    this.updateDietSummary();
+                },
                 getFoodById(foodId) { return this.data.foodLibrary.find(item => item.id == foodId) || null; },
                 
                 renderMealSections(){
