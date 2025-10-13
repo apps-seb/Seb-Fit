@@ -50,6 +50,20 @@
             background: rgba(15, 23, 42, 0.87);
         }
 
+        .workout-glass-header {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.62));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+            box-shadow: 0 22px 55px -40px rgba(16, 185, 129, 0.55);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        .workout-glass-header:hover {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.7));
+            border-bottom-color: rgba(148, 163, 184, 0.32);
+            box-shadow: 0 28px 70px -38px rgba(45, 212, 191, 0.55);
+        }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
         @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -8440,7 +8454,7 @@
 
                     overlay.innerHTML = `
                         <div class="flex min-h-full flex-col bg-gradient-to-b from-gray-950 via-gray-950 to-gray-900 text-white">
-                            <header class="sticky top-0 z-10 border-b border-white/5 bg-gray-950/95 px-4 py-4 backdrop-blur-sm sm:px-6">
+                            <header class="sticky top-0 z-10 px-4 py-4 sm:px-6 workout-glass-header">
                                 <div class="mx-auto flex w-full max-w-5xl flex-col gap-4">
                                     <div class="flex items-start justify-between gap-3">
                                         <div class="space-y-1">
