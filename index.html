@@ -6073,15 +6073,20 @@
                                             : '';
                                         const isActiveGroup = group === activeGroup;
                                         return `
-                                        <button type="button" data-action="routine-creator-switch-group" data-group-target="${group}" data-active="${isActiveGroup}" class="group relative flex h-44 w-full flex-col justify-end overflow-hidden rounded-2xl border border-white/5 bg-white/5 text-left shadow-[0_25px_60px_-40px_rgba(16,185,129,0.75)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300/60 data-[active=true]:border-emerald-300 data-[active=true]:shadow-emerald-400/40">
+                                        <button type="button" data-action="routine-creator-switch-group" data-group-target="${group}" data-active="${isActiveGroup}" class="group relative h-44 w-full overflow-hidden rounded-2xl border border-white/5 bg-white/5 text-left shadow-[0_25px_60px_-40px_rgba(16,185,129,0.75)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300/60 data-[active=true]:border-emerald-300 data-[active=true]:shadow-emerald-400/40">
                                             <div class="absolute inset-0 overflow-hidden">
                                                 <div class="absolute inset-0 bg-cover bg-center transition duration-500 group-hover:scale-105" style="${backgroundStyle}"></div>
-                                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                                                <div class="absolute inset-0 bg-gradient-to-b from-black/65 via-black/25 to-transparent"></div>
+                                                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/35 to-transparent"></div>
                                             </div>
                                             ${editButton}
-                                            <div class="relative z-10 flex w-full flex-col gap-2 p-5">
-                                                <span class="inline-flex w-fit items-center rounded-full bg-white/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/90 backdrop-blur">Grupo muscular</span>
-                                                <p class="text-2xl font-semibold leading-tight text-white drop-shadow-xl">${group}</p>
+                                            <div class="relative z-10 flex h-full w-full flex-col items-start justify-between p-4 sm:p-5">
+                                                <div class="flex flex-col gap-1 pr-10">
+                                                    <span class="inline-flex w-fit items-center rounded-full bg-black/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/90 backdrop-blur">
+                                                        Grupo muscular
+                                                    </span>
+                                                    <p class="text-xl font-semibold leading-tight text-white drop-shadow-xl sm:text-2xl">${group}</p>
+                                                </div>
                                             </div>
                                         </button>
                                     `;
