@@ -136,58 +136,120 @@
         </div>
     </div>
 
-    <div id="auth-container" class="hidden min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-gray-900 to-gray-800">
-        <div class="w-full max-w-md mx-auto">
-            <div class="flex items-center justify-center space-x-3 mb-8">
-                <i data-lucide="dumbbell" class="text-emerald-400 w-10 h-10"></i>
-                <h1 class="text-4xl font-bold tracking-tight">FitTrack</h1>
+    <div id="auth-container" class="hidden min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-800">
+        <div class="w-full max-w-5xl mx-auto">
+            <div class="flex flex-col items-center gap-3 mb-10 text-center">
+                <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-1 text-xs font-semibold uppercase tracking-[0.4em] text-emerald-200">
+                    <i data-lucide="dumbbell" class="h-4 w-4"></i>
+                    FitTrack
+                </span>
+                <h1 class="text-3xl sm:text-4xl font-black text-white">Tu espacio fitness, listo para despegar</h1>
+                <p class="text-sm text-gray-400 max-w-2xl">Conecta entrenamientos, nutrición y progreso en un mismo panel envolvente diseñado para mantenerte inspirado.</p>
             </div>
-            
-            <div id="auth-card" class="bg-gray-800/50 backdrop-blur-lg border border-gray-700 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-                <div id="login-form-container" class="auth-form-container form-visible">
-                    <h2 class="text-2xl font-bold text-center mb-1">Bienvenido de Nuevo</h2>
-                    <p class="text-center text-gray-400 mb-6">Inicia sesión para continuar tu progreso.</p>
-                    <form id="login-form" class="space-y-4">
-                        <div>
-                            <label for="login-email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                            <input type="email" id="login-email" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
-                        </div>
-                        <div>
-                            <label for="login-password" class="block text-sm font-medium text-gray-300 mb-1">Contraseña</label>
-                            <input type="password" id="login-password" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
-                        </div>
-                        <button type="submit" class="w-full bg-emerald-500 text-gray-900 font-bold py-3 rounded-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 flex items-center justify-center">
-                            <span>Iniciar Sesión</span>
-                        </button>
-                    </form>
-                    <p class="text-center text-sm text-gray-400 mt-6">
-                        ¿No tienes una cuenta? <button data-action="toggle-auth" class="font-semibold text-emerald-400 hover:underline">Regístrate aquí</button>
-                    </p>
+
+            <div id="auth-card" class="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-gray-900/70 backdrop-blur-xl shadow-[0_45px_120px_-45px_rgba(16,185,129,0.75)]">
+                <div class="pointer-events-none absolute inset-0">
+                    <div class="absolute -top-32 -left-36 h-72 w-72 rounded-full bg-emerald-500/20 blur-3xl"></div>
+                    <div class="absolute -bottom-40 right-0 h-80 w-80 rounded-full bg-cyan-500/10 blur-3xl"></div>
                 </div>
 
-                <div id="register-form-container" class="auth-form-container form-hidden">
-                    <h2 class="text-2xl font-bold text-center mb-1">Crea tu Cuenta</h2>
-                    <p class="text-center text-gray-400 mb-6">Empieza tu viaje fitness hoy mismo.</p>
-                    <form id="register-form" class="space-y-4">
-                        <div>
-                            <label for="register-name" class="block text-sm font-medium text-gray-300 mb-1">Nombre</label>
-                            <input type="text" id="register-name" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                <div class="relative grid gap-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] items-stretch">
+                    <div class="hidden lg:flex flex-col justify-between rounded-[2rem] border border-white/5 bg-gradient-to-br from-white/10 via-white/5 to-transparent p-10 text-left">
+                        <div class="space-y-6">
+                            <p class="text-xs font-semibold uppercase tracking-[0.45em] text-emerald-200/80">Experiencia inmersiva</p>
+                            <h2 class="text-4xl font-semibold leading-tight text-white">Diseñado como tu asistente fitness personal</h2>
+                            <p class="text-sm text-gray-300">Descubre paneles dinámicos, seguimiento inteligente de peso y recomendaciones sincronizadas con tus metas nutricionales.</p>
                         </div>
-                        <div>
-                            <label for="register-email" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
-                            <input type="email" id="register-email" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-400/20 text-emerald-200">
+                                    <i data-lucide="sparkles" class="h-5 w-5"></i>
+                                </span>
+                                <div>
+                                    <p class="text-sm font-semibold text-white">Todo en un mismo flujo</p>
+                                    <p class="text-xs text-gray-400">Sincroniza tu progreso físico con tu plan de alimentación.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                                <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-400/20 text-cyan-200">
+                                    <i data-lucide="fingerprint" class="h-5 w-5"></i>
+                                </span>
+                                <div>
+                                    <p class="text-sm font-semibold text-white">Acceso seguro y rápido</p>
+                                    <p class="text-xs text-gray-400">Inicia sesión en segundos y continúa justo donde lo dejaste.</p>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label for="register-password" class="block text-sm font-medium text-gray-300 mb-1">Contraseña</label>
-                            <input type="password" id="register-password" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+                    </div>
+
+                    <div class="relative p-6 sm:p-10">
+                        <div class="mb-6 rounded-full border border-white/10 bg-white/5 p-1 text-xs font-semibold text-gray-400">
+                            <div class="grid grid-cols-2">
+                                <button data-action="toggle-auth" data-auth-target="login" class="inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-white bg-emerald-500/20 shadow-[0_12px_25px_-20px_rgba(16,185,129,0.65)] transition">
+                                    <i data-lucide="log-in" class="h-4 w-4"></i>
+                                    Iniciar sesión
+                                </button>
+                                <button data-action="toggle-auth" data-auth-target="register" class="inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-gray-300 transition hover:text-white">
+                                    <i data-lucide="user-plus" class="h-4 w-4"></i>
+                                    Crear cuenta
+                                </button>
+                            </div>
                         </div>
-                        <button type="submit" class="w-full bg-emerald-500 text-gray-900 font-bold py-3 rounded-lg hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/20 flex items-center justify-center">
-                            <span>Crear Cuenta</span>
-                        </button>
-                    </form>
-                    <p class="text-center text-sm text-gray-400 mt-6">
-                        ¿Ya tienes una cuenta? <button data-action="toggle-auth" class="font-semibold text-emerald-400 hover:underline">Inicia sesión</button>
-                    </p>
+
+                        <div class="relative">
+                            <div id="login-form-container" class="auth-form-container form-visible space-y-6">
+                                <div class="space-y-2 text-center">
+                                    <h2 class="text-3xl font-bold text-white">Reanuda tu progreso</h2>
+                                    <p class="text-sm text-gray-400">Accede a tu panel personalizado y retoma la motivación.</p>
+                                </div>
+                                <form id="login-form" class="space-y-5">
+                                    <div>
+                                        <label for="login-email" class="block text-sm font-semibold text-gray-300 uppercase tracking-[0.35em]">Email</label>
+                                        <input type="email" id="login-email" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                    </div>
+                                    <div>
+                                        <label for="login-password" class="block text-sm font-semibold text-gray-300 uppercase tracking-[0.35em]">Contraseña</label>
+                                        <input type="password" id="login-password" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                    </div>
+                                    <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-400 py-3.5 text-sm font-semibold uppercase tracking-[0.3em] text-gray-900 shadow-[0_15px_45px_-20px_rgba(16,185,129,0.95)] transition hover:from-emerald-300 hover:via-emerald-400 hover:to-teal-300">
+                                        Iniciar sesión
+                                    </button>
+                                </form>
+                                <p class="text-center text-sm text-gray-400">
+                                    ¿No tienes una cuenta? <button data-action="toggle-auth" class="font-semibold text-emerald-400 hover:underline">Regístrate aquí</button>
+                                </p>
+                            </div>
+
+                            <div id="register-form-container" class="auth-form-container form-hidden space-y-6">
+                                <div class="space-y-2 text-center">
+                                    <h2 class="text-3xl font-bold text-white">Crea tu cuaderno digital</h2>
+                                    <p class="text-sm text-gray-400">Configura objetivos claros y deja que FitTrack guíe cada paso.</p>
+                                </div>
+                                <form id="register-form" class="space-y-5">
+                                    <div class="grid gap-4 sm:grid-cols-2">
+                                        <div class="sm:col-span-2">
+                                            <label for="register-name" class="block text-sm font-semibold text-gray-300 uppercase tracking-[0.35em]">Nombre</label>
+                                            <input type="text" id="register-name" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                        </div>
+                                        <div>
+                                            <label for="register-email" class="block text-sm font-semibold text-gray-300 uppercase tracking-[0.35em]">Email</label>
+                                            <input type="email" id="register-email" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                        </div>
+                                        <div>
+                                            <label for="register-password" class="block text-sm font-semibold text-gray-300 uppercase tracking-[0.35em]">Contraseña</label>
+                                            <input type="password" id="register-password" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="w-full rounded-2xl bg-gradient-to-r from-cyan-400 via-sky-400 to-emerald-400 py-3.5 text-sm font-semibold uppercase tracking-[0.3em] text-gray-900 shadow-[0_15px_45px_-20px_rgba(56,189,248,0.8)] transition hover:from-cyan-300 hover:via-sky-300 hover:to-emerald-300">
+                                        Crear cuenta
+                                    </button>
+                                </form>
+                                <p class="text-center text-sm text-gray-400">
+                                    ¿Ya tienes una cuenta? <button data-action="toggle-auth" class="font-semibold text-emerald-400 hover:underline">Inicia sesión</button>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -929,6 +991,34 @@
                                     <div id="diet-progress-bar" class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400" style="width: 0%;"></div>
                                 </div>
                             </div>
+                            <div class="grid gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+                                <div class="space-y-2">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Peso actual sincronizado</p>
+                                    <p class="text-3xl font-bold text-white"><span id="diet-current-weight">--</span><span class="ml-1 text-base font-semibold text-gray-400">kg</span></p>
+                                    <p id="diet-last-weigh-in" class="text-xs text-gray-500">Registra tu peso para comenzar.</p>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3">
+                                        <div>
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">Objetivo</p>
+                                            <p class="text-lg font-semibold text-emerald-200"><span id="diet-target-weight">--</span> kg</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">Diferencia</p>
+                                            <p id="diet-weight-diff" class="text-lg font-semibold text-white">-- kg</p>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                                            <span>Rumbo al objetivo</span>
+                                            <span id="diet-weight-progress-label">0%</span>
+                                        </div>
+                                        <div class="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-800">
+                                            <div id="diet-weight-progress" class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-sky-400 to-cyan-300" style="width: 0%;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="grid gap-4 sm:grid-cols-3">
                                 <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-gray-900/60 p-4 shadow-inner">
                                     <div class="flex items-center justify-between">
@@ -1009,7 +1099,7 @@
                             </div>
                             <textarea id="food-analysis-input" placeholder="Ej: bowl de avena con plátano y nueces" class="mt-4 h-28 w-full rounded-xl border border-white/10 bg-gray-900/80 p-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-500/40"></textarea>
                             <button data-action="analyze-food" class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 via-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:from-sky-400 hover:via-cyan-400 hover:to-teal-400">
-                                <i data-lucide="sparkle" class="h-4 w-4"></i>
+                                <i data-lucide="sparkles" class="h-4 w-4"></i>
                                 Analizar y añadir
                             </button>
                         </div>
@@ -1162,72 +1252,193 @@
     
     <template id="template-perfil">
         <section id="perfil" class="section-content hidden">
-            <div class="space-y-6 pb-8">
-                <div class="flex items-center space-x-4">
-                    <div id="profile-avatar" class="w-16 h-16 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-gray-900 text-3xl flex-shrink-0">
-                        <span></span>
+            <div class="space-y-10 pb-12">
+                <div class="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-gradient-to-br from-gray-900/90 via-gray-900/70 to-gray-900/50 p-8 sm:p-10 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.85)]">
+                    <div class="pointer-events-none absolute inset-0">
+                        <div class="absolute -top-28 -left-20 h-64 w-64 rounded-full bg-emerald-500/20 blur-3xl"></div>
+                        <div class="absolute -bottom-32 right-0 h-72 w-72 rounded-full bg-teal-500/15 blur-3xl"></div>
                     </div>
-                    <div>
-                        <h2 id="profile-name" class="text-2xl font-bold"></h2>
-                        <p id="profile-email" class="text-sm text-gray-400"></p>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-3 gap-3 text-center">
-                    <div class="bg-gray-700/80 p-3 rounded-xl">
-                        <p id="profile-stat-workouts" class="text-xl font-bold">0</p>
-                        <p class="text-xs text-gray-400">Entrenos</p>
-                    </div>
-                    <div class="bg-gray-700/80 p-3 rounded-xl">
-                        <p id="profile-stat-hours" class="text-xl font-bold">0</p>
-                        <p class="text-xs text-gray-400">Horas</p>
-                    </div>
-                    <div class="bg-gray-700/80 p-3 rounded-xl">
-                        <p id="profile-stat-streak" class="text-xl font-bold">0</p>
-                        <p class="text-xs text-gray-400">Racha 🔥</p>
-                    </div>
-                </div>
-
-                <div class="bg-gray-700/80 p-4 rounded-2xl">
-                    <div class="flex justify-between items-center mb-3">
-                        <h3 class="font-semibold text-lg">Información Personal</h3>
-                        <button data-action="edit-profile" class="flex items-center gap-1.5 text-sm text-emerald-400 font-semibold hover:text-emerald-300">
-                            <i data-lucide="edit-3" class="w-4 h-4"></i>
-                            <span>Editar</span>
-                        </button>
-                    </div>
-                    <div class="space-y-2 text-sm">
-                        <div class="flex justify-between"><span class="text-gray-400">Edad</span><span id="profile-info-age" class="font-medium"></span></div>
-                        <div class="flex justify-between"><span class="text-gray-400">Peso</span><span id="profile-info-weight" class="font-medium"></span></div>
-                        <div class="flex justify-between"><span class="text-gray-400">Altura</span><span id="profile-info-height" class="font-medium"></span></div>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-700/80 p-4 rounded-2xl">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-semibold text-lg">Seguimiento de Peso</h3>
-                        <button data-action="edit-target-weight" class="flex items-center gap-1.5 text-sm text-emerald-400 font-semibold hover:text-emerald-300"><i data-lucide="edit-3" class="w-4 h-4"></i><span>Editar Objetivo</span></button>
-                    </div>
-                    <div class="grid grid-cols-3 gap-3 text-center">
-                        <div><p class="text-xl font-bold"><span id="current-weight-display"></span> <span class="text-sm font-normal text-gray-400">kg</span></p><p class="text-xs text-gray-400">Actual</p></div>
-                        <div><p class="text-xl font-bold text-emerald-400"><span id="target-weight-display"></span> <span class="text-sm font-normal text-gray-400">kg</span></p><p class="text-xs text-gray-400">Objetivo</p></div>
-                        <div><p class="text-xl font-bold"><span id="weight-diff-display"></span> <span class="text-sm font-normal text-gray-400">kg</span></p><p class="text-xs text-gray-400">Diferencia</p></div>
-                    </div>
-                     <form id="weight-log-form" class="flex gap-3 mt-4">
-                         <input type="number" step="0.1" id="new-weight-input" placeholder="Añadir peso de hoy (kg)" class="w-full bg-gray-700 rounded-lg p-2 text-center" required>
-                         <button type="submit" data-action="add-weight-log" class="bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition">Añadir</button>
-                     </form>
-                </div>
-
-                <div class="bg-gray-700/80 p-4 rounded-2xl">
-                    <h3 class="font-semibold text-lg mb-4">Actividad Reciente (Últimas 4 Semanas)</h3>
-                    <div id="profile-activity-chart" class="h-32 flex items-end justify-around gap-2 text-center">
+                    <div class="relative flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-6">
+                            <div class="relative">
+                                <div id="profile-avatar" class="flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-400 text-4xl font-black text-gray-900 shadow-[0_20px_45px_-25px_rgba(16,185,129,0.9)]">
+                                    <span></span>
+                                </div>
+                                <div class="absolute -bottom-2 -right-2 rounded-full bg-gray-900/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
+                                    Activo
+                                </div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
+                                    <i data-lucide="sparkles" class="h-4 w-4"></i>
+                                    Perfil sincronizado
+                                </div>
+                                <div>
+                                    <h2 id="profile-name" class="text-3xl font-bold text-white"></h2>
+                                    <p id="profile-email" class="text-sm text-gray-400"></p>
+                                </div>
+                                <p id="profile-last-update" class="text-xs text-gray-400"></p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full sm:w-auto">
+                            <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center">
+                                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Entrenos</p>
+                                <p id="profile-stat-workouts" class="mt-1 text-3xl font-bold text-white">0</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center">
+                                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Horas</p>
+                                <p id="profile-stat-hours" class="mt-1 text-3xl font-bold text-white">0</p>
+                            </div>
+                            <div class="rounded-2xl border border-emerald-400/30 bg-emerald-500/10 px-4 py-3 text-center">
+                                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">Racha</p>
+                                <p id="profile-stat-streak" class="mt-1 text-3xl font-bold text-white">0</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="space-y-3">
-                    <h3 class="font-semibold text-lg">Historial de Entrenamientos</h3>
-                    <div id="profile-workout-history" class="space-y-2">
+                <div class="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] items-start">
+                    <div class="space-y-6">
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_30px_80px_-50px_rgba(148,163,184,0.45)]">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Datos principales</p>
+                                    <h3 class="mt-1 text-xl font-semibold text-white">Información personal</h3>
+                                </div>
+                                <button data-action="edit-profile" class="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100">
+                                    <i data-lucide="edit-3" class="h-4 w-4"></i>
+                                    Editar
+                                </button>
+                            </div>
+                            <div class="mt-6 grid gap-4 sm:grid-cols-2">
+                                <div class="rounded-2xl border border-white/5 bg-gray-900/60 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">Edad</p>
+                                    <p id="profile-info-age" class="mt-2 text-2xl font-semibold text-white"></p>
+                                </div>
+                                <div class="rounded-2xl border border-white/5 bg-gray-900/60 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">Altura</p>
+                                    <p id="profile-info-height" class="mt-2 text-2xl font-semibold text-white"></p>
+                                </div>
+                                <div class="rounded-2xl border border-white/5 bg-gray-900/60 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">Peso actual</p>
+                                    <p id="profile-info-weight" class="mt-2 text-2xl font-semibold text-white"></p>
+                                </div>
+                                <div class="rounded-2xl border border-white/5 bg-gray-900/60 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">Actividad</p>
+                                    <p id="profile-info-activity" class="mt-2 text-base font-semibold text-emerald-200"></p>
+                                </div>
+                                <div class="rounded-2xl border border-white/5 bg-gray-900/60 p-4 sm:col-span-2">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">Género</p>
+                                    <p id="profile-info-gender" class="mt-2 text-base font-semibold text-gray-200"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="relative overflow-hidden rounded-3xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-sky-500/10 p-6 shadow-[0_40px_95px_-55px_rgba(16,185,129,0.95)]">
+                            <div class="pointer-events-none absolute inset-0">
+                                <div class="absolute -top-16 right-10 h-40 w-40 rounded-full bg-white/10 blur-3xl"></div>
+                            </div>
+                            <div class="relative space-y-6">
+                                <div class="flex flex-wrap items-center justify-between gap-3">
+                                    <div>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-100/80">Seguimiento de peso</p>
+                                        <h3 class="text-2xl font-semibold text-white">Trayectoria hacia tu objetivo</h3>
+                                    </div>
+                                    <button data-action="edit-target-weight" class="inline-flex items-center gap-1.5 rounded-full border border-emerald-200/50 bg-emerald-200/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.28em] text-emerald-100 transition hover:border-emerald-100 hover:text-white">
+                                        <i data-lucide="target" class="h-4 w-4"></i>
+                                        Ajustar objetivo
+                                    </button>
+                                </div>
+                                <div class="grid gap-4 sm:grid-cols-3">
+                                    <div class="rounded-2xl border border-white/20 bg-white/10 p-4 text-center">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-emerald-100/80">Actual</p>
+                                        <p class="mt-2 text-3xl font-bold text-white"><span id="current-weight-display"></span><span class="ml-1 text-sm font-semibold text-emerald-100/80">kg</span></p>
+                                    </div>
+                                    <div class="rounded-2xl border border-emerald-200/70 bg-emerald-200/10 p-4 text-center">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-emerald-100/80">Objetivo</p>
+                                        <p class="mt-2 text-3xl font-bold text-white"><span id="target-weight-display"></span><span class="ml-1 text-sm font-semibold text-emerald-100/80">kg</span></p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/20 bg-white/10 p-4 text-center">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-emerald-100/80">Diferencia</p>
+                                        <p class="mt-2 text-3xl font-bold text-white"><span id="weight-diff-display"></span><span class="ml-1 text-sm font-semibold text-emerald-100/80">kg</span></p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.3em] text-emerald-100/70">
+                                        <span>Progreso hacia la meta</span>
+                                        <span id="weight-progress-label">0%</span>
+                                    </div>
+                                    <div class="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-white/10">
+                                        <div id="weight-progress-bar" class="h-full rounded-full bg-gradient-to-r from-emerald-300 via-teal-300 to-cyan-300" style="width: 0%;"></div>
+                                    </div>
+                                </div>
+                                <div class="rounded-2xl border border-white/20 bg-white/5 p-4">
+                                    <p id="weight-trend-label" class="text-sm text-emerald-100/90"></p>
+                                </div>
+                                <div class="space-y-3">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-100/70">Registro reciente</p>
+                                    <div id="weight-log-list" class="space-y-2"></div>
+                                </div>
+                                <form id="weight-log-form" class="relative flex flex-col gap-3 rounded-2xl border border-white/10 bg-gray-900/70 p-4 backdrop-blur">
+                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                        <label for="new-weight-input" class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Añadir nuevo peso</label>
+                                        <span id="weight-last-entry" class="text-xs text-gray-500 sm:ml-auto"></span>
+                                    </div>
+                                    <div class="flex flex-col gap-3 sm:flex-row">
+                                        <input type="number" step="0.1" id="new-weight-input" placeholder="Peso de hoy (kg)" class="w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-center text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40" required>
+                                        <button type="submit" data-action="add-weight-log" class="w-full sm:w-auto rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-400 px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-gray-900 shadow-[0_18px_45px_-20px_rgba(16,185,129,0.95)] transition hover:from-emerald-300 hover:via-emerald-400 hover:to-teal-300">Registrar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Actividad semanal</p>
+                                    <h3 class="mt-1 text-xl font-semibold text-white">Últimas 4 semanas</h3>
+                                </div>
+                                <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-300">
+                                    <i data-lucide="bar-chart-3" class="h-4 w-4"></i>
+                                    Ritmo
+                                </span>
+                            </div>
+                            <div id="profile-activity-chart" class="mt-6 h-36 flex items-end justify-around gap-2 text-center"></div>
+                        </div>
+
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Instantánea corporal</p>
+                                    <h3 class="mt-1 text-xl font-semibold text-white">Resumen en base a tus datos</h3>
+                                </div>
+                                <button data-action="calculate-body-metrics" class="inline-flex items-center gap-1.5 rounded-full border border-sky-400/40 bg-sky-500/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.28em] text-sky-200 transition hover:border-sky-300 hover:text-sky-100">
+                                    <i data-lucide="scan-line" class="h-4 w-4"></i>
+                                    Actualizar
+                                </button>
+                            </div>
+                            <div class="mt-6 space-y-4">
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">IMC estimado</p>
+                                    <div class="mt-2 flex items-center gap-3">
+                                        <p id="profile-bmi-value" class="text-3xl font-bold text-white">--</p>
+                                        <p id="profile-bmi-label" class="text-sm font-semibold text-emerald-200"></p>
+                                    </div>
+                                </div>
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Hidratación diaria</p>
+                                        <p id="profile-hydration" class="mt-2 text-xl font-semibold text-white">--</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Peso saludable</p>
+                                        <p id="profile-ideal-weight" class="mt-2 text-xl font-semibold text-white">--</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2119,7 +2330,10 @@
                     document.getElementById('register-form').addEventListener('submit', (e) => this.handleRegister(e));
                     document.getElementById('logout-btn').addEventListener('click', () => this.handleLogout());
                     document.querySelectorAll('[data-action="toggle-auth"]').forEach(btn => {
-                        btn.addEventListener('click', () => this.toggleAuthForms());
+                        btn.addEventListener('click', (event) => {
+                            const target = event.currentTarget.dataset.authTarget || null;
+                            this.toggleAuthForms(target);
+                        });
                     });
                 },
 
@@ -2210,6 +2424,15 @@
                     document.getElementById('app-container').classList.add('hidden');
                     document.getElementById('auth-container').classList.remove('hidden');
                     document.getElementById('sections-wrapper').innerHTML = '';
+                    const loginContainer = document.getElementById('login-form-container');
+                    const registerContainer = document.getElementById('register-form-container');
+                    if (loginContainer && registerContainer) {
+                        loginContainer.classList.add('form-visible');
+                        loginContainer.classList.remove('form-hidden');
+                        registerContainer.classList.add('form-hidden');
+                        registerContainer.classList.remove('form-visible');
+                    }
+                    this.updateAuthTabState('login');
                 },
                 showLaunchScreen() {
                     const launch = document.getElementById('launch-screen');
@@ -2231,7 +2454,46 @@
                         launch.classList.add('hidden');
                     }
                 },
-                toggleAuthForms() { const loginContainer = document.getElementById('login-form-container'); const registerContainer = document.getElementById('register-form-container'); loginContainer.classList.toggle('form-visible'); loginContainer.classList.toggle('form-hidden'); registerContainer.classList.toggle('form-visible'); registerContainer.classList.toggle('form-hidden'); },
+                toggleAuthForms(target) {
+                    const loginContainer = document.getElementById('login-form-container');
+                    const registerContainer = document.getElementById('register-form-container');
+
+                    if (!loginContainer || !registerContainer) return;
+
+                    const isLoginVisible = loginContainer.classList.contains('form-visible');
+                    let showLogin;
+
+                    if (target === 'login') {
+                        showLogin = true;
+                    } else if (target === 'register') {
+                        showLogin = false;
+                    } else {
+                        showLogin = !isLoginVisible;
+                    }
+
+                    if (showLogin) {
+                        loginContainer.classList.add('form-visible');
+                        loginContainer.classList.remove('form-hidden');
+                        registerContainer.classList.add('form-hidden');
+                        registerContainer.classList.remove('form-visible');
+                    } else {
+                        loginContainer.classList.add('form-hidden');
+                        loginContainer.classList.remove('form-visible');
+                        registerContainer.classList.add('form-visible');
+                        registerContainer.classList.remove('form-hidden');
+                    }
+
+                    this.updateAuthTabState(showLogin ? 'login' : 'register');
+                },
+                updateAuthTabState(activeTarget) {
+                    document.querySelectorAll('[data-auth-target]').forEach(tab => {
+                        const isActive = tab.dataset.authTarget === activeTarget;
+                        tab.classList.toggle('bg-emerald-500/20', isActive);
+                        tab.classList.toggle('text-white', isActive);
+                        tab.classList.toggle('shadow-[0_12px_25px_-20px_rgba(16,185,129,0.65)]', isActive);
+                        tab.classList.toggle('text-gray-300', !isActive);
+                    });
+                },
                 setButtonLoading(button, isLoading) { if (isLoading) { button.disabled = true; button.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`; lucide.createIcons(); } else { button.disabled = false; button.innerHTML = `<span>${button.closest('form').id === 'login-form' ? 'Iniciar Sesión' : 'Crear Cuenta'}</span>`; } },
                 updateUserInfoUI() { const name = this.state.userName || 'Usuario'; document.getElementById('welcome-message').textContent = `Hola, ${name.split(' ')[0]}`; const avatar = document.getElementById('user-avatar').querySelector('span'); avatar.textContent = name.charAt(0).toUpperCase(); },
                 getFirebaseAuthErrorMessage(error) { switch (error.code) { case 'auth/invalid-email': return 'Email no válido.'; case 'auth/user-not-found': return 'Usuario no encontrado.'; case 'auth/wrong-password': return 'Contraseña incorrecta.'; case 'auth/email-already-in-use': return 'Este email ya está registrado.'; case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.'; case 'auth/invalid-credential': return 'Credenciales inválidas.'; default: return error.message || 'Ha ocurrido un error. Inténtalo de nuevo.'; } },
@@ -4059,44 +4321,198 @@
                 renderProfileSection() {
                     if (!this.state.currentUser) return;
                     const { userName, currentUser, physicalStats, targetWeight } = this.state;
-                    document.getElementById('profile-avatar').querySelector('span').textContent = (userName || 'U').charAt(0).toUpperCase();
-                    document.getElementById('profile-name').textContent = userName || 'Usuario';
-                    document.getElementById('profile-email').textContent = currentUser.email;
+                    const avatar = document.getElementById('profile-avatar');
+                    if (avatar) {
+                        const span = avatar.querySelector('span');
+                        if (span) span.textContent = (userName || 'U').charAt(0).toUpperCase();
+                    }
+                    const nameEl = document.getElementById('profile-name');
+                    if (nameEl) nameEl.textContent = userName || 'Usuario';
+                    const emailEl = document.getElementById('profile-email');
+                    if (emailEl) emailEl.textContent = currentUser.email;
 
                     const historyEntries = this.getWorkoutHistoryEntries();
                     const totalWorkouts = historyEntries.length;
                     const totalDurationSeconds = historyEntries.reduce((acc, entry) => acc + (entry.totalDuration || 0), 0);
-                    const totalHours = (totalDurationSeconds / 3600).toFixed(1);
+                    const totalHours = (totalDurationSeconds / 3600);
 
-                    document.getElementById('profile-stat-workouts').textContent = totalWorkouts;
-                    document.getElementById('profile-stat-hours').textContent = totalHours;
-                    document.getElementById('profile-stat-streak').textContent = this.calculateWorkoutStreak();
+                    const workoutsEl = document.getElementById('profile-stat-workouts');
+                    if (workoutsEl) workoutsEl.textContent = totalWorkouts;
+                    const hoursEl = document.getElementById('profile-stat-hours');
+                    if (hoursEl) hoursEl.textContent = totalHours.toFixed(1);
+                    const streakEl = document.getElementById('profile-stat-streak');
+                    if (streakEl) streakEl.textContent = this.calculateWorkoutStreak();
 
-                    document.getElementById('profile-info-age').textContent = `${physicalStats.age} años`;
-                    document.getElementById('profile-info-weight').textContent = `${physicalStats.weight} kg`;
-                    document.getElementById('profile-info-height').textContent = `${physicalStats.height} cm`;
-                    document.getElementById('current-weight-display').textContent = physicalStats.weight.toFixed(1);
-                    document.getElementById('target-weight-display').textContent = targetWeight.toFixed(1);
-                    const diff = (targetWeight - physicalStats.weight).toFixed(1);
-                    document.getElementById('weight-diff-display').textContent = diff;
+                    const weightLog = Array.isArray(this.state.weightLog) ? [...this.state.weightLog] : [];
+                    weightLog.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    const lastEntry = weightLog.length ? weightLog[weightLog.length - 1] : null;
+                    const firstEntry = weightLog.length ? weightLog[0] : null;
+
+                    const formatDate = (dateStr, options = { day: 'numeric', month: 'short', year: 'numeric' }) => {
+                        if (!dateStr) return '';
+                        const dateObj = new Date(`${dateStr}T00:00:00`);
+                        return dateObj.toLocaleDateString('es-ES', options);
+                    };
+
+                    const profileUpdateEl = document.getElementById('profile-last-update');
+                    if (profileUpdateEl) {
+                        profileUpdateEl.textContent = lastEntry
+                            ? `Último registro: ${formatDate(lastEntry.date, { day: 'numeric', month: 'long', year: 'numeric' })}`
+                            : 'Aún no has registrado tu peso. ¡Empieza hoy para seguir tu evolución!';
+                    }
+                    const weightLastEntryEl = document.getElementById('weight-last-entry');
+                    if (weightLastEntryEl) {
+                        weightLastEntryEl.textContent = lastEntry
+                            ? `Último: ${formatDate(lastEntry.date)}`
+                            : 'Sin registros previos';
+                    }
+
+                    const weightValue = typeof physicalStats.weight === 'number' ? physicalStats.weight : parseFloat(physicalStats.weight) || 0;
+                    const goalWeight = typeof targetWeight === 'number' ? targetWeight : weightValue;
+                    const diffValue = goalWeight && weightValue
+                        ? (goalWeight - weightValue)
+                        : 0;
+
+                    const ageEl = document.getElementById('profile-info-age');
+                    if (ageEl) ageEl.textContent = physicalStats.age ? `${physicalStats.age} años` : '--';
+                    const heightEl = document.getElementById('profile-info-height');
+                    if (heightEl) heightEl.textContent = physicalStats.height ? `${physicalStats.height} cm` : '--';
+                    const weightInfoEl = document.getElementById('profile-info-weight');
+                    if (weightInfoEl) weightInfoEl.textContent = weightValue ? `${weightValue.toFixed(1)} kg` : '--';
+                    const activityEl = document.getElementById('profile-info-activity');
+                    if (activityEl) {
+                        const activityMap = {
+                            '1.2': 'Sedentario',
+                            '1.375': 'Ligero',
+                            '1.55': 'Moderado',
+                            '1.725': 'Activo',
+                            '1.9': 'Muy activo'
+                        };
+                        const activityKey = physicalStats.activity ? physicalStats.activity.toString() : '';
+                        const activityLabel = activityMap[activityKey] ? `${activityMap[activityKey]} · x${physicalStats.activity}` : (physicalStats.activity ? `x${physicalStats.activity}` : 'Sin definir');
+                        activityEl.textContent = activityLabel;
+                    }
+                    const genderEl = document.getElementById('profile-info-gender');
+                    if (genderEl) {
+                        const genderLabel = physicalStats.gender === 'male'
+                            ? 'Masculino'
+                            : physicalStats.gender === 'female'
+                                ? 'Femenino'
+                                : 'Sin especificar';
+                        genderEl.textContent = genderLabel;
+                    }
+
+                    const currentWeightEl = document.getElementById('current-weight-display');
+                    if (currentWeightEl) currentWeightEl.textContent = weightValue ? weightValue.toFixed(1) : '--';
+                    const targetWeightEl = document.getElementById('target-weight-display');
+                    if (targetWeightEl) targetWeightEl.textContent = goalWeight ? goalWeight.toFixed(1) : '--';
+                    const diffEl = document.getElementById('weight-diff-display');
+                    if (diffEl) diffEl.textContent = `${diffValue > 0 ? '+' : ''}${diffValue.toFixed(1)}`;
+
+                    let progressPercent = 0;
+                    if (firstEntry && goalWeight && goalWeight !== firstEntry.weight) {
+                        const goalDelta = goalWeight - firstEntry.weight;
+                        if (goalDelta !== 0) {
+                            progressPercent = ((weightValue - firstEntry.weight) / goalDelta) * 100;
+                            progressPercent = Math.min(100, Math.max(0, progressPercent));
+                        }
+                    }
+                    const progressBar = document.getElementById('weight-progress-bar');
+                    if (progressBar) progressBar.style.width = `${Math.max(0, Math.min(100, progressPercent))}%`;
+                    const progressLabel = document.getElementById('weight-progress-label');
+                    if (progressLabel) progressLabel.textContent = `${Math.round(Math.max(0, Math.min(100, progressPercent)))}%`;
+
+                    const trendEl = document.getElementById('weight-trend-label');
+                    if (trendEl) {
+                        if (firstEntry && lastEntry) {
+                            const totalChange = lastEntry.weight - firstEntry.weight;
+                            const dayDiff = Math.max(1, Math.round((new Date(`${lastEntry.date}T00:00:00`) - new Date(`${firstEntry.date}T00:00:00`)) / (1000 * 60 * 60 * 24)));
+                            if (Math.abs(totalChange) < 0.05) {
+                                trendEl.textContent = `Peso estable desde ${formatDate(firstEntry.date, { day: 'numeric', month: 'long' })}.`;
+                            } else {
+                                const direction = totalChange > 0 ? 'ganado' : 'perdido';
+                                trendEl.textContent = `Has ${direction} ${Math.abs(totalChange).toFixed(1)} kg en ${dayDiff} día(s).`;
+                            }
+                        } else {
+                            trendEl.textContent = 'Añade tu primer registro para visualizar la tendencia.';
+                        }
+                    }
+
+                    const timelineContainer = document.getElementById('weight-log-list');
+                    if (timelineContainer) {
+                        if (weightLog.length) {
+                            const recentEntries = [...weightLog].reverse().slice(0, 5);
+                            timelineContainer.innerHTML = recentEntries.map((entry, index) => {
+                                const previous = index < recentEntries.length - 1 ? recentEntries[index + 1] : null;
+                                const delta = previous ? entry.weight - previous.weight : 0;
+                                let deltaLabel = '—';
+                                let deltaClass = 'text-gray-400';
+                                if (previous) {
+                                    deltaLabel = `${delta > 0 ? '+' : ''}${delta.toFixed(1)} kg`;
+                                    if (delta > 0.05) deltaClass = 'text-amber-200';
+                                    else if (delta < -0.05) deltaClass = 'text-emerald-200';
+                                }
+                                const isLatest = index === 0;
+                                return `
+                                    <div class="flex items-center justify-between rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                        <div>
+                                            <p class="text-sm font-semibold text-white">${formatDate(entry.date)}</p>
+                                            <p class="text-xs ${isLatest ? 'text-emerald-200/90' : 'text-gray-500'}">${isLatest ? 'Registro más reciente' : 'Seguimiento registrado'}</p>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-lg font-bold text-white">${entry.weight.toFixed(1)}<span class="ml-1 text-sm text-emerald-100/80">kg</span></p>
+                                            <p class="text-xs ${deltaClass}">${deltaLabel}</p>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('');
+                        } else {
+                            timelineContainer.innerHTML = `<div class="rounded-2xl border border-dashed border-white/15 bg-white/5 px-4 py-6 text-center text-sm text-gray-400">Sin registros todavía. ¡Agrega tu primer peso para comenzar a visualizar la evolución!</div>`;
+                        }
+                    }
 
                     const chartContainer = document.getElementById('profile-activity-chart');
-                    const weeklyData = this.getWeeklyActivityData();
-                    const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 1);
-                    chartContainer.innerHTML = weeklyData.map(week => {
-                        const barHeight = (week.count / maxWorkouts) * 100;
-                        return `<div class="flex flex-col items-center justify-end h-full w-1/4"><p class="text-sm font-bold text-white">${week.count}</p><div class="w-3/5 h-full flex items-end"><div class="w-full bg-emerald-500 rounded-t-sm chart-bar" style="height: ${barHeight}%;"></div></div><p class="text-xs text-gray-400 mt-1">${week.label}</p></div>`;
-                    }).join('');
-
-                    const historyContainer = document.getElementById('profile-workout-history');
-                    if (historyEntries.length > 0) {
-                        historyContainer.innerHTML = historyEntries.slice(0, 5).map(entry => {
-                            const formattedDate = new Date(entry.completedAt || `${entry.date}T00:00:00`).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-                            return `<div class="bg-gray-700/60 p-3 rounded-lg flex justify-between items-center"><div><p class="font-semibold text-white">${entry.routineName}</p><p class="text-xs text-gray-400 capitalize">${formattedDate}</p></div><div class="text-sm font-medium text-gray-300">${this.formatTime(entry.totalDuration)}</div></div>`;
+                    if (chartContainer) {
+                        const weeklyData = this.getWeeklyActivityData();
+                        const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 1);
+                        chartContainer.innerHTML = weeklyData.map(week => {
+                            const barHeight = (week.count / maxWorkouts) * 100;
+                            return `<div class="flex h-full w-1/4 flex-col items-center justify-end"><div class="flex h-full w-3/5 items-end"><div class="chart-bar w-full rounded-t-md bg-gradient-to-t from-emerald-500 via-teal-400 to-cyan-300" style="height: ${barHeight}%;"></div></div><p class="mt-2 text-sm font-bold text-white">${week.count}</p><p class="text-xs text-gray-400">${week.label}</p></div>`;
                         }).join('');
-                    } else {
-                        historyContainer.innerHTML = `<p class="text-center text-gray-500 text-sm p-4">No hay entrenamientos registrados.</p>`;
                     }
+
+                    const bmiValueEl = document.getElementById('profile-bmi-value');
+                    const bmiLabelEl = document.getElementById('profile-bmi-label');
+                    const hydrationEl = document.getElementById('profile-hydration');
+                    const idealWeightEl = document.getElementById('profile-ideal-weight');
+
+                    if (physicalStats.height && weightValue) {
+                        const heightInMeters = physicalStats.height / 100;
+                        const bmi = weightValue / (heightInMeters * heightInMeters);
+                        let bmiLabel = '';
+                        if (bmi < 18.5) bmiLabel = 'Bajo peso';
+                        else if (bmi < 25) bmiLabel = 'Saludable';
+                        else if (bmi < 30) bmiLabel = 'Sobrepeso';
+                        else bmiLabel = 'Obesidad';
+                        if (bmiValueEl) bmiValueEl.textContent = bmi.toFixed(1);
+                        if (bmiLabelEl) bmiLabelEl.textContent = bmiLabel;
+                        if (hydrationEl) {
+                            const waterLiters = (weightValue * 35) / 1000;
+                            hydrationEl.textContent = `${waterLiters.toFixed(1)} L`; 
+                        }
+                        if (idealWeightEl) {
+                            const idealMin = 18.5 * (heightInMeters * heightInMeters);
+                            const idealMax = 24.9 * (heightInMeters * heightInMeters);
+                            idealWeightEl.textContent = `${idealMin.toFixed(1)} - ${idealMax.toFixed(1)} kg`;
+                        }
+                    } else {
+                        if (bmiValueEl) bmiValueEl.textContent = '--';
+                        if (bmiLabelEl) bmiLabelEl.textContent = '';
+                        if (hydrationEl) hydrationEl.textContent = '--';
+                        if (idealWeightEl) idealWeightEl.textContent = '--';
+                    }
+
+                    this.updateDietWeightInfo();
                 },
                 calculateWorkoutStreak() {
                     const dates = this.state.workoutHistory
@@ -4422,10 +4838,61 @@
                 renderBmiCard(weight, height) { if(!weight || !height) { document.getElementById('bmi-value').textContent = '--'; document.getElementById('bmi-category').textContent = 'Sin calcular'; document.getElementById('bmi-category').className = 'font-semibold text-gray-400'; document.getElementById('bmi-marker').style.left = '0%'; return 0; } const heightInMeters = height / 100; const bmi = (weight / (heightInMeters * heightInMeters)); let category = '', colorClass = '', markerPosition = 0; if (bmi < 18.5) { category = 'Bajo Peso'; colorClass = 'text-sky-400'; markerPosition = (bmi / 18.5) * 25; } else if (bmi >= 18.5 && bmi < 25) { category = 'Normal'; colorClass = 'text-emerald-400'; markerPosition = 25 + ((bmi - 18.5) / (25 - 18.5)) * 30; } else if (bmi >= 25 && bmi < 30) { category = 'Sobrepeso'; colorClass = 'text-yellow-400'; markerPosition = 55 + ((bmi - 25) / (30 - 25)) * 25; } else { category = 'Obesidad'; colorClass = 'text-red-400'; markerPosition = 80 + ((bmi - 30) / (40 - 30)) * 20; } markerPosition = Math.max(2, Math.min(98, markerPosition)); document.getElementById('bmi-value').textContent = bmi.toFixed(1); const categoryEl = document.getElementById('bmi-category'); categoryEl.textContent = category; categoryEl.className = `font-semibold ${colorClass}`; document.getElementById('bmi-marker').style.left = `${markerPosition}%`; return bmi; },
                 calculate1RM() { const weight = parseFloat(document.getElementById('1rm-weight').value); const reps = parseInt(document.getElementById('1rm-reps').value); if(!weight || !reps || weight <= 0 || reps <= 0) { this.showToast("Ingresa un peso y repeticiones válidos.", "error"); return; } if (reps > 12) { this.showToast("El cálculo es menos preciso con más de 12 reps.", "error"); } const oneRepMax = weight / (1.0278 - 0.0278 * reps); document.getElementById('1rm-result-value').textContent = `${oneRepMax.toFixed(1)} kg`; const projectionsContainer = document.getElementById('1rm-projections'); const repRanges = [3, 5, 8, 10, 12, 15]; projectionsContainer.innerHTML = repRanges.map(r => { const projectedWeight = oneRepMax * (1.0278 - 0.0278 * r); return `<div class="bg-gray-800/70 p-2 rounded-lg"><p class="font-bold text-lg text-purple-200">${projectedWeight.toFixed(1)}<span class="text-xs text-gray-400"> kg</span></p><p class="text-xs text-gray-400">${r} RM</p></div>`; }).join(''); document.getElementById('1rm-results').classList.remove('hidden'); },
                 showEditTargetWeightModal() { const body = `<p class="text-gray-300 mb-4">Define el peso que quieres alcanzar.</p><input type="number" step="0.1" id="target-weight-input" value="${this.state.targetWeight}" class="w-full bg-gray-700 rounded-lg p-3 text-center text-xl">`; const footer = [ { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }, { text: 'Guardar', class: 'bg-emerald-600 text-gray-900', action: 'save-target-weight' } ]; this.showModal('Editar Peso Objetivo', body, footer); },
-                async handleUpdateTargetWeight() { const input = document.getElementById('target-weight-input'); const newTarget = parseFloat(input.value); if (isNaN(newTarget) || newTarget <= 0) { this.showToast('Por favor, introduce un peso válido.', 'error'); return; } this.state.targetWeight = newTarget; await this.saveDataToFirestore(); this.renderProfileSection(); this.hideModal(); this.showToast('Objetivo de peso actualizado.'); },
+                async handleUpdateTargetWeight() { const input = document.getElementById('target-weight-input'); const newTarget = parseFloat(input.value); if (isNaN(newTarget) || newTarget <= 0) { this.showToast('Por favor, introduce un peso válido.', 'error'); return; } this.state.targetWeight = newTarget; await this.saveDataToFirestore(); this.renderProfileSection(); this.renderDietPage(); this.hideModal(); this.showToast('Objetivo de peso actualizado.'); },
                 async handleAddWeightLog() { const input = document.getElementById('new-weight-input'); const newWeight = parseFloat(input.value); if (isNaN(newWeight) || newWeight <= 0) { this.showToast('Por favor, introduce un peso válido.', 'error'); return; } const today = new Date().toISOString().split('T')[0]; if(!this.state.weightLog) this.state.weightLog = []; const existingIndex = this.state.weightLog.findIndex(entry => entry.date === today); if (existingIndex > -1) { this.state.weightLog[existingIndex].weight = newWeight; } else { this.state.weightLog.push({ date: today, weight: newWeight }); } this.state.physicalStats.weight = newWeight; input.value = ''; await this.saveDataToFirestore(); this.renderAll(); this.showToast('Nuevo peso registrado.'); },
                 async saveNutritionGoals(){if(this._tempResults){this.state.userGoals={...this._tempResults};await this.saveDataToFirestore();this.renderAll();this.showToast("¡Meta guardada!");this.showSection('dieta');}},
-                renderDietPage(){if(!this.state.userGoals) return; const{calories,protein,carbs,fats}=this.state.userGoals;document.getElementById('diet-goal-calories').textContent=calories;document.getElementById('diet-goal-protein').textContent=protein;document.getElementById('diet-goal-carbs').textContent=carbs;document.getElementById('diet-goal-fats').textContent=fats;this.renderMealSections();this._hydrateDietFoodCreator();this.updateDietSummary();},
+                updateDietWeightInfo() {
+                    const currentWeightEl = document.getElementById('diet-current-weight');
+                    if (!currentWeightEl) return;
+
+                    const weightValue = typeof this.state.physicalStats.weight === 'number'
+                        ? this.state.physicalStats.weight
+                        : parseFloat(this.state.physicalStats.weight) || 0;
+                    const goalWeight = typeof this.state.targetWeight === 'number'
+                        ? this.state.targetWeight
+                        : weightValue;
+
+                    const weightLog = Array.isArray(this.state.weightLog) ? [...this.state.weightLog] : [];
+                    weightLog.sort((a, b) => new Date(a.date) - new Date(b.date));
+                    const lastEntry = weightLog.length ? weightLog[weightLog.length - 1] : null;
+                    const firstEntry = weightLog.length ? weightLog[0] : null;
+
+                    const formatDate = (dateStr) => {
+                        if (!dateStr) return '';
+                        return new Date(`${dateStr}T00:00:00`).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+                    };
+
+                    currentWeightEl.textContent = weightValue ? weightValue.toFixed(1) : '--';
+
+                    const targetEl = document.getElementById('diet-target-weight');
+                    if (targetEl) targetEl.textContent = goalWeight ? goalWeight.toFixed(1) : '--';
+
+                    const diff = goalWeight && weightValue ? goalWeight - weightValue : 0;
+                    const diffEl = document.getElementById('diet-weight-diff');
+                    if (diffEl) diffEl.textContent = `${diff > 0 ? '+' : ''}${diff.toFixed(1)} kg`;
+
+                    const lastWeighInEl = document.getElementById('diet-last-weigh-in');
+                    if (lastWeighInEl) {
+                        lastWeighInEl.textContent = lastEntry
+                            ? `Actualizado el ${formatDate(lastEntry.date)}`
+                            : 'Registra tu peso para comenzar.';
+                    }
+
+                    let progressPercent = 0;
+                    if (firstEntry && goalWeight && goalWeight !== firstEntry.weight) {
+                        const goalDelta = goalWeight - firstEntry.weight;
+                        if (goalDelta !== 0) {
+                            progressPercent = ((weightValue - firstEntry.weight) / goalDelta) * 100;
+                            progressPercent = Math.min(100, Math.max(0, progressPercent));
+                        }
+                    }
+
+                    const progressBar = document.getElementById('diet-weight-progress');
+                    if (progressBar) progressBar.style.width = `${Math.max(0, Math.min(100, progressPercent))}%`;
+                    const progressLabel = document.getElementById('diet-weight-progress-label');
+                    if (progressLabel) progressLabel.textContent = `${Math.round(Math.max(0, Math.min(100, progressPercent)))}%`;
+                },
+                renderDietPage(){this.updateDietWeightInfo(); if(!this.state.userGoals) return; const{calories,protein,carbs,fats}=this.state.userGoals;document.getElementById('diet-goal-calories').textContent=calories;document.getElementById('diet-goal-protein').textContent=protein;document.getElementById('diet-goal-carbs').textContent=carbs;document.getElementById('diet-goal-fats').textContent=fats;this.renderMealSections();this._hydrateDietFoodCreator();this.updateDietSummary();},
                 getFoodById(foodId) { return this.data.foodLibrary.find(item => item.id == foodId) || null; },
                 
                 renderMealSections(){
