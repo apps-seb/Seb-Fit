@@ -50,6 +50,53 @@
             background: rgba(15, 23, 42, 0.87);
         }
 
+        .workout-glass-header {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.62));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+            box-shadow: 0 22px 55px -40px rgba(16, 185, 129, 0.55);
+            backdrop-filter: blur(18px) saturate(140%);
+            -webkit-backdrop-filter: blur(18px) saturate(140%);
+            transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        .workout-glass-header:hover {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.7));
+            border-bottom-color: rgba(148, 163, 184, 0.32);
+            box-shadow: 0 28px 70px -38px rgba(45, 212, 191, 0.55);
+        }
+
+        .routine-glass-topbar {
+            position: relative;
+            background: linear-gradient(120deg, rgba(15, 23, 42, 0.78), rgba(30, 41, 59, 0.48));
+            border-bottom: 1px solid rgba(148, 163, 184, 0.26);
+            box-shadow: 0 20px 45px -30px rgba(16, 185, 129, 0.45);
+            backdrop-filter: blur(16px) saturate(160%);
+            -webkit-backdrop-filter: blur(16px) saturate(160%);
+        }
+        .routine-glass-topbar::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% -20%, rgba(94, 234, 212, 0.18), transparent 55%),
+                radial-gradient(circle at 80% 0%, rgba(129, 140, 248, 0.12), transparent 60%);
+            pointer-events: none;
+            opacity: 0.65;
+        }
+        .routine-glass-topbar > * {
+            position: relative;
+            z-index: 10;
+        }
+        .routine-glass-button {
+            border: 1px solid rgba(148, 163, 184, 0.22);
+            background: rgba(15, 23, 42, 0.6);
+            box-shadow: 0 12px 25px -18px rgba(94, 234, 212, 0.6);
+            transition: border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .routine-glass-button:hover {
+            border-color: rgba(148, 163, 184, 0.4);
+            background: rgba(15, 23, 42, 0.72);
+            box-shadow: 0 15px 35px -18px rgba(94, 234, 212, 0.7);
+        }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
         @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -6173,13 +6220,13 @@
 
                     const isUserRoutine = routine.id.startsWith('manual-');
                     const deleteButtonHTML = isUserRoutine && this.isAsesor()
-                        ? `<button data-action="routine-confirm-delete" data-routine-id="${routine.id}" class="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-red-500/10"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`
+                        ? `<button data-action="routine-confirm-delete" data-routine-id="${routine.id}" class="routine-glass-button rounded-full p-2 text-red-400 transition-colors hover:text-red-300"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`
                         : '<div class="w-9 h-9"></div>';
 
                     const viewHTML = `
                         <div id="routine-details-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col">
-                            <header class="sticky top-0 z-10 flex items-center justify-between border-b border-white/5 bg-gray-900/85 px-4 py-4 backdrop-blur">
-                                <button data-action="routine-close-view" class="rounded-full bg-white/5 p-2 text-gray-200 transition hover:bg-white/10"><i data-lucide="arrow-left"></i></button>
+                            <header class="routine-glass-topbar sticky top-0 z-10 flex items-center justify-between px-4 py-4">
+                                <button data-action="routine-close-view" class="routine-glass-button rounded-full p-2 text-gray-200 transition-colors"><i data-lucide="arrow-left"></i></button>
                                 <h3 class="text-lg font-bold text-white truncate px-4">${routine.name}</h3>
                                 ${deleteButtonHTML}
                             </header>
@@ -8440,7 +8487,7 @@
 
                     overlay.innerHTML = `
                         <div class="flex min-h-full flex-col bg-gradient-to-b from-gray-950 via-gray-950 to-gray-900 text-white">
-                            <header class="sticky top-0 z-10 border-b border-white/5 bg-gray-950/95 px-4 py-4 backdrop-blur-sm sm:px-6">
+                            <header class="sticky top-0 z-10 px-4 py-4 sm:px-6 workout-glass-header">
                                 <div class="mx-auto flex w-full max-w-5xl flex-col gap-4">
                                     <div class="flex items-start justify-between gap-3">
                                         <div class="space-y-1">
