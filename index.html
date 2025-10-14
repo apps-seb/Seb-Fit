@@ -22,6 +22,11 @@
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body.mobile-menu-open { overflow: hidden; }
+        #profile-avatar,
+        #user-avatar {
+            position: relative;
+            overflow: hidden;
+        }
         #profile-avatar.has-photo,
         #user-avatar.has-photo {
             background-size: cover;
@@ -68,6 +73,46 @@
         .launch-spinner { width: 64px; height: 64px; border-radius: 50%; border: 4px solid rgba(52, 211, 153, 0.2); border-top-color: #34d399; animation: spin 1s linear infinite, pulse 2.4s ease-in-out infinite; box-shadow: 0 0 30px rgba(52, 211, 153, 0.25); }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { box-shadow: 0 0 20px rgba(52, 211, 153, 0.15); } 50% { box-shadow: 0 0 35px rgba(52, 211, 153, 0.35); } }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+        .loading-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .loading-shimmer::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+            transform: translateX(-100%);
+            animation: shimmer 1.2s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .loading-shimmer > * {
+            position: relative;
+            z-index: 1;
+        }
+        .image-loading-placeholder {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.9));
+            overflow: hidden;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .image-loading-placeholder::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0));
+            transform: translateX(-100%);
+            animation: shimmer 1.2s ease-in-out infinite;
+        }
+        .image-loading-placeholder.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
 
         #mobile-menu-backdrop { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         #mobile-menu-backdrop.is-visible { opacity: 1; pointer-events: auto; }
@@ -1879,6 +1924,7 @@
                     this.auth = getAuth(this.firebaseApp);
                     this.db = getFirestore(this.firebaseApp);
                     this.storage = getStorage(this.firebaseApp);
+                    this._imagePreloadCache = new Map();
                     this.setupAuthListeners();
                     this.setupEventListeners();
                     this.showLaunchScreen();
@@ -1889,6 +1935,7 @@
                     this.audioCtx = new(window.AudioContext || window.webkitAudioContext)();
                     await this.loadExerciseLibraryFromFirestore();
                     await this.loadExerciseGroupImagesFromFirestore();
+                    this.preloadExerciseGroupImages();
                     await this.loadAndMergeFoodData(); // Cargar alimentos
                     this.loadTemplates();
                     await this.loadCommunityData();
@@ -1976,6 +2023,9 @@
                                 }
                             } else {
                                 this.state.profilePhoto = { ...defaultState.profilePhoto };
+                            }
+                            if (this.state.profilePhoto?.url) {
+                                this.preloadImage(this.state.profilePhoto.url, { priority: 'high' });
                             }
                             // Compatibilidad hacia atrás para la estructura de dieta
                             if (data.dailyDiet && !Array.isArray(data.dailyDiet)) {
@@ -2084,6 +2134,7 @@
                                 ...this.data.exerciseGroupImages,
                                 ...docSnap.data()
                             };
+                            this.preloadExerciseGroupImages();
                         } else if (this.state.currentUser && this.state.currentUser.uid === this.adminUID) {
                             await setDoc(docRef, this.data.exerciseGroupImages);
                         }
@@ -2699,20 +2750,143 @@
                     if (!element) return;
                     const photoUrl = this.state?.profilePhoto?.url || '';
                     const span = element.querySelector('span');
+                    const initial = (this.state?.userName || 'U').charAt(0).toUpperCase();
+                    const currentUrl = element.dataset.currentPhotoUrl || '';
+
                     if (photoUrl) {
-                        element.classList.add('has-photo');
-                        element.style.backgroundImage = `url('${photoUrl}')`;
-                        if (span) {
-                            span.textContent = '';
+                        if (currentUrl === photoUrl && element.classList.contains('has-photo')) {
+                            return;
                         }
+
+                        if (!currentUrl) {
+                            element.classList.remove('has-photo');
+                            element.style.backgroundImage = '';
+                            if (span) {
+                                span.textContent = initial;
+                            }
+                        }
+
+                        element.classList.add('loading-shimmer');
+                        this.preloadImage(photoUrl, { priority: 'high' }).then((success) => {
+                            element.classList.remove('loading-shimmer');
+                            if (success) {
+                                element.dataset.currentPhotoUrl = photoUrl;
+                                element.classList.add('has-photo');
+                                element.style.backgroundImage = `url('${photoUrl}')`;
+                                if (span) {
+                                    span.textContent = '';
+                                }
+                            } else if (!currentUrl) {
+                                element.dataset.currentPhotoUrl = '';
+                                element.classList.remove('has-photo');
+                                element.style.backgroundImage = '';
+                                if (span) {
+                                    span.textContent = initial;
+                                }
+                            }
+                        });
                     } else {
+                        element.dataset.currentPhotoUrl = '';
+                        element.classList.remove('loading-shimmer');
                         element.classList.remove('has-photo');
                         element.style.backgroundImage = '';
                         if (span) {
-                            const initial = (this.state?.userName || 'U').charAt(0).toUpperCase();
                             span.textContent = initial;
                         }
                     }
+                },
+                preloadImage(url, options = {}) {
+                    if (!url) return Promise.resolve(false);
+                    if (!this._imagePreloadCache) {
+                        this._imagePreloadCache = new Map();
+                    }
+                    if (this._imagePreloadCache.has(url)) {
+                        return this._imagePreloadCache.get(url);
+                    }
+
+                    const { priority = 'auto' } = options;
+                    const loadPromise = new Promise((resolve) => {
+                        const img = new Image();
+                        try {
+                            if (priority && 'fetchPriority' in img) {
+                                img.fetchPriority = priority;
+                            }
+                        } catch (error) {
+                            /* fetchPriority no soportado, continuar sin prioridad */
+                        }
+                        img.decoding = 'async';
+                        img.onload = () => resolve(true);
+                        img.onerror = () => resolve(false);
+                        img.src = url;
+                    }).then((success) => {
+                        if (!success && this._imagePreloadCache) {
+                            this._imagePreloadCache.delete(url);
+                        }
+                        return success;
+                    });
+
+                    this._imagePreloadCache.set(url, loadPromise);
+                    return loadPromise;
+                },
+                preloadExerciseGroupImages(activeGroup = '') {
+                    const entries = Object.entries(this.data.exerciseGroupImages || {});
+                    entries.forEach(([groupName, imageUrl]) => {
+                        if (!imageUrl) return;
+                        const priority = groupName === activeGroup ? 'high' : 'auto';
+                        this.preloadImage(imageUrl, { priority });
+                    });
+                },
+                initializeGroupCardImageLoading(root = document) {
+                    const scope = root instanceof Element ? root : document;
+                    const images = scope.querySelectorAll('.routine-group-image');
+                    images.forEach((img) => {
+                        if (img.dataset.imageLoaderBound === 'true') return;
+                        img.dataset.imageLoaderBound = 'true';
+                        const wrapper = img.closest('.group-image-shell');
+                        const skeleton = wrapper?.querySelector('.image-loading-placeholder');
+                        const fallback = wrapper?.querySelector('.image-fallback');
+
+                        const hideSkeleton = () => {
+                            if (skeleton) {
+                                skeleton.classList.add('is-hidden');
+                                setTimeout(() => skeleton?.remove(), 350);
+                            }
+                        };
+
+                        const showFallback = () => {
+                            if (fallback) {
+                                fallback.classList.remove('hidden');
+                                if (!fallback.classList.contains('flex')) {
+                                    fallback.classList.add('flex');
+                                }
+                            }
+                            hideSkeleton();
+                            if (img.parentElement) {
+                                img.remove();
+                            }
+                        };
+
+                        const revealImage = () => {
+                            hideSkeleton();
+                            if (fallback) {
+                                fallback.classList.add('hidden');
+                                fallback.classList.remove('flex');
+                            }
+                            requestAnimationFrame(() => {
+                                img.classList.remove('opacity-0');
+                                img.classList.add('opacity-100');
+                            });
+                        };
+
+                        if (img.complete && img.naturalWidth > 0) {
+                            revealImage();
+                            return;
+                        }
+
+                        this.preloadImage(img.src, { priority: img.getAttribute('fetchpriority') || 'auto' });
+                        img.addEventListener('load', revealImage, { once: true });
+                        img.addEventListener('error', showFallback, { once: true });
+                    });
                 },
                 triggerProfilePhotoUpload() {
                     const input = document.getElementById('profile-photo-input');
@@ -2740,6 +2914,7 @@
                             return;
                         }
                         this.state.profilePhoto = { url: uploadResult.url, storagePath: uploadResult.storagePath, updatedAt: new Date().toISOString() };
+                        this.preloadImage(this.state.profilePhoto.url, { priority: 'high' });
                         await this.saveDataToFirestore();
                         this.renderProfileSection();
                         this.updateUserInfoUI();
@@ -6225,6 +6400,7 @@
                         if (activeGroup) {
                             this.routine_creator_switchGroup(activeGroup);
                         }
+                        this.initializeGroupCardImageLoading();
 
                         const panel = document.getElementById('exercise-list-panel');
                         if (panel) {
@@ -6331,19 +6507,31 @@
                         const firstGroup = groupKeys[0] || '';
                         const activeGroup = this._tempRoutine.activeExerciseGroup || firstGroup;
                         this._tempRoutine.activeExerciseGroup = activeGroup;
+                        this.preloadExerciseGroupImages(activeGroup);
                         const groupsNav = `<aside id="exercise-group-nav" class="w-full shrink-0 border-b border-white/5 bg-gray-950/80 md:w-80 md:border-b-0 md:border-r md:max-h-[calc(100vh-8rem)] md:overflow-y-auto">
                             <div class="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 md:grid-cols-1">
                                 ${groupKeys.map(group => {
                                         const rawUrl = groupImages[group] || '';
                                         const sanitizedUrl = rawUrl.replace(/'/g, "\'");
                                         const hasImage = Boolean(rawUrl);
-                                        const imageContent = hasImage
-                                            ? `<img src="${sanitizedUrl}" alt="Grupo muscular ${group}" class="h-full w-full object-cover" loading="lazy">`
-                                            : `<div class=\"flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-500/30 via-teal-500/20 to-sky-500/20 text-emerald-100/80\"><i data-lucide=\"dumbbell\" class=\"h-10 w-10\"></i></div>`;
+                                        const isActiveGroup = group === activeGroup;
+                                        const fetchPriority = isActiveGroup ? 'high' : 'auto';
+                                        if (hasImage) {
+                                            this.preloadImage(rawUrl, { priority: fetchPriority });
+                                        }
+                                        const fallbackClasses = `image-fallback absolute inset-0 ${hasImage ? 'hidden' : 'flex'} items-center justify-center bg-gradient-to-br from-emerald-500/30 via-teal-500/20 to-sky-500/25 text-emerald-100/80 pointer-events-none`;
+                                        const imageContent = `
+                                            <div class="group-image-shell relative h-full w-full overflow-hidden">
+                                                ${hasImage ? '<div class="image-loading-placeholder pointer-events-none"></div>' : ''}
+                                                <div class="${fallbackClasses}">
+                                                    <i data-lucide="dumbbell" class="h-10 w-10"></i>
+                                                </div>
+                                                ${hasImage ? `<img src="${sanitizedUrl}" alt="Grupo muscular ${group}" class="routine-group-image h-full w-full object-cover opacity-0 transition-opacity duration-500" decoding="async" loading="eager" fetchpriority="${fetchPriority}">` : ''}
+                                            </div>
+                                        `;
                                         const editButton = isAdmin
                                             ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-gray-950/85 text-white shadow-lg transition hover:-translate-y-0.5 hover:border-white/40 hover:bg-white hover:text-gray-900"><i data-lucide="image-up" class="h-5 w-5"></i></button>`
                                             : '';
-                                        const isActiveGroup = group === activeGroup;
                                         const accentConfig = (() => {
                                             const base = {
                                                 icon: 'dumbbell',
@@ -7511,6 +7699,7 @@
                                 const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                                 if (!this.data.exerciseGroupImages) this.data.exerciseGroupImages = {};
                                 this.data.exerciseGroupImages[group] = downloadURL;
+                                this.preloadImage(downloadURL, { priority: 'high' });
 
                                 const docRef = doc(this.db, 'app_data', 'exercise_group_images');
                                 await setDoc(docRef, { [group]: downloadURL }, { merge: true });
@@ -8018,6 +8207,9 @@
                         const view = container.querySelector('.fullscreen-view');
                         if (view) view.classList.add('is-active');
                         lucide.createIcons();
+                        if (typeof this.initializeGroupCardImageLoading === 'function') {
+                            this.initializeGroupCardImageLoading(container);
+                        }
                     }, 10);
                 },
                 routine_closeFullscreenView() {
