@@ -280,6 +280,107 @@
             max-width: 680px;
         }
 
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .icon-badge {
+            width: clamp(3.2rem, 4vw, 3.75rem);
+            height: clamp(3.2rem, 4vw, 3.75rem);
+            border-radius: 1.25rem;
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(168, 85, 247, 0.22));
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            display: grid;
+            place-items: center;
+            color: #ecfeff;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(14, 165, 233, 0.15);
+        }
+
+        .icon-badge::after {
+            content: '';
+            position: absolute;
+            inset: auto -40% -60% -40%;
+            height: 80%;
+            background: linear-gradient(160deg, rgba(236, 72, 153, 0.45), transparent);
+            transform: rotate(12deg);
+        }
+
+        .icon-badge svg {
+            width: 58%;
+            height: 58%;
+            z-index: 1;
+        }
+
+        .section-header h2 {
+            margin: 0;
+        }
+
+        .card-icon {
+            width: clamp(2.9rem, 5vw, 3.4rem);
+            height: clamp(2.9rem, 5vw, 3.4rem);
+            border-radius: 1.1rem;
+            background: linear-gradient(135deg, rgba(15, 118, 110, 0.2), rgba(59, 130, 246, 0.22));
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            display: grid;
+            place-items: center;
+            color: #f8fafc;
+            margin-bottom: 1.2rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.18);
+        }
+
+        .card-icon::after {
+            content: '';
+            position: absolute;
+            inset: auto -30% -60% -30%;
+            height: 80%;
+            background: linear-gradient(160deg, rgba(244, 114, 182, 0.45), transparent);
+            transform: rotate(18deg);
+        }
+
+        .card-icon svg {
+            width: 60%;
+            height: 60%;
+            z-index: 1;
+        }
+
+        .metric-card .card-icon {
+            width: 2.6rem;
+            height: 2.6rem;
+            border-radius: 0.9rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .pricing-card .card-icon {
+            margin-bottom: 1.5rem;
+        }
+
+        .pillar .card-icon,
+        .testimonial .card-icon {
+            margin-bottom: 0.75rem;
+        }
+
+        .faq-question {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .faq-question .card-icon {
+            flex-shrink: 0;
+            margin-bottom: 0;
+        }
+
+        .faq-text {
+            flex: 1;
+        }
+
         .eyebrow {
             text-transform: uppercase;
             letter-spacing: 0.24em;
@@ -668,6 +769,13 @@
             position: relative;
         }
 
+        .timeline-step .card-icon {
+            width: 2.8rem;
+            height: 2.8rem;
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+
         .timeline-step::before {
             content: attr(data-step);
             position: absolute;
@@ -997,6 +1105,20 @@
                         <span class="chip">Ventas recurrentes</span>
                         <span class="chip">Experiencia premium</span>
                     </div>
+                    <span class="card-icon" aria-hidden="true" style="margin-bottom:1.5rem;">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-hero-icon" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#22d3ee" />
+                                    <stop offset="0.45" stop-color="#38bdf8" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="24" cy="18" r="6" stroke="url(#grad-hero-icon)" stroke-width="3" />
+                            <path d="M16 32c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="url(#grad-hero-icon)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M20 14 24 10l4 4" stroke="url(#grad-hero-icon)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
                     <h1>Transforma tu <span>negocio fitness</span> en una máquina de resultados.</h1>
                     <p>
                         FitTrack Pro integra seguimiento de comidas, rutinas probadas, coaching 1:1 y automatización de ventas en una sola app.
@@ -1009,14 +1131,52 @@
                     </div>
                     <div class="metrics">
                         <div class="metric-card">
+                            <span class="card-icon" aria-hidden="true">
+                                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <linearGradient id="grad-metric-growth" x1="12" y1="36" x2="36" y2="12" gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#22d3ee" />
+                                            <stop offset="0.5" stop-color="#34d399" />
+                                            <stop offset="1" stop-color="#facc15" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M10 30 20 22l6 6 12-14" stroke="url(#grad-metric-growth)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M30 14h8v8" stroke="url(#grad-metric-growth)" stroke-width="3" stroke-linecap="round" />
+                                </svg>
+                            </span>
                             <strong>+210%</strong>
                             <span>Incremento en retención mensual de asesorados en los primeros 90 días.</span>
                         </div>
                         <div class="metric-card">
+                            <span class="card-icon" aria-hidden="true">
+                                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <linearGradient id="grad-metric-time" x1="14" y1="10" x2="34" y2="38" gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#38bdf8" />
+                                            <stop offset="0.5" stop-color="#6366f1" />
+                                            <stop offset="1" stop-color="#f472b6" />
+                                        </linearGradient>
+                                    </defs>
+                                    <circle cx="24" cy="24" r="13" stroke="url(#grad-metric-time)" stroke-width="3" />
+                                    <path d="M24 16v8l6 3" stroke="url(#grad-metric-time)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </span>
                             <strong>18 hrs</strong>
                             <span>Ahorradas por coach cada semana en seguimiento manual y reportes.</span>
                         </div>
                         <div class="metric-card">
+                            <span class="card-icon" aria-hidden="true">
+                                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <defs>
+                                        <linearGradient id="grad-metric-star" x1="14" y1="8" x2="34" y2="40" gradientUnits="userSpaceOnUse">
+                                            <stop stop-color="#fbbf24" />
+                                            <stop offset="0.4" stop-color="#fb7185" />
+                                            <stop offset="1" stop-color="#a855f7" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="m24 10 4.5 9.1 10 1.4-7.3 7.1 1.7 10-8.9-4.7-8.9 4.7 1.7-10-7.3-7.1 10-1.4L24 10Z" stroke="url(#grad-metric-star)" stroke-width="3" stroke-linejoin="round" />
+                                </svg>
+                            </span>
                             <strong>4.9★</strong>
                             <span>Valoración promedio de alumnos gracias a la experiencia visual premium.</span>
                         </div>
@@ -1049,29 +1209,103 @@
         <section id="solucion" class="reveal" data-animate="zoom-in">
             <div class="section-header">
                 <span class="eyebrow">La experiencia FitTrack Pro</span>
-                <h2>Un ecosistema visual que vende, acompaña y fideliza.</h2>
+                <div class="section-title">
+                    <span class="icon-badge" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-ecosystem" x1="10" y1="8" x2="38" y2="40" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#22d3ee" />
+                                    <stop offset="0.5" stop-color="#a855f7" />
+                                    <stop offset="1" stop-color="#fbbf24" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M12 24c4.5-7 10.5-11 16-11s10 4.5 10 10-4.5 10-10 10-11.5-4-16-11Z" stroke="url(#grad-ecosystem)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="28" cy="23" r="5.5" stroke="url(#grad-ecosystem)" stroke-width="3" />
+                            <circle cx="18" cy="25" r="2.2" fill="url(#grad-ecosystem)" />
+                        </svg>
+                    </span>
+                    <h2>Un ecosistema visual que vende, acompaña y fideliza.</h2>
+                </div>
                 <p>
                     Cada módulo está diseñado para enamorar a tus leads, simplificar tus operaciones y convertir la información en decisiones. Desde dashboards dinámicos hasta contenido interactivo, FitTrack Pro es la vitrina perfecta de tu expertise.
                 </p>
             </div>
             <div class="features-grid">
                 <article class="feature-card reveal" data-animate="slide-right">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-feature-story" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#38bdf8" />
+                                    <stop offset="0.5" stop-color="#6366f1" />
+                                    <stop offset="1" stop-color="#ec4899" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="10" y="12" width="28" height="22" rx="4.5" stroke="url(#grad-feature-story)" stroke-width="3" />
+                            <path d="M18 18h12" stroke="url(#grad-feature-story)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M18 24h14" stroke="url(#grad-feature-story)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M18 30h8" stroke="url(#grad-feature-story)" stroke-width="3" stroke-linecap="round" />
+                            <circle cx="32" cy="18" r="2.5" fill="url(#grad-feature-story)" />
+                        </svg>
+                    </span>
                     <span class="tag">Storyselling</span>
                     <h3>Hero interactivo y narrativa impecable.</h3>
                     <p>Presenta tu método, logros y promesa de transformación con video, mockups y microanimaciones que enamoran a la primera visita.</p>
                     <p><strong>Ideal para:</strong> Funnels, campañas ads, webinars de captación.</p>
                 </article>
                 <article class="feature-card reveal" data-animate="slide-up">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-feature-tracking" x1="14" y1="10" x2="34" y2="38" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#34d399" />
+                                    <stop offset="0.5" stop-color="#22d3ee" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M24 32c8-5 12-9 12-14a6 6 0 0 0-11-3 6 6 0 0 0-13 3c0 5 4 9 12 14Z" stroke="url(#grad-feature-tracking)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M18 24h4l2-4 2 6h4" stroke="url(#grad-feature-tracking)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
                     <span class="tag">Seguimiento pro</span>
                     <h3>Comidas, hábitos y biometría en vivo.</h3>
                     <p>Planifica y controla macros, adherencia y evolución con gráficas automáticas. Tus asesorados reciben alertas y recomendaciones en tiempo real.</p>
                 </article>
                 <article class="feature-card reveal" data-animate="slide-left">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-feature-rutinas" x1="12" y1="14" x2="36" y2="34" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#facc15" />
+                                    <stop offset="0.45" stop-color="#fb7185" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="12" y="14" width="24" height="8" rx="3" stroke="url(#grad-feature-rutinas)" stroke-width="3" />
+                            <rect x="16" y="26" width="16" height="8" rx="3" stroke="url(#grad-feature-rutinas)" stroke-width="3" />
+                            <path d="M16 18h-4" stroke="url(#grad-feature-rutinas)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M36 30h4" stroke="url(#grad-feature-rutinas)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
                     <span class="tag">Rutinas probadas</span>
                     <h3>Biblioteca modular con rutinas testadas.</h3>
                     <p>Duplica, adapta y lanza rutinas firmadas por tu marca en segundos. Incluye video, tempo, progresiones y feedback.</p>
                 </article>
                 <article class="feature-card reveal" data-animate="slide-up">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-feature-coach" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#38bdf8" />
+                                    <stop offset="0.5" stop-color="#34d399" />
+                                    <stop offset="1" stop-color="#f472b6" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="18" cy="20" r="4.5" stroke="url(#grad-feature-coach)" stroke-width="3" />
+                            <circle cx="30" cy="20" r="4.5" stroke="url(#grad-feature-coach)" stroke-width="3" />
+                            <path d="M10 32c0-3.9 3.1-7 7-7h14c3.9 0 7 3.1 7 7" stroke="url(#grad-feature-coach)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
                     <span class="tag">Coaching premium</span>
                     <h3>Especial para coaches híbridos y studios.</h3>
                     <p>Gestiona grupos, ventas B2B, planes personalizados, eventos en vivo y soporte omnicanal con una estética impecable.</p>
@@ -1082,7 +1316,23 @@
         <section id="seguimiento" class="showcase reveal" data-animate="slide-right">
             <div class="section-header">
                 <span class="eyebrow">Seguimiento total</span>
-                <h2><span>Controla cada detalle</span> del viaje de tus asesorados.</h2>
+                <div class="section-title">
+                    <span class="icon-badge" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-tracking" x1="10" y1="8" x2="40" y2="38" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#34d399" />
+                                    <stop offset="0.55" stop-color="#38bdf8" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M9 30a15 15 0 1 1 30 0" stroke="url(#grad-tracking)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M24 15v10l6 3" stroke="url(#grad-tracking)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="24" cy="35" r="2.8" fill="url(#grad-tracking)" />
+                        </svg>
+                    </span>
+                    <h2><span>Controla cada detalle</span> del viaje de tus asesorados.</h2>
+                </div>
                 <p>
                     Configura planes semanales, integra wearables y recibe alertas predictivas para actuar antes que tus alumnos pierdan momentum. Cada panel puede personalizarse por coach o programa.
                 </p>
@@ -1091,6 +1341,20 @@
                 <div class="media-card reveal" data-animate="slide-up">
                     <img src="https://dummyimage.com/600x380/0f172a/22d3ee&text=Dashboard+Comidas" alt="Dashboard comidas" id="seguimientoImg" />
                     <div class="content">
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="grad-media-meals" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#facc15" />
+                                        <stop offset="0.45" stop-color="#34d399" />
+                                        <stop offset="1" stop-color="#38bdf8" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M12 20h24" stroke="url(#grad-media-meals)" stroke-width="3" stroke-linecap="round" />
+                                <path d="M14 20c0 8 4 14 10 14s10-6 10-14" stroke="url(#grad-media-meals)" stroke-width="3" stroke-linecap="round" />
+                                <path d="M18 14c1.5 2 3.5 3 6 3s4.5-1 6-3" stroke="url(#grad-media-meals)" stroke-width="3" stroke-linecap="round" />
+                            </svg>
+                        </span>
                         <h3>Seguimiento de comidas</h3>
                         <p>Registro visual de macros, recordatorios automáticos, recetas sugeridas y análisis de adherencia por semana.</p>
                         <label class="upload-drop" for="seguimientoUpload">Personaliza con tu captura de dashboard</label>
@@ -1100,6 +1364,21 @@
                 <div class="media-card reveal" data-animate="slide-up">
                     <img src="https://dummyimage.com/600x380/0f172a/34d399&text=Rutinas+Personalizadas" alt="Rutinas personalizadas" id="rutinasImg" />
                     <div class="content">
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="grad-media-rutinas" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#38bdf8" />
+                                        <stop offset="0.5" stop-color="#6366f1" />
+                                        <stop offset="1" stop-color="#ec4899" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M14 20h20" stroke="url(#grad-media-rutinas)" stroke-width="3" stroke-linecap="round" />
+                                <rect x="10" y="24" width="10" height="6" rx="3" stroke="url(#grad-media-rutinas)" stroke-width="3" />
+                                <rect x="28" y="24" width="10" height="6" rx="3" stroke="url(#grad-media-rutinas)" stroke-width="3" />
+                                <path d="M20 15c0-2.8 2.2-5 5-5s5 2.2 5 5" stroke="url(#grad-media-rutinas)" stroke-width="3" stroke-linecap="round" />
+                            </svg>
+                        </span>
                         <h3>Rutinas personalizadas y probadas</h3>
                         <p>Combina bloques de entrenamiento probados con ajustes dinámicos según progreso, feedback y tiempo disponible.</p>
                         <label class="upload-drop" for="rutinasUpload">Sube un mockup de tu rutina</label>
@@ -1109,6 +1388,21 @@
                 <div class="media-card reveal" data-animate="slide-up">
                     <img src="https://dummyimage.com/600x380/0f172a/fbbf24&text=Coach+View" alt="Coach view" id="coachImg" />
                     <div class="content">
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="grad-media-coach" x1="14" y1="12" x2="34" y2="36" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#22d3ee" />
+                                        <stop offset="0.45" stop-color="#38bdf8" />
+                                        <stop offset="1" stop-color="#a855f7" />
+                                    </linearGradient>
+                                </defs>
+                                <rect x="12" y="14" width="24" height="18" rx="4" stroke="url(#grad-media-coach)" stroke-width="3" />
+                                <path d="M18 20h12" stroke="url(#grad-media-coach)" stroke-width="3" stroke-linecap="round" />
+                                <path d="M18 26h6" stroke="url(#grad-media-coach)" stroke-width="3" stroke-linecap="round" />
+                                <circle cx="30" cy="26" r="3" fill="url(#grad-media-coach)" />
+                            </svg>
+                        </span>
                         <h3>Panel especial para coach</h3>
                         <p>Agenda inteligente, check-ins automatizados, notas de voz, marketing integrado y upsells a un clic.</p>
                         <label class="upload-drop" for="coachUpload">Muestra tu panel de coach</label>
@@ -1121,30 +1415,131 @@
         <section id="modulos" class="reveal" data-animate="slide-left">
             <div class="section-header">
                 <span class="eyebrow">Módulos integrados</span>
-                <h2>Todo lo que necesitas para vender, guiar y escalar.</h2>
+                <div class="section-title">
+                    <span class="icon-badge" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-modulos" x1="8" y1="10" x2="40" y2="38" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#38bdf8" />
+                                    <stop offset="0.5" stop-color="#6366f1" />
+                                    <stop offset="1" stop-color="#f472b6" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="10" y="10" width="12" height="12" rx="3" stroke="url(#grad-modulos)" stroke-width="3" />
+                            <rect x="26" y="10" width="12" height="12" rx="3" stroke="url(#grad-modulos)" stroke-width="3" />
+                            <rect x="10" y="26" width="12" height="12" rx="3" stroke="url(#grad-modulos)" stroke-width="3" />
+                            <path d="M26 32h12" stroke="url(#grad-modulos)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M26 26h8" stroke="url(#grad-modulos)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
+                    <h2>Todo lo que necesitas para vender, guiar y escalar.</h2>
+                </div>
             </div>
             <div class="modules-grid">
                 <article class="module-card reveal" data-animate="slide-up">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-module-funnel" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#38bdf8" />
+                                    <stop offset="0.5" stop-color="#22d3ee" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M12 14h24l-8 10v6l-8 4v-10l-8-10Z" stroke="url(#grad-module-funnel)" stroke-width="3" stroke-linejoin="round" />
+                        </svg>
+                    </span>
                     <strong>Embudo de ventas visual</strong>
                     <p>Landing, quiz nutricional, automatizaciones y segmentación de leads por objetivo.</p>
                 </article>
                 <article class="module-card reveal" data-animate="slide-up">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-module-onboarding" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#34d399" />
+                                    <stop offset="0.5" stop-color="#38bdf8" />
+                                    <stop offset="1" stop-color="#f472b6" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M16 18h16l2 6-10 12-10-12 2-6Z" stroke="url(#grad-module-onboarding)" stroke-width="3" stroke-linejoin="round" />
+                            <circle cx="24" cy="18" r="3" fill="url(#grad-module-onboarding)" />
+                        </svg>
+                    </span>
                     <strong>Onboarding gamificado</strong>
                     <p>Bienvenida con micro-videos, seguimiento de hábitos y tareas desbloqueables.</p>
                 </article>
                 <article class="module-card reveal" data-animate="slide-up">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-module-library" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#fbbf24" />
+                                    <stop offset="0.4" stop-color="#fb7185" />
+                                    <stop offset="1" stop-color="#6366f1" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="12" y="16" width="24" height="16" rx="4" stroke="url(#grad-module-library)" stroke-width="3" />
+                            <path d="M18 16v-4h12v4" stroke="url(#grad-module-library)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M18 24h12" stroke="url(#grad-module-library)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
                     <strong>Biblioteca multimedia</strong>
                     <p>Rutinas, recetas, lives y challenges con branding. Subidas en lote, ready para compartir.</p>
                 </article>
                 <article class="module-card reveal" data-animate="slide-up">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-module-clients" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#38bdf8" />
+                                    <stop offset="0.5" stop-color="#34d399" />
+                                    <stop offset="1" stop-color="#22d3ee" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="18" cy="20" r="4.5" stroke="url(#grad-module-clients)" stroke-width="3" />
+                            <circle cx="30" cy="20" r="4.5" stroke="url(#grad-module-clients)" stroke-width="3" />
+                            <path d="M10 32c0-4 3.2-7.2 7.2-7.2h13.6c4 0 7.2 3.2 7.2 7.2" stroke="url(#grad-module-clients)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
                     <strong>Panel de asesorados</strong>
                     <p>Historial clínico, contratos, progresión fotográfica y badges por logros.</p>
                 </article>
                 <article class="module-card reveal" data-animate="slide-up">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-module-automation" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#22d3ee" />
+                                    <stop offset="0.4" stop-color="#6366f1" />
+                                    <stop offset="1" stop-color="#f472b6" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="18" cy="24" r="4" stroke="url(#grad-module-automation)" stroke-width="3" />
+                            <circle cx="30" cy="18" r="3" stroke="url(#grad-module-automation)" stroke-width="3" />
+                            <circle cx="30" cy="30" r="3" stroke="url(#grad-module-automation)" stroke-width="3" />
+                            <path d="M22 24h4l4-6" stroke="url(#grad-module-automation)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M26 24h4l4 6" stroke="url(#grad-module-automation)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
                     <strong>Marketing automatizado</strong>
                     <p>Secuencias por WhatsApp, retargeting, recordatorios de pagos y scripts de ventas.</p>
                 </article>
                 <article class="module-card reveal" data-animate="slide-up">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-module-ai" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#fbbf24" />
+                                    <stop offset="0.45" stop-color="#fb7185" />
+                                    <stop offset="1" stop-color="#6366f1" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M12 32c4-8 10-12 16-12 4.4 0 8 3.6 8 8s-3.6 8-8 8c-6 0-12-4-16-12Z" stroke="url(#grad-module-ai)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M22 24c2-4 4-6 7-6 2.8 0 5 2.2 5 5" stroke="url(#grad-module-ai)" stroke-width="3" stroke-linecap="round" />
+                            <circle cx="28" cy="28" r="3" fill="url(#grad-module-ai)" />
+                        </svg>
+                    </span>
                     <strong>Inteligencia predictiva</strong>
                     <p>Alertas de abandono, recomendaciones de upsell y ajustes de carga automática.</p>
                 </article>
@@ -1154,25 +1549,96 @@
         <section class="reveal" data-animate="zoom-in">
             <div class="section-header">
                 <span class="eyebrow">Escenario real</span>
-                <h2>Así se ve un lanzamiento completo con FitTrack Pro.</h2>
+                <div class="section-title">
+                    <span class="icon-badge" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-timeline" x1="14" y1="6" x2="36" y2="42" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#fbbf24" />
+                                    <stop offset="0.45" stop-color="#fb7185" />
+                                    <stop offset="1" stop-color="#6366f1" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M24 6c-5 4-8 10-8 16 0 8 8 16 8 16s8-8 8-16c0-6-3-12-8-16Z" stroke="url(#grad-timeline)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M20 24h8" stroke="url(#grad-timeline)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M22 30h4" stroke="url(#grad-timeline)" stroke-width="3" stroke-linecap="round" />
+                            <circle cx="24" cy="18" r="3.2" fill="url(#grad-timeline)" />
+                        </svg>
+                    </span>
+                    <h2>Así se ve un lanzamiento completo con FitTrack Pro.</h2>
+                </div>
                 <p>
                     Pasa de la idea al lanzamiento en cuestión de días. Nuestra ruta guía a tu equipo paso a paso para construir una experiencia premium.
                 </p>
             </div>
             <div class="timeline">
                 <div class="timeline-step reveal" data-animate="slide-right" data-step="01">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-step-1" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#38bdf8" />
+                                    <stop offset="0.5" stop-color="#6366f1" />
+                                    <stop offset="1" stop-color="#ec4899" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M18 14h12l4 6-14 14-6-6 14-14" stroke="url(#grad-step-1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M18 30 12 36" stroke="url(#grad-step-1)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
                     <h3>Diseña tu narrativa visual</h3>
                     <p>Personaliza hero, storytelling, paleta y logos con el editor drag & drop. Conecta tu dominio en minutos.</p>
                 </div>
                 <div class="timeline-step reveal" data-animate="slide-right" data-step="02">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-step-2" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#34d399" />
+                                    <stop offset="0.5" stop-color="#22d3ee" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M14 18h8v8h-8v-8Z" stroke="url(#grad-step-2)" stroke-width="3" />
+                            <path d="M26 12h8v8h-8v-8Z" stroke="url(#grad-step-2)" stroke-width="3" />
+                            <path d="M26 28h8v8h-8v-8Z" stroke="url(#grad-step-2)" stroke-width="3" />
+                            <path d="M22 22h4l4-4" stroke="url(#grad-step-2)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
                     <h3>Configura programas y rutinas</h3>
                     <p>Importa tus rutinas probadas, define paquetes y crea upsells listos para vender con un clic.</p>
                 </div>
                 <div class="timeline-step reveal" data-animate="slide-right" data-step="03">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-step-3" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#facc15" />
+                                    <stop offset="0.5" stop-color="#fb7185" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M14 22 30 14v20L14 26v-4Z" stroke="url(#grad-step-3)" stroke-width="3" stroke-linejoin="round" />
+                            <path d="M30 18 36 14v20l-6-4" stroke="url(#grad-step-3)" stroke-width="3" stroke-linejoin="round" />
+                        </svg>
+                    </span>
                     <h3>Lanza campañas & onboarding</h3>
                     <p>Integra pasarelas de pago, automatiza los mensajes y lanza el onboarding gamificado.</p>
                 </div>
                 <div class="timeline-step reveal" data-animate="slide-right" data-step="04">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-step-4" x1="12" y1="36" x2="36" y2="12" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#22d3ee" />
+                                    <stop offset="0.5" stop-color="#38bdf8" />
+                                    <stop offset="1" stop-color="#6366f1" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M14 30 22 22l6 6 8-10" stroke="url(#grad-step-4)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M32 16h6v6" stroke="url(#grad-step-4)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
                     <h3>Escala con datos</h3>
                     <p>Monitorea retención, LTV y rendimiento por coach. Ajusta en tiempo real con insights accionables.</p>
                 </div>
@@ -1182,10 +1648,39 @@
         <section class="reveal" data-animate="slide-up">
             <div class="section-header">
                 <span class="eyebrow">Planes & Pricing</span>
-                <h2>Escala a tu ritmo con planes flexibles.</h2>
+                <div class="section-title">
+                    <span class="icon-badge" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-pricing" x1="12" y1="8" x2="36" y2="40" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#22d3ee" />
+                                    <stop offset="0.5" stop-color="#f472b6" />
+                                    <stop offset="1" stop-color="#facc15" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M24 6 18 18l6 4 6-4-6-12Z" stroke="url(#grad-pricing)" stroke-width="3" stroke-linejoin="round" />
+                            <path d="M16 20v9a6 6 0 0 0 12 0v-9" stroke="url(#grad-pricing)" stroke-width="3" stroke-linecap="round" />
+                            <circle cx="24" cy="36" r="4" stroke="url(#grad-pricing)" stroke-width="3" />
+                        </svg>
+                    </span>
+                    <h2>Escala a tu ritmo con planes flexibles.</h2>
+                </div>
             </div>
             <div class="pricing-grid" id="planes">
                 <article class="pricing-card reveal" data-animate="slide-right">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-pricing-starter" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#34d399" />
+                                    <stop offset="0.5" stop-color="#22d3ee" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M24 12c-5 4-8 9-8 14 0 6 4 10 8 10s8-4 8-10c0-5-3-10-8-14Z" stroke="url(#grad-pricing-starter)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M20 26h8" stroke="url(#grad-pricing-starter)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
                     <h3>Starter Studio</h3>
                     <p>Ideal para coach independiente o estudio boutique con hasta 60 asesorados activos.</p>
                     <strong style="font-size:1.8rem;">USD 129 / mes</strong>
@@ -1198,6 +1693,19 @@
                     <button class="btn-secondary" data-scroll="#cta">Solicitar demo</button>
                 </article>
                 <article class="pricing-card reveal" data-animate="zoom-in">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-pricing-growth" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#38bdf8" />
+                                    <stop offset="0.5" stop-color="#6366f1" />
+                                    <stop offset="1" stop-color="#ec4899" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M24 10c-6 5-9 12-9 18 0 7 4.5 12 9 12s9-5 9-12c0-6-3-13-9-18Z" stroke="url(#grad-pricing-growth)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M24 18v8l6 3" stroke="url(#grad-pricing-growth)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
                     <h3>Growth Hybrid</h3>
                     <p>Para equipos con coaches híbridos, programas grupales y venta recurrente.</p>
                     <strong style="font-size:1.9rem;">USD 229 / mes</strong>
@@ -1210,6 +1718,20 @@
                     <button class="btn-primary" data-scroll="#cta">Habla con un experto</button>
                 </article>
                 <article class="pricing-card reveal" data-animate="slide-left">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-pricing-enterprise" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#facc15" />
+                                    <stop offset="0.5" stop-color="#fb7185" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M14 22 24 12l10 10" stroke="url(#grad-pricing-enterprise)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M16 22v10l8 4 8-4V22" stroke="url(#grad-pricing-enterprise)" stroke-width="3" stroke-linejoin="round" />
+                            <circle cx="24" cy="18" r="3" fill="url(#grad-pricing-enterprise)" />
+                        </svg>
+                    </span>
                     <h3>Enterprise Elite</h3>
                     <p>Para cadenas, franquicias o marcas con +400 asesorados y modelos multi-sede.</p>
                     <strong style="font-size:1.8rem;">Habla con ventas</strong>
@@ -1227,20 +1749,72 @@
         <section class="reveal" data-animate="zoom-in" id="testimonios">
             <div class="section-header">
                 <span class="eyebrow">Coaches reales</span>
-                <h2>Historias que demuestran lo que FitTrack Pro logra.</h2>
+                <div class="section-title">
+                    <span class="icon-badge" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-testimonios" x1="12" y1="10" x2="36" y2="38" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#38bdf8" />
+                                    <stop offset="0.5" stop-color="#ec4899" />
+                                    <stop offset="1" stop-color="#facc15" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M16 18c0-4.4 3.6-8 8-8s8 3.6 8 8-3.6 8-8 8l-2 6" stroke="url(#grad-testimonios)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M12 26c0-3.3 2.7-6 6-6" stroke="url(#grad-testimonios)" stroke-width="3" stroke-linecap="round" />
+                            <circle cx="30" cy="30" r="4" fill="url(#grad-testimonios)" />
+                        </svg>
+                    </span>
+                    <h2>Historias que demuestran lo que FitTrack Pro logra.</h2>
+                </div>
             </div>
             <div class="testimonials">
                 <article class="testimonial reveal" data-animate="slide-up">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-quote-1" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#34d399" />
+                                    <stop offset="0.5" stop-color="#22d3ee" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M16 18a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v4a6 6 0 0 1-6 6h-1l-5 6v-6h-2a6 6 0 0 1-6-6v-4Z" stroke="url(#grad-quote-1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
                     <p>“Logramos lanzar nuestro programa híbrido en 12 días. Hoy tenemos 3 cohortes simultáneas y 94% de retención.”</p>
                     <strong>Andrea Costa — Head Coach, Studio Elevate</strong>
                     <span>+168 alumnos activos • Crecimiento 3.2x en ventas trimestrales</span>
                 </article>
                 <article class="testimonial reveal" data-animate="slide-up">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-quote-2" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#38bdf8" />
+                                    <stop offset="0.5" stop-color="#6366f1" />
+                                    <stop offset="1" stop-color="#ec4899" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M18 20a6 6 0 0 1 6-6h2a6 6 0 0 1 6 6v4a6 6 0 0 1-6 6h-2l-4 6v-6h-2a6 6 0 0 1-6-6v-4Z" stroke="url(#grad-quote-2)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
                     <p>“El seguimiento de comidas y rutinas personalizadas nos ahorró 20 horas semanales. Ahora vendemos upsells desde la misma app.”</p>
                     <strong>Felipe Matos — CEO, PerformLab</strong>
                     <span>ROI 6.5x en 8 meses • 40% más tickets high-end</span>
                 </article>
                 <article class="testimonial reveal" data-animate="slide-up">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-quote-3" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#fbbf24" />
+                                    <stop offset="0.4" stop-color="#fb7185" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M18 20a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v4a6 6 0 0 1-6 6h-2l-4 6v-6h-4a6 6 0 0 1-6-6v-4Z" stroke="url(#grad-quote-3)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
                     <p>“La experiencia visual es brutal. Nuestros leads se convierten antes del diagnóstico y el equipo mantiene todo organizado.”</p>
                     <strong>Carolina Vela — Fundadora, Kinetik</strong>
                     <span>Tiempo de onboarding reducido en 63% • 4.9★ satisfacción</span>
@@ -1251,22 +1825,97 @@
         <section class="reveal" data-animate="slide-up">
             <div class="section-header">
                 <span class="eyebrow">Comunidad & Recursos</span>
-                <h2>Accede a una comunidad activa y recursos accionables.</h2>
+                <div class="section-title">
+                    <span class="icon-badge" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-community" x1="10" y1="10" x2="38" y2="40" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#34d399" />
+                                    <stop offset="0.5" stop-color="#22d3ee" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="18" cy="20" r="5" stroke="url(#grad-community)" stroke-width="3" />
+                            <circle cx="30" cy="18" r="4.5" stroke="url(#grad-community)" stroke-width="3" />
+                            <path d="M10 34c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="url(#grad-community)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M26 32c0-3.8 3.2-7 7-7 3.8 0 7 3.2 7 7" stroke="url(#grad-community)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
+                    <h2>Accede a una comunidad activa y recursos accionables.</h2>
+                </div>
             </div>
             <div class="pillars">
                 <article class="pillar reveal" data-animate="slide-right">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-pillar-master" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#38bdf8" />
+                                    <stop offset="0.5" stop-color="#22d3ee" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M12 18h24" stroke="url(#grad-pillar-master)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M16 14v20" stroke="url(#grad-pillar-master)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M32 14v20" stroke="url(#grad-pillar-master)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M12 30h24" stroke="url(#grad-pillar-master)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
                     <h3>Masterclasses mensuales</h3>
                     <p>Casos de estudio, funnels, lanzamientos y escalamiento real de marcas fitness que ya usan FitTrack Pro.</p>
                 </article>
                 <article class="pillar reveal" data-animate="slide-right">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-pillar-templates" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#facc15" />
+                                    <stop offset="0.4" stop-color="#fb7185" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="12" y="14" width="20" height="20" rx="4" stroke="url(#grad-pillar-templates)" stroke-width="3" />
+                            <path d="M20 14v-4h12v20" stroke="url(#grad-pillar-templates)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M18 22h10" stroke="url(#grad-pillar-templates)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
                     <h3>Plantillas descargables</h3>
                     <p>Scripts de ventas, tableros de control, dashboards financieros y formatos para tu equipo.</p>
                 </article>
                 <article class="pillar reveal" data-animate="slide-right">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-pillar-support" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#34d399" />
+                                    <stop offset="0.5" stop-color="#22d3ee" />
+                                    <stop offset="1" stop-color="#6366f1" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M14 20a10 10 0 0 1 20 0v10a6 6 0 0 1-6 6h-8a6 6 0 0 1-6-6v-10Z" stroke="url(#grad-pillar-support)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M18 30v4" stroke="url(#grad-pillar-support)" stroke-width="3" stroke-linecap="round" />
+                            <path d="M30 30v4" stroke="url(#grad-pillar-support)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
                     <h3>Soporte premium 24/7</h3>
                     <p>Acceso directo a expertos en ventas, nutrición, entrenamiento y marketing para optimizar cada área.</p>
                 </article>
                 <article class="pillar reveal" data-animate="slide-right">
+                    <span class="card-icon" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-pillar-network" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#22d3ee" />
+                                    <stop offset="0.5" stop-color="#38bdf8" />
+                                    <stop offset="1" stop-color="#a855f7" />
+                                </linearGradient>
+                            </defs>
+                            <circle cx="18" cy="18" r="4" stroke="url(#grad-pillar-network)" stroke-width="3" />
+                            <circle cx="30" cy="24" r="4" stroke="url(#grad-pillar-network)" stroke-width="3" />
+                            <circle cx="18" cy="32" r="4" stroke="url(#grad-pillar-network)" stroke-width="3" />
+                            <path d="M22 18h4l4 6-4 6h-4l-4-6 4-6Z" stroke="url(#grad-pillar-network)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
                     <h3>Red de aliados</h3>
                     <p>Productoras de contenido, especialistas en ads, nutricionistas y partners tecnológicos certificados.</p>
                 </article>
@@ -1276,12 +1925,44 @@
         <section class="reveal" data-animate="zoom-in">
             <div class="section-header">
                 <span class="eyebrow">Galería</span>
-                <h2>Muestra visual de entrenamientos, recetas y comunidad.</h2>
+                <div class="section-title">
+                    <span class="icon-badge" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-galeria" x1="10" y1="12" x2="38" y2="36" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#38bdf8" />
+                                    <stop offset="0.5" stop-color="#22d3ee" />
+                                    <stop offset="1" stop-color="#ec4899" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="10" y="14" width="28" height="20" rx="5" stroke="url(#grad-galeria)" stroke-width="3" />
+                            <circle cx="19" cy="22" r="4" stroke="url(#grad-galeria)" stroke-width="3" />
+                            <path d="M18 30l6-6 8 8" stroke="url(#grad-galeria)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M28 18h6" stroke="url(#grad-galeria)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
+                    <h2>Muestra visual de entrenamientos, recetas y comunidad.</h2>
+                </div>
             </div>
             <div class="media-row">
                 <div class="media-card reveal" data-animate="slide-up">
                     <img src="https://dummyimage.com/600x380/0f172a/a855f7&text=Equipo+Coach" alt="Equipo coach" id="galeria1" />
                     <div class="content">
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="grad-gallery-team" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#38bdf8" />
+                                        <stop offset="0.5" stop-color="#34d399" />
+                                        <stop offset="1" stop-color="#f472b6" />
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="18" cy="20" r="4.5" stroke="url(#grad-gallery-team)" stroke-width="3" />
+                                <circle cx="30" cy="18" r="4" stroke="url(#grad-gallery-team)" stroke-width="3" />
+                                <path d="M10 32c0-3.8 3.2-7 7-7h4" stroke="url(#grad-gallery-team)" stroke-width="3" stroke-linecap="round" />
+                                <path d="M26 30c0-3.6 3-6.5 6.5-6.5S39 26.4 39 30" stroke="url(#grad-gallery-team)" stroke-width="3" stroke-linecap="round" />
+                            </svg>
+                        </span>
                         <h3>Equipo de coaches certificados</h3>
                         <p>Destaca la calidad humana de tu equipo con fotografías profesionales y mensajes inspiradores.</p>
                         <label class="upload-drop" for="galeriaUpload1">Sube tu fotografía</label>
@@ -1291,6 +1972,21 @@
                 <div class="media-card reveal" data-animate="slide-up">
                     <img src="https://dummyimage.com/600x380/0f172a/22d3ee&text=Recetas+Fit" alt="Recetas fit" id="galeria2" />
                     <div class="content">
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="grad-gallery-food" x1="14" y1="12" x2="34" y2="36" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#facc15" />
+                                        <stop offset="0.5" stop-color="#fb7185" />
+                                        <stop offset="1" stop-color="#a855f7" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M12 20h24" stroke="url(#grad-gallery-food)" stroke-width="3" stroke-linecap="round" />
+                                <path d="M14 20c0 7 4 12 10 12s10-5 10-12" stroke="url(#grad-gallery-food)" stroke-width="3" stroke-linecap="round" />
+                                <path d="M18 14c1.5 2 3.5 3 6 3s4.5-1 6-3" stroke="url(#grad-gallery-food)" stroke-width="3" stroke-linecap="round" />
+                                <circle cx="24" cy="30" r="2.5" fill="url(#grad-gallery-food)" />
+                            </svg>
+                        </span>
                         <h3>Recetas irresistibles</h3>
                         <p>Comparte contenido culinario para reforzar la adherencia y crear conexión emocional.</p>
                         <label class="upload-drop" for="galeriaUpload2">Actualizar imagen</label>
@@ -1300,6 +1996,21 @@
                 <div class="media-card reveal" data-animate="slide-up">
                     <img src="https://dummyimage.com/600x380/0f172a/34d399&text=Comunidad+Activa" alt="Comunidad activa" id="galeria3" />
                     <div class="content">
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="grad-gallery-community" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#22d3ee" />
+                                        <stop offset="0.5" stop-color="#38bdf8" />
+                                        <stop offset="1" stop-color="#ec4899" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M16 22c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="url(#grad-gallery-community)" stroke-width="3" stroke-linecap="round" />
+                                <path d="M10 34c0-4.4 3.6-8 8-8h12c4.4 0 8 3.6 8 8" stroke="url(#grad-gallery-community)" stroke-width="3" stroke-linecap="round" />
+                                <path d="M24 30v-4" stroke="url(#grad-gallery-community)" stroke-width="3" stroke-linecap="round" />
+                                <circle cx="24" cy="26" r="2.5" fill="url(#grad-gallery-community)" />
+                            </svg>
+                        </span>
                         <h3>Comunidad activa & eventos</h3>
                         <p>Promueve tus retos, eventos híbridos y meetups para aumentar retención.</p>
                         <label class="upload-drop" for="galeriaUpload3">Cambiar fotografía</label>
@@ -1312,29 +2023,108 @@
         <section class="reveal" data-animate="slide-up" id="faq">
             <div class="section-header">
                 <span class="eyebrow">Preguntas frecuentes</span>
-                <h2>Resuelve las dudas antes de tu llamada de ventas.</h2>
+                <div class="section-title">
+                    <span class="icon-badge" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="grad-faq" x1="14" y1="10" x2="34" y2="38" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#6366f1" />
+                                    <stop offset="0.5" stop-color="#22d3ee" />
+                                    <stop offset="1" stop-color="#f97316" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M18 18a6 6 0 0 1 12 0c0 6-6 6-6 12" stroke="url(#grad-faq)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="24" cy="34" r="2.8" fill="url(#grad-faq)" />
+                            <path d="M16 30c-3.3 0-6-2.7-6-6v-2c0-5.5 4.5-10 10-10h8c5.5 0 10 4.5 10 10v2c0 3.3-2.7 6-6 6" stroke="url(#grad-faq)" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </span>
+                    <h2>Resuelve las dudas antes de tu llamada de ventas.</h2>
+                </div>
             </div>
             <div class="faq-grid">
                 <article class="faq-item">
-                    <div class="faq-question">¿Cuánto tarda la implementación completa?</div>
+                    <div class="faq-question">
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="grad-faq-q1" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#38bdf8" />
+                                        <stop offset="0.5" stop-color="#6366f1" />
+                                        <stop offset="1" stop-color="#ec4899" />
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="24" cy="24" r="12" stroke="url(#grad-faq-q1)" stroke-width="3" />
+                                <path d="M24 18v8l5 3" stroke="url(#grad-faq-q1)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <span class="faq-text">¿Cuánto tarda la implementación completa?</span>
+                    </div>
                     <div class="faq-answer">
                         <p>En promedio 14 días con soporte asistido. Si traes activos listos (logos, colores, rutinas) puedes lanzar en menos de una semana.</p>
                     </div>
                 </article>
                 <article class="faq-item">
-                    <div class="faq-question">¿Puedo migrar mis datos actuales?</div>
+                    <div class="faq-question">
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="grad-faq-q2" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#34d399" />
+                                        <stop offset="0.5" stop-color="#22d3ee" />
+                                        <stop offset="1" stop-color="#a855f7" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M16 20a8 8 0 0 1 16 0v12a4 4 0 0 1-4 4h-8a4 4 0 0 1-4-4V20Z" stroke="url(#grad-faq-q2)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M18 16h12" stroke="url(#grad-faq-q2)" stroke-width="3" stroke-linecap="round" />
+                                <path d="M20 26h8" stroke="url(#grad-faq-q2)" stroke-width="3" stroke-linecap="round" />
+                            </svg>
+                        </span>
+                        <span class="faq-text">¿Puedo migrar mis datos actuales?</span>
+                    </div>
                     <div class="faq-answer">
                         <p>Sí. Importamos asesorados, rutinas, recetas y contratos desde hojas de cálculo u otras apps. Incluye auditoría de calidad.</p>
                     </div>
                 </article>
                 <article class="faq-item">
-                    <div class="faq-question">¿Hay soporte para múltiples coaches?</div>
+                    <div class="faq-question">
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="grad-faq-q3" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#22d3ee" />
+                                        <stop offset="0.5" stop-color="#38bdf8" />
+                                        <stop offset="1" stop-color="#a855f7" />
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="18" cy="20" r="4.5" stroke="url(#grad-faq-q3)" stroke-width="3" />
+                                <circle cx="30" cy="20" r="4.5" stroke="url(#grad-faq-q3)" stroke-width="3" />
+                                <path d="M10 32c0-4 3.2-7.2 7.2-7.2h13.6c4 0 7.2 3.2 7.2 7.2" stroke="url(#grad-faq-q3)" stroke-width="3" stroke-linecap="round" />
+                            </svg>
+                        </span>
+                        <span class="faq-text">¿Hay soporte para múltiples coaches?</span>
+                    </div>
                     <div class="faq-answer">
                         <p>Cada coach obtiene panel propio con asignaciones, KPI y automatizaciones. Gestiona permisos y comisiones desde un solo lugar.</p>
                     </div>
                 </article>
                 <article class="faq-item">
-                    <div class="faq-question">¿Qué pasa si no tengo equipo de marketing?</div>
+                    <div class="faq-question">
+                        <span class="card-icon" aria-hidden="true">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <linearGradient id="grad-faq-q4" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#facc15" />
+                                        <stop offset="0.4" stop-color="#fb7185" />
+                                        <stop offset="1" stop-color="#a855f7" />
+                                    </linearGradient>
+                                </defs>
+                                <path d="M18 30 30 18" stroke="url(#grad-faq-q4)" stroke-width="3" stroke-linecap="round" />
+                                <path d="M30 14v8h-8" stroke="url(#grad-faq-q4)" stroke-width="3" stroke-linecap="round" />
+                                <path d="M12 34h24" stroke="url(#grad-faq-q4)" stroke-width="3" stroke-linecap="round" />
+                            </svg>
+                        </span>
+                        <span class="faq-text">¿Qué pasa si no tengo equipo de marketing?</span>
+                    </div>
                     <div class="faq-answer">
                         <p>Te conectamos con nuestro squad creativo: copywriters, diseñadores y media buyers especializados en fitness para lanzar contigo.</p>
                     </div>
@@ -1343,7 +2133,23 @@
         </section>
 
         <section class="cta-block reveal" data-animate="zoom-in" id="cta">
-            <h2>Listo para construir la mejor experiencia digital de tu marca?</h2>
+            <div class="section-title" style="justify-content:center;">
+                <span class="icon-badge" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="grad-cta" x1="14" y1="8" x2="34" y2="40" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#22d3ee" />
+                                <stop offset="0.45" stop-color="#38bdf8" />
+                                <stop offset="1" stop-color="#a855f7" />
+                            </linearGradient>
+                        </defs>
+                        <path d="M24 8v12l8 4" stroke="url(#grad-cta)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M14 20c-4 2.5-6 5.5-6 9 0 5.5 6 9 16 9s16-3.5 16-9c0-3.5-2-6.5-6-9" stroke="url(#grad-cta)" stroke-width="3" stroke-linecap="round" />
+                        <circle cx="24" cy="16" r="3.5" fill="url(#grad-cta)" />
+                    </svg>
+                </span>
+                <h2>Listo para construir la mejor experiencia digital de tu marca?</h2>
+            </div>
             <p>
                 Agenda una demo personalizada y te mostramos cómo adaptar FitTrack Pro a tu modelo de negocio en menos de 30 minutos.
             </p>
