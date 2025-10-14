@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FitTrack Pro - Landing de Ventas</title>
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #030712;
+            --bg-soft: rgba(15, 23, 42, 0.8);
+            --surface: rgba(15, 23, 42, 0.6);
+            --gradient: linear-gradient(135deg, #16a34a, #0ea5e9);
+            --gradient-soft: linear-gradient(135deg, rgba(22, 163, 74, 0.2), rgba(14, 165, 233, 0.18));
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #34d399;
+            --accent-strong: #22d3ee;
+            --border: rgba(148, 163, 184, 0.18);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at top left, rgba(52, 211, 153, 0.12), transparent 38%),
+                        radial-gradient(circle at top right, rgba(14, 165, 233, 0.14), transparent 42%),
+                        var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3 {
+            margin: 0 0 0.6rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+        }
+
+        p {
+            margin: 0 0 1rem;
+            line-height: 1.65;
+            color: var(--muted);
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        img {
+            max-width: 100%;
+            display: block;
+            border-radius: 1.5rem;
+        }
+
+        .page-wrapper {
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(16px);
+            background: rgba(2, 6, 23, 0.78);
+            border-bottom: 1px solid rgba(51, 65, 85, 0.38);
+        }
+
+        .nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem clamp(1.2rem, 4vw, 3.5rem);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 18px;
+            background: var(--gradient);
+            display: grid;
+            place-items: center;
+            color: #04101b;
+            font-weight: 900;
+            font-size: 1.2rem;
+            box-shadow: 0 20px 45px rgba(45, 212, 191, 0.35);
+        }
+
+        .brand span {
+            font-weight: 700;
+            font-size: 1.25rem;
+            letter-spacing: 0.12em;
+        }
+
+        .nav-cta {
+            padding: 0.85rem 1.6rem;
+            border-radius: 999px;
+            background: var(--gradient);
+            color: #020617;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 16px 40px rgba(45, 212, 191, 0.3);
+        }
+
+        .nav-cta:hover { transform: translateY(-1px) scale(1.01); }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: clamp(1.5rem, 4vw, 3.8rem) clamp(1.2rem, 4vw, 3.5rem) 5rem;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(3rem, 7vw, 6rem);
+        }
+
+        section {
+            border: 1px solid var(--border);
+            border-radius: clamp(1.8rem, 5vw, 3rem);
+            background: var(--surface);
+            backdrop-filter: blur(18px);
+            padding: clamp(2rem, 4vw, 4.5rem);
+            position: relative;
+            overflow: hidden;
+        }
+
+        section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gradient-soft);
+            opacity: 0.22;
+            pointer-events: none;
+        }
+
+        .section-inner {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: clamp(1.5rem, 3.5vw, 3.5rem);
+        }
+
+        .hero {
+            display: grid;
+            gap: clamp(2rem, 4vw, 3rem);
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 7vw, 3.8rem);
+            line-height: 1.05;
+        }
+
+        .hero p {
+            max-width: 560px;
+        }
+
+        .hero-visual {
+            position: relative;
+            border-radius: clamp(2rem, 5vw, 3.6rem);
+            background: rgba(15, 23, 42, 0.9);
+            padding: clamp(1.4rem, 3vw, 2.5rem);
+            border: 1px solid rgba(45, 212, 191, 0.3);
+            box-shadow: 0 30px 80px -40px rgba(56, 189, 248, 0.5);
+        }
+
+        .hero-visual img {
+            border-radius: clamp(1.5rem, 4vw, 3rem);
+        }
+
+        .feature-grid {
+            display: grid;
+            gap: clamp(1.5rem, 3vw, 2.8rem);
+        }
+
+        .feature-card {
+            border-radius: 1.8rem;
+            padding: clamp(1.5rem, 3vw, 2.5rem);
+            background: rgba(2, 6, 23, 0.68);
+            border: 1px solid rgba(30, 41, 59, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            inset: -120% 20% auto 20%;
+            height: 200%;
+            background: conic-gradient(from 130deg, rgba(45, 212, 191, 0.25), transparent 50%, rgba(14, 165, 233, 0.3), transparent 75%);
+            opacity: 0.6;
+            animation: rotate 22s linear infinite;
+            z-index: 0;
+        }
+
+        .feature-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #a5f3fc;
+            background: rgba(14, 165, 233, 0.14);
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+        }
+
+        .stat-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.72);
+            border-radius: 1.6rem;
+            padding: 1.8rem;
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            text-align: center;
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: clamp(1.8rem, 5vw, 2.6rem);
+            font-weight: 800;
+            color: white;
+        }
+
+        .stat-card span {
+            font-size: 0.9rem;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+        }
+
+        .visual-upload {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .upload-input {
+            border: 1px dashed rgba(148, 163, 184, 0.4);
+            border-radius: 1.2rem;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            background: rgba(15, 23, 42, 0.75);
+        }
+
+        .upload-input label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .upload-input input {
+            background: rgba(30, 41, 59, 0.65);
+            border: 1px solid rgba(51, 65, 85, 0.45);
+            border-radius: 999px;
+            padding: 0.45rem 0.95rem;
+            color: var(--text);
+            font-size: 0.8rem;
+        }
+
+        .timeline {
+            display: grid;
+            gap: 1.2rem;
+        }
+
+        .timeline-item {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .timeline-step {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: rgba(56, 189, 248, 0.22);
+            display: grid;
+            place-items: center;
+            font-weight: 800;
+            color: var(--accent-strong);
+            font-size: 1rem;
+        }
+
+        .pricing-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .pricing-card {
+            padding: clamp(1.8rem, 3vw, 2.6rem);
+            border-radius: 1.8rem;
+            background: rgba(2, 6, 23, 0.76);
+            border: 1px solid rgba(45, 212, 191, 0.25);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card.highlight {
+            background: rgba(14, 116, 144, 0.85);
+            border-color: rgba(94, 234, 212, 0.7);
+            box-shadow: 0 30px 60px -35px rgba(45, 212, 191, 0.55);
+        }
+
+        .pricing-card h3 { font-size: 1.4rem; }
+
+        .price {
+            font-size: clamp(2.4rem, 6vw, 3rem);
+            font-weight: 900;
+            display: flex;
+            align-items: baseline;
+            gap: 0.4rem;
+        }
+
+        .price span { font-size: 0.8rem; color: var(--muted); }
+
+        ul.benefits {
+            padding-left: 1.2rem;
+            margin: 1.2rem 0;
+            display: grid;
+            gap: 0.6rem;
+        }
+
+        ul.benefits li {
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .cta-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            padding: 0.9rem 1.6rem;
+            border-radius: 999px;
+            border: none;
+            background: var(--gradient);
+            color: #020617;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 0 18px 45px rgba(14, 165, 233, 0.25);
+        }
+
+        .testimonials {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .testimonial-card {
+            background: rgba(15, 23, 42, 0.78);
+            border-radius: 1.6rem;
+            padding: 1.6rem;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .testimonial-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .avatar {
+            width: 54px;
+            height: 54px;
+            border-radius: 16px;
+            background: rgba(45, 212, 191, 0.2);
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .faq-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .faq-item {
+            background: rgba(2, 6, 23, 0.78);
+            border-radius: 1.4rem;
+            padding: 1.4rem;
+            border: 1px solid rgba(30, 41, 59, 0.6);
+        }
+
+        .floating-cta {
+            position: fixed;
+            inset: auto clamp(1rem, 5vw, 2.5rem) clamp(1rem, 6vw, 2.5rem) clamp(1rem, 5vw, 2.5rem);
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 1.6rem;
+            padding: 1.2rem 1.5rem;
+            border: 1px solid rgba(45, 212, 191, 0.4);
+            box-shadow: 0 25px 60px -35px rgba(15, 118, 110, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .floating-cta button {
+            flex-shrink: 0;
+        }
+
+        .mobile-only { display: none; }
+
+        footer {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.8rem;
+            padding-bottom: 5rem;
+        }
+
+        @keyframes rotate {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (min-width: 768px) {
+            .hero {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                align-items: center;
+            }
+
+            .feature-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .visual-upload {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .timeline {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .pricing-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .testimonials {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            footer {
+                padding-bottom: 2rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            header {
+                position: static;
+            }
+
+            .nav-cta {
+                display: none;
+            }
+
+            .mobile-only {
+                display: inline-flex;
+            }
+
+            .floating-cta {
+                bottom: 1.2rem;
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .floating-cta button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <header>
+            <div class="nav-bar">
+                <div class="brand">
+                    <div class="brand-icon">FT</div>
+                    <span>FitTrack Pro</span>
+                </div>
+                <button class="nav-cta" data-scroll="pricing">Comienza hoy</button>
+            </div>
+        </header>
+
+        <main>
+            <section class="hero" id="hero">
+                <div class="section-inner">
+                    <div>
+                        <span class="tag">Potencia lo que ya construiste</span>
+                        <h1>Convierte FitTrack en tu producto estrella con una narrativa de ventas lista para usar</h1>
+                        <p>
+                            Te entregamos una landing estratégica enfocada en los beneficios reales que ya viven tus usuarios dentro de FitTrack:
+                            rutinas personalizadas, tablero inteligente, nutrición conectada y comunicación con asesorados. Diseñada para móviles y con segmentos editables para añadir tu branding en segundos.
+                        </p>
+                        <div class="stat-grid">
+                            <div class="stat-card">
+                                <strong>+120</strong>
+                                <span>rutinas inteligentes listas para mostrar</span>
+                            </div>
+                            <div class="stat-card">
+                                <strong>98%</strong>
+                                <span>retención lograda con recordatorios in-app</span>
+                            </div>
+                            <div class="stat-card">
+                                <strong>24/7</strong>
+                                <span>seguimiento nutricional y de hábitos</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hero-visual">
+                        <div class="visual-upload">
+                            <img id="hero-preview" src="icons/icon-512x512.png" alt="Vista previa FitTrack" />
+                            <div class="upload-input">
+                                <label for="hero-upload">Sube tu captura del panel principal</label>
+                                <input id="hero-upload" type="file" accept="image/*" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="beneficios">
+                <div class="section-inner">
+                    <div>
+                        <span class="tag">Basado en tus funcionalidades reales</span>
+                        <h2>Cuenta la historia de FitTrack apoyándote en sus cuatro pilares</h2>
+                        <p>
+                            Extraímos las capacidades clave de tu aplicación: onboarding con panel inmersivo, módulo de rutinas, gestión de asesorados y calculadoras nutricionales conectadas con planes de dieta. Cada bloque está listo para convertir visitas en registros.
+                        </p>
+                    </div>
+                    <div class="feature-grid">
+                        <article class="feature-card">
+                            <div class="feature-content">
+                                <h3>Panel de inicio inmersivo</h3>
+                                <p>Refuerza la experiencia de bienvenida que ya ofrece FitTrack. Presenta la pantalla de lanzamiento, el login/registro dual y el flujo de personalización instantánea.</p>
+                                <div class="visual-upload">
+                                    <img id="panel-preview" src="icons/icon-192x192.png" alt="Panel principal" />
+                                    <div class="upload-input">
+                                        <label for="panel-upload">Carga un mockup del dashboard</label>
+                                        <input id="panel-upload" type="file" accept="image/*" />
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="feature-card">
+                            <div class="feature-content">
+                                <h3>Rutinas hiper-personalizadas</h3>
+                                <p>Destaca el creador de rutinas con cards dinámicas, drawer de ejercicios y seguimiento visual del progreso. Incluye testimonios de usuarios que suman constancia.</p>
+                                <div class="visual-upload">
+                                    <img id="rutina-preview" src="icons/icon-512x512.png" alt="Rutinas FitTrack" />
+                                    <div class="upload-input">
+                                        <label for="rutina-upload">Añade tus mejores rutinas</label>
+                                        <input id="rutina-upload" type="file" accept="image/*" />
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                        <article class="feature-card">
+                            <div class="feature-content">
+                                <h3>Núcleo de asesorados</h3>
+                                <p>Muestra cómo gestionas clientes desde FitTrack: perfiles con progreso, sesiones agendadas y mensajería contextual. Ideal para cerrar ventas B2B o programas premium.</p>
+                                <div class="visual-upload">
+                                    <img id="asesorados-preview" src="icons/icon-512x512.png" alt="Asesorados" />
+                                    <div class="upload-input">
+                                        <label for="asesorados-upload">Comparte tus casos de éxito</label>
+                                        <input id="asesorados-upload" type="file" accept="image/*" />
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section id="estrategia">
+                <div class="section-inner">
+                    <div>
+                        <span class="tag">Guion listo para lanzar campañas</span>
+                        <h2>Framework de comunicación para captar, nutrir y convertir</h2>
+                        <p>
+                            Sigue este esquema probado para presentar FitTrack en campañas pagas, webinars o reuniones con prospectos corporativos.
+                        </p>
+                    </div>
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-step">01</div>
+                            <div>
+                                <h3>Apertura: impacto visual</h3>
+                                <p>Utiliza la animación de carga y la dupla login/registro para mostrar profesionalismo desde el primer segundo. Reforzar que la experiencia es rápida, segura y móvil-first.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-step">02</div>
+                            <div>
+                                <h3>Demostración guiada</h3>
+                                <p>Recorre el panel de inicio resaltando tarjetas de hábitos, métricas de peso y recordatorios en vivo. Usa las visualizaciones de progreso para hablar de adherencia.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-step">03</div>
+                            <div>
+                                <h3>Profundización por módulos</h3>
+                                <p>Integra videos cortos de la sección de rutinas, el drawer de ejercicios y la calculadora nutricional. Deja claro que todo está interconectado.</p>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-step">04</div>
+                            <div>
+                                <h3>Cierre y CTA</h3>
+                                <p>Invita a agendar una demo o descarga con la promesa de soporte continuo y panel de control para coaches. Utiliza el call to action "Activa tu prueba" con urgencia.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="pricing">
+                <div class="section-inner">
+                    <div>
+                        <span class="tag">Planes orientados a resultados</span>
+                        <h2>Escala tu negocio fitness con la estructura que ya existe en FitTrack</h2>
+                        <p>
+                            Propón paquetes que combinen acceso a la plataforma, rutinas personalizadas y seguimiento nutricional. Aquí tienes una base editable para tus ofertas.
+                        </p>
+                    </div>
+                    <div class="pricing-grid">
+                        <div class="pricing-card">
+                            <h3>Starter Coach</h3>
+                            <div class="price">$39 <span>/mes</span></div>
+                            <p>Ideal para entrenadores que empiezan a digitalizar su servicio.</p>
+                            <ul class="benefits">
+                                <li>Panel de inicio con seguimiento diario.</li>
+                                <li>Hasta 20 asesorados activos.</li>
+                                <li>Rutinas pre-configuradas por objetivo.</li>
+                                <li>Soporte por chat en la app.</li>
+                            </ul>
+                            <button class="cta-button" data-action="checkout" data-plan="Starter">Quiero este plan</button>
+                        </div>
+                        <div class="pricing-card highlight">
+                            <h3>Estudio Premium</h3>
+                            <div class="price">$79 <span>/mes</span></div>
+                            <p>El paquete favorito para estudios boutique y programas grupales.</p>
+                            <ul class="benefits">
+                                <li>Comunidades privadas y mensajería personalizada.</li>
+                                <li>Automatizaciones de recordatorios y hábitos.</li>
+                                <li>Calculadoras nutricionales y planes editables.</li>
+                                <li>Reportes avanzados en tiempo real.</li>
+                            </ul>
+                            <button class="cta-button" data-action="checkout" data-plan="Premium">Plan destacado</button>
+                        </div>
+                        <div class="pricing-card">
+                            <h3>Corporate Wellness</h3>
+                            <div class="price">$149 <span>/mes</span></div>
+                            <p>Empresas que buscan bienestar continuo para sus equipos remotos.</p>
+                            <ul class="benefits">
+                                <li>Onboarding masivo y perfiles ilimitados.</li>
+                                <li>Informes ejecutivos y panel colaborativo.</li>
+                                <li>Integraciones API y soporte dedicado.</li>
+                                <li>Activación express en 48 horas.</li>
+                            </ul>
+                            <button class="cta-button" data-action="checkout" data-plan="Corporate">Solicitar demo</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="testimonios">
+                <div class="section-inner">
+                    <div>
+                        <span class="tag">Prueba social</span>
+                        <h2>Historias reales desde el panel de FitTrack</h2>
+                        <p>
+                            Inserta testimonios y métricas de éxito de tus clientes para reforzar la conversión. Cada tarjeta permite actualizar avatar e imagen de fondo.
+                        </p>
+                    </div>
+                    <div class="testimonials">
+                        <article class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="avatar">AR</div>
+                                <div>
+                                    <h3>Andrea Restrepo</h3>
+                                    <p>Entrenadora de fuerza</p>
+                                </div>
+                            </div>
+                            <p>
+                                "Desde que presento FitTrack con esta landing, cierro el 70% de mis reuniones. Mostrar las rutinas y los seguimientos en vivo inspira confianza inmediata." 
+                            </p>
+                            <div class="visual-upload">
+                                <img id="testimonio1-preview" src="icons/icon-192x192.png" alt="Andrea progreso" />
+                                <div class="upload-input">
+                                    <label for="testimonio1-upload">Sube la prueba social</label>
+                                    <input id="testimonio1-upload" type="file" accept="image/*" />
+                                </div>
+                            </div>
+                        </article>
+                        <article class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="avatar">JS</div>
+                                <div>
+                                    <h3>Juan Sebastián</h3>
+                                    <p>Fundador FitStudio</p>
+                                </div>
+                            </div>
+                            <p>
+                                "Integramos la sección de asesorados y los planes corporativos se venden solos. La demo guiada que recomienda la landing es oro puro para cerrar contratos." 
+                            </p>
+                            <div class="visual-upload">
+                                <img id="testimonio2-preview" src="icons/icon-192x192.png" alt="Testimonio empresarial" />
+                                <div class="upload-input">
+                                    <label for="testimonio2-upload">Destaca tu caso B2B</label>
+                                    <input id="testimonio2-upload" type="file" accept="image/*" />
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
+
+            <section id="faq">
+                <div class="section-inner">
+                    <div>
+                        <span class="tag">Resuelve objeciones</span>
+                        <h2>Preguntas frecuentes para tus prospectos</h2>
+                        <p>Todo se apoya en funcionalidades existentes dentro de FitTrack para mantener la comunicación honesta y efectiva.</p>
+                    </div>
+                    <div class="faq-grid">
+                        <div class="faq-item">
+                            <h3>¿Puedo personalizar los planes de entrenamiento?</h3>
+                            <p>Sí, la sección de rutinas permite editar ejercicios, cargas y semanas completas. Lo que ves en la landing está conectado al constructor real de FitTrack.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h3>¿Qué tan rápido puedo activar la plataforma?</h3>
+                            <p>Gracias al onboarding que ya creaste, los usuarios pueden registrarse, completar su perfil y recibir su primera rutina en menos de 5 minutos.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h3>¿Incluye seguimiento nutricional?</h3>
+                            <p>El módulo de cálculos y dieta integra IMC, TMB, distribución de macronutrientes y planes diarios listos para compartir desde la app.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h3>¿Hay soporte para múltiples entrenadores?</h3>
+                            <p>La sección de asesorados y los reportes colaborativos permiten que varios coaches gestionen un mismo estudio con permisos diferenciados.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <div class="floating-cta">
+            <div>
+                <strong>Activa tu landing y empieza a vender hoy mismo</strong>
+                <p>Exporta este archivo, reemplaza las imágenes con tus capturas reales y conecta el botón de pago que prefieras.</p>
+            </div>
+            <button class="cta-button mobile-only" data-scroll="hero">Volver arriba</button>
+            <button class="cta-button" data-action="checkout" data-plan="Floating">Agendar demo</button>
+        </div>
+
+        <footer>
+            FitTrack Pro © <span id="year"></span>. Tu asistente fitness, elevado a producto premium.
+        </footer>
+    </div>
+
+    <script>
+        const scrollButtons = document.querySelectorAll('[data-scroll]');
+        const checkoutButtons = document.querySelectorAll('[data-action="checkout"]');
+        const uploadConfig = [
+            { input: '#hero-upload', preview: '#hero-preview' },
+            { input: '#panel-upload', preview: '#panel-preview' },
+            { input: '#rutina-upload', preview: '#rutina-preview' },
+            { input: '#asesorados-upload', preview: '#asesorados-preview' },
+            { input: '#testimonio1-upload', preview: '#testimonio1-preview' },
+            { input: '#testimonio2-upload', preview: '#testimonio2-preview' },
+        ];
+
+        const smoothScroll = (targetId) => {
+            const el = document.getElementById(targetId);
+            if (el) {
+                const offset = 90;
+                const top = el.getBoundingClientRect().top + window.scrollY - offset;
+                window.scrollTo({ top, behavior: 'smooth' });
+            }
+        };
+
+        scrollButtons.forEach((btn) => {
+            btn.addEventListener('click', () => smoothScroll(btn.dataset.scroll));
+        });
+
+        checkoutButtons.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const plan = btn.dataset.plan;
+                const message = `Hola, quiero activar el plan ${plan} de FitTrack Pro y utilizar la landing.`;
+                const whatsappUrl = `https://wa.me/573001112233?text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            });
+        });
+
+        uploadConfig.forEach(({ input, preview }) => {
+            const inputEl = document.querySelector(input);
+            const previewEl = document.querySelector(preview);
+
+            if (!inputEl || !previewEl) return;
+
+            inputEl.addEventListener('change', (event) => {
+                const file = event.target.files?.[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    previewEl.src = e.target?.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        document.getElementById('year').textContent = new Date().getFullYear();
+    </script>
+</body>
+</html>
