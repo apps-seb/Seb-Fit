@@ -22,6 +22,11 @@
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body.mobile-menu-open { overflow: hidden; }
+        #profile-avatar,
+        #user-avatar {
+            position: relative;
+            overflow: hidden;
+        }
         #profile-avatar.has-photo,
         #user-avatar.has-photo {
             background-size: cover;
@@ -68,6 +73,46 @@
         .launch-spinner { width: 64px; height: 64px; border-radius: 50%; border: 4px solid rgba(52, 211, 153, 0.2); border-top-color: #34d399; animation: spin 1s linear infinite, pulse 2.4s ease-in-out infinite; box-shadow: 0 0 30px rgba(52, 211, 153, 0.25); }
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%, 100% { box-shadow: 0 0 20px rgba(52, 211, 153, 0.15); } 50% { box-shadow: 0 0 35px rgba(52, 211, 153, 0.35); } }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+        .loading-shimmer {
+            position: relative;
+            overflow: hidden;
+        }
+        .loading-shimmer::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0));
+            transform: translateX(-100%);
+            animation: shimmer 1.2s ease-in-out infinite;
+            pointer-events: none;
+        }
+        .loading-shimmer > * {
+            position: relative;
+            z-index: 1;
+        }
+        .image-loading-placeholder {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85), rgba(15, 23, 42, 0.9));
+            overflow: hidden;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .image-loading-placeholder::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0));
+            transform: translateX(-100%);
+            animation: shimmer 1.2s ease-in-out infinite;
+        }
+        .image-loading-placeholder.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
 
         #mobile-menu-backdrop { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         #mobile-menu-backdrop.is-visible { opacity: 1; pointer-events: auto; }
@@ -624,6 +669,42 @@
                                     <p class="text-sm font-semibold text-white">Domina la rutina Élite en 4 sesiones</p>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="routine-admin-banner-card" class="hidden overflow-hidden rounded-3xl border border-white/10 bg-gray-900/70 shadow-[0_45px_140px_-70px_rgba(16,185,129,0.65)]">
+                    <div class="relative aspect-[21/9] overflow-hidden">
+                        <div id="routine-admin-banner-skeleton" class="image-loading-placeholder"></div>
+                        <img id="routine-admin-banner-preview" alt="Banner publicitario de rutinas" class="routine-banner-image absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500" />
+                        <div id="routine-admin-banner-fallback" class="image-fallback absolute inset-0 hidden flex-col items-center justify-center gap-2 bg-gray-900/80 text-center text-gray-400">
+                            <i data-lucide="layout-dashboard" class="h-10 w-10 text-emerald-300/80"></i>
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Banner de rutinas</p>
+                            <p class="max-w-sm text-sm text-gray-400">Sube una imagen panorámica 21:9 para destacar campañas o anuncios dentro del apartado de rutinas.</p>
+                        </div>
+                        <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent"></div>
+                    </div>
+                    <div class="flex flex-col gap-4 border-t border-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                        <div class="space-y-1">
+                            <h3 class="text-lg font-semibold text-white">Banner destacado para rutinas</h3>
+                            <p class="text-sm text-gray-300">Formato recomendado 21:9 (ej. 2100×900 px) optimizado para verse sin parpadeos.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <input type="file" id="routine-banner-input" accept="image/*" class="hidden">
+                            <button data-action="open-routine-banner-upload" class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
+                                <i data-lucide="image-plus" class="h-4 w-4"></i>
+                                Subir banner
+                            </button>
+                            <button data-action="remove-routine-banner-image" class="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:border-red-400/60 hover:text-red-300">
+                                <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                Quitar
+                            </button>
+                        </div>
+                        <div id="routine-banner-progress" class="hidden w-full items-center gap-3 rounded-2xl border border-white/10 bg-gray-950/70 px-4 py-3">
+                            <div class="relative h-2 flex-1 overflow-hidden rounded-full bg-white/10">
+                                <div id="routine-banner-progress-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-300"></div>
+                            </div>
+                            <span id="routine-banner-progress-text" class="text-xs font-semibold text-gray-300">Preparando...</span>
                         </div>
                     </div>
                 </div>
@@ -1610,6 +1691,7 @@
                         activeWorkout: null,
                         timer: { status: 'idle', timeLeft: 0, intervalId: null, initialRestTime: 0 },
                         dashboardCover: { image: '', storagePath: '', updatedAt: null },
+                        routineBanner: { image: '', storagePath: '', updatedAt: null },
                         profilePhoto: { url: '', storagePath: '', updatedAt: null },
                         isMobileMenuOpen: false,
                         community: {
@@ -1632,6 +1714,8 @@
                 _tempClientData: null, // Estado temporal para el editor de dieta del cliente
                 _isUploadingDashboardCover: false,
                 _dashboardCoverProgressTimeout: null,
+                _isUploadingRoutineBanner: false,
+                _routineBannerProgressTimeout: null,
                 
                 data: { 
                     predefinedRoutines: {
@@ -1879,6 +1963,7 @@
                     this.auth = getAuth(this.firebaseApp);
                     this.db = getFirestore(this.firebaseApp);
                     this.storage = getStorage(this.firebaseApp);
+                    this._imagePreloadCache = new Map();
                     this.setupAuthListeners();
                     this.setupEventListeners();
                     this.showLaunchScreen();
@@ -1889,6 +1974,7 @@
                     this.audioCtx = new(window.AudioContext || window.webkitAudioContext)();
                     await this.loadExerciseLibraryFromFirestore();
                     await this.loadExerciseGroupImagesFromFirestore();
+                    this.preloadExerciseGroupImages();
                     await this.loadAndMergeFoodData(); // Cargar alimentos
                     this.loadTemplates();
                     await this.loadCommunityData();
@@ -1968,6 +2054,15 @@
                             } else {
                                 this.state.dashboardCover = { ...defaultState.dashboardCover };
                             }
+                            if (data.routineBanner) {
+                                if (typeof data.routineBanner === 'string') {
+                                    this.state.routineBanner = { ...defaultState.routineBanner, image: data.routineBanner };
+                                } else {
+                                    this.state.routineBanner = { ...defaultState.routineBanner, ...data.routineBanner };
+                                }
+                            } else {
+                                this.state.routineBanner = { ...defaultState.routineBanner };
+                            }
                             if (data.profilePhoto) {
                                 if (typeof data.profilePhoto === 'string') {
                                     this.state.profilePhoto = { ...defaultState.profilePhoto, url: data.profilePhoto };
@@ -1976,6 +2071,12 @@
                                 }
                             } else {
                                 this.state.profilePhoto = { ...defaultState.profilePhoto };
+                            }
+                            if (this.state.profilePhoto?.url) {
+                                this.preloadImage(this.state.profilePhoto.url, { priority: 'high' });
+                            }
+                            if (this.state.routineBanner?.image) {
+                                this.preloadImage(this.state.routineBanner.image, { priority: 'high' });
                             }
                             // Compatibilidad hacia atrás para la estructura de dieta
                             if (data.dailyDiet && !Array.isArray(data.dailyDiet)) {
@@ -2084,6 +2185,7 @@
                                 ...this.data.exerciseGroupImages,
                                 ...docSnap.data()
                             };
+                            this.preloadExerciseGroupImages();
                         } else if (this.state.currentUser && this.state.currentUser.uid === this.adminUID) {
                             await setDoc(docRef, this.data.exerciseGroupImages);
                         }
@@ -2699,20 +2801,143 @@
                     if (!element) return;
                     const photoUrl = this.state?.profilePhoto?.url || '';
                     const span = element.querySelector('span');
+                    const initial = (this.state?.userName || 'U').charAt(0).toUpperCase();
+                    const currentUrl = element.dataset.currentPhotoUrl || '';
+
                     if (photoUrl) {
-                        element.classList.add('has-photo');
-                        element.style.backgroundImage = `url('${photoUrl}')`;
-                        if (span) {
-                            span.textContent = '';
+                        if (currentUrl === photoUrl && element.classList.contains('has-photo')) {
+                            return;
                         }
+
+                        if (!currentUrl) {
+                            element.classList.remove('has-photo');
+                            element.style.backgroundImage = '';
+                            if (span) {
+                                span.textContent = initial;
+                            }
+                        }
+
+                        element.classList.add('loading-shimmer');
+                        this.preloadImage(photoUrl, { priority: 'high' }).then((success) => {
+                            element.classList.remove('loading-shimmer');
+                            if (success) {
+                                element.dataset.currentPhotoUrl = photoUrl;
+                                element.classList.add('has-photo');
+                                element.style.backgroundImage = `url('${photoUrl}')`;
+                                if (span) {
+                                    span.textContent = '';
+                                }
+                            } else if (!currentUrl) {
+                                element.dataset.currentPhotoUrl = '';
+                                element.classList.remove('has-photo');
+                                element.style.backgroundImage = '';
+                                if (span) {
+                                    span.textContent = initial;
+                                }
+                            }
+                        });
                     } else {
+                        element.dataset.currentPhotoUrl = '';
+                        element.classList.remove('loading-shimmer');
                         element.classList.remove('has-photo');
                         element.style.backgroundImage = '';
                         if (span) {
-                            const initial = (this.state?.userName || 'U').charAt(0).toUpperCase();
                             span.textContent = initial;
                         }
                     }
+                },
+                preloadImage(url, options = {}) {
+                    if (!url) return Promise.resolve(false);
+                    if (!this._imagePreloadCache) {
+                        this._imagePreloadCache = new Map();
+                    }
+                    if (this._imagePreloadCache.has(url)) {
+                        return this._imagePreloadCache.get(url);
+                    }
+
+                    const { priority = 'auto' } = options;
+                    const loadPromise = new Promise((resolve) => {
+                        const img = new Image();
+                        try {
+                            if (priority && 'fetchPriority' in img) {
+                                img.fetchPriority = priority;
+                            }
+                        } catch (error) {
+                            /* fetchPriority no soportado, continuar sin prioridad */
+                        }
+                        img.decoding = 'async';
+                        img.onload = () => resolve(true);
+                        img.onerror = () => resolve(false);
+                        img.src = url;
+                    }).then((success) => {
+                        if (!success && this._imagePreloadCache) {
+                            this._imagePreloadCache.delete(url);
+                        }
+                        return success;
+                    });
+
+                    this._imagePreloadCache.set(url, loadPromise);
+                    return loadPromise;
+                },
+                preloadExerciseGroupImages(activeGroup = '') {
+                    const entries = Object.entries(this.data.exerciseGroupImages || {});
+                    entries.forEach(([groupName, imageUrl]) => {
+                        if (!imageUrl) return;
+                        const priority = groupName === activeGroup ? 'high' : 'auto';
+                        this.preloadImage(imageUrl, { priority });
+                    });
+                },
+                initializeGroupCardImageLoading(root = document) {
+                    const scope = root instanceof Element ? root : document;
+                    const images = scope.querySelectorAll('.routine-group-image');
+                    images.forEach((img) => {
+                        if (img.dataset.imageLoaderBound === 'true') return;
+                        img.dataset.imageLoaderBound = 'true';
+                        const wrapper = img.closest('.group-image-shell');
+                        const skeleton = wrapper?.querySelector('.image-loading-placeholder');
+                        const fallback = wrapper?.querySelector('.image-fallback');
+
+                        const hideSkeleton = () => {
+                            if (skeleton) {
+                                skeleton.classList.add('is-hidden');
+                                setTimeout(() => skeleton?.remove(), 350);
+                            }
+                        };
+
+                        const showFallback = () => {
+                            if (fallback) {
+                                fallback.classList.remove('hidden');
+                                if (!fallback.classList.contains('flex')) {
+                                    fallback.classList.add('flex');
+                                }
+                            }
+                            hideSkeleton();
+                            if (img.parentElement) {
+                                img.remove();
+                            }
+                        };
+
+                        const revealImage = () => {
+                            hideSkeleton();
+                            if (fallback) {
+                                fallback.classList.add('hidden');
+                                fallback.classList.remove('flex');
+                            }
+                            requestAnimationFrame(() => {
+                                img.classList.remove('opacity-0');
+                                img.classList.add('opacity-100');
+                            });
+                        };
+
+                        if (img.complete && img.naturalWidth > 0) {
+                            revealImage();
+                            return;
+                        }
+
+                        this.preloadImage(img.src, { priority: img.getAttribute('fetchpriority') || 'auto' });
+                        img.addEventListener('load', revealImage, { once: true });
+                        img.addEventListener('error', showFallback, { once: true });
+                    });
                 },
                 triggerProfilePhotoUpload() {
                     const input = document.getElementById('profile-photo-input');
@@ -2740,6 +2965,7 @@
                             return;
                         }
                         this.state.profilePhoto = { url: uploadResult.url, storagePath: uploadResult.storagePath, updatedAt: new Date().toISOString() };
+                        this.preloadImage(this.state.profilePhoto.url, { priority: 'high' });
                         await this.saveDataToFirestore();
                         this.renderProfileSection();
                         this.updateUserInfoUI();
@@ -2775,7 +3001,7 @@
                             return;
                         }
                         const actionMap = {
-                            'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(),
+                            'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'open-routine-banner-upload': () => this.triggerRoutineBannerUpload(), 'remove-routine-banner-image': () => this.removeRoutineBannerImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
                             'routine-creator-switch-group': () => this.routine_creator_switchGroup(groupTarget),
                             'routine-creator-edit-group-image': (evt) => { evt.stopPropagation(); this.routine_creator_showGroupImageModal(groupTarget); },
@@ -2825,6 +3051,10 @@
                         }
                         if (e.target.id === 'dashboard-cover-input') {
                             this.handleCoverFileChange(e.target);
+                            return;
+                        }
+                        if (e.target.id === 'routine-banner-input') {
+                            this.handleRoutineBannerFileChange(e.target);
                             return;
                         }
                         if (e.target.closest('#client-diet-goals-form')) {
@@ -4493,6 +4723,279 @@
 
                     this.refreshDashboardCoverControls();
                 },
+                refreshRoutineBannerControls() {
+                    const card = document.getElementById('routine-admin-banner-card');
+                    const isAdmin = this.isAsesor();
+                    if (card) {
+                        card.classList.toggle('hidden', !isAdmin);
+                    }
+                    if (!isAdmin) {
+                        return;
+                    }
+
+                    const hasImage = Boolean(this.state.routineBanner?.image);
+                    const uploadBtn = card?.querySelector('button[data-action="open-routine-banner-upload"]');
+                    if (uploadBtn) {
+                        uploadBtn.disabled = this._isUploadingRoutineBanner;
+                        uploadBtn.setAttribute('aria-disabled', this._isUploadingRoutineBanner ? 'true' : 'false');
+                        uploadBtn.classList.toggle('opacity-50', this._isUploadingRoutineBanner);
+                        uploadBtn.classList.toggle('cursor-not-allowed', this._isUploadingRoutineBanner);
+                    }
+
+                    const removeBtn = card?.querySelector('button[data-action="remove-routine-banner-image"]');
+                    if (removeBtn) {
+                        const shouldDisableRemove = this._isUploadingRoutineBanner || !hasImage;
+                        removeBtn.disabled = shouldDisableRemove;
+                        removeBtn.setAttribute('aria-disabled', shouldDisableRemove ? 'true' : 'false');
+                        removeBtn.classList.toggle('opacity-40', !hasImage);
+                        removeBtn.classList.toggle('cursor-not-allowed', shouldDisableRemove);
+                    }
+
+                    const input = document.getElementById('routine-banner-input');
+                    if (input) {
+                        input.disabled = this._isUploadingRoutineBanner;
+                    }
+                },
+                updateRoutineBannerPreview() {
+                    const card = document.getElementById('routine-admin-banner-card');
+                    const isAdmin = this.isAsesor();
+                    if (card) {
+                        card.classList.toggle('hidden', !isAdmin);
+                    }
+                    if (!isAdmin) return;
+
+                    const preview = document.getElementById('routine-admin-banner-preview');
+                    const skeleton = document.getElementById('routine-admin-banner-skeleton');
+                    const fallback = document.getElementById('routine-admin-banner-fallback');
+                    if (!preview || !skeleton || !fallback) {
+                        this.refreshRoutineBannerControls();
+                        return;
+                    }
+
+                    const imageData = this.state.routineBanner?.image;
+                    if (imageData) {
+                        fallback.classList.add('hidden');
+                        fallback.classList.remove('flex');
+                        skeleton.classList.remove('is-hidden');
+                        preview.dataset.pendingSrc = imageData;
+                        this.preloadImage(imageData, { priority: 'high' }).then((success) => {
+                            if (!preview || preview.dataset.pendingSrc !== imageData) return;
+                            if (success) {
+                                preview.src = imageData;
+                                preview.classList.remove('hidden');
+                                requestAnimationFrame(() => {
+                                    preview.classList.remove('opacity-0');
+                                    preview.classList.add('opacity-100');
+                                });
+                                skeleton.classList.add('is-hidden');
+                            } else {
+                                preview.src = '';
+                                preview.classList.add('hidden');
+                                preview.classList.add('opacity-0');
+                                preview.classList.remove('opacity-100');
+                                fallback.classList.remove('hidden');
+                                if (!fallback.classList.contains('flex')) {
+                                    fallback.classList.add('flex');
+                                }
+                                skeleton.classList.add('is-hidden');
+                            }
+                        });
+                    } else {
+                        preview.dataset.pendingSrc = '';
+                        preview.src = '';
+                        preview.classList.add('hidden');
+                        preview.classList.add('opacity-0');
+                        preview.classList.remove('opacity-100');
+                        fallback.classList.remove('hidden');
+                        if (!fallback.classList.contains('flex')) {
+                            fallback.classList.add('flex');
+                        }
+                        skeleton.classList.add('is-hidden');
+                    }
+
+                    this.refreshRoutineBannerControls();
+                },
+                triggerRoutineBannerUpload() {
+                    if (!this.isAsesor()) {
+                        this.showToast('Acción disponible solo para asesores.', 'error');
+                        return;
+                    }
+                    if (this._isUploadingRoutineBanner) {
+                        this.showToast('Espera a que termine la subida en curso.', 'error');
+                        return;
+                    }
+                    const input = document.getElementById('routine-banner-input');
+                    if (input) {
+                        input.click();
+                    }
+                },
+                async deleteRoutineBannerFromStorage() {
+                    const storagePath = this.state.routineBanner?.storagePath;
+                    if (!storagePath) return;
+                    try {
+                        const fileRef = ref(this.storage, storagePath);
+                        await deleteObject(fileRef);
+                    } catch (error) {
+                        console.warn('No se pudo eliminar el banner anterior del almacenamiento:', error);
+                    }
+                },
+                async handleRoutineBannerFileChange(input) {
+                    if (!input || !input.files || input.files.length === 0) return;
+                    if (!this.isAsesor()) {
+                        this.showToast('Acción no permitida.', 'error');
+                        input.value = '';
+                        return;
+                    }
+                    if (this._isUploadingRoutineBanner) {
+                        this.showToast('Ya hay una subida en curso.', 'error');
+                        input.value = '';
+                        return;
+                    }
+
+                    const file = input.files[0];
+                    if (!file.type.startsWith('image/')) {
+                        this.showToast('Selecciona una imagen válida.', 'error');
+                        input.value = '';
+                        return;
+                    }
+                    const maxSize = 5 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        this.showToast('La imagen debe pesar menos de 5MB.', 'error');
+                        input.value = '';
+                        return;
+                    }
+
+                    const progressContainer = document.getElementById('routine-banner-progress');
+                    const progressBar = document.getElementById('routine-banner-progress-bar');
+                    const progressText = document.getElementById('routine-banner-progress-text');
+
+                    const clearProgressTimeout = () => {
+                        if (this._routineBannerProgressTimeout) {
+                            clearTimeout(this._routineBannerProgressTimeout);
+                            this._routineBannerProgressTimeout = null;
+                        }
+                    };
+
+                    clearProgressTimeout();
+
+                    if (progressContainer) {
+                        progressContainer.classList.remove('hidden');
+                        progressContainer.classList.add('flex');
+                    }
+                    if (progressBar) {
+                        progressBar.style.width = '0%';
+                    }
+                    if (progressText) {
+                        progressText.textContent = 'Iniciando subida...';
+                    }
+
+                    this.state.routineBanner = this.state.routineBanner || { image: '', storagePath: '', updatedAt: null };
+
+                    this._isUploadingRoutineBanner = true;
+                    this.refreshRoutineBannerControls();
+
+                    const sanitizedName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+                    const filePath = `routine_banners/${this.state.currentUser?.uid || 'asesor'}/${Date.now()}-${sanitizedName}`;
+                    const storageRef = ref(this.storage, filePath);
+                    const uploadTask = uploadBytesResumable(storageRef, file);
+
+                    if (progressText) {
+                        progressText.textContent = 'Subiendo... 0%';
+                    }
+
+                    const hideProgress = (delay = 0) => {
+                        if (!progressContainer) return;
+                        clearProgressTimeout();
+                        this._routineBannerProgressTimeout = setTimeout(() => {
+                            progressContainer.classList.add('hidden');
+                            progressContainer.classList.remove('flex');
+                            if (progressBar) {
+                                progressBar.style.width = '0%';
+                            }
+                            if (progressText) {
+                                progressText.textContent = 'Preparando...';
+                            }
+                            this._routineBannerProgressTimeout = null;
+                        }, delay);
+                    };
+
+                    uploadTask.on('state_changed',
+                        (snapshot) => {
+                            const progress = snapshot.totalBytes ? (snapshot.bytesTransferred / snapshot.totalBytes) * 100 : 0;
+                            if (progressBar) {
+                                progressBar.style.width = `${progress}%`;
+                            }
+                            if (progressText) {
+                                progressText.textContent = `Subiendo... ${Math.round(progress)}%`;
+                            }
+                        },
+                        (error) => {
+                            console.error('Error al subir el banner:', error);
+                            this.showToast('No se pudo subir el banner.', 'error');
+                            if (progressText) {
+                                progressText.textContent = 'Error al subir';
+                            }
+                            hideProgress(2000);
+                            this._isUploadingRoutineBanner = false;
+                            this.refreshRoutineBannerControls();
+                            input.value = '';
+                        },
+                        async () => {
+                            try {
+                                await this.deleteRoutineBannerFromStorage();
+                                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                                this.state.routineBanner = {
+                                    image: downloadURL,
+                                    storagePath: filePath,
+                                    updatedAt: Date.now()
+                                };
+                                this.updateRoutineBannerPreview();
+                                if (progressBar) {
+                                    progressBar.style.width = '100%';
+                                }
+                                if (progressText) {
+                                    progressText.textContent = 'Subida completa 100%';
+                                }
+                                await this.saveDataToFirestore();
+                                this.showToast('Banner actualizado.');
+                                hideProgress(1500);
+                            } catch (error) {
+                                console.error('Error al finalizar la subida del banner:', error);
+                                this.showToast('No se pudo procesar el banner.', 'error');
+                                if (progressText) {
+                                    progressText.textContent = 'Error al finalizar';
+                                }
+                                hideProgress(2000);
+                            } finally {
+                                this._isUploadingRoutineBanner = false;
+                                this.refreshRoutineBannerControls();
+                                input.value = '';
+                            }
+                        }
+                    );
+                },
+                async removeRoutineBannerImage() {
+                    if (!this.isAsesor()) {
+                        this.showToast('Acción no permitida.', 'error');
+                        return;
+                    }
+                    if (!this.state.routineBanner || !this.state.routineBanner.image) {
+                        return;
+                    }
+                    if (this._isUploadingRoutineBanner) {
+                        this.showToast('Espera a que termine la subida antes de eliminar.', 'error');
+                        return;
+                    }
+                    await this.deleteRoutineBannerFromStorage();
+                    this.state.routineBanner.image = '';
+                    this.state.routineBanner.storagePath = '';
+                    this.state.routineBanner.updatedAt = null;
+                    this.updateRoutineBannerPreview();
+                    const input = document.getElementById('routine-banner-input');
+                    if (input) input.value = '';
+                    await this.saveDataToFirestore();
+                    this.showToast('Banner eliminado.');
+                },
                 triggerCoverUpload() {
                     const input = document.getElementById('dashboard-cover-input');
                     if (this._isUploadingDashboardCover) {
@@ -5826,6 +6329,8 @@
                     const predefinedRoutinesContainer = document.getElementById('predefined-routines-container');
                     if (!userRoutinesContainer || !predefinedRoutinesContainer) return;
 
+                    this.updateRoutineBannerPreview();
+
                     if (this.state.userRoutines && this.state.userRoutines.length > 0) {
                         userRoutinesContainer.innerHTML = this.state.userRoutines.map(r => this.routine_createUserCardHTML(r)).join('');
                     } else {
@@ -6225,6 +6730,7 @@
                         if (activeGroup) {
                             this.routine_creator_switchGroup(activeGroup);
                         }
+                        this.initializeGroupCardImageLoading();
 
                         const panel = document.getElementById('exercise-list-panel');
                         if (panel) {
@@ -6331,19 +6837,31 @@
                         const firstGroup = groupKeys[0] || '';
                         const activeGroup = this._tempRoutine.activeExerciseGroup || firstGroup;
                         this._tempRoutine.activeExerciseGroup = activeGroup;
+                        this.preloadExerciseGroupImages(activeGroup);
                         const groupsNav = `<aside id="exercise-group-nav" class="w-full shrink-0 border-b border-white/5 bg-gray-950/80 md:w-80 md:border-b-0 md:border-r md:max-h-[calc(100vh-8rem)] md:overflow-y-auto">
                             <div class="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 md:grid-cols-1">
                                 ${groupKeys.map(group => {
                                         const rawUrl = groupImages[group] || '';
                                         const sanitizedUrl = rawUrl.replace(/'/g, "\'");
                                         const hasImage = Boolean(rawUrl);
-                                        const imageContent = hasImage
-                                            ? `<img src="${sanitizedUrl}" alt="Grupo muscular ${group}" class="h-full w-full object-cover" loading="lazy">`
-                                            : `<div class=\"flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-500/30 via-teal-500/20 to-sky-500/20 text-emerald-100/80\"><i data-lucide=\"dumbbell\" class=\"h-10 w-10\"></i></div>`;
+                                        const isActiveGroup = group === activeGroup;
+                                        const fetchPriority = isActiveGroup ? 'high' : 'auto';
+                                        if (hasImage) {
+                                            this.preloadImage(rawUrl, { priority: fetchPriority });
+                                        }
+                                        const fallbackClasses = `image-fallback absolute inset-0 ${hasImage ? 'hidden' : 'flex'} items-center justify-center bg-gradient-to-br from-emerald-500/30 via-teal-500/20 to-sky-500/25 text-emerald-100/80 pointer-events-none`;
+                                        const imageContent = `
+                                            <div class="group-image-shell relative h-full w-full overflow-hidden">
+                                                ${hasImage ? '<div class="image-loading-placeholder pointer-events-none"></div>' : ''}
+                                                <div class="${fallbackClasses}">
+                                                    <i data-lucide="dumbbell" class="h-10 w-10"></i>
+                                                </div>
+                                                ${hasImage ? `<img src="${sanitizedUrl}" alt="Grupo muscular ${group}" class="routine-group-image h-full w-full object-cover opacity-0 transition-opacity duration-500" decoding="async" loading="eager" fetchpriority="${fetchPriority}">` : ''}
+                                            </div>
+                                        `;
                                         const editButton = isAdmin
                                             ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-gray-950/85 text-white shadow-lg transition hover:-translate-y-0.5 hover:border-white/40 hover:bg-white hover:text-gray-900"><i data-lucide="image-up" class="h-5 w-5"></i></button>`
                                             : '';
-                                        const isActiveGroup = group === activeGroup;
                                         const accentConfig = (() => {
                                             const base = {
                                                 icon: 'dumbbell',
@@ -6431,7 +6949,7 @@
                                             if (key.includes('core') || key.includes('abdomen') || key.includes('abdominal')) {
                                                 return {
                                                     ...base,
-                                                    icon: 'orb',
+                                                    icon: 'target',
                                                     highlight: 'text-cyan-200',
                                                     badgeLabel: 'Estabilidad central',
                                                     badgeClass: 'border border-cyan-400/40 bg-cyan-500/15 text-cyan-100',
@@ -7511,6 +8029,7 @@
                                 const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                                 if (!this.data.exerciseGroupImages) this.data.exerciseGroupImages = {};
                                 this.data.exerciseGroupImages[group] = downloadURL;
+                                this.preloadImage(downloadURL, { priority: 'high' });
 
                                 const docRef = doc(this.db, 'app_data', 'exercise_group_images');
                                 await setDoc(docRef, { [group]: downloadURL }, { merge: true });
@@ -8018,6 +8537,9 @@
                         const view = container.querySelector('.fullscreen-view');
                         if (view) view.classList.add('is-active');
                         lucide.createIcons();
+                        if (typeof this.initializeGroupCardImageLoading === 'function') {
+                            this.initializeGroupCardImageLoading(container);
+                        }
                     }, 10);
                 },
                 routine_closeFullscreenView() {
