@@ -27,11 +27,18 @@
             position: relative;
             overflow: hidden;
         }
+        #profile-avatar img,
+        #user-avatar img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
         #profile-avatar.has-photo,
         #user-avatar.has-photo {
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
             background-color: transparent !important;
             color: transparent;
         }
@@ -39,20 +46,122 @@
         #user-avatar.has-photo span {
             display: none;
         }
+        #profile-avatar.has-photo img,
+        #user-avatar.has-photo img {
+            opacity: 1;
+        }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
 
         .glass-header {
-            background: rgba(15, 23, 42, 0.82);
-            border: 1px solid rgba(148, 163, 184, 0.18);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            transition: opacity 0.3s ease, background-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 64, 175, 0.45)) border-box;
+            border: 1px solid rgba(148, 163, 184, 0.25);
+            box-shadow: 0 25px 60px -35px rgba(14, 165, 233, 0.65);
+            backdrop-filter: blur(16px) saturate(140%);
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
+            transition: opacity 0.3s ease, background-color 0.3s ease, box-shadow 0.35s ease;
+        }
+        .glass-header::before {
+            content: "";
+            position: absolute;
+            inset: -60% 45% auto -20%;
+            height: 220%;
+            background: radial-gradient(circle at center, rgba(45, 212, 191, 0.35), rgba(15, 23, 42, 0));
+            opacity: 0.7;
+            transform: rotate(12deg);
+        }
+        .glass-header::after {
+            content: "";
+            position: absolute;
+            inset: auto -40% -120% 35%;
+            height: 260%;
+            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.28), rgba(15, 23, 42, 0));
+            opacity: 0.65;
         }
         .glass-header:hover {
-            background: rgba(15, 23, 42, 0.87);
+            box-shadow: 0 35px 65px -30px rgba(34, 197, 94, 0.55);
+        }
+        .header-highlight {
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: linear-gradient(140deg, rgba(148, 163, 184, 0.12), rgba(15, 23, 42, 0.65));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .header-metric {
+            position: relative;
+            overflow: hidden;
+        }
+        .header-metric::after {
+            content: "";
+            position: absolute;
+            inset: auto -40% -140% 20%;
+            background: radial-gradient(circle at center, rgba(148, 163, 184, 0.25), transparent 70%);
+            opacity: 0.6;
+        }
+        .header-progress-bar {
+            height: 0.4rem;
+            border-radius: 9999px;
+            overflow: hidden;
+            background: rgba(148, 163, 184, 0.2);
+        }
+        .header-progress-bar span {
+            display: block;
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.85));
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.55);
+            transition: width 0.4s ease;
+        }
+        .macro-bar {
+            position: relative;
+            width: 100%;
+            height: 0.55rem;
+            overflow: hidden;
+            border-radius: 9999px;
+            background: rgba(148, 163, 184, 0.18);
+        }
+        .macro-bar-fill {
+            height: 100%;
+            width: 0;
+            border-radius: inherit;
+            transition: width 0.45s ease;
+        }
+        .macro-pie {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(15, 23, 42, 0.9) 55%, rgba(15, 23, 42, 0.2) 56%);
+            box-shadow: inset 0 0 35px rgba(15, 23, 42, 0.7), 0 15px 35px -25px rgba(16, 185, 129, 0.65);
+            display: grid;
+            place-items: center;
+        }
+        .macro-pie::after {
+            content: "";
+            position: absolute;
+            inset: 8px;
+            border-radius: inherit;
+            background: rgba(15, 23, 42, 0.85);
+        }
+        .macro-pie-content {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            place-items: center;
+            gap: 0.25rem;
+        }
+        .analytics-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: rgba(148, 163, 184, 0.12);
+            padding: 0.4rem 0.9rem;
         }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -403,17 +512,67 @@
             <div id="mobile-menu-backdrop" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"></div>
 
             <div class="flex-1 flex flex-col min-h-screen lg:min-h-0 lg:max-h-screen">
-                <header id="main-header" class="glass-header px-4 sm:px-6 py-4 sticky top-0 z-20 flex items-center justify-between shadow-lg lg:rounded-2xl lg:mt-6 lg:mr-6 lg:ml-6">
-                    <div class="flex items-center gap-3">
-                        <button id="mobile-menu-toggle" type="button" aria-controls="app-sidebar" aria-expanded="false" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400/60 lg:hidden">
-                            <span class="sr-only">Abrir menú</span>
-                            <i data-lucide="menu" class="h-5 w-5"></i>
-                        </button>
-                        <div class="flex items-center space-x-2"><i data-lucide="dumbbell" class="text-emerald-400"></i><h1 class="text-xl font-bold tracking-tight">FitTrack</h1></div>
+                <header id="main-header" class="glass-header px-4 sm:px-6 py-4 sticky top-0 z-20 shadow-lg lg:rounded-2xl lg:mt-6 lg:mr-6 lg:ml-6">
+                    <div class="absolute inset-0 pointer-events-none">
+                        <div class="absolute -top-32 left-10 h-40 w-40 rounded-full bg-emerald-400/15 blur-3xl"></div>
+                        <div class="absolute -bottom-36 right-0 h-48 w-48 rounded-full bg-sky-500/20 blur-3xl"></div>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <div id="user-avatar" class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-gray-900"><span></span></div>
-                        <button id="logout-btn" title="Cerrar sesión" class="text-gray-400 hover:text-white transition"><i data-lucide="log-out" class="w-5 h-5"></i></button>
+                    <div class="relative flex w-full items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <button id="mobile-menu-toggle" type="button" aria-controls="app-sidebar" aria-expanded="false" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400/60 lg:hidden">
+                                <span class="sr-only">Abrir menú</span>
+                                <i data-lucide="menu" class="h-5 w-5"></i>
+                            </button>
+                            <div class="flex items-center gap-3 rounded-2xl header-highlight px-3 py-2">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 shadow-inner shadow-emerald-500/20">
+                                    <i data-lucide="dumbbell" class="h-5 w-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/80">Panel principal</p>
+                                    <h1 class="text-xl font-bold tracking-tight text-white">FitTrack</h1>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hidden sm:flex flex-1 items-center justify-center gap-3 md:gap-5">
+                            <div class="analytics-chip header-metric text-left text-xs text-emerald-100/90">
+                                <i data-lucide="target" class="h-4 w-4 text-emerald-300"></i>
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-[0.28em] text-emerald-100/70">Objetivo</p>
+                                    <p id="header-goal-label" class="text-sm font-semibold text-white">--</p>
+                                    <p id="header-direction-description" class="text-[10px] text-emerald-100/70">Define tu foco actual</p>
+                                </div>
+                            </div>
+                            <div class="analytics-chip header-metric items-center gap-3 text-xs text-emerald-100/80">
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-[0.28em] text-emerald-100/70">Progreso</p>
+                                    <div class="header-progress-bar mt-1 w-28 md:w-36">
+                                        <span id="header-progress-bar"></span>
+                                    </div>
+                                </div>
+                                <p id="header-progress-label" class="text-sm font-semibold text-emerald-100">0%</p>
+                            </div>
+                            <div class="analytics-chip header-metric hidden md:flex items-center gap-3 text-xs text-emerald-100/80">
+                                <i data-lucide="calendar" class="h-4 w-4 text-sky-300"></i>
+                                <div>
+                                    <p class="text-[10px] uppercase tracking-[0.28em] text-emerald-100/70">Proyección</p>
+                                    <p id="header-projection-summary" class="text-sm font-semibold text-white/90">--</p>
+                                    <p id="header-last-update" class="text-[10px] text-emerald-100/60">Actualiza tus métricas</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            <div class="hidden sm:flex flex-col items-end leading-tight">
+                                <p id="header-direction-label" class="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-100/90">Objetivo activo</p>
+                                <p id="header-projection-pace" class="text-[11px] text-emerald-200/80">--</p>
+                            </div>
+                            <div id="user-avatar" class="relative h-10 w-10 overflow-hidden rounded-full bg-emerald-500 text-gray-900 shadow-lg shadow-emerald-500/30">
+                                <img id="user-avatar-img" alt="Foto de perfil" class="h-full w-full" />
+                                <span class="absolute inset-0 grid place-items-center text-sm font-bold"></span>
+                            </div>
+                            <button id="logout-btn" title="Cerrar sesión" class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-rose-400/40 hover:bg-rose-500/10 hover:text-white">
+                                <i data-lucide="log-out" class="w-5 h-5"></i>
+                            </button>
+                        </div>
                     </div>
                 </header>
 
@@ -841,83 +1000,301 @@
         </section>
     </template>
 
-    <template id="template-nutricion">
-        <section id="nutricion" class="section-content hidden">
-            <div class="space-y-6 pb-8">
-                <div>
-                    <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Herramientas de Cálculo</span></h2>
-                    <p class="text-gray-400">Estima tus métricas clave para optimizar tu progreso.</p>
+    
+<template id="template-nutricion">
+    <section id="nutricion" class="section-content hidden">
+        <div class="space-y-8 pb-10">
+            <div class="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-gray-950/90 via-gray-900/70 to-gray-900/40 p-6 sm:p-8 shadow-[0_45px_120px_-60px_rgba(56,189,248,0.55)]">
+                <div class="pointer-events-none absolute inset-0">
+                    <div class="absolute -top-32 -left-20 h-56 w-56 rounded-full bg-emerald-500/20 blur-3xl"></div>
+                    <div class="absolute -bottom-32 right-0 h-64 w-64 rounded-full bg-sky-500/20 blur-3xl"></div>
                 </div>
-                
-                <div class="bg-gray-700/50 p-1 rounded-xl flex space-x-1">
-                    <button data-tab="nutricion" class="calc-tab-btn flex-1 p-2 rounded-lg font-semibold text-sm bg-emerald-500 text-gray-900">Nutrición</button>
-                    <button data-tab="metricas" class="calc-tab-btn flex-1 p-2 rounded-lg font-semibold text-sm text-gray-300">Métricas</button>
-                    <button data-tab="fuerza" class="calc-tab-btn flex-1 p-2 rounded-lg font-semibold text-sm text-gray-300">Fuerza</button>
+                <div class="relative flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                    <div class="space-y-4">
+                        <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">Suite analítica</span>
+                        <h2 class="text-3xl font-black leading-tight text-white sm:text-4xl">Herramientas de cálculo inteligentes</h2>
+                        <p class="max-w-xl text-sm text-emerald-50/80 sm:text-base">Optimiza tus decisiones con métricas enlazadas a tu progreso real: calorías, macros, tendencias de peso y fuerza en una sola vista.</p>
+                        <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/80">
+                            <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="link" class="h-3.5 w-3.5 text-emerald-300"></i><span>Datos sincronizados</span></span>
+                            <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="smartphone" class="h-3.5 w-3.5 text-emerald-300"></i><span>Experiencia móvil</span></span>
+                        </div>
+                    </div>
+                    <div class="grid w-full grid-cols-2 gap-3 text-sm text-emerald-100/80 sm:max-w-xl lg:grid-cols-2">
+                        <div class="header-metric rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/20">
+                            <p class="text-[11px] uppercase tracking-[0.28em] text-emerald-100/70">Peso actual</p>
+                            <p id="calc-current-weight" class="mt-2 text-2xl font-bold text-white">--</p>
+                            <p id="calc-last-update" class="text-[11px] text-emerald-100/60">Registra tu primer dato</p>
+                        </div>
+                        <div class="header-metric rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/20">
+                            <p class="text-[11px] uppercase tracking-[0.28em] text-emerald-100/70">Peso objetivo</p>
+                            <p id="calc-goal-weight" class="mt-2 text-2xl font-bold text-white">--</p>
+                            <p id="calc-goal-diff" class="text-[11px] text-emerald-100/60">Define tu objetivo</p>
+                        </div>
+                        <div class="header-metric rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/20">
+                            <p class="text-[11px] uppercase tracking-[0.28em] text-emerald-100/70">Tendencia</p>
+                            <p id="calc-trend-label" class="mt-2 text-base font-semibold text-white">--</p>
+                            <p id="calc-direction-label" class="text-[11px] text-emerald-100/60">Añade registros para ver más detalles.</p>
+                            <p id="calc-trend-description" class="mt-1 text-[11px] text-gray-400">--</p>
+                        </div>
+                        <div class="header-metric rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/20">
+                            <div class="flex items-center justify-between">
+                                <p class="text-[11px] uppercase tracking-[0.28em] text-emerald-100/70">Progreso</p>
+                                <span id="calc-progress-label" class="text-sm font-semibold text-emerald-100">0%</span>
+                            </div>
+                            <div class="mt-3 h-2.5 w-full overflow-hidden rounded-full bg-white/10">
+                                <div id="calc-progress-bar" class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-300 transition-all duration-500 ease-out" style="width: 0%"></div>
+                            </div>
+                            <p id="calc-projection-pace" class="mt-2 text-[11px] text-emerald-100/70">Ritmo actual no disponible.</p>
+                        </div>
+                    </div>
                 </div>
-
+            </div>
+            <div class="space-y-4">
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">Panel de cálculos</h3>
+                        <p class="text-sm text-gray-400">Explora nutrición, métricas corporales y fuerza con visualizaciones reales.</p>
+                    </div>
+                    <div class="rounded-full border border-white/10 bg-gray-900/70 p-1 text-xs font-semibold text-gray-300 shadow-inner shadow-emerald-500/10">
+                        <div class="grid grid-cols-3 gap-1">
+                            <button data-tab="nutricion" class="calc-tab-btn rounded-full px-4 py-2 text-center transition focus:outline-none focus:ring-2 focus:ring-emerald-400/50 bg-emerald-500 text-gray-900">Nutrición</button>
+                            <button data-tab="metricas" class="calc-tab-btn rounded-full px-4 py-2 text-center transition focus:outline-none focus:ring-2 focus:ring-emerald-400/50 text-gray-300">Métricas</button>
+                            <button data-tab="fuerza" class="calc-tab-btn rounded-full px-4 py-2 text-center transition focus:outline-none focus:ring-2 focus:ring-emerald-400/50 text-gray-300">Fuerza</button>
+                        </div>
+                    </div>
+                </div>
                 <div id="calc-tabs-content">
                     <div id="tab-content-nutricion" class="calc-tab-content space-y-6">
-                        <div class="bg-gray-700/50 p-4 rounded-2xl">
-                            <h3 class="text-xl font-bold">Metas de Nutrición</h3>
-                            <p class="text-sm text-gray-400 mb-4">Calcula tus calorías y macros diarios según tus objetivos.</p>
-                            <form id="nutrition-form" class="space-y-4">
-                                <div class="grid grid-cols-2 gap-4"><label class="bg-gray-700 p-4 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="gender" value="male" class="sr-only" checked> Hombre</label><label class="bg-gray-700 p-4 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="gender" value="female" class="sr-only"> Mujer</label></div>
-                                <div class="grid grid-cols-3 gap-4"><div><label for="age" class="block text-sm font-medium text-gray-300 mb-1">Edad</label><input type="number" id="age" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="weight" class="block text-sm font-medium text-gray-300 mb-1">Peso (kg)</label><input type="number" step="0.1" id="weight" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="height" class="block text-sm font-medium text-gray-300 mb-1">Altura (cm)</label><input type="number" id="height" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div></div>
-                                <div><label for="activity" class="block text-sm font-medium text-gray-300 mb-1">Nivel de Actividad</label><select id="activity" class="w-full bg-gray-700 rounded-lg p-2"><option value="1.2">Sedentario</option><option value="1.375">Ligero</option><option value="1.55" selected>Moderado</option><option value="1.725">Activo</option><option value="1.9">Muy Activo</option></select></div>
-                                <div class="grid grid-cols-3 gap-4"><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="goal" value="lose" class="sr-only"> Perder</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="goal" value="maintain" class="sr-only" checked> Mantener</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:font-bold transition"><input type="radio" name="goal" value="gain" class="sr-only"> Ganar</label></div>
-                                <button type="submit" class="w-full bg-emerald-500 text-gray-900 font-bold py-3 rounded-lg hover:bg-emerald-400 transition flex items-center justify-center gap-2"><i data-lucide="refresh-cw" class="w-4 h-4"></i>Calcular y Actualizar</button>
+                        <div class="rounded-3xl border border-white/10 bg-gray-900/70 p-5 shadow-lg shadow-emerald-500/10">
+                            <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h3 class="text-xl font-bold text-white">Metas de Nutrición</h3>
+                                    <p class="text-sm text-gray-400">Calcula tus calorías y macros diarios según tu objetivo actual.</p>
+                                </div>
+                                <span class="analytics-chip text-[10px] font-semibold uppercase tracking-[0.3em] text-emerald-100/80"><i data-lucide="zap" class="h-3.5 w-3.5 text-emerald-300"></i>Resultado instantáneo</span>
+                            </header>
+                            <form id="nutrition-form" class="mt-6 space-y-6">
+                                <div class="grid grid-cols-2 gap-3 text-xs font-semibold uppercase tracking-[0.25em] text-gray-300 sm:text-sm">
+                                    <label class="cursor-pointer rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center transition has-[:checked]:border-emerald-400/50 has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:shadow-lg has-[:checked]:shadow-emerald-500/30">
+                                        <input type="radio" name="gender" value="male" class="sr-only" checked>
+                                        Hombre
+                                    </label>
+                                    <label class="cursor-pointer rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center transition has-[:checked]:border-emerald-400/50 has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:shadow-lg has-[:checked]:shadow-emerald-500/30">
+                                        <input type="radio" name="gender" value="female" class="sr-only">
+                                        Mujer
+                                    </label>
+                                </div>
+                                <div class="grid gap-4 sm:grid-cols-3">
+                                    <div class="rounded-2xl border border-white/10 bg-gray-950/60 p-4">
+                                        <label for="age" class="block text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Edad</label>
+                                        <input type="number" id="age" class="mt-2 w-full rounded-xl border border-white/10 bg-gray-900/80 py-3 text-center text-sm text-white placeholder:text-gray-500 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-950/60 p-4">
+                                        <label for="weight" class="block text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Peso (kg)</label>
+                                        <input type="number" step="0.1" id="weight" class="mt-2 w-full rounded-xl border border-white/10 bg-gray-900/80 py-3 text-center text-sm text-white placeholder:text-gray-500 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-950/60 p-4">
+                                        <label for="height" class="block text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Altura (cm)</label>
+                                        <input type="number" id="height" class="mt-2 w-full rounded-xl border border-white/10 bg-gray-900/80 py-3 text-center text-sm text-white placeholder:text-gray-500 focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                    </div>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-gray-950/60 p-4">
+                                    <label for="activity" class="block text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Nivel de Actividad</label>
+                                    <select id="activity" class="mt-2 w-full rounded-xl border border-white/10 bg-gray-900/80 px-4 py-3 text-sm text-white focus:border-emerald-400/40 focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                        <option value="1.2">Sedentario</option>
+                                        <option value="1.375">Ligero</option>
+                                        <option value="1.55" selected>Moderado</option>
+                                        <option value="1.725">Activo</option>
+                                        <option value="1.9">Muy Activo</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-3 gap-3 text-xs font-semibold uppercase tracking-[0.25em] text-gray-300 sm:text-sm">
+                                    <label class="cursor-pointer rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center transition has-[:checked]:border-emerald-400/50 has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:shadow-lg has-[:checked]:shadow-emerald-500/30">
+                                        <input type="radio" name="goal" value="lose" class="sr-only">
+                                        Perder
+                                    </label>
+                                    <label class="cursor-pointer rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center transition has-[:checked]:border-emerald-400/50 has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:shadow-lg has-[:checked]:shadow-emerald-500/30">
+                                        <input type="radio" name="goal" value="maintain" class="sr-only" checked>
+                                        Mantener
+                                    </label>
+                                    <label class="cursor-pointer rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-center transition has-[:checked]:border-emerald-400/50 has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 has-[:checked]:shadow-lg has-[:checked]:shadow-emerald-500/30">
+                                        <input type="radio" name="goal" value="gain" class="sr-only">
+                                        Ganar
+                                    </label>
+                                </div>
+                                <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-6 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-gray-900 shadow-lg shadow-emerald-500/30 transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                    <i data-lucide="refresh-cw" class="h-4 w-4"></i>
+                                    Calcular y actualizar
+                                </button>
                             </form>
                         </div>
-                        <div id="nutrition-results" class="space-y-6 hidden">
-                            <div>
-                                <h3 class="text-xl font-bold mb-3">Tus Resultados de Nutrición</h3>
-                                <div class="bg-gray-700/80 p-5 rounded-xl"><p class="text-gray-400">Calorías para tu objetivo</p><p id="result-calories" class="text-3xl font-bold text-emerald-400"></p></div>
-                                <div class="grid grid-cols-3 gap-4 text-center mt-4"><div class="bg-blue-500/20 text-blue-300 p-3 rounded-xl"><p class="font-bold text-lg" id="result-protein"></p><p class="text-sm">Proteína</p></div><div class="bg-yellow-500/20 text-yellow-300 p-3 rounded-xl"><p class="font-bold text-lg" id="result-carbs"></p><p class="text-sm">Carbs</p></div><div class="bg-red-500/20 text-red-300 p-3 rounded-xl"><p class="font-bold text-lg" id="result-fats"></p><p class="text-sm">Grasas</p></div></div>
-                                <button data-action="save-goals" class="mt-4 w-full bg-gray-600 font-bold py-3 rounded-lg hover:bg-gray-500 transition">Guardar como mi meta</button>
+                        <div id="nutrition-results" class="hidden space-y-6">
+                            <div class="grid gap-4 lg:grid-cols-2">
+                                <div class="rounded-3xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-cyan-500/20 p-6 text-white shadow-lg shadow-emerald-500/20">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-50/80">Calorías objetivo</p>
+                                            <p id="result-calories" class="mt-2 text-3xl font-black">0 kcal</p>
+                                        </div>
+                                        <span class="analytics-chip border-emerald-400/40 bg-emerald-500/10 text-[10px] text-emerald-100"><i data-lucide="activity" class="h-3.5 w-3.5 text-emerald-200"></i>Balance diario</span>
+                                    </div>
+                                    <div class="mt-6 flex flex-col items-center gap-6 sm:flex-row">
+                                        <div id="macro-pie" class="macro-pie bg-gradient-to-br from-emerald-500/50 via-sky-500/50 to-fuchsia-500/40">
+                                            <div class="macro-pie-content">
+                                                <span class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-100/80">Total</span>
+                                                <p id="macro-energy-total" class="text-2xl font-black text-white">0</p>
+                                                <span class="text-xs text-emerald-100/80">kcal</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1 space-y-4">
+                                            <div>
+                                                <div class="flex items-center justify-between text-sm text-emerald-50/90">
+                                                    <div class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-sky-400"></span><span>Proteína</span><span id="result-protein" class="ml-2 text-xs font-semibold text-white/90">--</span></div>
+                                                    <span id="macro-protein-percentage" class="text-xs text-emerald-100/70">0%</span>
+                                                </div>
+                                                <div class="macro-bar mt-2">
+                                                    <div id="macro-protein-bar" class="macro-bar-fill bg-sky-400/80"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center justify-between text-sm text-emerald-50/90">
+                                                    <div class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-yellow-300"></span><span>Carbohidratos</span><span id="result-carbs" class="ml-2 text-xs font-semibold text-white/90">--</span></div>
+                                                    <span id="macro-carbs-percentage" class="text-xs text-emerald-100/70">0%</span>
+                                                </div>
+                                                <div class="macro-bar mt-2">
+                                                    <div id="macro-carbs-bar" class="macro-bar-fill bg-yellow-300/80"></div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="flex items-center justify-between text-sm text-emerald-50/90">
+                                                    <div class="flex items-center gap-2"><span class="h-2 w-2 rounded-full bg-rose-400"></span><span>Grasas</span><span id="result-fats" class="ml-2 text-xs font-semibold text-white/90">--</span></div>
+                                                    <span id="macro-fats-percentage" class="text-xs text-emerald-100/70">0%</span>
+                                                </div>
+                                                <div class="macro-bar mt-2">
+                                                    <div id="macro-fats-bar" class="macro-bar-fill bg-rose-400/80"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="rounded-3xl border border-white/10 bg-gray-900/70 p-6 shadow-lg shadow-emerald-500/10">
+                                    <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-white">Proyección y ritmo</h4>
+                                            <p class="text-sm text-gray-400">Seguimiento enlazado a tus registros recientes.</p>
+                                        </div>
+                                        <span id="calc-projection-badge" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-300">Sin datos</span>
+                                    </header>
+                                    <p id="calc-projection-summary" class="mt-4 text-sm text-gray-300">Añade registros de peso para proyectar tu fecha objetivo.</p>
+                                    <div class="mt-4 grid grid-cols-3 gap-3 text-center text-xs text-gray-300">
+                                        <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                                            <p class="text-[10px] uppercase text-gray-400">Fecha estimada</p>
+                                            <p id="calc-projection-date" class="text-sm font-semibold text-white">--</p>
+                                        </div>
+                                        <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                                            <p class="text-[10px] uppercase text-gray-400">Semanas</p>
+                                            <p id="calc-projection-weeks" class="text-sm font-semibold text-white">--</p>
+                                        </div>
+                                        <div class="rounded-2xl border border-white/10 bg-white/5 p-3">
+                                            <p class="text-[10px] uppercase text-gray-400">Diferencia</p>
+                                            <p id="calc-diff-label" class="text-sm font-semibold text-white">--</p>
+                                        </div>
+                                    </div>
+                                    <p id="calc-projection-helper" class="mt-4 text-xs text-emerald-100/80">Define tu objetivo de peso.</p>
+                                    <p id="calc-projection-pace-detail" class="text-xs text-emerald-200/80">Registra más datos para ver el ritmo.</p>
+                                    <button data-action="save-goals" class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-5 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-emerald-100 transition hover:border-emerald-300 hover:bg-emerald-400/20">
+                                        <i data-lucide="save" class="h-4 w-4"></i>
+                                        Guardar como mi meta
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-
                     <div id="tab-content-metricas" class="calc-tab-content hidden space-y-6">
-                        <div class="bg-gray-700/50 p-4 rounded-2xl text-center">
-                            <h3 class="text-xl font-bold">Métricas Corporales</h3>
-                            <p class="text-sm text-gray-400 mb-4">Usa tus datos de perfil para obtener un análisis corporal completo.</p>
-                            <button data-action="calculate-body-metrics" class="w-full bg-sky-500 text-white font-bold py-3 rounded-lg hover:bg-sky-400 transition flex items-center justify-center gap-2"><i data-lucide="scan-line" class="w-5 h-5"></i>Calcular mis Métricas</button>
+                        <div class="rounded-3xl border border-white/10 bg-gray-900/70 p-5 text-center shadow-lg shadow-sky-500/10">
+                            <h3 class="text-xl font-bold text-white">Métricas Corporales</h3>
+                            <p class="mt-2 text-sm text-gray-400">Usa tus datos de perfil para obtener un análisis corporal completo.</p>
+                            <button data-action="calculate-body-metrics" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-sky-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-white shadow-lg shadow-sky-500/30 transition hover:bg-sky-400">
+                                <i data-lucide="scan-line" class="h-5 w-5"></i>
+                                Calcular mis métricas
+                            </button>
                         </div>
                         <div id="body-metrics-results" class="space-y-6">
-                            <div class="bg-gray-700/80 p-4 rounded-2xl"><h3 class="font-semibold text-lg">Índice de Masa Corporal (IMC)</h3><div class="flex items-baseline justify-center gap-2 my-3"><p id="bmi-value" class="text-4xl font-bold">--</p><p id="bmi-category" class="font-semibold text-gray-400">Sin calcular</p></div><div class="relative w-full h-6"><div class="absolute w-full h-2 top-1/2 -translate-y-1/2 flex rounded-full overflow-hidden"><div class="w-[25%] bg-sky-500" title="Bajo Peso (<18.5)"></div><div class="w-[30%] bg-emerald-500" title="Normal (18.5-24.9)"></div><div class="w-[25%] bg-yellow-500" title="Sobrepeso (25-29.9)"></div><div class="w-[20%] bg-red-500" title="Obesidad (>30)"></div></div><div id="bmi-marker" class="absolute top-1/2 w-5 h-5 -translate-x-1/2 -translate-y-1/2 bg-white rounded-full border-4 border-gray-800" style="left: 0%;"></div></div></div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-gray-700/80 p-4 rounded-2xl text-center"><h4 class="font-semibold text-gray-300">Grasa Corporal (Est.)</h4><p class="text-3xl font-bold text-sky-300 my-2"><span id="bodyfat-value">--</span>%</p><p class="text-xs text-gray-500">*Es una estimación, no un valor médico.</p></div>
-                                <div class="bg-gray-700/80 p-4 rounded-2xl text-center"><h4 class="font-semibold text-gray-300">Peso Ideal (Rango)</h4><p class="text-3xl font-bold text-sky-300 my-2" id="ideal-weight-value">--</p><p class="text-xs text-gray-500">Basado en un IMC saludable.</p></div>
+                            <div class="rounded-3xl border border-white/10 bg-gray-900/70 p-6 shadow-lg shadow-sky-500/10">
+                                <h3 class="text-lg font-semibold text-white">Índice de Masa Corporal (IMC)</h3>
+                                <div class="my-4 flex items-baseline justify-center gap-2">
+                                    <p id="bmi-value" class="text-4xl font-bold text-white">--</p>
+                                    <p id="bmi-category" class="font-semibold text-gray-400">Sin calcular</p>
+                                </div>
+                                <div class="relative w-full">
+                                    <div class="absolute inset-x-0 top-1/2 h-2 -translate-y-1/2 overflow-hidden rounded-full">
+                                        <div class="flex h-full w-full">
+                                            <div class="w-[25%] bg-sky-500" title="Bajo Peso (<18.5)"></div>
+                                            <div class="w-[30%] bg-emerald-500" title="Normal (18.5-24.9)"></div>
+                                            <div class="w-[25%] bg-yellow-500" title="Sobrepeso (25-29.9)"></div>
+                                            <div class="w-[20%] bg-red-500" title="Obesidad (>30)"></div>
+                                        </div>
+                                    </div>
+                                    <div id="bmi-marker" class="absolute top-1/2 h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-gray-900 bg-white" style="left: 0%;"></div>
+                                </div>
                             </div>
-                            <div class="bg-gray-700/80 p-4 rounded-2xl text-center"><h4 class="font-semibold text-gray-300">Hidratación Diaria Recom.</h4><p class="text-3xl font-bold text-sky-300 my-2"><span id="water-intake-value">--</span> L</p><p class="text-xs text-gray-500">Ajusta según tu actividad y clima.</p></div>
+                            <div class="grid gap-4 md:grid-cols-2">
+                                <div class="rounded-3xl border border-white/10 bg-gray-900/70 p-6 text-center shadow-lg shadow-sky-500/10">
+                                    <h4 class="font-semibold text-gray-300">Grasa Corporal (Est.)</h4>
+                                    <p class="my-2 text-3xl font-bold text-sky-300"><span id="bodyfat-value">--</span>%</p>
+                                    <p class="text-xs text-gray-500">*Es una estimación, no un valor médico.</p>
+                                </div>
+                                <div class="rounded-3xl border border-white/10 bg-gray-900/70 p-6 text-center shadow-lg shadow-sky-500/10">
+                                    <h4 class="font-semibold text-gray-300">Peso Ideal (Rango)</h4>
+                                    <p id="ideal-weight-value" class="my-2 text-3xl font-bold text-sky-300">--</p>
+                                    <p class="text-xs text-gray-500">Basado en un IMC saludable.</p>
+                                </div>
+                            </div>
+                            <div class="rounded-3xl border border-white/10 bg-gray-900/70 p-6 text-center shadow-lg shadow-sky-500/10">
+                                <h4 class="font-semibold text-gray-300">Hidratación Diaria Recom.</h4>
+                                <p class="my-2 text-3xl font-bold text-sky-300"><span id="water-intake-value">--</span> L</p>
+                                <p class="text-xs text-gray-500">Ajusta según tu actividad y clima.</p>
+                            </div>
                         </div>
                     </div>
-
                     <div id="tab-content-fuerza" class="calc-tab-content hidden space-y-6">
-                        <div class="bg-gray-700/50 p-4 rounded-2xl">
-                             <h3 class="text-xl font-bold">Calculadora de 1RM</h3>
-                             <p class="text-sm text-gray-400 mb-4">Estima tu repetición máxima para cualquier ejercicio.</p>
-                             <form id="1rm-form" class="space-y-4">
-                                 <div class="grid grid-cols-2 gap-4">
-                                     <div><label for="1rm-weight" class="block text-sm font-medium text-gray-300 mb-1">Peso Levantado (kg)</label><input type="number" step="0.5" id="1rm-weight" placeholder="70" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div>
-                                     <div><label for="1rm-reps" class="block text-sm font-medium text-gray-300 mb-1">Repeticiones</label><input type="number" id="1rm-reps" placeholder="8" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div>
-                                 </div>
-                                 <button type="submit" class="w-full bg-purple-500 text-white font-bold py-3 rounded-lg hover:bg-purple-400 transition flex items-center justify-center gap-2"><i data-lucide="bar-chart-3" class="w-5 h-5"></i>Calcular 1RM</button>
-                             </form>
+                        <div class="rounded-3xl border border-white/10 bg-gray-900/70 p-5 shadow-lg shadow-purple-500/10">
+                            <h3 class="text-xl font-bold text-white">Calculadora de 1RM</h3>
+                            <p class="text-sm text-gray-400">Estima tu repetición máxima para cualquier ejercicio con proyecciones automáticas.</p>
+                            <form id="1rm-form" class="mt-6 space-y-5">
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div class="rounded-2xl border border-white/10 bg-gray-950/60 p-4">
+                                        <label for="1rm-weight" class="block text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Peso Levantado (kg)</label>
+                                        <input type="number" step="0.5" id="1rm-weight" placeholder="70" class="mt-2 w-full rounded-xl border border-white/10 bg-gray-900/80 py-3 text-center text-sm text-white placeholder:text-gray-500 focus:border-purple-400/50 focus:outline-none focus:ring-2 focus:ring-purple-400/50">
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-950/60 p-4">
+                                        <label for="1rm-reps" class="block text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Repeticiones</label>
+                                        <input type="number" id="1rm-reps" placeholder="8" class="mt-2 w-full rounded-xl border border-white/10 bg-gray-900/80 py-3 text-center text-sm text-white placeholder:text-gray-500 focus:border-purple-400/50 focus:outline-none focus:ring-2 focus:ring-purple-400/50">
+                                    </div>
+                                </div>
+                                <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-purple-500 via-fuchsia-500 to-pink-500 px-6 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-white shadow-lg shadow-purple-500/30 transition hover:from-purple-400 hover:via-fuchsia-400 hover:to-pink-400">
+                                    <i data-lucide="bar-chart-3" class="h-5 w-5"></i>
+                                    Calcular 1RM
+                                </button>
+                            </form>
                         </div>
                         <div id="1rm-results" class="hidden space-y-4">
-                            <div class="bg-gray-700/80 p-5 rounded-xl text-center"><p class="text-gray-400">Tu 1RM Estimado es</p><p id="1rm-result-value" class="text-4xl font-bold text-purple-300"></p></div>
-                            <div class="bg-gray-700/80 p-4 rounded-2xl">
-                                <h4 class="font-semibold text-center mb-3">Pesos Proyectados</h4>
-                                <div class="grid grid-cols-3 gap-3 text-center text-sm" id="1rm-projections"></div>
+                            <div class="rounded-3xl border border-white/10 bg-gray-900/70 p-6 text-center shadow-lg shadow-purple-500/10">
+                                <p class="text-sm text-gray-400">Tu 1RM estimado es</p>
+                                <p id="1rm-result-value" class="mt-2 text-4xl font-bold text-purple-200"></p>
+                            </div>
+                            <div class="rounded-3xl border border-white/10 bg-gray-900/70 p-6 shadow-lg shadow-purple-500/10">
+                                <h4 class="mb-4 text-center text-sm font-semibold uppercase tracking-[0.3em] text-purple-100/80">Pesos proyectados</h4>
+                                <div id="1rm-projections" class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
-    </template>
+        </div>
+    </section>
+</template>
+
     
     <template id="template-dieta">
         <section id="dieta" class="section-content hidden">
@@ -1385,8 +1762,9 @@
                         <div class="flex flex-col sm:flex-row sm:items-center gap-6">
                             <div class="flex flex-col items-center gap-3 sm:items-start">
                                 <div class="relative">
-                                    <div id="profile-avatar" class="flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-400 text-4xl font-black text-gray-900 shadow-[0_20px_45px_-25px_rgba(16,185,129,0.9)]">
-                                        <span></span>
+                                    <div id="profile-avatar" class="relative flex h-20 w-20 items-center justify-center rounded-3xl bg-emerald-400 text-4xl font-black text-gray-900 shadow-[0_20px_45px_-25px_rgba(16,185,129,0.9)]">
+                                        <img id="profile-avatar-img" alt="Foto de perfil" class="h-full w-full rounded-3xl object-cover" />
+                                        <span class="relative z-10"></span>
                                     </div>
                                     <div class="absolute -bottom-2 -right-2 rounded-full bg-gray-900/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
                                         Activo
@@ -2788,7 +3166,7 @@
                     }
                     const avatarContainer = document.getElementById('user-avatar');
                     if (avatarContainer) {
-                        this.applyProfilePhotoToAvatar(avatarContainer);
+                        this.applyProfilePhotoToAvatar(avatarContainer, { priority: 'high', loading: 'eager' });
                         if (!this.state.profilePhoto?.url) {
                             const span = avatarContainer.querySelector('span');
                             if (span) {
@@ -2796,34 +3174,45 @@
                             }
                         }
                     }
+                    this.updateHeaderInsights();
                 },
-                applyProfilePhotoToAvatar(element) {
+                applyProfilePhotoToAvatar(element, options = {}) {
                     if (!element) return;
                     const photoUrl = this.state?.profilePhoto?.url || '';
                     const span = element.querySelector('span');
+                    const img = element.querySelector('img');
                     const initial = (this.state?.userName || 'U').charAt(0).toUpperCase();
                     const currentUrl = element.dataset.currentPhotoUrl || '';
+                    const { priority = 'auto', loading = 'lazy' } = options;
 
                     if (photoUrl) {
                         if (currentUrl === photoUrl && element.classList.contains('has-photo')) {
                             return;
                         }
 
-                        if (!currentUrl) {
-                            element.classList.remove('has-photo');
-                            element.style.backgroundImage = '';
-                            if (span) {
-                                span.textContent = initial;
-                            }
-                        }
-
                         element.classList.add('loading-shimmer');
-                        this.preloadImage(photoUrl, { priority: 'high' }).then((success) => {
+                        this.preloadImage(photoUrl, { priority }).then((success) => {
                             element.classList.remove('loading-shimmer');
                             if (success) {
                                 element.dataset.currentPhotoUrl = photoUrl;
                                 element.classList.add('has-photo');
-                                element.style.backgroundImage = `url('${photoUrl}')`;
+                                element.style.backgroundImage = '';
+                                if (img) {
+                                    try {
+                                        if ('fetchPriority' in img) {
+                                            img.fetchPriority = priority;
+                                        }
+                                    } catch (error) {
+                                        /* noop */
+                                    }
+                                    img.loading = loading;
+                                    img.decoding = 'async';
+                                    if (img.src !== photoUrl) {
+                                        img.src = photoUrl;
+                                    }
+                                } else {
+                                    element.style.backgroundImage = `url('${photoUrl}')`;
+                                }
                                 if (span) {
                                     span.textContent = '';
                                 }
@@ -2831,6 +3220,9 @@
                                 element.dataset.currentPhotoUrl = '';
                                 element.classList.remove('has-photo');
                                 element.style.backgroundImage = '';
+                                if (img) {
+                                    img.removeAttribute('src');
+                                }
                                 if (span) {
                                     span.textContent = initial;
                                 }
@@ -2841,10 +3233,193 @@
                         element.classList.remove('loading-shimmer');
                         element.classList.remove('has-photo');
                         element.style.backgroundImage = '';
+                        if (img) {
+                            img.removeAttribute('src');
+                        }
                         if (span) {
                             span.textContent = initial;
                         }
                     }
+                },
+                updateHeaderInsights() {
+                    const metrics = this._getWeightProgressMetrics();
+                    if (!metrics) {
+                        return;
+                    }
+                    const setText = (id, value) => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            el.textContent = value;
+                        }
+                    };
+
+                    const goalLabel = metrics.goalWeightLabel && metrics.goalWeightLabel !== '--'
+                        ? `${metrics.goalWeightLabel} kg`
+                        : '--';
+                    setText('header-goal-label', goalLabel);
+                    setText('header-direction-label', metrics.directionLabel || 'Objetivo activo');
+                    setText('header-direction-description', metrics.directionDescription || 'Define tu foco actual');
+
+                    const progressLabel = `${Math.max(0, Math.round(metrics.progressPercent || 0))}%`;
+                    setText('header-progress-label', progressLabel);
+                    const progressBar = document.getElementById('header-progress-bar');
+                    if (progressBar) {
+                        const width = Math.max(0, Math.min(metrics.progressPercent || 0, 110));
+                        progressBar.style.width = `${width}%`;
+                    }
+
+                    const projection = metrics.projection || {};
+                    setText('header-projection-summary', projection.summary || 'Añade registros para proyectar tu meta.');
+                    setText('header-last-update', metrics.lastWeighInLabel || 'Registra tu peso para comenzar.');
+                    setText('header-projection-pace', projection.paceText || 'Registra tu peso para ver el ritmo.');
+                },
+                updateNutritionAnalytics() {
+                    const metrics = this._getWeightProgressMetrics();
+                    if (!metrics) {
+                        return;
+                    }
+                    const setText = (id, value) => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            el.textContent = value;
+                        }
+                    };
+
+                    const currentWeightLabel = metrics.currentWeightLabel && metrics.currentWeightLabel !== '--'
+                        ? `${metrics.currentWeightLabel} kg`
+                        : '--';
+                    setText('calc-current-weight', currentWeightLabel);
+                    setText('calc-last-update', metrics.lastWeighInLabel || 'Registra tu primer dato');
+                    const goalWeightLabel = metrics.goalWeightLabel && metrics.goalWeightLabel !== '--'
+                        ? `${metrics.goalWeightLabel} kg`
+                        : '--';
+                    setText('calc-goal-weight', goalWeightLabel);
+
+                    const goalDiffEl = document.getElementById('calc-goal-diff');
+                    if (goalDiffEl) {
+                        goalDiffEl.textContent = metrics.goalDiffText || 'Define tu objetivo';
+                        goalDiffEl.className = `text-[11px] ${metrics.goalDiffClass || 'text-emerald-100/60'}`;
+                    }
+
+                    const diffEl = document.getElementById('calc-diff-label');
+                    if (diffEl) {
+                        diffEl.textContent = metrics.diffLabel || '--';
+                        diffEl.className = `text-sm font-semibold ${metrics.diffToneClass || 'text-white'}`;
+                    }
+
+                    setText('calc-trend-label', metrics.directionLabel || '--');
+                    setText('calc-direction-label', metrics.directionDescription || 'Añade registros para ver más detalles.');
+                    const trendDescriptionEl = document.getElementById('calc-trend-description');
+                    if (trendDescriptionEl) {
+                        trendDescriptionEl.textContent = metrics.trendLabel || 'Añade tu primer registro para visualizar la tendencia.';
+                        trendDescriptionEl.className = `text-[11px] ${metrics.trendClass || 'text-gray-400'}`;
+                    }
+
+                    const progressBar = document.getElementById('calc-progress-bar');
+                    if (progressBar) {
+                        const width = Math.max(0, Math.min(metrics.progressPercent || 0, 110));
+                        progressBar.style.width = `${width}%`;
+                    }
+                    setText('calc-progress-label', `${Math.max(0, Math.round(metrics.progressPercent || 0))}%`);
+
+                    const projection = metrics.projection || {};
+                    const paceText = projection.paceText || 'Registra más datos para ver el ritmo.';
+                    setText('calc-projection-pace', paceText);
+                    setText('calc-projection-pace-detail', paceText);
+                    setText('calc-projection-summary', projection.summary || 'Añade registros de peso para proyectar tu fecha objetivo.');
+                    setText('calc-projection-helper', projection.helperText || 'Define tu objetivo de peso.');
+                    setText('calc-projection-date', projection.dateLabel || '--');
+                    setText('calc-projection-weeks', projection.weeksLabel || '--');
+
+                    const badge = document.getElementById('calc-projection-badge');
+                    if (badge) {
+                        const base = 'inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em]';
+                        badge.className = `${base} ${projection.badgeClasses || 'border-white/10 bg-white/5 text-gray-300'}`;
+                        badge.textContent = projection.badgeText || 'Sin datos';
+                    }
+                },
+                updateMacroVisuals(results = {}) {
+                    const calories = Number(results.calories) || 0;
+                    const protein = Number(results.protein) || 0;
+                    const carbs = Number(results.carbs) || 0;
+                    const fats = Number(results.fats) || 0;
+                    const macroCalories = {
+                        protein: protein * 4,
+                        carbs: carbs * 4,
+                        fats: fats * 9
+                    };
+                    const total = macroCalories.protein + macroCalories.carbs + macroCalories.fats;
+                    const getPercent = (value) => {
+                        if (!total) return 0;
+                        return Math.round((value / total) * 100);
+                    };
+                    const proteinPct = getPercent(macroCalories.protein);
+                    const carbPct = getPercent(macroCalories.carbs);
+                    const fatPct = Math.max(0, 100 - proteinPct - carbPct);
+
+                    const setPercent = (id, value) => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            el.textContent = `${Math.max(0, value)}%`;
+                        }
+                    };
+                    setPercent('macro-protein-percentage', proteinPct);
+                    setPercent('macro-carbs-percentage', carbPct);
+                    setPercent('macro-fats-percentage', fatPct);
+
+                    const setBar = (id, value) => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            const width = Math.max(0, Math.min(value, 100));
+                            el.style.width = `${width}%`;
+                        }
+                    };
+                    setBar('macro-protein-bar', proteinPct);
+                    setBar('macro-carbs-bar', carbPct);
+                    setBar('macro-fats-bar', fatPct);
+
+                    const energyTotal = document.getElementById('macro-energy-total');
+                    if (energyTotal) {
+                        energyTotal.textContent = calories ? calories.toString() : '0';
+                    }
+
+                    const pie = document.getElementById('macro-pie');
+                    if (pie) {
+                        const proteinStop = Math.max(0, Math.min(proteinPct, 100));
+                        const carbStop = Math.max(proteinStop, Math.min(proteinStop + carbPct, 100));
+                        pie.style.background = `conic-gradient(#38bdf8 0 ${proteinStop}%, #facc15 ${proteinStop}% ${carbStop}%, #f472b6 ${carbStop}% 100%)`;
+                    }
+                },
+                updateNutritionResultsUI(results) {
+                    const target = results || this._tempResults || this.state.userGoals || {};
+                    const container = document.getElementById('nutrition-results');
+                    if (!container) {
+                        return;
+                    }
+                    const hasData = target && Number(target.calories);
+                    const setText = (id, value) => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            el.textContent = value;
+                        }
+                    };
+
+                    if (!hasData) {
+                        container.classList.add('hidden');
+                        setText('result-calories', '0 kcal');
+                        setText('result-protein', '--');
+                        setText('result-carbs', '--');
+                        setText('result-fats', '--');
+                        this.updateMacroVisuals();
+                        return;
+                    }
+
+                    setText('result-calories', `${target.calories} kcal`);
+                    setText('result-protein', `${target.protein}g`);
+                    setText('result-carbs', `${target.carbs}g`);
+                    setText('result-fats', `${target.fats}g`);
+                    this.updateMacroVisuals(target);
+                    container.classList.remove('hidden');
                 },
                 preloadImage(url, options = {}) {
                     if (!url) return Promise.resolve(false);
@@ -3206,6 +3781,7 @@
                     }
                     this.updateCoverPreview();
                     this.updateDashboard();
+                    this.updateHeaderInsights();
                     lucide.createIcons();
                 },
                 showSection(id, animate=true){
@@ -5803,7 +6379,21 @@
                 playSound(type) { if(!this.audioCtx) return; const o=this.audioCtx.createOscillator(),g=this.audioCtx.createGain();o.connect(g);g.connect(this.audioCtx.destination);g.gain.setValueAtTime(0,this.audioCtx.currentTime);g.gain.linearRampToValueAtTime(0.3,this.audioCtx.currentTime+0.01);o.frequency.value=type==='start'?440:880;o.type='sine';o.start(this.audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.00001,this.audioCtx.currentTime+0.5);o.stop(this.audioCtx.currentTime+0.5); },
                 switchCalculatorTab(tabId) { document.querySelectorAll('.calc-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById(`tab-content-${tabId}`).classList.remove('hidden'); document.querySelectorAll('.calc-tab-btn').forEach(btn => { if (btn.dataset.tab === tabId) { btn.classList.add('bg-emerald-500', 'text-gray-900'); btn.classList.remove('text-gray-300'); } else { btn.classList.remove('bg-emerald-500', 'text-gray-900'); btn.classList.add('text-gray-300'); } }); },
                 populateNutritionForm() { const { age, weight, height, gender } = this.state.physicalStats; document.getElementById('age').value = age; document.getElementById('weight').value = weight; document.getElementById('height').value = height; const genderRadio = document.querySelector(`#nutrition-form input[name="gender"][value="${gender}"]`); if (genderRadio) genderRadio.checked = true; },
-                renderNutricionSection() { this.renderBmiCard(0, 0); document.getElementById('bodyfat-value').textContent = '--'; document.getElementById('ideal-weight-value').textContent = '--'; document.getElementById('water-intake-value').textContent = '-- L'; },
+                renderNutricionSection() {
+                    const { weight, height } = this.state.physicalStats || {};
+                    this.renderBmiCard(weight || 0, height || 0);
+                    const setDefault = (id, value) => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            el.textContent = value;
+                        }
+                    };
+                    setDefault('bodyfat-value', '--');
+                    setDefault('ideal-weight-value', '--');
+                    setDefault('water-intake-value', '-- L');
+                    this.updateNutritionResultsUI();
+                    this.updateNutritionAnalytics();
+                },
                 calculateNutrition(formElement, showUI) {
                     const targetForm = formElement || document.getElementById('nutrition-form');
                     const shouldUpdateUI = typeof showUI === 'undefined' ? true : Boolean(showUI);
@@ -5840,16 +6430,14 @@
                         fats: Math.round((calories * 0.3) / 9)
                     };
 
+                    this._tempResults = results;
                     if (shouldUpdateUI) {
-                        document.getElementById('result-calories').textContent = `${results.calories} kcal`;
-                        document.getElementById('result-protein').textContent = `${results.protein}g`;
-                        document.getElementById('result-carbs').textContent = `${results.carbs}g`;
-                        document.getElementById('result-fats').textContent = `${results.fats}g`;
-                        document.getElementById('nutrition-results').classList.remove('hidden');
+                        this.updateNutritionResultsUI(results);
+                        this.updateNutritionAnalytics();
+                        this.updateHeaderInsights();
                         this.showToast("Cálculos de nutrición actualizados", "success");
                     }
 
-                    this._tempResults = results;
                     return results;
                 },
                 calculateBodyMetrics() { const { weight, height, age, gender } = this.state.physicalStats; if (!weight || !height || !age) { this.showToast("Completa tus datos en el perfil o en la pestaña de nutrición primero.", "error"); return; } const bmi = this.renderBmiCard(weight, height); const genderFactor = (gender === 'male') ? 1 : 0; const bodyFat = (1.20 * bmi) + (0.23 * age) - (10.8 * genderFactor) - 5.4; document.getElementById('bodyfat-value').textContent = bodyFat.toFixed(1); const heightInM = height / 100; const idealMin = 18.5 * (heightInM * heightInM); const idealMax = 24.9 * (heightInM * heightInM); document.getElementById('ideal-weight-value').textContent = `${idealMin.toFixed(1)} - ${idealMax.toFixed(1)} kg`; const waterLiters = (weight * 35) / 1000; document.getElementById('water-intake-value').textContent = waterLiters.toFixed(1); this.showToast("Métricas corporales calculadas."); },
