@@ -1299,59 +1299,24 @@
     <template id="template-dieta">
         <section id="dieta" class="section-content hidden">
             <div class="space-y-6">
-                <section class="rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-sky-500/5 to-gray-900 p-6 shadow-[0_45px_120px_-60px_rgba(59,130,246,0.55)]">
-                    <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <section id="diet-admin-media-card" class="rounded-3xl border border-white/10 bg-gray-900/60 p-6 shadow-[0_45px_120px_-60px_rgba(59,130,246,0.55)]">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div class="flex items-center gap-3">
                             <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-100 shadow-[0_20px_45px_-30px_rgba(16,185,129,0.85)]">
                                 <i data-lucide="shield-check" class="h-5 w-5"></i>
                             </span>
-                            <div>
-                                <p class="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-100/80">
-                                    <i data-lucide="lock" class="h-3.5 w-3.5"></i>
-                                    Solo admin
-                                </p>
-                                <h3 class="mt-2 text-xl font-semibold text-white sm:text-2xl">Biblioteca multimedia de la dieta</h3>
-                                <p class="mt-1 text-sm text-emerald-100/70">Comparte piezas audiovisuales exclusivas para guiar a tus clientes con protocolos de lujo.</p>
+                            <div class="flex flex-col">
+                                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-100/80">Solo admin</p>
+                                <h3 class="text-xl font-semibold text-white sm:text-2xl">Recurso multimedia</h3>
                             </div>
                         </div>
-                        <div class="rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-2 text-xs text-gray-400">
-                            Última actualización <span class="font-semibold text-white">hoy</span>
-                        </div>
-                    </header>
-                    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-                        <form class="space-y-4">
-                            <div>
-                                <label for="diet-admin-upload" class="text-sm font-medium text-white">Carga un video o imagen</label>
-                                <p class="text-xs text-gray-400">Formatos aceptados: MP4, MOV, JPG, PNG. Máx. 250&nbsp;MB.</p>
-                            </div>
-                            <label for="diet-admin-upload" class="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-emerald-400/40 bg-gray-900/70 p-8 text-center text-sm text-emerald-100/80 transition hover:border-emerald-300/70 hover:bg-gray-900/90">
-                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-200 shadow-[0_18px_40px_-30px_rgba(16,185,129,0.75)]">
-                                    <i data-lucide="upload-cloud" class="h-5 w-5"></i>
-                                </span>
-                                <span class="font-semibold text-white">Subir archivo multimedia</span>
-                                <span class="text-xs text-gray-400">Arrastra y suelta o haz clic para seleccionar</span>
-                                <input id="diet-admin-upload" type="file" accept="image/*,video/*" class="hidden" />
-                            </label>
-                            <div class="grid gap-3 sm:grid-cols-2">
-                                <button type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:from-emerald-400 hover:via-teal-400 hover:to-sky-400">
-                                    <i data-lucide="sparkles" class="h-4 w-4"></i>
-                                    Generar portada con IA
-                                </button>
-                                <button type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-emerald-400/40 hover:bg-gray-900/90">
-                                    <i data-lucide="save" class="h-4 w-4"></i>
-                                    Guardar en biblioteca
-                                </button>
-                            </div>
-                        </form>
-                        <aside class="space-y-4 rounded-3xl border border-white/10 bg-gray-900/60 p-5">
-                            <h4 class="text-sm font-semibold text-white">Lineamientos premium</h4>
-                            <ul class="space-y-3 text-xs text-gray-400">
-                                <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="mt-0.5 h-3.5 w-3.5 text-emerald-300"></i><span>Incluye intro y cierre con branding del estudio.</span></li>
-                                <li class="flex items-start gap-2"><i data-lucide="clock-4" class="mt-0.5 h-3.5 w-3.5 text-sky-300"></i><span>Optimiza duración entre 30 y 90 segundos para video.</span></li>
-                                <li class="flex items-start gap-2"><i data-lucide="stars" class="mt-0.5 h-3.5 w-3.5 text-purple-300"></i><span>Cuida resolución mínima 1080p o 1200px en imágenes.</span></li>
-                            </ul>
-                        </aside>
+                        <label id="diet-admin-media-trigger" for="diet-admin-media-input" class="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500 px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-[0_20px_45px_-25px_rgba(16,185,129,0.65)] transition hover:from-emerald-400 hover:via-teal-400 hover:to-sky-400 focus:outline-none focus:ring-2 focus:ring-emerald-300/40">
+                            <i data-lucide="upload-cloud" class="h-4 w-4"></i>
+                            <span>Subir video o imagen</span>
+                            <input id="diet-admin-media-input" type="file" accept="image/*,video/*" class="hidden" />
+                        </label>
                     </div>
+                    <div id="diet-admin-media-preview" class="mt-4 hidden overflow-hidden rounded-3xl border border-white/10 bg-black/60"></div>
                 </section>
                 <details open class="group overflow-hidden rounded-3xl border border-white/10 bg-gray-900/50 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.75)]">
                     <summary class="flex flex-col gap-3 cursor-pointer px-6 py-5 text-left transition hover:bg-white/5 sm:flex-row sm:items-center sm:justify-between [&::-webkit-details-marker]:hidden">
@@ -2195,6 +2160,7 @@
                         dashboardCover: { image: '', storagePath: '', updatedAt: null },
                         routineBanner: { image: '', storagePath: '', updatedAt: null },
                         profilePhoto: { url: '', storagePath: '', updatedAt: null },
+                        dietAdminMedia: { url: '', storagePath: '', type: '', name: '', updatedAt: null },
                         isMobileMenuOpen: false,
                         community: {
                             stats: { totalAthletes: 0, totalVolume: 0, totalSessions: 0 },
@@ -2496,6 +2462,7 @@
                     const dietManagementTools = document.getElementById('diet-management-tools');
                     const addFoodSection = document.getElementById('add-food-section');
                     const dietAdminActions = document.getElementById('diet-admin-actions');
+                    const dietAdminMediaCard = document.getElementById('diet-admin-media-card');
 
                     if (this.isAsesor()) {
                         navAsesorados.style.display = 'flex';
@@ -2505,6 +2472,7 @@
                         if (dietManagementTools) dietManagementTools.style.display = 'block';
                         if (addFoodSection) addFoodSection.style.display = 'block';
                         if (dietAdminActions) dietAdminActions.style.display = 'flex';
+                        if (dietAdminMediaCard) dietAdminMediaCard.style.display = 'block';
                         const navRutinasText = document.querySelector('#nav-rutinas .nav-label');
                         if (navRutinasText) navRutinasText.textContent = 'Rutinas';
 
@@ -2516,6 +2484,7 @@
                         if (dietManagementTools) dietManagementTools.style.display = 'none';
                         if (addFoodSection) addFoodSection.style.display = 'none';
                         if (dietAdminActions) dietAdminActions.style.display = 'none';
+                        if (dietAdminMediaCard) dietAdminMediaCard.style.display = 'none';
                         const navRutinasText = document.querySelector('#nav-rutinas .nav-label');
                         if (navRutinasText) navRutinasText.textContent = 'Mi Rutina';
                     }
@@ -2574,11 +2543,23 @@
                             } else {
                                 this.state.profilePhoto = { ...defaultState.profilePhoto };
                             }
+                            if (data.dietAdminMedia) {
+                                if (typeof data.dietAdminMedia === 'string') {
+                                    this.state.dietAdminMedia = { ...defaultState.dietAdminMedia, url: data.dietAdminMedia };
+                                } else {
+                                    this.state.dietAdminMedia = { ...defaultState.dietAdminMedia, ...data.dietAdminMedia };
+                                }
+                            } else {
+                                this.state.dietAdminMedia = { ...defaultState.dietAdminMedia };
+                            }
                             if (this.state.profilePhoto?.url) {
                                 this.preloadImage(this.state.profilePhoto.url, { priority: 'high' });
                             }
                             if (this.state.routineBanner?.image) {
                                 this.preloadImage(this.state.routineBanner.image, { priority: 'high' });
+                            }
+                            if (this.state.dietAdminMedia?.url && this.state.dietAdminMedia.type?.startsWith('image')) {
+                                this.preloadImage(this.state.dietAdminMedia.url, { priority: 'high' });
                             }
                             // Compatibilidad hacia atrás para la estructura de dieta
                             if (data.dailyDiet && !Array.isArray(data.dailyDiet)) {
@@ -3675,6 +3656,81 @@
                         this.showToast('No se pudo subir la foto de perfil.', 'error');
                     }
                 },
+                async handleDietAdminMediaSelected(input) {
+                    if (!input) return;
+                    const file = input.files && input.files[0];
+                    if (!file) return;
+
+                    if (!this.isAsesor()) {
+                        this.showToast('Solo el admin puede subir contenido.', 'error');
+                        input.value = '';
+                        return;
+                    }
+
+                    if (!(file.type.startsWith('image/') || file.type.startsWith('video/'))) {
+                        this.showToast('Selecciona un video o imagen válido.', 'error');
+                        input.value = '';
+                        return;
+                    }
+
+                    const maxSize = 250 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        this.showToast('El archivo supera el límite permitido (250MB).', 'error');
+                        input.value = '';
+                        return;
+                    }
+
+                    const trigger = document.getElementById('diet-admin-media-trigger');
+                    const card = document.getElementById('diet-admin-media-card');
+                    const textEl = trigger ? trigger.querySelector('span') : null;
+                    const originalText = textEl ? textEl.textContent : '';
+
+                    const setUploadingState = (isUploading) => {
+                        if (trigger) {
+                            trigger.classList.toggle('opacity-60', isUploading);
+                        }
+                        if (textEl) {
+                            textEl.textContent = isUploading ? 'Subiendo...' : originalText;
+                        }
+                        if (card) {
+                            card.classList.toggle('pointer-events-none', isUploading);
+                            card.classList.toggle('opacity-75', isUploading);
+                        }
+                    };
+
+                    try {
+                        setUploadingState(true);
+                        const previousPath = this.state.dietAdminMedia?.storagePath || '';
+                        const uploadResult = await this.uploadImageToStorage(file, { pathPrefix: 'diet_media', previousPath });
+
+                        if (!uploadResult.url) {
+                            this.showToast('No se pudo subir el archivo.', 'error');
+                            return;
+                        }
+
+                        this.state.dietAdminMedia = {
+                            url: uploadResult.url,
+                            storagePath: uploadResult.storagePath,
+                            type: file.type,
+                            name: file.name,
+                            updatedAt: new Date().toISOString()
+                        };
+
+                        if (file.type.startsWith('image/')) {
+                            this.preloadImage(uploadResult.url, { priority: 'high' });
+                        }
+
+                        await this.saveDataToFirestore();
+                        this.renderDietAdminMedia();
+                        this.showToast('Archivo actualizado.', 'success');
+                    } catch (error) {
+                        console.error('Error uploading diet media:', error);
+                        this.showToast('No se pudo subir el archivo.', 'error');
+                    } finally {
+                        setUploadingState(false);
+                        input.value = '';
+                    }
+                },
                 getFirebaseAuthErrorMessage(error) { switch (error.code) { case 'auth/invalid-email': return 'Email no válido.'; case 'auth/user-not-found': return 'Usuario no encontrado.'; case 'auth/wrong-password': return 'Contraseña incorrecta.'; case 'auth/email-already-in-use': return 'Este email ya está registrado.'; case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.'; case 'auth/invalid-credential': return 'Credenciales inválidas.'; default: return error.message || 'Ha ocurrido un error. Inténtalo de nuevo.'; } },
                 loadTemplates() { const wrapper = document.getElementById('sections-wrapper'); if(wrapper.children.length > 0) return; const templates = document.querySelectorAll('template'); templates.forEach(template => { const content = template.content.cloneNode(true); wrapper.appendChild(content); }); },
                 
@@ -3754,6 +3810,10 @@
                         }
                         if (e.target.id === 'routine-banner-input') {
                             this.handleRoutineBannerFileChange(e.target);
+                            return;
+                        }
+                        if (e.target.id === 'diet-admin-media-input') {
+                            this.handleDietAdminMediaSelected(e.target);
                             return;
                         }
                         if (e.target.closest('#client-diet-goals-form')) {
@@ -6830,7 +6890,45 @@
                     const metrics = this._getWeightProgressMetrics();
                     this._applyWeightMetrics(metrics);
                 },
+                renderDietAdminMedia() {
+                    const card = document.getElementById('diet-admin-media-card');
+                    const preview = document.getElementById('diet-admin-media-preview');
+
+                    if (!card) {
+                        return;
+                    }
+
+                    const isAdmin = this.isAsesor();
+                    card.style.display = isAdmin ? 'block' : 'none';
+
+                    if (!isAdmin) {
+                        if (preview) {
+                            preview.innerHTML = '';
+                            preview.classList.add('hidden');
+                        }
+                        return;
+                    }
+
+                    if (!preview) {
+                        return;
+                    }
+
+                    const media = this.state.dietAdminMedia || {};
+
+                    if (media.url) {
+                        const isVideo = (media.type || '').startsWith('video') || /\.(mp4|mov|mpe?g|webm|mkv)$/i.test(media.url);
+                        const content = isVideo
+                            ? `<video src="${media.url}" controls playsinline preload="metadata" class="h-full w-full object-cover" style="aspect-ratio:16/9;"></video>`
+                            : `<img src="${media.url}" alt="Recurso multimedia de la dieta" loading="lazy" class="h-full w-full object-cover" style="aspect-ratio:16/9;" />`;
+                        preview.innerHTML = content;
+                        preview.classList.remove('hidden');
+                    } else {
+                        preview.innerHTML = '';
+                        preview.classList.add('hidden');
+                    }
+                },
                 renderDietPage(){
+                    this.renderDietAdminMedia();
                     this.updateDietWeightInfo();
                     if(!this.state.userGoals) return;
                     const { calories, protein, carbs, fats } = this.state.userGoals;
