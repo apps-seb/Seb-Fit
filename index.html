@@ -1299,6 +1299,60 @@
     <template id="template-dieta">
         <section id="dieta" class="section-content hidden">
             <div class="space-y-6">
+                <section class="rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-sky-500/5 to-gray-900 p-6 shadow-[0_45px_120px_-60px_rgba(59,130,246,0.55)]">
+                    <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="flex items-center gap-3">
+                            <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-100 shadow-[0_20px_45px_-30px_rgba(16,185,129,0.85)]">
+                                <i data-lucide="shield-check" class="h-5 w-5"></i>
+                            </span>
+                            <div>
+                                <p class="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-100/80">
+                                    <i data-lucide="lock" class="h-3.5 w-3.5"></i>
+                                    Solo admin
+                                </p>
+                                <h3 class="mt-2 text-xl font-semibold text-white sm:text-2xl">Biblioteca multimedia de la dieta</h3>
+                                <p class="mt-1 text-sm text-emerald-100/70">Comparte piezas audiovisuales exclusivas para guiar a tus clientes con protocolos de lujo.</p>
+                            </div>
+                        </div>
+                        <div class="rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-2 text-xs text-gray-400">
+                            Última actualización <span class="font-semibold text-white">hoy</span>
+                        </div>
+                    </header>
+                    <div class="mt-6 grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                        <form class="space-y-4">
+                            <div>
+                                <label for="diet-admin-upload" class="text-sm font-medium text-white">Carga un video o imagen</label>
+                                <p class="text-xs text-gray-400">Formatos aceptados: MP4, MOV, JPG, PNG. Máx. 250&nbsp;MB.</p>
+                            </div>
+                            <label for="diet-admin-upload" class="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-3xl border border-dashed border-emerald-400/40 bg-gray-900/70 p-8 text-center text-sm text-emerald-100/80 transition hover:border-emerald-300/70 hover:bg-gray-900/90">
+                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-200 shadow-[0_18px_40px_-30px_rgba(16,185,129,0.75)]">
+                                    <i data-lucide="upload-cloud" class="h-5 w-5"></i>
+                                </span>
+                                <span class="font-semibold text-white">Subir archivo multimedia</span>
+                                <span class="text-xs text-gray-400">Arrastra y suelta o haz clic para seleccionar</span>
+                                <input id="diet-admin-upload" type="file" accept="image/*,video/*" class="hidden" />
+                            </label>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <button type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:from-emerald-400 hover:via-teal-400 hover:to-sky-400">
+                                    <i data-lucide="sparkles" class="h-4 w-4"></i>
+                                    Generar portada con IA
+                                </button>
+                                <button type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-emerald-400/40 hover:bg-gray-900/90">
+                                    <i data-lucide="save" class="h-4 w-4"></i>
+                                    Guardar en biblioteca
+                                </button>
+                            </div>
+                        </form>
+                        <aside class="space-y-4 rounded-3xl border border-white/10 bg-gray-900/60 p-5">
+                            <h4 class="text-sm font-semibold text-white">Lineamientos premium</h4>
+                            <ul class="space-y-3 text-xs text-gray-400">
+                                <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="mt-0.5 h-3.5 w-3.5 text-emerald-300"></i><span>Incluye intro y cierre con branding del estudio.</span></li>
+                                <li class="flex items-start gap-2"><i data-lucide="clock-4" class="mt-0.5 h-3.5 w-3.5 text-sky-300"></i><span>Optimiza duración entre 30 y 90 segundos para video.</span></li>
+                                <li class="flex items-start gap-2"><i data-lucide="stars" class="mt-0.5 h-3.5 w-3.5 text-purple-300"></i><span>Cuida resolución mínima 1080p o 1200px en imágenes.</span></li>
+                            </ul>
+                        </aside>
+                    </div>
+                </section>
                 <details open class="group overflow-hidden rounded-3xl border border-white/10 bg-gray-900/50 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.75)]">
                     <summary class="flex flex-col gap-3 cursor-pointer px-6 py-5 text-left transition hover:bg-white/5 sm:flex-row sm:items-center sm:justify-between [&::-webkit-details-marker]:hidden">
                         <span class="flex items-center gap-3 text-white">
