@@ -5869,8 +5869,8 @@
                     this.refreshRoutineBannerControls();
                 },
                 triggerRoutineBannerUpload() {
-                    if (!this.isAsesor()) {
-                        this.showToast('Acción disponible solo para asesores.', 'error');
+                    if (!this.isAdmin()) {
+                        this.showToast('Acción exclusiva del administrador.', 'error');
                         return;
                     }
                     if (this._isUploadingRoutineBanner) {
@@ -5894,8 +5894,8 @@
                 },
                 async handleRoutineBannerFileChange(input) {
                     if (!input || !input.files || input.files.length === 0) return;
-                    if (!this.isAsesor()) {
-                        this.showToast('Acción no permitida.', 'error');
+                    if (!this.isAdmin()) {
+                        this.showToast('Acción exclusiva del administrador.', 'error');
                         input.value = '';
                         return;
                     }
@@ -6028,8 +6028,8 @@
                     );
                 },
                 async removeRoutineBannerImage() {
-                    if (!this.isAsesor()) {
-                        this.showToast('Acción no permitida.', 'error');
+                    if (!this.isAdmin()) {
+                        this.showToast('Acción exclusiva del administrador.', 'error');
                         return;
                     }
                     if (!this.state.routineBanner || !this.state.routineBanner.image) {
@@ -6050,6 +6050,10 @@
                     this.showToast('Banner eliminado.');
                 },
                 triggerCoverUpload() {
+                    if (!this.isAdmin()) {
+                        this.showToast('Acción exclusiva del administrador.', 'error');
+                        return;
+                    }
                     const input = document.getElementById('dashboard-cover-input');
                     if (this._isUploadingDashboardCover) {
                         this.showToast('Espera a que termine la subida en curso.', 'error');
@@ -6070,6 +6074,11 @@
                     }
                 },
                 async handleCoverFileChange(input) {
+                    if (!this.isAdmin()) {
+                        if (input) input.value = '';
+                        this.showToast('Acción exclusiva del administrador.', 'error');
+                        return;
+                    }
                     if (!input || !input.files || input.files.length === 0) return;
                     if (this._isUploadingDashboardCover) {
                         this.showToast('Ya hay una subida en curso.', 'error');
@@ -6199,6 +6208,10 @@
                     );
                 },
                 async removeCoverImage() {
+                    if (!this.isAdmin()) {
+                        this.showToast('Acción exclusiva del administrador.', 'error');
+                        return;
+                    }
                     if (!this.state.dashboardCover || !this.state.dashboardCover.image) {
                         return;
                     }
@@ -7194,8 +7207,8 @@
                         return;
                     }
 
-                    if (!this.isAsesor()) {
-                        this.showToast('Solo el admin puede subir contenido.', 'error');
+                    if (!this.isAdmin()) {
+                        this.showToast('Solo el administrador puede subir contenido.', 'error');
                         return;
                     }
 
@@ -7263,7 +7276,7 @@
                 },
                 renderDietPanelCovers() {
                     const covers = this.state.dietPanelCovers || {};
-                    const isAdmin = this.isAsesor();
+                    const isAdmin = this.isAdmin();
                     const keys = ['guided', 'daily', 'agenda', 'library'];
 
                     keys.forEach((key) => {
@@ -8581,6 +8594,11 @@
                 },
                 // ▼▼▼ CÓDIGO A INSERTAR ▼▼▼
                 routine_handleCoverImageSelect(event) {
+                    if (!this.isAdmin()) {
+                        event.target.value = '';
+                        this.showToast('Solo el administrador puede actualizar estas portadas.', 'error');
+                        return;
+                    }
                     const file = event.target.files[0];
                     if (!file) return;
 
@@ -8599,6 +8617,10 @@
                 },
 
                 async routine_uploadCoverImage(file) {
+                    if (!this.isAdmin()) {
+                        this.showToast('Acción exclusiva del administrador.', 'error');
+                        return;
+                    }
                     if (!file) return;
 
                     const progressContainer = document.getElementById('cover-upload-progress-container');
@@ -9254,7 +9276,10 @@
                     }
                 },
                 routine_creator_showGroupImageModal(group) {
-                    if (!this.isAsesor()) return;
+                    if (!this.isAdmin()) {
+                        this.showToast('Solo el administrador puede actualizar estas portadas.', 'error');
+                        return;
+                    }
 
                     const currentImage = this.data.exerciseGroupImages?.[group] || '';
                     const body = `
@@ -9321,7 +9346,7 @@
                     }
                 },
                 async routine_creator_uploadGroupImage(group) {
-                    if (!this.isAsesor()) { this.showToast('Acción no permitida.', 'error'); return; }
+                    if (!this.isAdmin()) { this.showToast('Acción exclusiva del administrador.', 'error'); return; }
 
                     const fileInput = document.getElementById('group-image-file-input');
                     if (!fileInput || fileInput.files.length === 0) {
