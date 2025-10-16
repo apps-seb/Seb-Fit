@@ -702,6 +702,21 @@
                     </div>
 
                     <div class="relative p-6 sm:p-10">
+                        <div id="auth-role-tabs" class="mb-6 grid grid-cols-1 gap-2 rounded-3xl border border-white/10 bg-white/5 p-2 text-xs font-semibold text-gray-400 sm:grid-cols-3">
+                            <button data-action="toggle-role" data-role-target="admin" class="auth-role-tab inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500/20 px-4 py-2 text-white shadow-[0_12px_25px_-20px_rgba(16,185,129,0.65)] transition">
+                                <i data-lucide="crown" class="h-4 w-4"></i>
+                                Administrador
+                            </button>
+                            <button data-action="toggle-role" data-role-target="entrenador" class="auth-role-tab inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2 text-gray-300 transition hover:text-white">
+                                <i data-lucide="clipboard-check" class="h-4 w-4"></i>
+                                Entrenador
+                            </button>
+                            <button data-action="toggle-role" data-role-target="asesorado" class="auth-role-tab inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-2 text-gray-300 transition hover:text-white">
+                                <i data-lucide="target" class="h-4 w-4"></i>
+                                Asesorado
+                            </button>
+                        </div>
+
                         <div class="mb-6 rounded-full border border-white/10 bg-white/5 p-1 text-xs font-semibold text-gray-400">
                             <div class="grid grid-cols-2">
                                 <button data-action="toggle-auth" data-auth-target="login" class="inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-white bg-emerald-500/20 shadow-[0_12px_25px_-20px_rgba(16,185,129,0.65)] transition">
@@ -718,10 +733,11 @@
                         <div class="relative">
                             <div id="login-form-container" class="auth-form-container form-visible space-y-6">
                                 <div class="space-y-2 text-center">
-                                    <h2 class="text-3xl font-bold text-white">Reanuda tu progreso</h2>
-                                    <p class="text-sm text-gray-400">Accede a tu panel personalizado y retoma la motivación.</p>
+                                    <h2 id="login-role-title" class="text-3xl font-bold text-white">Panel Administrador</h2>
+                                    <p id="login-role-subtitle" class="text-sm text-gray-400">Acceso completo para orquestar a entrenadores y asesorados.</p>
                                 </div>
                                 <form id="login-form" class="space-y-5">
+                                    <input type="hidden" id="login-role" value="admin">
                                     <div>
                                         <label for="login-email" class="block text-sm font-semibold text-gray-300 uppercase tracking-[0.35em]">Email</label>
                                         <input type="email" id="login-email" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
@@ -741,10 +757,11 @@
 
                             <div id="register-form-container" class="auth-form-container form-hidden space-y-6">
                                 <div class="space-y-2 text-center">
-                                    <h2 class="text-3xl font-bold text-white">Crea tu cuaderno digital</h2>
-                                    <p class="text-sm text-gray-400">Configura objetivos claros y deja que FitTrack guíe cada paso.</p>
+                                    <h2 id="register-role-title" class="text-3xl font-bold text-white">Activa tu acceso</h2>
+                                    <p id="register-role-subtitle" class="text-sm text-gray-400">Usa el enlace de invitación correspondiente para completar el registro.</p>
                                 </div>
                                 <form id="register-form" class="space-y-5">
+                                    <input type="hidden" id="register-role" value="admin">
                                     <div class="grid gap-4 sm:grid-cols-2">
                                         <div class="sm:col-span-2">
                                             <label for="register-name" class="block text-sm font-semibold text-gray-300 uppercase tracking-[0.35em]">Nombre</label>
@@ -796,6 +813,10 @@
                     <button id="nav-rutinas" data-section="rutinas" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="clipboard-list"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Rutinas</span>
+                    </button>
+                    <button id="nav-roles" data-section="roles" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="shield"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Roles</span>
                     </button>
                     <button id="nav-asesorados" data-section="asesorados" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="users"></i>
@@ -1336,6 +1357,98 @@
                     <h3 class="font-semibold text-lg mb-3">Mis Clientes</h3>
                     <div id="asesorados-list" class="space-y-3">
                         <p class="text-gray-500 text-center p-4">Aún no tienes clientes.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <template id="template-roles">
+        <section id="roles" class="section-content hidden">
+            <div class="space-y-8">
+                <div class="rounded-[2rem] border border-white/10 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-sky-500/10 p-6 sm:p-8 shadow-[0_45px_140px_-70px_rgba(16,185,129,0.75)]">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="space-y-3">
+                            <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">
+                                <i data-lucide="shield-check" class="h-4 w-4"></i>
+                                Control central
+                            </span>
+                            <h2 class="text-3xl font-black text-white">Roles y accesos</h2>
+                            <p class="max-w-2xl text-sm text-emerald-50/80">Administra entrenadores, define accesos y genera invitaciones seguras para que cada perfil ingrese a su panel personalizado.</p>
+                        </div>
+                        <div class="grid gap-3 text-sm text-emerald-100/80 sm:grid-cols-2">
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <p class="text-[11px] uppercase tracking-[0.35em] text-emerald-100/70">Entrenadores activos</p>
+                                <p id="roles-coach-count" class="mt-2 text-3xl font-semibold text-white">0</p>
+                                <p class="text-[11px] text-emerald-100/60">Cuentan con panel completo de gestión</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <p class="text-[11px] uppercase tracking-[0.35em] text-emerald-100/70">Invitaciones pendientes</p>
+                                <p id="roles-invite-count" class="mt-2 text-3xl font-semibold text-white">0</p>
+                                <p class="text-[11px] text-emerald-100/60">Caducan al primer uso</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                    <div class="space-y-6">
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white">Invitar a un nuevo entrenador</h3>
+                                    <p class="text-sm text-gray-400">Genera un enlace único para que el entrenador configure su acceso.</p>
+                                </div>
+                                <button data-action="refresh-roles" class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100">
+                                    <i data-lucide="refresh-cw" class="h-4 w-4"></i>
+                                    Actualizar
+                                </button>
+                            </div>
+                            <form id="roles-invite-form" class="mt-5 space-y-4" autocomplete="off">
+                                <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,220px)]">
+                                    <div>
+                                        <label for="roles-invite-email" class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Email del entrenador</label>
+                                        <input type="email" id="roles-invite-email" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                    </div>
+                                    <div>
+                                        <label for="roles-invite-note" class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Nota opcional</label>
+                                        <input type="text" id="roles-invite-note" maxlength="80" class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                    </div>
+                                </div>
+                                <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-400 px-6 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-gray-900 shadow-[0_20px_45px_-25px_rgba(16,185,129,0.95)] transition hover:from-emerald-300 hover:via-emerald-400 hover:to-teal-300">
+                                    <i data-lucide="send" class="h-4 w-4"></i>
+                                    Enviar invitación
+                                </button>
+                            </form>
+                        </div>
+
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6">
+                            <div class="flex items-center justify-between gap-3">
+                                <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i data-lucide="users" class="h-5 w-5 text-emerald-300"></i>Entrenadores con acceso</h3>
+                                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400" id="roles-coach-sync-label">Sincronizado</span>
+                            </div>
+                            <div id="roles-trainers-list" class="mt-4 space-y-3">
+                                <p class="rounded-2xl border border-white/5 bg-gray-900/60 p-4 text-sm text-gray-400">No hay entrenadores registrados aún.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="rounded-3xl border border-emerald-400/30 bg-emerald-500/10 p-6">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i data-lucide="link" class="h-5 w-5 text-emerald-200"></i>Invitaciones pendientes</h3>
+                            <p class="mt-1 text-sm text-emerald-50/80">Comparte el enlace generado para que el entrenador finalice su registro.</p>
+                            <div id="roles-invitations-list" class="mt-4 space-y-3">
+                                <p class="rounded-2xl border border-emerald-400/20 bg-gray-900/60 p-4 text-sm text-emerald-100/80">Sin invitaciones activas.</p>
+                            </div>
+                        </div>
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 space-y-4">
+                            <h3 class="text-lg font-semibold text-white">Flujo de acceso</h3>
+                            <ul class="space-y-3 text-sm text-gray-300">
+                                <li class="flex items-start gap-3"><i data-lucide="arrow-right" class="mt-1 h-4 w-4 text-emerald-300"></i><span>El administrador crea la invitación y comparte el enlace único al entrenador.</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="arrow-right" class="mt-1 h-4 w-4 text-emerald-300"></i><span>El entrenador registra su cuenta con panel completo, sin acceso a cambios de portada global.</span></li>
+                                <li class="flex items-start gap-3"><i data-lucide="arrow-right" class="mt-1 h-4 w-4 text-emerald-300"></i><span>Desde su panel, el entrenador invita a los asesorados y vincula sus rutinas y planes de dieta.</span></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2080,7 +2193,7 @@
                                         </div>
                                         <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-100">
                                             <i data-lucide="shield-check" class="h-3.5 w-3.5"></i>
-                                            Solo asesor
+                                            Solo entrenador
                                         </span>
                                     </header>
                                     <form id="diet-create-food-form" class="space-y-5">
@@ -2486,8 +2599,24 @@
                 db: null,
                 storage: null, 
                 
+                isAdmin() {
+                    return this.state && this.state.role === 'admin';
+                },
+
+                isCoach() {
+                    return this.state && this.state.role === 'entrenador';
+                },
+
+                isClient() {
+                    return this.state && this.state.role === 'asesorado';
+                },
+
                 isAsesor() {
-                    return this.state && this.state.role === 'asesor';
+                    return this.isAdmin() || this.isCoach();
+                },
+
+                canEditGlobalMedia() {
+                    return this.isAdmin();
                 },
 
                 getDefaultState() {
@@ -2495,7 +2624,11 @@
                     return {
                         currentUser: null,
                         userName: '',
-                        role: 'asesor', 
+                        role: 'asesorado',
+                        managedRoles: {
+                            trainers: [],
+                            invitations: []
+                        },
                         coachId: null,
                         currentSection: 'inicio', 
                         userGoals: { calories: 2500, protein: 188, carbs: 250, fats: 83 },
@@ -2817,6 +2950,7 @@
 
                 adjustUIForRole() {
                     const navAsesorados = document.getElementById('nav-asesorados');
+                    const navRoles = document.getElementById('nav-roles');
                     const navNutricion = document.getElementById('nav-nutricion');
                     const createRoutineBtn = document.getElementById('create-routine-btn');
                     const predefinedRoutines = document.getElementById('predefined-routines-section');
@@ -2824,34 +2958,50 @@
                     const addFoodSection = document.getElementById('add-food-section');
                     const dietAdminActions = document.getElementById('diet-admin-actions');
 
-                    if (this.isAsesor()) {
-                        navAsesorados.style.display = 'flex';
-                        navNutricion.style.display = 'flex';
+                    const navRutinasText = document.querySelector('#nav-rutinas .nav-label');
+
+                    if (navRoles) {
+                        navRoles.style.display = this.isAdmin() ? 'flex' : 'none';
+                    }
+
+                    if (this.isAdmin()) {
+                        if (navAsesorados) navAsesorados.style.display = 'none';
+                        if (navNutricion) navNutricion.style.display = 'flex';
                         if (createRoutineBtn) createRoutineBtn.style.display = 'flex';
                         if (predefinedRoutines) predefinedRoutines.style.display = 'block';
                         if (dietManagementTools) dietManagementTools.style.display = 'block';
                         if (addFoodSection) addFoodSection.style.display = 'block';
                         if (dietAdminActions) dietAdminActions.style.display = 'flex';
-                        const navRutinasText = document.querySelector('#nav-rutinas .nav-label');
                         if (navRutinasText) navRutinasText.textContent = 'Rutinas';
-
-                    } else {
-                        navAsesorados.style.display = 'none';
-                        navNutricion.style.display = 'none';
-                        if (createRoutineBtn) createRoutineBtn.style.display = 'none';
-                        if (predefinedRoutines) predefinedRoutines.style.display = 'none';
-                        if (dietManagementTools) dietManagementTools.style.display = 'none';
-                        if (addFoodSection) addFoodSection.style.display = 'none';
-                        if (dietAdminActions) dietAdminActions.style.display = 'none';
-                        const navRutinasText = document.querySelector('#nav-rutinas .nav-label');
-                        if (navRutinasText) navRutinasText.textContent = 'Mi Rutina';
+                        return;
                     }
+
+                    if (this.isCoach()) {
+                        if (navAsesorados) navAsesorados.style.display = 'flex';
+                        if (navNutricion) navNutricion.style.display = 'flex';
+                        if (createRoutineBtn) createRoutineBtn.style.display = 'flex';
+                        if (predefinedRoutines) predefinedRoutines.style.display = 'block';
+                        if (dietManagementTools) dietManagementTools.style.display = 'block';
+                        if (addFoodSection) addFoodSection.style.display = 'block';
+                        if (dietAdminActions) dietAdminActions.style.display = this.canEditGlobalMedia() ? 'flex' : 'none';
+                        if (navRutinasText) navRutinasText.textContent = 'Rutinas';
+                        return;
+                    }
+
+                    if (navAsesorados) navAsesorados.style.display = 'none';
+                    if (navNutricion) navNutricion.style.display = 'none';
+                    if (createRoutineBtn) createRoutineBtn.style.display = 'none';
+                    if (predefinedRoutines) predefinedRoutines.style.display = 'none';
+                    if (dietManagementTools) dietManagementTools.style.display = 'none';
+                    if (addFoodSection) addFoodSection.style.display = 'none';
+                    if (dietAdminActions) dietAdminActions.style.display = 'none';
+                    if (navRutinasText) navRutinasText.textContent = 'Mi Rutina';
                 },
 
                 async saveDataToFirestore() {
                     if (!this.state.currentUser) return false;
                     const dataToSave = { ...this.state };
-                    ['currentUser', 'activeWorkout', 'timer', 'currentSection', 'asesorados', 'isMobileMenuOpen', 'community', 'isCommunityLoading', 'theme'].forEach(key => delete dataToSave[key]);
+                    ['currentUser', 'activeWorkout', 'timer', 'currentSection', 'asesorados', 'managedRoles', 'isMobileMenuOpen', 'community', 'isCommunityLoading', 'theme'].forEach(key => delete dataToSave[key]);
                     const userRef = doc(this.db, "users", this.state.currentUser.uid);
                     try {
                         await setDoc(userRef, dataToSave, { merge: true });
@@ -2938,11 +3088,14 @@
                             }
                             this.state.community = { ...defaultState.community };
                             this.state.isCommunityLoading = false;
+                            if (this.state.role === 'asesor') {
+                                this.state.role = this.auth.currentUser.uid === this.adminUID ? 'admin' : 'entrenador';
+                            }
                         } else {
                             this.state = defaultState;
                             this.state.currentUser = this.auth.currentUser;
                             this.state.userName = this.auth.currentUser.displayName || "Nuevo Usuario";
-                            this.state.role = this.auth.currentUser.uid === this.adminUID ? 'asesor' : 'asesorado';
+                            this.state.role = this.auth.currentUser.uid === this.adminUID ? 'admin' : 'asesorado';
                             await this.saveDataToFirestore();
                         }
                     } catch (error) {
@@ -3462,6 +3615,7 @@
                             this.toggleAuthForms(target);
                         });
                     });
+                    this.setActiveAuthRole('admin');
                 },
 
                 async handleLogin(e) {
@@ -3486,32 +3640,46 @@
                     const name = document.getElementById('register-name').value;
                     const email = document.getElementById('register-email').value.toLowerCase();
                     const password = document.getElementById('register-password').value;
-                    const button = e.target.querySelector('button[type="submit"]');
+                    const selectedRole = document.getElementById('register-role')?.value || 'asesorado';
+                    const button = e.target.querySelector('button[type=\"submit\"]');
                     this.setButtonLoading(button, true);
                     this.showLaunchScreen();
 
                     try {
+                        if (selectedRole === 'admin') {
+                            this.hideLaunchScreen();
+                            this.showToast('El registro de administradores se gestiona internamente.', 'error');
+                            throw new Error('Admin self-registration not allowed');
+                        }
+
                         const invitationsRef = collection(this.db, "invitations");
-                        const q = query(invitationsRef, where("clientEmail", "==", email), where("status", "==", "pending"));
-                        const querySnapshot = await getDocs(q);
+                        let invitationDoc = null;
 
-                        let role = 'asesor';
-                        let coachId = null;
-                        let invitationDocId = null;
-
-                        if (!querySnapshot.empty) {
-                            const invitationDoc = querySnapshot.docs[0];
-                            const invitationData = invitationDoc.data();
-                            role = 'asesorado';
-                            coachId = invitationData.coachId;
-                            invitationDocId = invitationDoc.id;
-                            this.showToast("¡Bienvenido! Has aceptado una invitación.", "success");
+                        if (selectedRole === 'entrenador') {
+                            const coachInvites = await getDocs(query(invitationsRef, where('role', '==', 'entrenador'), where('email', '==', email), where('status', '==', 'pending')));
+                            if (!coachInvites.empty) {
+                                invitationDoc = coachInvites.docs[0];
+                            }
                         } else {
-                            if (this.adminUID) {
-                                this.showToast("Registro no autorizado sin invitación.", "error");
-                                throw new Error("Unauthorized registration");
+                            let clientInvites = await getDocs(query(invitationsRef, where('role', '==', 'asesorado'), where('email', '==', email), where('status', '==', 'pending')));
+                            if (clientInvites.empty) {
+                                clientInvites = await getDocs(query(invitationsRef, where('clientEmail', '==', email), where('status', '==', 'pending')));
+                            }
+                            if (!clientInvites.empty) {
+                                invitationDoc = clientInvites.docs[0];
                             }
                         }
+
+                        if (!invitationDoc) {
+                            this.hideLaunchScreen();
+                            this.showToast('Necesitas una invitación válida para registrarte.', 'error');
+                            throw new Error('Missing invitation');
+                        }
+
+                        const invitationData = invitationDoc.data();
+                        const role = invitationData.role || selectedRole;
+                        const coachId = role === 'asesorado' ? (invitationData.coachId || null) : null;
+                        const invitationDocId = invitationDoc.id;
 
                         const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
                         const user = userCredential.user;
@@ -3522,22 +3690,81 @@
                         initialData.role = role;
                         initialData.coachId = coachId;
                         initialData.targetWeight = initialData.physicalStats.weight;
+                        initialData.email = email;
                         delete initialData.currentUser;
                         delete initialData.asesorados;
                         await setDoc(userRef, initialData);
 
-                        if (invitationDocId) {
-                            const invitationRef = doc(this.db, "invitations", invitationDocId);
-                            await updateDoc(invitationRef, { status: "accepted", acceptedAt: new Date(), clientId: user.uid });
+                        const invitationRef = doc(this.db, "invitations", invitationDocId);
+                        await updateDoc(invitationRef, { status: 'accepted', acceptedAt: new Date(), clientId: user.uid });
+
+                        if (role === 'entrenador') {
+                            this.showToast('Acceso de entrenador activado.', 'success');
+                        } else {
+                            this.showToast('¡Bienvenido! Has aceptado una invitación.', 'success');
                         }
 
                     } catch (error) {
                         this.hideLaunchScreen();
-                        this.showToast(this.getFirebaseAuthErrorMessage(error), 'error');
+                        if (error.message !== 'Missing invitation' && error.message !== 'Admin self-registration not allowed') {
+                            this.showToast(this.getFirebaseAuthErrorMessage(error), 'error');
+                        }
                         console.error("Registration error:", error);
                     } finally {
                         this.setButtonLoading(button, false);
                     }
+                },
+
+                setActiveAuthRole(role) {
+                    const normalizedRole = ['admin', 'entrenador', 'asesorado'].includes(role) ? role : 'asesorado';
+                    const loginRoleInput = document.getElementById('login-role');
+                    const registerRoleInput = document.getElementById('register-role');
+                    if (loginRoleInput) loginRoleInput.value = normalizedRole;
+                    if (registerRoleInput) registerRoleInput.value = normalizedRole;
+
+                    const tabs = document.querySelectorAll('.auth-role-tab');
+                    tabs.forEach(tab => {
+                        const isActive = tab.dataset.roleTarget === normalizedRole;
+                        if (isActive) {
+                            tab.classList.add('bg-emerald-500/20', 'text-white');
+                            tab.classList.remove('text-gray-300');
+                        } else {
+                            tab.classList.remove('bg-emerald-500/20', 'text-white');
+                            tab.classList.add('text-gray-300');
+                        }
+                    });
+
+                    const contentMap = {
+                        admin: {
+                            loginTitle: 'Panel Administrador',
+                            loginSubtitle: 'Administra roles, librerías oficiales y activos globales.',
+                            registerTitle: 'Acceso interno',
+                            registerSubtitle: 'Solicita tu usuario al responsable principal de la plataforma.'
+                        },
+                        entrenador: {
+                            loginTitle: 'Ingreso de entrenador',
+                            loginSubtitle: 'Gestiona clientes, rutinas y planes diarios desde un mismo panel.',
+                            registerTitle: 'Activa tu panel de entrenador',
+                            registerSubtitle: 'Utiliza el enlace enviado por el administrador para completar tu registro.'
+                        },
+                        asesorado: {
+                            loginTitle: 'Tu progreso personalizado',
+                            loginSubtitle: 'Accede a tus rutinas, seguimiento y checklist diario.',
+                            registerTitle: 'Conéctate con tu entrenador',
+                            registerSubtitle: 'Ingresa con el enlace privado que recibiste para sincronizar tu plan.'
+                        }
+                    };
+
+                    const copy = contentMap[normalizedRole] || contentMap.asesorado;
+                    const loginTitleEl = document.getElementById('login-role-title');
+                    const loginSubtitleEl = document.getElementById('login-role-subtitle');
+                    const registerTitleEl = document.getElementById('register-role-title');
+                    const registerSubtitleEl = document.getElementById('register-role-subtitle');
+
+                    if (loginTitleEl) loginTitleEl.textContent = copy.loginTitle;
+                    if (loginSubtitleEl) loginSubtitleEl.textContent = copy.loginSubtitle;
+                    if (registerTitleEl) registerTitleEl.textContent = copy.registerTitle;
+                    if (registerSubtitleEl) registerSubtitleEl.textContent = copy.registerSubtitle;
                 },
 
                 async handleLogout() { try { await signOut(this.auth); } catch (error) { this.showToast('Error al cerrar sesión.', 'error'); } },
@@ -4034,9 +4261,34 @@
                             return; 
                         }
                         
-                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate, leaderboard, storagePath } = button.dataset;
+                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate, leaderboard, storagePath, inviteId, inviteLink } = button.dataset;
                         if (action === 'trigger-profile-photo-upload') {
                             this.triggerProfilePhotoUpload();
+                            return;
+                        }
+                        if (action === 'refresh-roles') {
+                            this.renderRolesSection();
+                            return;
+                        }
+                        if (action === 'toggle-role') {
+                            const targetRole = button.dataset.roleTarget || 'asesorado';
+                            this.setActiveAuthRole(targetRole);
+                            return;
+                        }
+                        if (action === 'copy-invite-link') {
+                            if (inviteLink) {
+                                navigator.clipboard?.writeText(inviteLink).then(() => {
+                                    this.showToast('Enlace copiado al portapapeles.');
+                                }).catch(() => {
+                                    this.showToast('No se pudo copiar el enlace.', 'error');
+                                });
+                            }
+                            return;
+                        }
+                        if (action === 'revoke-invite') {
+                            if (inviteId) {
+                                this.revokeInvitation(inviteId);
+                            }
                             return;
                         }
                         const actionMap = {
@@ -4079,7 +4331,15 @@
                             actionMap[action](e);
                         }
                     });
-                    document.body.addEventListener('submit', (e) => { e.preventDefault(); if (e.target.id === 'nutrition-form') { this.calculateNutrition(); } if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); } if (e.target.id === '1rm-form') { this.calculate1RM(); } if (e.target.id === 'invite-form') { this.handleInviteClient(e); } if (e.target.id === 'diet-create-food-form') { this._handleInlineFoodCreate(); } });
+                    document.body.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        if (e.target.id === 'nutrition-form') { this.calculateNutrition(); }
+                        if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); }
+                        if (e.target.id === '1rm-form') { this.calculate1RM(); }
+                        if (e.target.id === 'invite-form') { this.handleInviteClient(e); }
+                        if (e.target.id === 'roles-invite-form') { this.handleRoleInvitation(e); }
+                        if (e.target.id === 'diet-create-food-form') { this._handleInlineFoodCreate(); }
+                    });
                     document.body.addEventListener('input', (e) => { if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); } if (e.target.id === 'exercise-search-input') { this.routine_filterExerciseLibrary(e.target.value); } if (e.target.id === 'client-food-search') { this.renderFoodList(e.target.value, 'client-food-list'); } if (e.target.closest('#client-diet-editor')) { const mealIndex = e.target.dataset.mealIndex; if (mealIndex) { this._updateMealDataFromUI(parseInt(mealIndex)); } } });
                     document.body.addEventListener('change', (e) => {
                         if (e.target.id === 'profile-photo-input') {
@@ -4244,7 +4504,9 @@
                     this.renderProfileSection();
                     this.renderNutricionSection();
                     this.renderCommunitySection();
-                    if (this.isAsesor()) {
+                    if (this.isAdmin()) {
+                        this.renderRolesSection();
+                    } else if (this.isAsesor()) {
                         this.renderAsesoradosSection();
                     }
                     this.updateCoverPreview();
@@ -4294,6 +4556,258 @@
                     }
                     lucide.createIcons();
                 },
+
+                async renderRolesSection() {
+                    if (!this.isAdmin()) {
+                        return;
+                    }
+
+                    const trainersList = document.getElementById('roles-trainers-list');
+                    const invitationsList = document.getElementById('roles-invitations-list');
+                    const coachCountEl = document.getElementById('roles-coach-count');
+                    const inviteCountEl = document.getElementById('roles-invite-count');
+                    const syncLabel = document.getElementById('roles-coach-sync-label');
+
+                    if (!trainersList || !invitationsList) {
+                        return;
+                    }
+
+                    if (!this.db) {
+                        trainersList.innerHTML = '<p class="rounded-2xl border border-white/5 bg-gray-900/60 p-4 text-sm text-gray-400">No se pudo conectar a la base de datos.</p>';
+                        return;
+                    }
+
+                    if (syncLabel) {
+                        syncLabel.textContent = 'Sincronizando...';
+                        syncLabel.classList.add('text-emerald-200');
+                    }
+
+                    try {
+                        const usersRef = collection(this.db, 'users');
+                        const invitesRef = collection(this.db, 'invitations');
+                        const [trainersSnapshot, invitationsSnapshot] = await Promise.all([
+                            getDocs(query(usersRef, where('role', '==', 'entrenador'))),
+                            getDocs(query(invitesRef, where('role', '==', 'entrenador'), where('status', '==', 'pending')))
+                        ]);
+
+                        const trainers = trainersSnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+                        const invites = invitationsSnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+
+                        this.state.managedRoles = {
+                            trainers,
+                            invitations: invites
+                        };
+
+                        if (coachCountEl) {
+                            coachCountEl.textContent = trainers.length.toString();
+                        }
+                        if (inviteCountEl) {
+                            inviteCountEl.textContent = invites.length.toString();
+                        }
+                        if (syncLabel) {
+                            syncLabel.textContent = 'Actualizado';
+                            syncLabel.classList.remove('text-emerald-200', 'text-rose-300');
+                        }
+
+                        if (trainers.length === 0) {
+                            trainersList.innerHTML = '<p class="rounded-2xl border border-white/5 bg-gray-900/60 p-4 text-sm text-gray-400">No hay entrenadores registrados aún.</p>';
+                        } else {
+                            trainersList.innerHTML = trainers.map(trainer => {
+                                const name = trainer.userName || 'Entrenador';
+                                const email = trainer.email || trainer.contactEmail || 'Sin email';
+                                const joined = trainer.createdAt?.toDate?.() || trainer.createdAt?.seconds ? new Date(trainer.createdAt.seconds * 1000) : (trainer.createdAt ? new Date(trainer.createdAt) : null);
+                                const joinedLabel = joined && !Number.isNaN(joined.getTime()) ? joined.toLocaleDateString('es-ES') : 'Registro inicial';
+                                const clients = Array.isArray(trainer.asesorados) ? trainer.asesorados.length : (trainer.clientsCount || 0);
+                                return `
+                                    <article class="rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/10">
+                                        <header class="flex items-start justify-between gap-3">
+                                            <div>
+                                                <h4 class="text-lg font-semibold text-white">${name}</h4>
+                                                <p class="text-sm text-gray-400">${email}</p>
+                                            </div>
+                                            <span class="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200">Entrenador</span>
+                                        </header>
+                                        <div class="mt-4 grid gap-3 sm:grid-cols-3 text-sm text-gray-300">
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-3 text-center">
+                                                <p class="text-[11px] uppercase tracking-[0.28em] text-gray-400">Asesorados</p>
+                                                <p class="text-xl font-semibold text-white">${clients}</p>
+                                            </div>
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-3 text-center">
+                                                <p class="text-[11px] uppercase tracking-[0.28em] text-gray-400">Actividad</p>
+                                                <p class="text-sm font-semibold text-emerald-200">${trainer.lastLogin ? 'Reciente' : 'Sin registro'}</p>
+                                            </div>
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-3 text-center">
+                                                <p class="text-[11px] uppercase tracking-[0.28em] text-gray-400">Alta</p>
+                                                <p class="text-sm font-semibold text-white">${joinedLabel}</p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                `;
+                            }).join('');
+                        }
+
+                        if (invites.length === 0) {
+                            invitationsList.innerHTML = '<p class="rounded-2xl border border-emerald-400/20 bg-gray-900/60 p-4 text-sm text-emerald-100/80">Sin invitaciones activas.</p>';
+                        } else {
+                            const baseUrl = window.location.origin;
+                            invitationsList.innerHTML = invites.map(invite => {
+                                const email = invite.email || invite.clientEmail || 'Sin email';
+                                const note = invite.note || 'Sin nota adicional';
+                                const sentDate = invite.sentAt?.toDate?.() || invite.sentAt?.seconds ? new Date(invite.sentAt.seconds * 1000) : (invite.sentAt ? new Date(invite.sentAt) : null);
+                                const sentLabel = sentDate && !Number.isNaN(sentDate.getTime()) ? sentDate.toLocaleDateString('es-ES') : 'Pendiente';
+                                const inviteUrl = `${baseUrl}?invite=${invite.id}`;
+                                return `
+                                    <article class="rounded-2xl border border-emerald-400/30 bg-gray-900/70 p-4">
+                                        <div class="flex flex-col gap-2">
+                                            <div class="flex items-center justify-between gap-3">
+                                                <div>
+                                                    <p class="text-sm font-semibold text-white">${email}</p>
+                                                    <p class="text-xs text-emerald-100/80">Enviada el ${sentLabel}</p>
+                                                </div>
+                                                <button data-action="revoke-invite" data-invite-id="${invite.id}" class="inline-flex items-center gap-2 rounded-full border border-rose-400/30 bg-rose-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-rose-200 hover:border-rose-300 hover:text-rose-100">
+                                                    <i data-lucide="x-circle" class="h-4 w-4"></i>
+                                                    Revocar
+                                                </button>
+                                            </div>
+                                            <p class="text-xs text-gray-300">${note}</p>
+                                            <div class="flex flex-col gap-2 rounded-xl border border-emerald-400/20 bg-emerald-500/5 p-3">
+                                                <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200">Enlace de invitación</p>
+                                                <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                                    <code class="flex-1 truncate rounded-lg bg-gray-900/70 px-3 py-2 text-xs text-emerald-100/90">${inviteUrl}</code>
+                                                    <button data-action="copy-invite-link" data-invite-link="${inviteUrl}" class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200 hover:border-emerald-300 hover:text-emerald-100">
+                                                        <i data-lucide="copy" class="h-4 w-4"></i>
+                                                        Copiar
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                `;
+                            }).join('');
+                        }
+
+                        lucide.createIcons();
+                    } catch (error) {
+                        console.error('Error rendering roles section:', error);
+                        this.showToast('No se pudieron obtener los roles.', 'error');
+                        trainersList.innerHTML = '<p class="rounded-2xl border border-white/5 bg-gray-900/60 p-4 text-sm text-gray-400">Intenta actualizar nuevamente.</p>';
+                        if (invitationsList) {
+                            invitationsList.innerHTML = '<p class="rounded-2xl border border-emerald-400/20 bg-gray-900/60 p-4 text-sm text-emerald-100/80">No se pudieron cargar las invitaciones.</p>';
+                        }
+                        if (syncLabel) {
+                            syncLabel.textContent = 'Error';
+                            syncLabel.classList.remove('text-emerald-200');
+                            syncLabel.classList.add('text-rose-300');
+                        }
+                    }
+                },
+
+                async handleRoleInvitation(e) {
+                    if (!this.isAdmin()) {
+                        this.showToast('Solo el administrador puede invitar entrenadores.', 'error');
+                        return;
+                    }
+
+                    if (!this.db) {
+                        this.showToast('No se pudo conectar a la base de datos.', 'error');
+                        return;
+                    }
+
+                    const form = e.target;
+                    const submitButton = e.submitter || form.querySelector('button[type="submit"]');
+                    if (submitButton) {
+                        submitButton.disabled = true;
+                    }
+
+                    const emailInput = document.getElementById('roles-invite-email');
+                    const noteInput = document.getElementById('roles-invite-note');
+                    const email = emailInput?.value?.toLowerCase().trim();
+                    const note = noteInput?.value?.trim() || '';
+
+                    if (!email || !email.includes('@')) {
+                        this.showToast('Ingresa un email válido.', 'error');
+                        if (submitButton) {
+                            submitButton.disabled = false;
+                        }
+                        return;
+                    }
+
+                    if (this.state?.currentUser?.email?.toLowerCase() === email) {
+                        this.showToast('No puedes enviarte una invitación de entrenador.', 'error');
+                        if (submitButton) {
+                            submitButton.disabled = false;
+                        }
+                        return;
+                    }
+
+                    try {
+                        const usersRef = collection(this.db, 'users');
+                        let existingUserSnap = await getDocs(query(usersRef, where('emailLower', '==', email)));
+                        if (existingUserSnap.empty) {
+                            existingUserSnap = await getDocs(query(usersRef, where('email', '==', email)));
+                        }
+
+                        if (!existingUserSnap.empty) {
+                            this.showToast('Ya existe un usuario registrado con este email.', 'error');
+                            if (submitButton) {
+                                submitButton.disabled = false;
+                            }
+                            return;
+                        }
+
+                        const invitationsRef = collection(this.db, 'invitations');
+                        const duplicateInviteSnap = await getDocs(query(
+                            invitationsRef,
+                            where('role', '==', 'entrenador'),
+                            where('status', '==', 'pending')
+                        ));
+
+                        const hasDuplicateInvite = duplicateInviteSnap.docs.some(docSnap => {
+                            const data = docSnap.data();
+                            const inviteEmail = (data.emailLower || data.email || data.clientEmail || '').toLowerCase();
+                            return inviteEmail === email;
+                        });
+
+                        if (hasDuplicateInvite) {
+                            this.showToast('Ya existe una invitación pendiente para este correo.', 'error');
+                            if (submitButton) {
+                                submitButton.disabled = false;
+                            }
+                            return;
+                        }
+
+                        const invitePayload = {
+                            role: 'entrenador',
+                            email,
+                            emailLower: email,
+                            note,
+                            status: 'pending',
+                            sentAt: new Date(),
+                            invitedBy: this.state?.currentUser?.uid || null,
+                            invitedByEmail: this.state?.currentUser?.email || null
+                        };
+
+                        await addDoc(invitationsRef, invitePayload);
+
+                        this.showToast(`Invitación enviada a ${email}.`, 'success');
+                        if (emailInput) {
+                            emailInput.value = '';
+                        }
+                        if (noteInput) {
+                            noteInput.value = '';
+                        }
+
+                        await this.renderRolesSection();
+                    } catch (error) {
+                        console.error('Error sending coach invitation:', error);
+                        this.showToast('No se pudo generar la invitación.', 'error');
+                    } finally {
+                        if (submitButton) {
+                            submitButton.disabled = false;
+                        }
+                    }
+                },
+
                 async fetchAsesorados() {
                     if (!this.state.currentUser) return;
                     const usersRef = collection(this.db, "users");
@@ -4302,6 +4816,10 @@
                     this.state.asesorados = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 },
                 async handleInviteClient(e) {
+                    if (!this.isCoach()) {
+                        this.showToast('Solo los entrenadores pueden invitar asesorados.', 'error');
+                        return;
+                    }
                     const form = e.target;
                     const button = e.submitter || form.querySelector('button[type="submit"]');
                     if (button) button.disabled = true;
@@ -4347,6 +4865,9 @@
                         await addDoc(invitationsRef, {
                             coachId: this.state.currentUser.uid,
                             clientEmail: email,
+                            email,
+                            emailLower: email,
+                            role: 'asesorado',
                             status: "pending",
                             sentAt: new Date()
                         });
@@ -4361,6 +4882,26 @@
                     }
                 },
                 
+                async revokeInvitation(inviteId) {
+                    if (!this.isAdmin()) {
+                        this.showToast('Solo el administrador puede revocar invitaciones.', 'error');
+                        return;
+                    }
+
+                    try {
+                        const inviteRef = doc(this.db, 'invitations', inviteId);
+                        await updateDoc(inviteRef, {
+                            status: 'revoked',
+                            revokedAt: new Date()
+                        });
+                        this.showToast('Invitación revocada.');
+                        await this.renderRolesSection();
+                    } catch (error) {
+                        console.error('Error revoking invite:', error);
+                        this.showToast('No se pudo revocar la invitación.', 'error');
+                    }
+                },
+
                 async showClientManager(clientId) {
                     const client = this.state.asesorados.find(c => c.id === clientId);
                     if (!client) {
@@ -4865,7 +5406,7 @@
                 },
                 async _handleInlineFoodCreate() {
                     if (!this.isAsesor()) {
-                        this.showToast('Solo el asesor puede crear alimentos personalizados.', 'error');
+                        this.showToast('Solo el entrenador puede crear alimentos personalizados.', 'error');
                         return;
                     }
 
@@ -5869,8 +6410,8 @@
                     this.refreshRoutineBannerControls();
                 },
                 triggerRoutineBannerUpload() {
-                    if (!this.isAsesor()) {
-                        this.showToast('Acción disponible solo para asesores.', 'error');
+                    if (!this.canEditGlobalMedia()) {
+                        this.showToast('Solo el administrador puede actualizar el banner de rutinas.', 'error');
                         return;
                     }
                     if (this._isUploadingRoutineBanner) {
@@ -5893,12 +6434,12 @@
                     }
                 },
                 async handleRoutineBannerFileChange(input) {
-                    if (!input || !input.files || input.files.length === 0) return;
-                    if (!this.isAsesor()) {
-                        this.showToast('Acción no permitida.', 'error');
-                        input.value = '';
+                    if (!this.canEditGlobalMedia()) {
+                        this.showToast('Solo el administrador puede actualizar el banner de rutinas.', 'error');
+                        if (input) input.value = '';
                         return;
                     }
+                    if (!input || !input.files || input.files.length === 0) return;
                     if (this._isUploadingRoutineBanner) {
                         this.showToast('Ya hay una subida en curso.', 'error');
                         input.value = '';
@@ -5948,7 +6489,7 @@
                     this.refreshRoutineBannerControls();
 
                     const sanitizedName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
-                    const filePath = `routine_banners/${this.state.currentUser?.uid || 'asesor'}/${Date.now()}-${sanitizedName}`;
+                    const filePath = `routine_banners/${this.state.currentUser?.uid || 'coach'}/${Date.now()}-${sanitizedName}`;
                     const storageRef = ref(this.storage, filePath);
                     const uploadTask = uploadBytesResumable(storageRef, file);
 
@@ -6028,8 +6569,8 @@
                     );
                 },
                 async removeRoutineBannerImage() {
-                    if (!this.isAsesor()) {
-                        this.showToast('Acción no permitida.', 'error');
+                    if (!this.canEditGlobalMedia()) {
+                        this.showToast('Solo el administrador puede modificar el banner.', 'error');
                         return;
                     }
                     if (!this.state.routineBanner || !this.state.routineBanner.image) {
@@ -6050,6 +6591,10 @@
                     this.showToast('Banner eliminado.');
                 },
                 triggerCoverUpload() {
+                    if (!this.canEditGlobalMedia()) {
+                        this.showToast('Solo el administrador puede actualizar la portada del panel.', 'error');
+                        return;
+                    }
                     const input = document.getElementById('dashboard-cover-input');
                     if (this._isUploadingDashboardCover) {
                         this.showToast('Espera a que termine la subida en curso.', 'error');
@@ -6070,6 +6615,11 @@
                     }
                 },
                 async handleCoverFileChange(input) {
+                    if (!this.canEditGlobalMedia()) {
+                        this.showToast('Solo el administrador puede actualizar la portada del panel.', 'error');
+                        if (input) input.value = '';
+                        return;
+                    }
                     if (!input || !input.files || input.files.length === 0) return;
                     if (this._isUploadingDashboardCover) {
                         this.showToast('Ya hay una subida en curso.', 'error');
@@ -7184,6 +7734,11 @@
                     this._applyWeightMetrics(metrics);
                 },
                 async handleDietPanelCoverSelected(input) {
+                    if (!this.canEditGlobalMedia()) {
+                        this.showToast('Solo el administrador puede actualizar estas portadas.', 'error');
+                        if (input) input.value = '';
+                        return;
+                    }
                     if (!input) return;
 
                     const panelKey = input.dataset.panelCoverInput;
@@ -7191,11 +7746,6 @@
                     input.value = '';
 
                     if (!panelKey || !file) {
-                        return;
-                    }
-
-                    if (!this.isAsesor()) {
-                        this.showToast('Solo el admin puede subir contenido.', 'error');
                         return;
                     }
 
@@ -8581,6 +9131,11 @@
                 },
                 // ▼▼▼ CÓDIGO A INSERTAR ▼▼▼
                 routine_handleCoverImageSelect(event) {
+                    if (!this.canEditGlobalMedia()) {
+                        this.showToast('Solo el administrador puede actualizar esta portada.', 'error');
+                        if (event?.target) event.target.value = '';
+                        return;
+                    }
                     const file = event.target.files[0];
                     if (!file) return;
 
@@ -8599,6 +9154,10 @@
                 },
 
                 async routine_uploadCoverImage(file) {
+                    if (!this.canEditGlobalMedia()) {
+                        this.showToast('Solo el administrador puede actualizar esta portada.', 'error');
+                        return;
+                    }
                     if (!file) return;
 
                     const progressContainer = document.getElementById('cover-upload-progress-container');
@@ -9321,7 +9880,7 @@
                     }
                 },
                 async routine_creator_uploadGroupImage(group) {
-                    if (!this.isAsesor()) { this.showToast('Acción no permitida.', 'error'); return; }
+                    if (!this.canEditGlobalMedia()) { this.showToast('Solo el administrador puede actualizar estas imágenes.', 'error'); return; }
 
                     const fileInput = document.getElementById('group-image-file-input');
                     if (!fileInput || fileInput.files.length === 0) {
