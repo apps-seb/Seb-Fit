@@ -259,6 +259,9 @@
         .diet-panel:hover .diet-panel-cover-visual {
             transform: scale(1.05);
         }
+        .diet-panel-cover[data-custom-cover="true"] .diet-panel-cover-visual {
+            filter: brightness(0.92);
+        }
         .diet-panel-cover::before {
             content: "";
             position: absolute;
@@ -267,6 +270,13 @@
             background: radial-gradient(circle at center, rgba(56, 189, 248, 0.35), rgba(15, 23, 42, 0));
             opacity: 0.45;
             z-index: 1;
+        }
+        .diet-panel-cover[data-custom-cover="true"] {
+            border-color: rgba(16, 185, 129, 0.55);
+            box-shadow: inset 0 0 35px rgba(16, 185, 129, 0.2);
+        }
+        .diet-panel-cover[data-custom-cover="true"]::after {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.55) 68%, rgba(15, 23, 42, 0.85) 100%);
         }
         .diet-panel-cover-content {
             position: relative;
@@ -332,6 +342,47 @@
         }
         .diet-panel[open] .diet-panel-cover-toggle svg {
             transform: rotate(180deg);
+        }
+        .diet-panel-cover-upload {
+            position: absolute;
+            top: 1.1rem;
+            left: 1.1rem;
+            z-index: 3;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            background: rgba(15, 23, 42, 0.78);
+            color: rgba(226, 232, 240, 0.9);
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .diet-panel-cover-upload svg {
+            width: 16px;
+            height: 16px;
+        }
+        .diet-panel-cover-upload:hover {
+            border-color: rgba(94, 234, 212, 0.6);
+            color: rgba(240, 253, 250, 0.95);
+            background: rgba(15, 23, 42, 0.92);
+            box-shadow: 0 25px 65px -35px rgba(56, 189, 248, 0.75);
+        }
+        .diet-panel-cover-upload.is-hidden {
+            display: none;
+        }
+        .diet-panel-cover-upload.is-uploading::after {
+            content: "";
+            position: absolute;
+            inset: 0.35rem;
+            border-radius: inherit;
+            border: 3px solid rgba(148, 163, 184, 0.35);
+            border-top-color: rgba(56, 189, 248, 0.8);
+            animation: spin 0.85s linear infinite;
         }
         .diet-panel-cover[data-panel-key="guided"] .diet-panel-cover-visual {
             background-image: url('https://images.unsplash.com/photo-1514516430032-7f38caebc1ec?auto=format&fit=crop&w=1200&q=80');
@@ -1558,6 +1609,11 @@
                                     <span>Configura la estrategia nutricional y su proyección.</span>
                                 </div>
                             </div>
+                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="guided" aria-label="Subir portada de Definición guiada">
+                                <span class="sr-only">Actualizar portada de Definición guiada</span>
+                                <i data-lucide="image-up"></i>
+                                <input type="file" accept="image/*" class="hidden" data-panel-cover-input="guided" />
+                            </label>
                             <span class="diet-panel-cover-toggle" aria-hidden="true">
                                 <i data-lucide="chevron-down"></i>
                             </span>
@@ -1796,6 +1852,11 @@
                                     <span>Controla calorías, progreso y recordatorios.</span>
                                 </div>
                             </div>
+                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="daily" aria-label="Subir portada de Plan de dieta hoy">
+                                <span class="sr-only">Actualizar portada de Plan de dieta hoy</span>
+                                <i data-lucide="image-up"></i>
+                                <input type="file" accept="image/*" class="hidden" data-panel-cover-input="daily" />
+                            </label>
                             <span class="diet-panel-cover-toggle" aria-hidden="true">
                                 <i data-lucide="chevron-down"></i>
                             </span>
@@ -1905,6 +1966,11 @@
                                     <span>Gestiona las comidas planificadas del día.</span>
                                 </div>
                             </div>
+                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="agenda" aria-label="Subir portada de Agenda nutricional">
+                                <span class="sr-only">Actualizar portada de Agenda nutricional</span>
+                                <i data-lucide="image-up"></i>
+                                <input type="file" accept="image/*" class="hidden" data-panel-cover-input="agenda" />
+                            </label>
                             <span class="diet-panel-cover-toggle" aria-hidden="true">
                                 <i data-lucide="chevron-down"></i>
                             </span>
@@ -1941,6 +2007,11 @@
                                     <span>Administra la biblioteca y registra nuevas opciones.</span>
                                 </div>
                             </div>
+                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="library" aria-label="Subir portada de Añade alimentos al plan">
+                                <span class="sr-only">Actualizar portada de Añade alimentos al plan</span>
+                                <i data-lucide="image-up"></i>
+                                <input type="file" accept="image/*" class="hidden" data-panel-cover-input="library" />
+                            </label>
                             <span class="diet-panel-cover-toggle" aria-hidden="true">
                                 <i data-lucide="chevron-down"></i>
                             </span>
@@ -3978,6 +4049,10 @@
                         }
                         if (e.target.id === 'routine-banner-input') {
                             this.handleRoutineBannerFileChange(e.target);
+                            return;
+                        }
+                        if (e.target.dataset.panelCoverInput) {
+                            this.handleDietPanelCoverSelected(e.target);
                             return;
                         }
                         if (e.target.closest('#client-diet-goals-form')) {
@@ -7054,13 +7129,94 @@
                     const metrics = this._getWeightProgressMetrics();
                     this._applyWeightMetrics(metrics);
                 },
+                async handleDietPanelCoverSelected(input) {
+                    if (!input) return;
+
+                    const panelKey = input.dataset.panelCoverInput;
+                    const file = input.files && input.files[0];
+                    input.value = '';
+
+                    if (!panelKey || !file) {
+                        return;
+                    }
+
+                    if (!this.isAsesor()) {
+                        this.showToast('Solo el admin puede subir contenido.', 'error');
+                        return;
+                    }
+
+                    if (!file.type.startsWith('image/')) {
+                        this.showToast('Selecciona una imagen válida.', 'error');
+                        return;
+                    }
+
+                    const maxSize = 12 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        this.showToast('La imagen supera el límite de 12MB.', 'error');
+                        return;
+                    }
+
+                    if (!this.state.dietPanelCovers) {
+                        const defaults = this.getDefaultState().dietPanelCovers || {};
+                        this.state.dietPanelCovers = Object.keys(defaults).reduce((acc, key) => {
+                            acc[key] = { ...defaults[key] };
+                            return acc;
+                        }, {});
+                    }
+
+                    const trigger = document.querySelector(`[data-panel-cover-trigger="${panelKey}"]`);
+                    const wrapper = document.querySelector(`.diet-panel-cover[data-panel-key="${panelKey}"]`);
+
+                    const setUploadingState = (isUploading) => {
+                        if (trigger) {
+                            trigger.classList.toggle('is-uploading', isUploading);
+                        }
+                        if (wrapper) {
+                            wrapper.classList.toggle('opacity-70', isUploading);
+                            wrapper.classList.toggle('pointer-events-none', isUploading);
+                        }
+                    };
+
+                    try {
+                        setUploadingState(true);
+                        const previousPath = this.state.dietPanelCovers?.[panelKey]?.storagePath || '';
+                        const uploadResult = await this.uploadImageToStorage(file, {
+                            pathPrefix: `diet_panel_covers/${panelKey}`,
+                            previousPath
+                        });
+
+                        if (!uploadResult.url) {
+                            this.showToast('No se pudo subir la imagen.', 'error');
+                            return;
+                        }
+
+                        this.state.dietPanelCovers[panelKey] = {
+                            url: uploadResult.url,
+                            storagePath: uploadResult.storagePath,
+                            updatedAt: new Date().toISOString()
+                        };
+
+                        this.preloadImage(uploadResult.url, { priority: 'high' });
+                        this.renderDietPanelCovers();
+                        await this.saveDataToFirestore();
+                        this.showToast('Portada actualizada.', 'success');
+                    } catch (error) {
+                        console.error('Error uploading diet panel cover:', error);
+                        this.showToast('No se pudo subir la imagen.', 'error');
+                    } finally {
+                        setUploadingState(false);
+                    }
+                },
                 renderDietPanelCovers() {
                     const covers = this.state.dietPanelCovers || {};
+                    const isAdmin = this.isAsesor();
                     const keys = ['guided', 'daily', 'agenda', 'library'];
 
                     keys.forEach((key) => {
                         const wrapper = document.querySelector(`.diet-panel-cover[data-panel-key="${key}"]`);
                         const preview = document.querySelector(`[data-panel-cover-preview="${key}"]`);
+                        const trigger = document.querySelector(`[data-panel-cover-trigger="${key}"]`);
+                        const input = document.querySelector(`[data-panel-cover-input="${key}"]`);
                         if (!wrapper || !preview) {
                             return;
                         }
@@ -7075,6 +7231,19 @@
                         }
 
                         wrapper.dataset.customCover = hasCustomCover ? 'true' : 'false';
+
+                        if (trigger) {
+                            trigger.classList.toggle('is-hidden', !isAdmin);
+                            if (!isAdmin) {
+                                trigger.setAttribute('aria-hidden', 'true');
+                            } else {
+                                trigger.removeAttribute('aria-hidden');
+                            }
+                        }
+
+                        if (input) {
+                            input.disabled = !isAdmin;
+                        }
                     });
 
                     lucide.createIcons();
