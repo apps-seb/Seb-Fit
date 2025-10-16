@@ -167,19 +167,19 @@
         .diet-panel {
             position: relative;
             overflow: hidden;
-            border-radius: 32px;
-            border: 1px solid rgba(148, 163, 184, 0.16);
-            background: linear-gradient(145deg, rgba(15, 23, 42, 0.88), rgba(12, 74, 110, 0.42));
-            box-shadow: 0 45px 120px -65px rgba(59, 130, 246, 0.55);
-            backdrop-filter: blur(22px) saturate(140%);
-            -webkit-backdrop-filter: blur(22px) saturate(140%);
+            border-radius: 26px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: linear-gradient(140deg, rgba(15, 23, 42, 0.88), rgba(12, 74, 110, 0.48));
+            box-shadow: 0 30px 90px -60px rgba(59, 130, 246, 0.55);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
             transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
         }
         .diet-panel::before {
             content: "";
             position: absolute;
             inset: -55% 35% auto -20%;
-            height: 240%;
+            height: 220%;
             background: radial-gradient(circle at center, rgba(59, 130, 246, 0.22), rgba(15, 23, 42, 0));
             opacity: 0.6;
         }
@@ -187,30 +187,30 @@
             content: "";
             position: absolute;
             inset: auto -30% -120% 45%;
-            height: 260%;
+            height: 240%;
             background: radial-gradient(circle at center, rgba(16, 185, 129, 0.35), rgba(15, 23, 42, 0));
             opacity: 0.55;
         }
         .diet-panel:hover {
-            transform: translateY(-3px);
-            border-color: rgba(94, 234, 212, 0.55);
-            box-shadow: 0 55px 140px -65px rgba(56, 189, 248, 0.65);
+            transform: translateY(-2px);
+            border-color: rgba(94, 234, 212, 0.5);
+            box-shadow: 0 45px 120px -70px rgba(56, 189, 248, 0.6);
         }
         .diet-panel[open] {
             border-color: rgba(16, 185, 129, 0.55);
-            box-shadow: 0 60px 140px -70px rgba(16, 185, 129, 0.75);
+            box-shadow: 0 55px 140px -70px rgba(16, 185, 129, 0.75);
         }
         .diet-panel-summary {
             position: relative;
             z-index: 2;
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            gap: 1rem;
             cursor: pointer;
-            padding: 1.5rem;
+            padding: 1.1rem 1.25rem;
             text-align: left;
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             transition: background 0.3s ease;
         }
         @media (min-width: 640px) {
@@ -218,97 +218,108 @@
                 flex-direction: row;
                 align-items: center;
                 justify-content: space-between;
+                padding: 1.25rem 1.75rem;
             }
         }
         .diet-panel-summary-main {
             display: flex;
             flex-direction: column;
-            gap: 1.25rem;
+            align-items: stretch;
+            gap: 1rem;
             width: 100%;
         }
         @media (min-width: 640px) {
             .diet-panel-summary-main {
                 flex-direction: row;
                 align-items: center;
-            }
-        }
-        .diet-panel-summary-main .diet-panel-cover {
-            flex: 1 1 50%;
-        }
-        @media (min-width: 1024px) {
-            .diet-panel-summary-main .diet-panel-cover {
-                flex-basis: 45%;
+                gap: 1.15rem;
             }
         }
         .diet-panel-summary-info {
             position: relative;
             display: flex;
-            flex: 1 1 50%;
-            width: 100%;
+            flex: 1 1 auto;
+            flex-wrap: wrap;
             align-items: center;
             gap: 1rem;
-            padding: 1.1rem 1.4rem;
-            border-radius: 26px;
-            border: 1px solid rgba(148, 163, 184, 0.24);
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.72), rgba(13, 148, 136, 0.25));
-            box-shadow: inset 0 0 35px rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            width: 100%;
+            padding: clamp(1rem, 3vw, 1.35rem) clamp(1.1rem, 4vw, 1.8rem);
+            border-radius: 22px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.82), rgba(13, 148, 136, 0.22));
+            box-shadow: inset 0 0 25px rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+        @media (min-width: 640px) {
+            .diet-panel-summary-info {
+                width: auto;
+                gap: 0.9rem;
+            }
         }
         .diet-panel-summary-info::before {
             content: "";
             position: absolute;
-            inset: -60% 35% auto -20%;
-            height: 220%;
+            inset: -45% 35% auto -20%;
+            height: 200%;
             background: radial-gradient(circle at center, rgba(45, 212, 191, 0.25), rgba(15, 23, 42, 0));
-            opacity: 0.45;
+            opacity: 0.35;
         }
         .diet-panel-summary-info > * {
             position: relative;
             z-index: 1;
         }
         .diet-panel-summary:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
-        .diet-panel-summary .diet-panel-summary-chevron {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 2.5rem;
-            height: 2.5rem;
-            border-radius: 9999px;
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            background: rgba(15, 23, 42, 0.65);
-            color: rgba(148, 163, 184, 0.9);
-            transition: transform 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-        }
-        .diet-panel[open] .diet-panel-summary .diet-panel-summary-chevron {
-            transform: rotate(180deg);
-            color: rgba(167, 243, 208, 0.95);
-            border-color: rgba(16, 185, 129, 0.5);
+            background: rgba(255, 255, 255, 0.03);
         }
         .diet-panel-content {
             position: relative;
             z-index: 1;
             display: grid;
-            gap: 1.75rem;
-            padding: 1.75rem;
-            background: rgba(15, 23, 42, 0.75);
+            gap: 1.6rem;
+            padding: clamp(1.2rem, 4vw, 1.95rem);
+            background: linear-gradient(155deg, rgba(15, 23, 42, 0.92), rgba(12, 74, 110, 0.5));
             border-top: 1px solid rgba(148, 163, 184, 0.14);
+            border-radius: 0 0 24px 24px;
         }
         .diet-panel-body {
             position: relative;
             z-index: 1;
+            display: block;
         }
         .diet-panel-cover {
             position: relative;
             overflow: hidden;
-            border-radius: 26px;
-            border: 1px solid rgba(148, 163, 184, 0.16);
+            flex: 1 1 100%;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(8, 47, 73, 0.45));
-            min-height: 11rem;
-            box-shadow: inset 0 0 40px rgba(15, 23, 42, 0.65);
+            box-shadow: inset 0 0 30px rgba(15, 23, 42, 0.6);
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        @media (max-width: 639px) {
+            .diet-panel-cover {
+                margin: -1.1rem -1.25rem 0.85rem;
+                width: calc(100% + 2.5rem);
+                border-radius: 0;
+            }
+        }
+        @media (min-width: 640px) {
+            .diet-panel-cover {
+                flex: 0 0 220px;
+                width: 220px;
+                aspect-ratio: 5 / 4;
+                margin: 0;
+                border-radius: 20px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .diet-panel-cover {
+                flex-basis: 240px;
+                width: 240px;
+            }
         }
         .diet-panel-cover::before {
             content: "";
@@ -316,11 +327,11 @@
             inset: -45% 15% auto -25%;
             height: 220%;
             background: radial-gradient(circle at center, rgba(56, 189, 248, 0.3), rgba(15, 23, 42, 0));
-            opacity: 0.55;
+            opacity: 0.5;
         }
         .diet-panel-cover[data-has-image="true"] {
-            border-color: rgba(16, 185, 129, 0.5);
-            box-shadow: inset 0 0 25px rgba(16, 185, 129, 0.18);
+            border-color: rgba(16, 185, 129, 0.55);
+            box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.18);
         }
         .diet-panel-cover-visual {
             position: absolute;
@@ -333,62 +344,82 @@
         .diet-panel-cover[data-has-image="true"] .diet-panel-cover-visual {
             opacity: 1;
         }
-        .diet-panel-cover-upload {
+        .diet-panel-cover-toggle {
             position: absolute;
-            inset: 0;
-            z-index: 2;
-            display: flex;
+            right: 0.85rem;
+            bottom: 0.85rem;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
+            width: 2.35rem;
+            height: 2.35rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            background: rgba(15, 23, 42, 0.75);
+            color: rgba(226, 232, 240, 0.85);
+            box-shadow: 0 18px 45px -35px rgba(56, 189, 248, 0.85);
+            z-index: 3;
+            pointer-events: none;
+            transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .diet-panel-cover-toggle svg {
+            width: 18px;
+            height: 18px;
+            transition: transform 0.35s ease;
+        }
+        .diet-panel:hover .diet-panel-cover-toggle {
+            border-color: rgba(94, 234, 212, 0.6);
+            color: rgba(240, 253, 250, 0.95);
+            background: rgba(15, 23, 42, 0.92);
+            box-shadow: 0 25px 65px -35px rgba(56, 189, 248, 0.9);
+        }
+        .diet-panel[open] .diet-panel-cover-toggle svg {
+            transform: rotate(180deg);
+        }
+        .diet-panel-cover-upload {
+            position: absolute;
+            left: 1rem;
+            bottom: 1rem;
+            z-index: 4;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.6rem;
+            height: 2.6rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            background: rgba(15, 23, 42, 0.78);
+            color: rgba(226, 232, 240, 0.85);
             cursor: pointer;
-            transition: background 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
         }
-        .diet-panel-cover-upload::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.35), rgba(6, 182, 212, 0.2));
-            opacity: 0.45;
-            transition: opacity 0.3s ease;
+        .diet-panel-cover-upload svg {
+            width: 16px;
+            height: 16px;
         }
-        .diet-panel-cover-upload::after {
-            content: "";
-            position: absolute;
-            inset: 12px;
-            border-radius: 20px;
-            border: 1px dashed rgba(148, 163, 184, 0.35);
-            transition: border-color 0.3s ease, opacity 0.3s ease;
+        .diet-panel-cover-upload:hover {
+            border-color: rgba(94, 234, 212, 0.6);
+            color: rgba(240, 253, 250, 0.95);
+            background: rgba(15, 23, 42, 0.92);
+            box-shadow: 0 20px 45px -30px rgba(56, 189, 248, 0.65);
         }
-        .diet-panel-cover-upload:hover::before {
-            opacity: 0.75;
-        }
-        .diet-panel-cover-upload:hover::after {
-            border-color: rgba(45, 212, 191, 0.6);
-            opacity: 0.9;
-        }
-        .diet-panel-cover[data-has-image="true"] .diet-panel-cover-upload::before {
-            opacity: 0;
-        }
-        .diet-panel-cover[data-has-image="true"] .diet-panel-cover-upload::after {
-            opacity: 0;
+        .diet-panel-cover[data-has-image="true"] .diet-panel-cover-upload {
+            border-color: rgba(16, 185, 129, 0.5);
         }
         .diet-panel-cover-upload.is-uploading::after {
             content: "";
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 2.75rem;
-            height: 2.75rem;
-            transform: translate(-50%, -50%);
-            border-radius: 9999px;
+            inset: 0.35rem;
+            border-radius: inherit;
             border: 3px solid rgba(148, 163, 184, 0.35);
             border-top-color: rgba(56, 189, 248, 0.8);
-            background: transparent;
             animation: spin 0.85s linear infinite;
         }
         .diet-panel-cover-upload.is-disabled {
             pointer-events: none;
-            opacity: 0.5;
+            opacity: 0.45;
         }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -540,11 +571,9 @@
                 padding: 1.25rem;
                 gap: 1.25rem;
             }
-            .diet-panel-body {
-                padding: 1.25rem !important;
-            }
             .diet-panel-cover {
-                min-height: 9rem;
+                flex-basis: 76px;
+                width: 76px;
             }
             .diet-panel-body .diet-responsive-grid {
                 grid-template-columns: 1fr !important;
@@ -1579,12 +1608,17 @@
                         <div class="diet-panel-summary-main">
                             <div class="diet-panel-cover" data-panel-key="guided" data-has-image="false">
                                 <div class="diet-panel-cover-visual" data-panel-cover-preview="guided"></div>
+                                <span class="diet-panel-cover-toggle" aria-hidden="true">
+                                    <i data-lucide="chevron-down"></i>
+                                </span>
                                 <label class="diet-panel-cover-upload" data-panel-cover-trigger="guided" aria-label="Subir portada de Definición guiada">
+                                    <span class="sr-only">Actualizar portada de Definición guiada</span>
+                                    <i data-lucide="image-up"></i>
                                     <input type="file" accept="image/*" class="hidden" data-panel-cover-input="guided" />
                                 </label>
                             </div>
                             <div class="diet-panel-summary-info text-white">
-                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-200 shadow-[0_12px_30px_-20px_rgba(16,185,129,0.65)]">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-200 shadow-[0_12px_30px_-20px_rgba(16,185,129,0.65)] sm:h-12 sm:w-12">
                                     <i data-lucide="compass" class="h-5 w-5"></i>
                                 </span>
                                 <div class="flex flex-col">
@@ -1593,16 +1627,13 @@
                                 </div>
                             </div>
                         </div>
-                        <span class="diet-panel-summary-chevron self-end sm:ml-auto">
-                            <i data-lucide="chevron-down" class="h-4 w-4 transition-transform"></i>
-                        </span>
                     </summary>
                     <div class="diet-panel-content">
-                        <div class="diet-panel-body rounded-3xl border border-white/5 bg-gray-900/70 p-6 sm:p-8">
+                        <div class="diet-panel-body">
                             <div class="space-y-8">
-                            <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-gray-900 p-6 sm:p-8 shadow-xl shadow-emerald-500/20">
-                                <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.22),transparent_55%)]"></div>
-                                <div class="relative flex flex-col gap-7 lg:flex-row lg:items-start">
+                                <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-gray-900 p-6 sm:p-8 shadow-xl shadow-emerald-500/20">
+                                    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.22),transparent_55%)]"></div>
+                                    <div class="relative flex flex-col gap-7 lg:flex-row lg:items-start">
                                     <div class="flex-1 space-y-7">
                                         <header class="space-y-4">
                                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1822,12 +1853,17 @@
                         <div class="diet-panel-summary-main">
                             <div class="diet-panel-cover" data-panel-key="daily" data-has-image="false">
                                 <div class="diet-panel-cover-visual" data-panel-cover-preview="daily"></div>
+                                <span class="diet-panel-cover-toggle" aria-hidden="true">
+                                    <i data-lucide="chevron-down"></i>
+                                </span>
                                 <label class="diet-panel-cover-upload" data-panel-cover-trigger="daily" aria-label="Subir portada de Plan de dieta hoy">
+                                    <span class="sr-only">Actualizar portada de Plan de dieta hoy</span>
+                                    <i data-lucide="image-up"></i>
                                     <input type="file" accept="image/*" class="hidden" data-panel-cover-input="daily" />
                                 </label>
                             </div>
                             <div class="diet-panel-summary-info text-white">
-                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/15 text-emerald-200 shadow-[0_12px_30px_-20px_rgba(45,212,191,0.55)]">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-400/15 text-emerald-200 shadow-[0_12px_30px_-20px_rgba(45,212,191,0.55)] sm:h-12 sm:w-12">
                                     <i data-lucide="flame" class="h-5 w-5"></i>
                                 </span>
                                 <div class="flex flex-col">
@@ -1836,12 +1872,9 @@
                                 </div>
                             </div>
                         </div>
-                        <span class="diet-panel-summary-chevron self-end sm:ml-auto">
-                            <i data-lucide="chevron-down" class="h-4 w-4 transition-transform"></i>
-                        </span>
                     </summary>
                     <div class="diet-panel-content">
-                        <div class="diet-panel-body rounded-3xl border border-white/5 bg-gray-900/70 p-6 sm:p-8">
+                        <div class="diet-panel-body">
                             <div class="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] items-start diet-responsive-grid">
                                 <article class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900/95 via-gray-900/60 to-gray-900/90 p-6 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.85)]">
                                     <div class="pointer-events-none absolute -top-24 right-0 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl"></div>
@@ -1936,12 +1969,17 @@
                         <div class="diet-panel-summary-main">
                             <div class="diet-panel-cover" data-panel-key="agenda" data-has-image="false">
                                 <div class="diet-panel-cover-visual" data-panel-cover-preview="agenda"></div>
+                                <span class="diet-panel-cover-toggle" aria-hidden="true">
+                                    <i data-lucide="chevron-down"></i>
+                                </span>
                                 <label class="diet-panel-cover-upload" data-panel-cover-trigger="agenda" aria-label="Subir portada de Agenda nutricional">
+                                    <span class="sr-only">Actualizar portada de Agenda nutricional</span>
+                                    <i data-lucide="image-up"></i>
                                     <input type="file" accept="image/*" class="hidden" data-panel-cover-input="agenda" />
                                 </label>
                             </div>
                             <div class="diet-panel-summary-info text-white">
-                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-300/15 text-emerald-100 shadow-[0_12px_30px_-20px_rgba(16,185,129,0.45)]">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-300/15 text-emerald-100 shadow-[0_12px_30px_-20px_rgba(16,185,129,0.45)] sm:h-12 sm:w-12">
                                     <i data-lucide="calendar" class="h-5 w-5"></i>
                                 </span>
                                 <div class="flex flex-col">
@@ -1950,12 +1988,9 @@
                                 </div>
                             </div>
                         </div>
-                        <span class="diet-panel-summary-chevron self-end sm:ml-auto">
-                            <i data-lucide="chevron-down" class="h-4 w-4 transition-transform"></i>
-                        </span>
                     </summary>
                     <div class="diet-panel-content">
-                        <div class="diet-panel-body rounded-3xl border border-white/5 bg-gray-900/70 p-6 sm:p-8">
+                        <div class="diet-panel-body">
                             <article class="space-y-6 rounded-3xl border border-white/10 bg-gray-900/70 p-6">
                                 <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                                     <div class="space-y-1">
@@ -1977,12 +2012,17 @@
                         <div class="diet-panel-summary-main">
                             <div class="diet-panel-cover" data-panel-key="library" data-has-image="false">
                                 <div class="diet-panel-cover-visual" data-panel-cover-preview="library"></div>
+                                <span class="diet-panel-cover-toggle" aria-hidden="true">
+                                    <i data-lucide="chevron-down"></i>
+                                </span>
                                 <label class="diet-panel-cover-upload" data-panel-cover-trigger="library" aria-label="Subir portada de Añade alimentos al plan">
+                                    <span class="sr-only">Actualizar portada de Biblioteca de alimentos</span>
+                                    <i data-lucide="image-up"></i>
                                     <input type="file" accept="image/*" class="hidden" data-panel-cover-input="library" />
                                 </label>
                             </div>
                             <div class="diet-panel-summary-info text-white">
-                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-400/15 text-teal-200 shadow-[0_12px_30px_-20px_rgba(45,212,191,0.55)]">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-400/15 text-teal-200 shadow-[0_12px_30px_-20px_rgba(45,212,191,0.55)] sm:h-12 sm:w-12">
                                     <i data-lucide="library" class="h-5 w-5"></i>
                                 </span>
                                 <div class="flex flex-col">
@@ -1991,12 +2031,9 @@
                                 </div>
                             </div>
                         </div>
-                        <span class="diet-panel-summary-chevron self-end sm:ml-auto">
-                            <i data-lucide="chevron-down" class="h-4 w-4 transition-transform"></i>
-                        </span>
                     </summary>
                     <div class="diet-panel-content">
-                        <div class="diet-panel-body rounded-3xl border border-white/5 bg-gray-900/70 p-6 sm:p-8">
+                        <div class="diet-panel-body">
                             <aside id="add-food-section" class="space-y-6 rounded-3xl border border-white/10 bg-gray-900/70 p-6 shadow-[0_35px_90px_-55px_rgba(45,212,191,0.55)]">
                                 <div class="space-y-2">
                                     <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Biblioteca de alimentos</p>
@@ -7196,6 +7233,7 @@
                         }
 
                         const coverData = covers[key] || {};
+
                         if (coverData.url) {
                             preview.style.backgroundImage = `url('${coverData.url}')`;
                             wrapper.dataset.hasImage = 'true';
