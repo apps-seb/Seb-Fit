@@ -164,85 +164,6 @@
             padding: 0.4rem 0.9rem;
         }
 
-        .diet-admin-upload-surface {
-            position: relative;
-            display: block;
-            min-height: 12rem;
-            overflow: hidden;
-            border-radius: 28px;
-            border: 1px solid rgba(148, 163, 184, 0.22);
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.82), rgba(13, 148, 136, 0.28));
-            box-shadow: 0 45px 120px -65px rgba(20, 184, 166, 0.7);
-            backdrop-filter: blur(22px) saturate(135%);
-            -webkit-backdrop-filter: blur(22px) saturate(135%);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.35s ease;
-        }
-        .diet-admin-upload-surface::before {
-            content: "";
-            position: absolute;
-            inset: -40% -10% auto -20%;
-            height: 220%;
-            background: radial-gradient(circle at center, rgba(45, 212, 191, 0.35), rgba(15, 23, 42, 0));
-            opacity: 0.7;
-            transform: rotate(8deg);
-        }
-        .diet-admin-upload-surface::after {
-            content: "";
-            position: absolute;
-            inset: auto -30% -90% 25%;
-            height: 220%;
-            background: radial-gradient(circle at center, rgba(56, 189, 248, 0.28), rgba(15, 23, 42, 0));
-            opacity: 0.6;
-        }
-        .diet-admin-upload-surface .diet-admin-upload-icon {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 3.5rem;
-            height: 3.5rem;
-            border-radius: 22px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(15, 23, 42, 0.55);
-            color: rgba(240, 253, 244, 0.9);
-            box-shadow: 0 20px 50px -30px rgba(16, 185, 129, 0.65);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            transition: border-color 0.3s ease, color 0.3s ease, transform 0.35s ease;
-        }
-        .diet-admin-upload-surface:hover {
-            transform: translateY(-2px);
-            border-color: rgba(45, 212, 191, 0.55);
-            box-shadow: 0 55px 140px -65px rgba(59, 130, 246, 0.6);
-        }
-        .diet-admin-upload-surface:hover .diet-admin-upload-icon {
-            border-color: rgba(16, 185, 129, 0.6);
-            color: rgba(167, 243, 208, 0.95);
-        }
-        .diet-admin-upload-surface.is-uploading {
-            pointer-events: none;
-            opacity: 0.65;
-        }
-        .diet-admin-upload-surface.is-uploading::after {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 3.25rem;
-            height: 3.25rem;
-            margin-top: -1.625rem;
-            margin-left: -1.625rem;
-            border-radius: 9999px;
-            border: 3px solid rgba(148, 163, 184, 0.35);
-            border-top-color: rgba(45, 212, 191, 0.85);
-            animation: spin 0.85s linear infinite;
-            z-index: 3;
-        }
-        .diet-admin-upload-surface.is-uploading .diet-admin-upload-icon {
-            opacity: 0;
-        }
-
         .diet-panel {
             position: relative;
             overflow: hidden;
@@ -589,6 +510,54 @@
         .auth-form-container { transition: all 0.4s ease-in-out; }
         .form-hidden { opacity: 0; transform: scale(0.95); pointer-events: none; position: absolute; }
         .form-visible { opacity: 1; transform: scale(1); pointer-events: auto; position: relative; }
+
+        .diet-responsive-grid {
+            display: grid;
+        }
+        .diet-responsive-stack {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        @media (max-width: 480px) {
+            .diet-panel-summary {
+                padding: 1.15rem;
+                gap: 1rem;
+            }
+            .diet-panel-summary-info {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 0.95rem 1.05rem;
+                gap: 0.75rem;
+            }
+            .diet-panel-summary-info > *:first-child {
+                align-self: flex-start;
+            }
+            .diet-panel-summary .diet-panel-summary-chevron {
+                width: 2.25rem;
+                height: 2.25rem;
+            }
+            .diet-panel-content {
+                padding: 1.25rem;
+                gap: 1.25rem;
+            }
+            .diet-panel-body {
+                padding: 1.25rem !important;
+            }
+            .diet-panel-cover {
+                min-height: 9rem;
+            }
+            .diet-panel-body .diet-responsive-grid {
+                grid-template-columns: 1fr !important;
+            }
+            .diet-panel-body .diet-responsive-stack {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+            .diet-panel-body .diet-responsive-stack > * {
+                flex: 1 1 100%;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white antialiased">
@@ -1605,12 +1574,6 @@
     <template id="template-dieta">
         <section id="dieta" class="section-content hidden">
             <div class="space-y-6">
-                <section id="diet-admin-media-card" class="rounded-3xl border border-white/10 bg-gray-950/70 p-4 sm:p-6 shadow-[0_45px_120px_-60px_rgba(59,130,246,0.55)]">
-                    <label id="diet-admin-media-trigger" for="diet-admin-media-input" class="diet-admin-upload-surface" aria-label="Subir portada principal de dieta">
-                        <input id="diet-admin-media-input" type="file" accept="image/*,video/*" class="hidden" />
-                    </label>
-                    <div id="diet-admin-media-preview" class="mt-4 hidden overflow-hidden rounded-3xl border border-white/10 bg-black/60"></div>
-                </section>
                 <details data-diet-panel="guided" open class="diet-panel group">
                     <summary class="diet-panel-summary [&::-webkit-details-marker]:hidden">
                         <div class="diet-panel-summary-main">
@@ -1704,7 +1667,7 @@
                                                         <span class="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full border border-emerald-300/50 bg-emerald-500/20 shadow-[0_0_18px_rgba(59,130,246,0.35)]"></span>
                                                     </div>
                                                 </div>
-                                                <div class="flex items-start justify-between text-[10px] font-medium text-emerald-100/80 sm:text-xs">
+                                                <div class="flex items-start justify-between text-[10px] font-medium text-emerald-100/80 sm:text-xs diet-responsive-stack">
                                                     <div class="flex flex-col gap-1 text-left">
                                                         <span class="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] uppercase tracking-[0.3em] text-emerald-100/70"><i data-lucide="sparkles" class="h-3 w-3"></i>Inicio</span>
                                                         <span class="text-emerald-200/70">Semana 0 · Peso inicial 78 kg</span>
@@ -1773,7 +1736,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
+                            <div class="grid gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] diet-responsive-grid">
                                 <article class="relative overflow-hidden rounded-3xl border border-white/10 bg-gray-900/80 p-6 shadow-[0_35px_90px_-55px_rgba(16,185,129,0.65)]">
                                     <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.18),transparent_65%)]"></div>
                                     <div class="relative space-y-5">
@@ -1790,7 +1753,7 @@
                                             </div>
                                         </header>
                                         <div class="space-y-2 rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
-                                            <div class="flex items-center justify-between">
+                                            <div class="flex items-center justify-between diet-responsive-stack">
                                                 <div>
                                                     <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">Objetivo</p>
                                                     <p class="text-lg font-semibold text-emerald-200"><span id="diet-target-weight">--</span> kg</p>
@@ -1803,7 +1766,7 @@
                                             <p id="diet-goal-diff" class="text-xs text-emerald-100/70">Conecta tus registros para ver el avance.</p>
                                         </div>
                                         <div class="space-y-2">
-                                            <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                                            <div class="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400 diet-responsive-stack">
                                                 <span>Progreso hacia la meta</span>
                                                 <span id="diet-weight-progress-label">0%</span>
                                             </div>
@@ -1811,7 +1774,7 @@
                                                 <div id="diet-weight-progress" class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-sky-400 to-cyan-300" style="width: 0%;"></div>
                                             </div>
                                         </div>
-                                        <div class="flex items-start justify-between rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                        <div class="flex items-start justify-between rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3 diet-responsive-stack">
                                             <div>
                                                 <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500">Ritmo actual</p>
                                                 <p id="diet-goal-trend" class="text-sm font-semibold text-emerald-200">Sin datos</p>
@@ -1825,7 +1788,7 @@
                                 </article>
                                 <article class="rounded-3xl border border-white/10 bg-gray-900/80 p-6 shadow-[0_35px_90px_-55px_rgba(59,130,246,0.55)]">
                                     <div class="space-y-4">
-                                        <div class="flex items-start justify-between">
+                                        <div class="flex items-start justify-between diet-responsive-stack">
                                             <div>
                                                 <span class="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-cyan-100">Proyección</span>
                                                 <h3 class="mt-2 text-xl font-semibold text-white">Ruta estimada</h3>
@@ -1879,7 +1842,7 @@
                     </summary>
                     <div class="diet-panel-content">
                         <div class="diet-panel-body rounded-3xl border border-white/5 bg-gray-900/70 p-6 sm:p-8">
-                            <div class="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] items-start">
+                            <div class="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] items-start diet-responsive-grid">
                                 <article class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900/95 via-gray-900/60 to-gray-900/90 p-6 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.85)]">
                                     <div class="pointer-events-none absolute -top-24 right-0 h-56 w-56 rounded-full bg-emerald-500/10 blur-3xl"></div>
                                     <div class="relative space-y-8">
@@ -1914,9 +1877,9 @@
                                                 </div>
                                                 <p id="diet-today-delta" class="mt-2 text-sm text-emerald-100/70">Planifica tu primera comida para comenzar.</p>
                                             </div>
-                                            <div class="grid gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+                                            <div class="grid gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] diet-responsive-grid">
                                                 <div class="space-y-3 rounded-2xl border border-white/10 bg-gray-900/70 p-4">
-                                                    <div class="flex flex-col gap-2 text-xs text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div class="flex flex-col gap-2 text-xs text-gray-400 sm:flex-row sm:items-center sm:justify-between diet-responsive-stack">
                                                         <span id="diet-plan-coverage">Añade comidas para proyectar tu día.</span>
                                                         <span id="diet-plan-diff" class="font-semibold text-emerald-200/80"></span>
                                                     </div>
@@ -2054,7 +2017,7 @@
                                         </span>
                                     </header>
                                     <form id="diet-create-food-form" class="space-y-5">
-                                        <div class="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                                        <div class="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] diet-responsive-grid">
                                             <div class="space-y-4">
                                                 <label class="block space-y-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">
                                                     <span>Nombre</span>
@@ -2486,7 +2449,6 @@
                         dashboardCover: { image: '', storagePath: '', updatedAt: null },
                         routineBanner: { image: '', storagePath: '', updatedAt: null },
                         profilePhoto: { url: '', storagePath: '', updatedAt: null },
-                        dietAdminMedia: { url: '', storagePath: '', type: '', name: '', updatedAt: null },
                         dietPanelCovers: {
                             guided: { url: '', storagePath: '', updatedAt: null },
                             daily: { url: '', storagePath: '', updatedAt: null },
@@ -2794,7 +2756,6 @@
                     const dietManagementTools = document.getElementById('diet-management-tools');
                     const addFoodSection = document.getElementById('add-food-section');
                     const dietAdminActions = document.getElementById('diet-admin-actions');
-                    const dietAdminMediaCard = document.getElementById('diet-admin-media-card');
 
                     if (this.isAsesor()) {
                         navAsesorados.style.display = 'flex';
@@ -2804,7 +2765,6 @@
                         if (dietManagementTools) dietManagementTools.style.display = 'block';
                         if (addFoodSection) addFoodSection.style.display = 'block';
                         if (dietAdminActions) dietAdminActions.style.display = 'flex';
-                        if (dietAdminMediaCard) dietAdminMediaCard.style.display = 'block';
                         const navRutinasText = document.querySelector('#nav-rutinas .nav-label');
                         if (navRutinasText) navRutinasText.textContent = 'Rutinas';
 
@@ -2816,7 +2776,6 @@
                         if (dietManagementTools) dietManagementTools.style.display = 'none';
                         if (addFoodSection) addFoodSection.style.display = 'none';
                         if (dietAdminActions) dietAdminActions.style.display = 'none';
-                        if (dietAdminMediaCard) dietAdminMediaCard.style.display = 'none';
                         const navRutinasText = document.querySelector('#nav-rutinas .nav-label');
                         if (navRutinasText) navRutinasText.textContent = 'Mi Rutina';
                     }
@@ -2875,15 +2834,6 @@
                             } else {
                                 this.state.profilePhoto = { ...defaultState.profilePhoto };
                             }
-                            if (data.dietAdminMedia) {
-                                if (typeof data.dietAdminMedia === 'string') {
-                                    this.state.dietAdminMedia = { ...defaultState.dietAdminMedia, url: data.dietAdminMedia };
-                                } else {
-                                    this.state.dietAdminMedia = { ...defaultState.dietAdminMedia, ...data.dietAdminMedia };
-                                }
-                            } else {
-                                this.state.dietAdminMedia = { ...defaultState.dietAdminMedia };
-                            }
                             if (data.dietPanelCovers && typeof data.dietPanelCovers === 'object') {
                                 const defaultCovers = defaultState.dietPanelCovers || {};
                                 this.state.dietPanelCovers = {};
@@ -2902,9 +2852,6 @@
                             }
                             if (this.state.routineBanner?.image) {
                                 this.preloadImage(this.state.routineBanner.image, { priority: 'high' });
-                            }
-                            if (this.state.dietAdminMedia?.url && this.state.dietAdminMedia.type?.startsWith('image')) {
-                                this.preloadImage(this.state.dietAdminMedia.url, { priority: 'high' });
                             }
                             // Compatibilidad hacia atrás para la estructura de dieta
                             if (data.dailyDiet && !Array.isArray(data.dailyDiet)) {
@@ -4001,76 +3948,6 @@
                         this.showToast('No se pudo subir la foto de perfil.', 'error');
                     }
                 },
-                async handleDietAdminMediaSelected(input) {
-                    if (!input) return;
-                    const file = input.files && input.files[0];
-                    if (!file) return;
-
-                    if (!this.isAsesor()) {
-                        this.showToast('Solo el admin puede subir contenido.', 'error');
-                        input.value = '';
-                        return;
-                    }
-
-                    if (!(file.type.startsWith('image/') || file.type.startsWith('video/'))) {
-                        this.showToast('Selecciona un video o imagen válido.', 'error');
-                        input.value = '';
-                        return;
-                    }
-
-                    const maxSize = 250 * 1024 * 1024;
-                    if (file.size > maxSize) {
-                        this.showToast('El archivo supera el límite permitido (250MB).', 'error');
-                        input.value = '';
-                        return;
-                    }
-
-                    const trigger = document.getElementById('diet-admin-media-trigger');
-                    const card = document.getElementById('diet-admin-media-card');
-
-                    const setUploadingState = (isUploading) => {
-                        if (trigger) {
-                            trigger.classList.toggle('is-uploading', isUploading);
-                        }
-                        if (card) {
-                            card.classList.toggle('pointer-events-none', isUploading);
-                            card.classList.toggle('opacity-75', isUploading);
-                        }
-                    };
-
-                    try {
-                        setUploadingState(true);
-                        const previousPath = this.state.dietAdminMedia?.storagePath || '';
-                        const uploadResult = await this.uploadImageToStorage(file, { pathPrefix: 'diet_media', previousPath });
-
-                        if (!uploadResult.url) {
-                            this.showToast('No se pudo subir el archivo.', 'error');
-                            return;
-                        }
-
-                        this.state.dietAdminMedia = {
-                            url: uploadResult.url,
-                            storagePath: uploadResult.storagePath,
-                            type: file.type,
-                            name: file.name,
-                            updatedAt: new Date().toISOString()
-                        };
-
-                        if (file.type.startsWith('image/')) {
-                            this.preloadImage(uploadResult.url, { priority: 'high' });
-                        }
-
-                        await this.saveDataToFirestore();
-                        this.renderDietAdminMedia();
-                        this.showToast('Archivo actualizado.', 'success');
-                    } catch (error) {
-                        console.error('Error uploading diet media:', error);
-                        this.showToast('No se pudo subir el archivo.', 'error');
-                    } finally {
-                        setUploadingState(false);
-                        input.value = '';
-                    }
-                },
                 async handleDietPanelCoverSelected(input) {
                     if (!input) return;
                     const panelKey = input.dataset.panelCoverInput;
@@ -4224,10 +4101,6 @@
                         }
                         if (e.target.id === 'routine-banner-input') {
                             this.handleRoutineBannerFileChange(e.target);
-                            return;
-                        }
-                        if (e.target.id === 'diet-admin-media-input') {
-                            this.handleDietAdminMediaSelected(e.target);
                             return;
                         }
                         if (e.target.dataset.panelCoverInput) {
@@ -7308,43 +7181,6 @@
                     const metrics = this._getWeightProgressMetrics();
                     this._applyWeightMetrics(metrics);
                 },
-                renderDietAdminMedia() {
-                    const card = document.getElementById('diet-admin-media-card');
-                    const preview = document.getElementById('diet-admin-media-preview');
-
-                    if (!card) {
-                        return;
-                    }
-
-                    const isAdmin = this.isAsesor();
-                    card.style.display = isAdmin ? 'block' : 'none';
-
-                    if (!isAdmin) {
-                        if (preview) {
-                            preview.innerHTML = '';
-                            preview.classList.add('hidden');
-                        }
-                        return;
-                    }
-
-                    if (!preview) {
-                        return;
-                    }
-
-                    const media = this.state.dietAdminMedia || {};
-
-                    if (media.url) {
-                        const isVideo = (media.type || '').startsWith('video') || /\.(mp4|mov|mpe?g|webm|mkv)$/i.test(media.url);
-                        const content = isVideo
-                            ? `<video src="${media.url}" controls playsinline preload="metadata" class="h-full w-full object-cover" style="aspect-ratio:16/9;"></video>`
-                            : `<img src="${media.url}" alt="Recurso multimedia de la dieta" loading="lazy" class="h-full w-full object-cover" style="aspect-ratio:16/9;" />`;
-                        preview.innerHTML = content;
-                        preview.classList.remove('hidden');
-                    } else {
-                        preview.innerHTML = '';
-                        preview.classList.add('hidden');
-                    }
-                },
                 renderDietPanelCovers() {
                     const covers = this.state.dietPanelCovers || {};
                     const isAdmin = this.isAsesor();
@@ -7375,7 +7211,6 @@
                     lucide.createIcons();
                 },
                 renderDietPage(){
-                    this.renderDietAdminMedia();
                     this.renderDietPanelCovers();
                     this.updateDietWeightInfo();
                     if(!this.state.userGoals) return;
