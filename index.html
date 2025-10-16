@@ -956,174 +956,381 @@
 
     <template id="template-inicio">
         <section id="inicio" class="section-content">
-            <div class="space-y-8">
-                <div class="space-y-4">
-                    <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent p-6 sm:p-8 shadow-lg shadow-emerald-500/10">
-                        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(16,185,129,0.35),transparent_55%)]"></div>
-                        <div class="relative flex flex-col gap-6">
-                            <div class="space-y-3">
-                                <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">Panel Inicio</span>
-                                <h2 id="welcome-message" class="text-3xl font-black leading-tight text-white sm:text-4xl">Hola, </h2>
-                                <p class="max-w-xl text-sm text-emerald-50/80 sm:text-base">Administra tus sesiones, nutrición y comunicaciones desde un panel preparado primero para móviles.</p>
+            <div class="space-y-6">
+                <div class="rounded-3xl border border-white/10 bg-gray-900/70 p-6 sm:p-8 shadow-lg shadow-emerald-500/10">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="space-y-2">
+                            <span class="inline-flex w-fit items-center rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100">Suite nutricional</span>
+                            <h2 class="text-3xl font-bold text-white sm:text-4xl sm:leading-tight">Centraliza tu estrategia alimentaria</h2>
+                            <p class="text-sm text-gray-300 sm:text-base">Explora cada módulo en pestañas plegables para mantener la vista limpia y enfocarte en lo que importa.</p>
+                        </div>
+                        <div class="grid gap-3 text-left sm:grid-cols-2 sm:text-right">
+                            <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-400">Seguimiento</p>
+                                <p class="text-sm font-semibold text-white">Macros sincronizados</p>
                             </div>
-                            <div class="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-100/80">
-                                <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-white/5 px-3 py-1"><i data-lucide="flame" class="h-4 w-4 text-emerald-300"></i><span>Metas activas</span></span>
-                                <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-white/5 px-3 py-1"><i data-lucide="sparkles" class="h-4 w-4 text-emerald-300"></i><span>Motivación diaria</span></span>
-                                <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-white/5 px-3 py-1"><i data-lucide="smartphone" class="h-4 w-4 text-emerald-300"></i><span>Optimizado móvil</span></span>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-400">Actualización</p>
+                                <p class="text-sm font-semibold text-white">IA en tiempo real</p>
                             </div>
                         </div>
                     </div>
-                    <div id="ai-daily-tip-card" class="hidden rounded-3xl border border-purple-400/30 bg-purple-500/10 p-5 text-purple-50 shadow-lg shadow-purple-500/10">
-                        <div class="flex items-start gap-3">
-                            <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-purple-500/20">
-                                <i data-lucide="sparkles" class="h-5 w-5 text-purple-200"></i>
-                            </span>
-                            <div class="space-y-1">
-                                <h3 class="font-semibold text-purple-100">Consejo del Día ✨</h3>
-                                <p id="ai-daily-tip-text" class="text-sm text-purple-100/80">Cargando consejo...</p>
-                            </div>
-                        </div>
+                    <div class="mt-6 flex flex-wrap gap-3" role="tablist" aria-label="Gestión de dieta">
+                        <button type="button" class="diet-tab-btn flex-1 rounded-2xl border border-emerald-400/60 bg-emerald-500/10 px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-100 transition focus:outline-none focus:ring-2 focus:ring-emerald-400/40 sm:flex-none sm:px-6 sm:text-xs" data-tab="overview" role="tab" aria-controls="diet-panel-overview" aria-selected="true">Definición guiada</button>
+                        <button type="button" class="diet-tab-btn flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-400 transition focus:outline-none focus:ring-2 focus:ring-emerald-400/40 sm:flex-none sm:px-6 sm:text-xs" data-tab="agenda" role="tab" aria-controls="diet-panel-agenda" aria-selected="false" tabindex="-1">Agenda nutricional</button>
+                        <button type="button" class="diet-tab-btn flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-400 transition focus:outline-none focus:ring-2 focus:ring-emerald-400/40 sm:flex-none sm:px-6 sm:text-xs" data-tab="library" role="tab" aria-controls="diet-panel-library" aria-selected="false" tabindex="-1">Añade alimentos</button>
                     </div>
                 </div>
-
-                <div class="space-y-5">
-                    <div class="overflow-hidden rounded-3xl border border-white/10 bg-gray-900/60 backdrop-blur">
-                        <div class="relative aspect-[21/9] bg-gradient-to-r from-gray-800 via-gray-900 to-gray-800">
-                            <img id="dashboard-cover-preview" alt="Portada promocional" class="absolute inset-0 h-full w-full object-cover hidden" />
-                            <div id="dashboard-cover-placeholder" class="flex h-full w-full flex-col items-center justify-center gap-2 px-4 text-center text-gray-400">
-                                <i data-lucide="image" class="h-10 w-10 text-gray-500"></i>
-                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-500/80">Portada publicitaria</p>
-                                <p class="text-sm text-gray-400">Recomendado: formato panorámico 21:9 para un banner tipo publicidad.</p>
-                            </div>
-                            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-                        </div>
-                        <div class="flex flex-col gap-4 border-t border-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                            <div class="space-y-1">
-                                <h3 class="text-lg font-semibold text-white">Portada promocional</h3>
-                                <p class="text-sm text-gray-300">Sube un banner alargado para destacar promociones, retos o anuncios importantes.</p>
-                            </div>
-                            <div class="flex flex-wrap items-center gap-3">
-                                <input type="file" id="dashboard-cover-input" accept="image/*" class="hidden">
-                                <button data-action="open-cover-upload" class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
-                                    <i data-lucide="image-plus" class="h-4 w-4"></i>
-                                    Subir portada
-                                </button>
-                                <button data-action="remove-cover-image" class="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:border-red-400/60 hover:text-red-300">
-                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
-                                    Quitar
-                                </button>
-                            </div>
-                            <div id="dashboard-cover-progress" class="hidden w-full items-center gap-3 rounded-2xl border border-white/10 bg-gray-950/70 px-4 py-3">
-                                <div class="relative h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-                                    <div id="dashboard-cover-progress-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-300"></div>
+                <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-4 sm:p-6 space-y-6">
+                    <section id="diet-panel-overview" data-diet-panel="overview" class="diet-tab-panel space-y-6" aria-hidden="false">
+                        <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-gray-900 p-6 sm:p-8 shadow-xl shadow-emerald-500/20">
+                            <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.22),transparent_55%)]"></div>
+                            <div class="relative flex flex-col gap-7 xl:flex-row xl:items-start">
+                                <div class="flex-1 space-y-7">
+                                    <header class="space-y-4">
+                                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                            <span class="inline-flex w-fit items-center rounded-full border border-emerald-400/60 bg-emerald-500/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100 shadow-[0_10px_35px_-20px_rgba(16,185,129,0.65)]">Nutrición inteligente</span>
+                                        </div>
+                                        <div class="space-y-3">
+                                            <h3 class="text-2xl font-semibold text-white sm:text-3xl">Diseña un ecosistema nutricional a medida</h3>
+                                            <p class="text-sm leading-relaxed text-emerald-100/80 sm:text-base">Coordina un plan gastronómico calibrado por IA que ajusta macros en tiempo real y mantiene la experiencia premium de tu progreso.</p>
+                                        </div>
+                                    </header>
+                                    <div class="space-y-6 rounded-2xl border border-white/10 bg-gray-900/65 p-4 shadow-inner sm:p-5">
+                                        <div class="grid gap-4 sm:grid-cols-3">
+                                            <div class="flex items-start gap-3">
+                                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/30 via-emerald-400/20 to-emerald-500/10 text-emerald-100 shadow-[0_12px_35px_-20px_rgba(16,185,129,0.75)]">
+                                                    <i data-lucide="goal" class="h-5 w-5"></i>
+                                                </span>
+                                                <div class="space-y-1">
+                                                    <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/70">Objetivo activo</p>
+                                                    <p class="text-base font-semibold text-white sm:text-lg">+3.2 kg de masa magra</p>
+                                                    <p class="text-[11px] text-emerald-100/60">Enfoque: recomposición premium</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-start gap-3">
+                                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-500/30 via-emerald-400/25 to-emerald-500/15 text-emerald-100 shadow-[0_12px_35px_-20px_rgba(6,182,212,0.65)]">
+                                                    <i data-lucide="calendar-clock" class="h-5 w-5"></i>
+                                                </span>
+                                                <div class="space-y-1">
+                                                    <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/70">Proyección</p>
+                                                    <p class="text-sm font-semibold text-emerald-200 sm:text-base">6 semanas para alcanzar la meta</p>
+                                                    <p class="text-[11px] text-emerald-100/60">Ruta planificada en 3 microciclos</p>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-start gap-3">
+                                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-400/25 via-cyan-400/20 to-sky-400/10 text-emerald-100 shadow-[0_12px_35px_-20px_rgba(59,130,246,0.45)]">
+                                                    <i data-lucide="navigation-2" class="h-5 w-5"></i>
+                                                </span>
+                                                <div class="space-y-1">
+                                                    <p class="text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/70">Fase actual</p>
+                                                    <p class="text-base font-semibold text-white sm:text-lg">Semana 4 · Intensidad controlada</p>
+                                                    <p class="text-[11px] text-emerald-100/60">Ritmo sostenido de +0.8 kg/sem</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="space-y-4">
+                                            <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                                                <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.32em] text-emerald-200/70">
+                                                    <i data-lucide="activity" class="h-4 w-4"></i>
+                                                    Línea de avance del protocolo
+                                                </div>
+                                                <div class="flex items-center gap-2 text-xs text-emerald-100/80">
+                                                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.3em]">45% completado</span>
+                                                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-500/5 px-2.5 py-1 text-[10px] uppercase tracking-[0.3em] text-emerald-100/70">Objetivo: kilos ganados</span>
+                                                </div>
+                                            </div>
+                                            <div class="relative">
+                                                <div class="h-3 w-full overflow-hidden rounded-full bg-gray-900/70">
+                                                    <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400" style="width: 45%;"></div>
+                                                </div>
+                                                <div class="pointer-events-none absolute inset-0">
+                                                    <span class="absolute left-0 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full border border-emerald-400/40 bg-emerald-500/20 shadow-[0_0_18px_rgba(16,185,129,0.45)]"></span>
+                                                    <span class="absolute left-[45%] top-1/2 -translate-x-1/2 -translate-y-1/2 h-5 w-5 rounded-full border-2 border-emerald-300/80 bg-emerald-400 shadow-[0_0_25px_rgba(6,182,212,0.55)]"></span>
+                                                    <span class="absolute right-0 top-1/2 -translate-y-1/2 h-4 w-4 rounded-full border border-emerald-300/50 bg-emerald-500/20 shadow-[0_0_18px_rgba(59,130,246,0.35)]"></span>
+                                                </div>
+                                            </div>
+                                            <div class="flex items-start justify-between text-[10px] font-medium text-emerald-100/80 sm:text-xs">
+                                                <div class="flex flex-col gap-1 text-left">
+                                                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] uppercase tracking-[0.3em] text-emerald-100/70"><i data-lucide="sparkles" class="h-3 w-3"></i>Inicio</span>
+                                                    <span class="text-emerald-200/70">Semana 0 · Peso inicial 78 kg</span>
+                                                </div>
+                                                <div class="flex flex-col items-center gap-1">
+                                                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-400/15 px-2 py-1 text-[10px] uppercase tracking-[0.3em] text-emerald-100"><i data-lucide="flame" class="h-3 w-3"></i>Actual</span>
+                                                    <span class="text-center text-emerald-200 font-semibold">Semana 4 · +2.1 kg</span>
+                                                </div>
+                                                <div class="flex flex-col gap-1 text-right">
+                                                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-1 text-[10px] uppercase tracking-[0.3em] text-emerald-100/70"><i data-lucide="star" class="h-3 w-3"></i>Meta</span>
+                                                    <span class="text-emerald-200/70">Semana 10 · 82.5 kg proyectados</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="grid gap-3 sm:grid-cols-3">
+                                            <div class="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                                                <div class="flex items-center justify-between text-xs font-semibold text-emerald-200/80">
+                                                    <span class="flex items-center gap-1">
+                                                        <i data-lucide="activity" class="h-4 w-4"></i>
+                                                        Adherencia
+                                                    </span>
+                                                    <span class="text-sm text-emerald-100">92%</span>
+                                                </div>
+                                                <p class="mt-1 text-[11px] text-emerald-100/70">Hábitos alineados con tu plan</p>
+                                            </div>
+                                            <div class="rounded-2xl border border-sky-400/20 bg-sky-500/10 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                                                <div class="flex items-center justify-between text-xs font-semibold text-sky-200/80">
+                                                    <span class="flex items-center gap-1">
+                                                        <i data-lucide="timer" class="h-4 w-4"></i>
+                                                        Consumo en tiempo
+                                                    </span>
+                                                    <span class="text-sm text-sky-100">78%</span>
+                                                </div>
+                                                <p class="mt-1 text-[11px] text-sky-100/70">Ejecución dentro del horario pactado</p>
+                                            </div>
+                                            <div class="rounded-2xl border border-cyan-400/20 bg-cyan-500/10 p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
+                                                <div class="flex items-center justify-between text-xs font-semibold text-cyan-200/80">
+                                                    <span class="flex items-center gap-1">
+                                                        <i data-lucide="activity-square" class="h-4 w-4"></i>
+                                                        Gestión de macros
+                                                    </span>
+                                                    <span class="text-sm text-cyan-100">97%</span>
+                                                </div>
+                                                <p class="mt-1 text-[11px] text-cyan-100/70">Distribución optimizada por ingesta</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <article class="space-y-5 rounded-3xl border border-white/10 bg-gray-900/70 p-5 shadow-[0_35px_90px_-55px_rgba(59,130,246,0.55)] sm:p-6">
+                                        <header class="space-y-2">
+                                            <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                                <i data-lucide="chef-hat" class="h-4 w-4"></i>
+                                                Macro briefing del día
+                                            </div>
+                                            <h4 class="text-xl font-semibold text-white">Resumen energético</h4>
+                                            <p class="text-xs text-gray-400">Ajustamos automáticamente tus macros según tus registros de progreso y actividad.</p>
+                                        </header>
+                                        <div class="space-y-4">
+                                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                                <div class="flex items-center justify-between text-xs text-gray-400">
+                                                    <span>Objetivo calórico</span>
+                                                    <span class="text-sm font-semibold text-white"><span id="diet-goal-calories">2500</span> kcal</span>
+                                                </div>
+                                                <div class="mt-3 space-y-2">
+                                                    <div class="flex items-center justify-between text-[11px] text-gray-400">
+                                                        <span class="flex items-center gap-1 text-emerald-200">
+                                                            <i data-lucide="protein" class="h-3.5 w-3.5"></i>
+                                                            Proteína
+                                                        </span>
+                                                        <span class="font-semibold text-white"><span id="diet-goal-protein">188</span> g</span>
+                                                    </div>
+                                                    <div class="macro-bar">
+                                                        <span class="macro-bar-fill bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400" style="width: 64%;"></span>
+                                                    </div>
+                                                    <div class="flex items-center justify-between text-[11px] text-gray-400">
+                                                        <span class="flex items-center gap-1 text-sky-200">
+                                                            <i data-lucide="croissant" class="h-3.5 w-3.5"></i>
+                                                            Carbohidratos
+                                                        </span>
+                                                        <span class="font-semibold text-white"><span id="diet-goal-carbs">250</span> g</span>
+                                                    </div>
+                                                    <div class="macro-bar">
+                                                        <span class="macro-bar-fill bg-gradient-to-r from-sky-400 via-cyan-400 to-emerald-400" style="width: 72%;"></span>
+                                                    </div>
+                                                    <div class="flex items-center justify-between text-[11px] text-gray-400">
+                                                        <span class="flex items-center gap-1 text-rose-200">
+                                                            <i data-lucide="drop" class="h-3.5 w-3.5"></i>
+                                                            Grasas
+                                                        </span>
+                                                        <span class="font-semibold text-white"><span id="diet-goal-fats">83</span> g</span>
+                                                    </div>
+                                                    <div class="macro-bar">
+                                                        <span class="macro-bar-fill bg-gradient-to-r from-rose-400 via-amber-400 to-emerald-400" style="width: 38%;"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div id="diet-summary" class="space-y-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-gray-300"></div>
+                                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                                <div class="flex items-center justify-between text-xs text-gray-400">
+                                                    <span>Proyección semanal</span>
+                                                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/20 bg-emerald-500/10 px-2.5 py-1 text-[10px] uppercase tracking-[0.3em] text-emerald-100">Equilibrada</span>
+                                                </div>
+                                                <p class="mt-2 text-sm text-gray-300">Sigue con tu frecuencia de comidas actual para sostener el superávit de +320 kcal.</p>
+                                            </div>
+                                        </div>
+                                    </article>
+                                    <article id="diet-insights" class="space-y-4 rounded-3xl border border-white/10 bg-gray-900/70 p-5 shadow-[0_35px_90px_-55px_rgba(20,184,166,0.45)]">
+                                        <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                            <div>
+                                                <span class="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-cyan-100">Proyección</span>
+                                                <h4 class="mt-2 text-xl font-semibold text-white">Ruta estimada</h4>
+                                            </div>
+                                            <span id="diet-projection-badge" class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-300">Sin datos</span>
+                                        </header>
+                                        <p id="diet-projection-summary" class="text-sm text-gray-300">Añade registros de peso para proyectar tu fecha objetivo.</p>
+                                        <div class="space-y-3 rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                            <div class="flex items-center justify-between text-xs text-gray-400">
+                                                <span>Fecha estimada</span>
+                                                <span id="diet-projection-date" class="text-sm font-semibold text-white">--</span>
+                                            </div>
+                                            <div class="flex items-center justify-between text-xs text-gray-400">
+                                                <span>Semanas restantes</span>
+                                                <span id="diet-projection-weeks" class="text-sm font-semibold text-white">--</span>
+                                            </div>
+                                            <div class="flex items-center justify-between text-xs text-gray-400">
+                                                <span>Faltante para la meta</span>
+                                                <span id="diet-projection-helper" class="text-sm font-semibold text-white">--</span>
+                                            </div>
+                                        </div>
+                                        <p id="diet-projection-pace" class="text-xs text-gray-500">Actualiza tus pesajes para refinar el pronóstico.</p>
+                                    </article>
                                 </div>
-                                <span id="dashboard-cover-progress-text" class="text-xs font-semibold text-gray-300">Preparando...</span>
+                                <aside id="diet-management-tools" class="space-y-5 rounded-3xl border border-white/10 bg-gray-900/70 p-6 shadow-[0_35px_90px_-55px_rgba(59,130,246,0.55)] xl:w-[320px]">
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                        <h4 class="text-sm font-semibold text-white">Control rápido</h4>
+                                        <p class="mt-1 text-xs text-gray-400">Organiza objetivos, registra nuevas comidas y mantén al día a tus asesorados.</p>
+                                        <ul class="mt-3 space-y-2 text-xs text-gray-400">
+                                            <li class="flex items-start gap-2"><i data-lucide="check-circle-2" class="mt-0.5 h-3.5 w-3.5 text-emerald-300"></i><span>Ajusta metas nutricionales en segundos.</span></li>
+                                            <li class="flex items-start gap-2"><i data-lucide="clock-4" class="mt-0.5 h-3.5 w-3.5 text-sky-300"></i><span>Anticipa el día con recordatorios inteligentes.</span></li>
+                                            <li class="flex items-start gap-2"><i data-lucide="stars" class="mt-0.5 h-3.5 w-3.5 text-purple-300"></i><span>Optimiza por macros o tipo de comida.</span></li>
+                                        </ul>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-sky-500/15 via-cyan-500/10 to-gray-900/60 p-4 shadow-inner">
+                                        <div class="flex items-start justify-between gap-3">
+                                            <div>
+                                                <h5 class="flex items-center gap-2 text-sm font-semibold text-white">
+                                                    <i data-lucide="brain-circuit" class="h-4 w-4 text-sky-300"></i>
+                                                    Analizador de comidas IA
+                                                </h5>
+                                                <p class="text-xs text-gray-300">Describe tu plato y obtén una estimación aproximada de calorías y macros.</p>
+                                            </div>
+                                        </div>
+                                        <textarea id="food-analysis-input" placeholder="Ej: bowl de avena con plátano y nueces" class="mt-4 h-28 w-full rounded-xl border border-white/10 bg-gray-900/80 p-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-sky-500/40"></textarea>
+                                        <button data-action="analyze-food" class="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-sky-500 via-cyan-500 to-teal-500 px-4 py-2.5 text-sm font-semibold text-gray-900 transition hover:from-sky-400 hover:via-cyan-400 hover:to-teal-400">
+                                            <i data-lucide="sparkles" class="h-4 w-4"></i>
+                                            Analizar y añadir
+                                        </button>
+                                    </div>
+                                </aside>
                             </div>
                         </div>
-                    </div>
+                    </section>
+                    <section id="diet-panel-agenda" data-diet-panel="agenda" class="diet-tab-panel hidden space-y-6" aria-hidden="true">
+                        <article class="space-y-6 rounded-3xl border border-white/10 bg-gray-900/70 p-6">
+                            <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div class="space-y-1">
+                                    <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                        <i data-lucide="calendar-check" class="h-4 w-4"></i>
+                                        Agenda nutricional
+                                    </div>
+                                    <h3 class="text-2xl font-semibold text-white">Tus comidas planificadas</h3>
+                                    <p class="text-sm text-gray-400">Marca lo que vayas consumiendo y mantén tus macros alineados.</p>
+                                </div>
+                            </header>
+                            <div id="meal-sections" class="space-y-5"></div>
+                        </article>
+                    </section>
+                    <section id="diet-panel-library" data-diet-panel="library" class="diet-tab-panel hidden space-y-6" aria-hidden="true">
+                        <article id="add-food-section" class="space-y-6 rounded-3xl border border-white/10 bg-gray-900/70 p-6 shadow-[0_35px_90px_-55px_rgba(45,212,191,0.55)]">
+                            <div class="space-y-2">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Biblioteca de alimentos</p>
+                                <h3 class="text-xl font-semibold text-white">Añade alimentos al plan</h3>
+                                <p class="text-xs text-gray-500">Organiza tus bases, personaliza tus macros y sube imágenes para cada opción.</p>
+                            </div>
+                            <section id="diet-create-food-card" class="hidden space-y-5 rounded-3xl border border-white/10 bg-gray-900/60 p-5">
+                                <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                    <div class="space-y-1">
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200">Creador de alimentos</p>
+                                        <h4 class="text-lg font-semibold text-white">Registra un nuevo alimento</h4>
+                                        <p class="text-xs text-gray-400">Guarda valores por cada 100&nbsp;g para mantener tus cálculos precisos.</p>
+                                    </div>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-100">
+                                        <i data-lucide="shield-check" class="h-3.5 w-3.5"></i>
+                                        Solo asesor
+                                    </span>
+                                </header>
+                                <form id="diet-create-food-form" class="space-y-5">
+                                    <div class="grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+                                        <div class="space-y-4">
+                                            <label class="block space-y-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                                <span>Nombre</span>
+                                                <input type="text" name="name" required class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40" placeholder="Ej: Porridge Proteico">
+                                            </label>
+                                            <div class="grid gap-3 sm:grid-cols-2">
+                                                <label class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-gray-900/70 p-3 text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                                    <span class="flex items-center justify-between text-[10px]">
+                                                        <span>Calorías (kcal)</span>
+                                                        <i data-lucide="flame" class="h-3.5 w-3.5 text-amber-300"></i>
+                                                    </span>
+                                                    <input type="number" name="cals" required class="w-full rounded-lg border border-white/5 bg-gray-900/70 px-2 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                                </label>
+                                                <label class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-gray-900/70 p-3 text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                                    <span class="flex items-center justify-between text-[10px]">
+                                                        <span>Proteína (g)</span>
+                                                        <i data-lucide="dumbbell" class="h-3.5 w-3.5 text-blue-300"></i>
+                                                    </span>
+                                                    <input type="number" name="p" required class="w-full rounded-lg border border-white/5 bg-gray-900/70 px-2 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                                </label>
+                                                <label class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-gray-900/70 p-3 text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                                    <span class="flex items-center justify-between text-[10px]">
+                                                        <span>Carbohidratos (g)</span>
+                                                        <i data-lucide="wheat" class="h-3.5 w-3.5 text-yellow-200"></i>
+                                                    </span>
+                                                    <input type="number" name="c" required class="w-full rounded-lg border border-white/5 bg-gray-900/70 px-2 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                                </label>
+                                                <label class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-gray-900/70 p-3 text-xs font-semibold uppercase tracking-[0.35em] text-gray-300 sm:col-span-2">
+                                                    <span class="flex items-center justify-between text-[10px]">
+                                                        <span>Grasas (g)</span>
+                                                        <i data-lucide="droplets" class="h-3.5 w-3.5 text-rose-200"></i>
+                                                    </span>
+                                                    <input type="number" name="f" required class="w-full rounded-lg border border-white/5 bg-gray-900/70 px-2 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="space-y-3 rounded-2xl border border-white/10 bg-gray-900/70 p-4">
+                                            <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-300">Imagen del alimento</p>
+                                            <div id="diet-create-food-preview" class="rounded-xl border border-dashed border-white/10 bg-gray-900/50 p-4"></div>
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <label class="inline-flex cursor-pointer items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400 hover:text-white">
+                                                    <i data-lucide="upload" class="h-3.5 w-3.5"></i>
+                                                    Subir imagen
+                                                    <input type="file" id="diet-create-food-image" accept="image/*" class="hidden">
+                                                </label>
+                                                <button type="button" id="diet-create-remove-btn" data-action="client-diet-remove-food-image" class="inline-flex items-center gap-2 rounded-full border border-rose-400/40 bg-rose-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-rose-200 opacity-60 transition hover:border-rose-300 hover:bg-rose-500/20 disabled:cursor-not-allowed" disabled>
+                                                    <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                                    Quitar imagen
+                                                </button>
+                                                <input type="hidden" id="diet-create-remove-image" value="false">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <p class="text-[11px] text-gray-400">Los valores se guardan por cada 100&nbsp;g.</p>
+                                        <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-5 py-2 text-sm font-semibold uppercase tracking-[0.3em] text-gray-900 shadow-lg shadow-emerald-400/30 transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                            <i data-lucide="save" class="h-4 w-4"></i>
+                                            Guardar alimento
+                                        </button>
+                                    </div>
+                                </form>
+                            </section>
+                            <section class="space-y-4 rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                    <div>
+                                        <h4 class="text-base font-semibold text-white">Explora la biblioteca</h4>
+                                        <p class="text-xs text-gray-400">Edita, agrega imágenes o elimina los alimentos que ya no necesites.</p>
+                                    </div>
+                                    <button data-action="client-diet-create-food-modal" class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-100 transition hover:border-emerald-300 hover:bg-emerald-400/20">
+                                        <i data-lucide="sparkles" class="h-3.5 w-3.5"></i>
+                                        Abrir en modal
+                                    </button>
+                                </header>
+                                <div class="relative">
+                                    <i data-lucide="search" class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"></i>
+                                    <input type="text" id="food-search" placeholder="Busca por nombre o macro" class="w-full rounded-2xl border border-white/10 bg-gray-900/60 py-3 pl-11 pr-4 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                </div>
+                                <div id="food-list" class="space-y-4"></div>
+                            </section>
+                        </article>
+                    </section>
                 </div>
-
-                <div class="grid gap-4 lg:grid-cols-2">
-                    <div class="rounded-3xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/20 via-emerald-500/10 to-teal-500/20 p-6 text-white shadow-lg shadow-emerald-500/20">
-                        <div class="flex flex-col gap-4">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-white/80">Meta diaria</p>
-                                    <h3 class="mt-1 text-3xl font-black" id="dashboard-calories">2,500 kcal</h3>
-                                </div>
-                                <span class="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/90">
-                                    <i data-lucide="target" class="h-4 w-4"></i>
-                                    En progreso
-                                </span>
-                            </div>
-                            <div>
-                                <div class="h-2.5 w-full rounded-full bg-black/30">
-                                    <div id="dashboard-progress-bar" class="h-2.5 rounded-full bg-white transition-all duration-500 ease-out" style="width: 0%"></div>
-                                </div>
-                                <p class="mt-2 text-right text-xs text-white/80">Progreso: <span id="dashboard-progress-text">0</span>%</p>
-                            </div>
-                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                                <div class="rounded-2xl bg-white/10 p-3">
-                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-white/70">Proteínas</p>
-                                    <p class="mt-1 text-lg font-bold text-white" id="dashboard-goal-protein">0 g</p>
-                                    <p class="text-xs text-white/80"><span id="dashboard-consumed-protein">0</span> g consumidos</p>
-                                </div>
-                                <div class="rounded-2xl bg-white/10 p-3">
-                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-white/70">Carbohidratos</p>
-                                    <p class="mt-1 text-lg font-bold text-white" id="dashboard-goal-carbs">0 g</p>
-                                    <p class="text-xs text-white/80"><span id="dashboard-consumed-carbs">0</span> g consumidos</p>
-                                </div>
-                                <div class="rounded-2xl bg-white/10 p-3">
-                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-white/70">Grasas</p>
-                                    <p class="mt-1 text-lg font-bold text-white" id="dashboard-goal-fats">0 g</p>
-                                    <p class="text-xs text-white/80"><span id="dashboard-consumed-fats">0</span> g consumidos</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="weekly-progress-card" class="rounded-3xl border border-white/10 bg-gray-900/60 p-6 shadow-lg shadow-emerald-500/10"></div>
-                </div>
-
-                <div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-                    <button data-action="show-section" data-section-id="rutinas" class="rounded-3xl border border-white/10 bg-white/5 p-4 text-left shadow-lg shadow-emerald-500/10 transition hover:border-emerald-400/50 hover:bg-emerald-500/10">
-                        <div class="flex items-center gap-3">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-300">
-                                <i data-lucide="clipboard-list" class="h-5 w-5"></i>
-                            </span>
-                            <div>
-                                <p class="text-sm font-semibold text-white">Rutinas activas</p>
-                                <p class="text-xs text-gray-400">Crea, revisa o lanza sesiones en segundos.</p>
-                            </div>
-                        </div>
-                    </button>
-                    <button data-action="show-section" data-section-id="perfil" class="rounded-3xl border border-white/10 bg-white/5 p-4 text-left shadow-lg shadow-emerald-500/10 transition hover:border-emerald-400/50 hover:bg-emerald-500/10">
-                        <div class="flex items-center gap-3">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-300">
-                                <i data-lucide="user" class="h-5 w-5"></i>
-                            </span>
-                            <div>
-                                <p class="text-sm font-semibold text-white">Mi perfil</p>
-                                <p class="text-xs text-gray-400">Actualiza datos personales y objetivos.</p>
-                            </div>
-                        </div>
-                    </button>
-                    <button data-action="show-section" data-section-id="dieta" class="rounded-3xl border border-white/10 bg-white/5 p-4 text-left shadow-lg shadow-emerald-500/10 transition hover:border-emerald-400/50 hover:bg-emerald-500/10">
-                        <div class="flex items-center gap-3">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-300">
-                                <i data-lucide="salad" class="h-5 w-5"></i>
-                            </span>
-                            <div>
-                                <p class="text-sm font-semibold text-white">Mi dieta</p>
-                                <p class="text-xs text-gray-400">Gestiona comidas y seguimiento diario.</p>
-                            </div>
-                        </div>
-                    </button>
-                    <button data-action="show-section" data-section-id="comunidad" class="rounded-3xl border border-white/10 bg-white/5 p-4 text-left shadow-lg shadow-emerald-500/10 transition hover:border-emerald-400/50 hover:bg-emerald-500/10">
-                        <div class="flex items-center gap-3">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-300">
-                                <i data-lucide="trophy" class="h-5 w-5"></i>
-                            </span>
-                            <div>
-                                <p class="text-sm font-semibold text-white">Ranking global</p>
-                                <p class="text-xs text-gray-400">Descubre quién lidera la comunidad esta semana.</p>
-                            </div>
-                        </div>
-                    </button>
-                    <div class="rounded-3xl border border-white/10 bg-white/5 p-4 shadow-lg shadow-emerald-500/10">
-                        <div class="flex items-start gap-3">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-500/20 text-rose-300">
-                                <i data-lucide="flame" class="h-5 w-5"></i>
-                            </span>
-                            <div>
-                                <p class="text-sm font-semibold text-white">Calorías consumidas hoy</p>
-                                <p id="dashboard-consumed-calories" class="text-lg font-bold text-white">0 Kcal</p>
-                                <p class="text-xs text-gray-400">Marca alimentos como completados para registrar tu avance.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
+            </div>        </section>
     </template>
     
     <template id="template-rutinas">
@@ -2630,7 +2837,8 @@
                             invitations: []
                         },
                         coachId: null,
-                        currentSection: 'inicio', 
+                        currentSection: 'inicio',
+                        activeDietTab: 'overview',
                         userGoals: { calories: 2500, protein: 188, carbs: 250, fats: 83 },
                         dailyDiet: [
                             { id: `meal-${now.getTime()}`, name: 'Desayuno', time: '08:00', items: [] },
@@ -4249,13 +4457,19 @@
                     document.body.addEventListener('click', (e) => {
                         const button = e.target.closest('[data-action]');
                         const calcTabBtn = e.target.closest('.calc-tab-btn');
-                        
+                        const dietTabBtn = e.target.closest('.diet-tab-btn');
+
                         if(calcTabBtn){
                             this.switchCalculatorTab(calcTabBtn.dataset.tab);
                             return;
                         }
-                        
-                        if (!button) { 
+
+                        if(dietTabBtn){
+                            this.switchDietTab(dietTabBtn.dataset.tab);
+                            return;
+                        }
+
+                        if (!button) {
                             const navBtn = e.target.closest('.nav-btn'); 
                             if (navBtn) this.showSection(navBtn.dataset.section); 
                             return; 
@@ -7405,6 +7619,37 @@
             },
                 playSound(type) { if(!this.audioCtx) return; const o=this.audioCtx.createOscillator(),g=this.audioCtx.createGain();o.connect(g);g.connect(this.audioCtx.destination);g.gain.setValueAtTime(0,this.audioCtx.currentTime);g.gain.linearRampToValueAtTime(0.3,this.audioCtx.currentTime+0.01);o.frequency.value=type==='start'?440:880;o.type='sine';o.start(this.audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.00001,this.audioCtx.currentTime+0.5);o.stop(this.audioCtx.currentTime+0.5); },
                 switchCalculatorTab(tabId) { document.querySelectorAll('.calc-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById(`tab-content-${tabId}`).classList.remove('hidden'); document.querySelectorAll('.calc-tab-btn').forEach(btn => { if (btn.dataset.tab === tabId) { btn.classList.add('bg-emerald-500', 'text-gray-900'); btn.classList.remove('text-gray-300'); } else { btn.classList.remove('bg-emerald-500', 'text-gray-900'); btn.classList.add('text-gray-300'); } }); },
+                switchDietTab(tabId) {
+                    const buttons = document.querySelectorAll('.diet-tab-btn');
+                    const panels = document.querySelectorAll('[data-diet-panel]');
+
+                    if (!buttons.length || !panels.length) {
+                        return;
+                    }
+
+                    panels.forEach(panel => {
+                        if (panel.dataset.dietPanel === tabId) {
+                            panel.classList.remove('hidden');
+                            panel.setAttribute('aria-hidden', 'false');
+                        } else {
+                            panel.classList.add('hidden');
+                            panel.setAttribute('aria-hidden', 'true');
+                        }
+                    });
+
+                    buttons.forEach(btn => {
+                        const isActive = btn.dataset.tab === tabId;
+                        btn.classList.toggle('border-emerald-400/60', isActive);
+                        btn.classList.toggle('bg-emerald-500/10', isActive);
+                        btn.classList.toggle('text-emerald-100', isActive);
+                        btn.classList.toggle('text-gray-400', !isActive);
+                        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                        btn.setAttribute('tabindex', isActive ? '0' : '-1');
+                    });
+
+                    this.state.activeDietTab = tabId;
+                    lucide.createIcons();
+                },
                 populateNutritionForm() { const { age, weight, height, gender } = this.state.physicalStats; document.getElementById('age').value = age; document.getElementById('weight').value = weight; document.getElementById('height').value = height; const genderRadio = document.querySelector(`#nutrition-form input[name="gender"][value="${gender}"]`); if (genderRadio) genderRadio.checked = true; },
                 renderNutricionSection() {
                     const { weight, height } = this.state.physicalStats || {};
@@ -7868,6 +8113,8 @@
                     this.renderMealSections();
                     this._hydrateDietFoodCreator();
                     this.updateDietSummary();
+                    const defaultDietTab = this.state.activeDietTab || 'overview';
+                    this.switchDietTab(defaultDietTab);
                 },
                 getFoodById(foodId) { return this.data.foodLibrary.find(item => item.id == foodId) || null; },
                 
