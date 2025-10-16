@@ -284,7 +284,7 @@
             z-index: 2;
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 1.25rem;
             cursor: pointer;
             padding: 1.5rem;
             text-align: left;
@@ -298,6 +298,53 @@
                 align-items: center;
                 justify-content: space-between;
             }
+        }
+        .diet-panel-summary-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            width: 100%;
+        }
+        @media (min-width: 640px) {
+            .diet-panel-summary-main {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+        .diet-panel-summary-main .diet-panel-cover {
+            flex: 1 1 50%;
+        }
+        @media (min-width: 1024px) {
+            .diet-panel-summary-main .diet-panel-cover {
+                flex-basis: 45%;
+            }
+        }
+        .diet-panel-summary-info {
+            position: relative;
+            display: flex;
+            flex: 1 1 50%;
+            width: 100%;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.1rem 1.4rem;
+            border-radius: 26px;
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.72), rgba(13, 148, 136, 0.25));
+            box-shadow: inset 0 0 35px rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .diet-panel-summary-info::before {
+            content: "";
+            position: absolute;
+            inset: -60% 35% auto -20%;
+            height: 220%;
+            background: radial-gradient(circle at center, rgba(45, 212, 191, 0.25), rgba(15, 23, 42, 0));
+            opacity: 0.45;
+        }
+        .diet-panel-summary-info > * {
+            position: relative;
+            z-index: 1;
         }
         .diet-panel-summary:hover {
             background: rgba(255, 255, 255, 0.02);
@@ -380,45 +427,43 @@
             position: absolute;
             inset: 0;
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.35), rgba(6, 182, 212, 0.2));
-            opacity: 0.65;
+            opacity: 0.45;
             transition: opacity 0.3s ease;
         }
-        .diet-panel-cover-upload .diet-panel-cover-icon {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 3rem;
-            height: 3rem;
-            border-radius: 22px;
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            background: rgba(15, 23, 42, 0.55);
-            color: rgba(244, 255, 248, 0.9);
-            box-shadow: 0 25px 60px -40px rgba(56, 189, 248, 0.75);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            transition: border-color 0.3s ease, color 0.3s ease, transform 0.35s ease;
+        .diet-panel-cover-upload::after {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border-radius: 20px;
+            border: 1px dashed rgba(148, 163, 184, 0.35);
+            transition: border-color 0.3s ease, opacity 0.3s ease;
         }
         .diet-panel-cover-upload:hover::before {
-            opacity: 0.85;
+            opacity: 0.75;
         }
-        .diet-panel-cover-upload:hover .diet-panel-cover-icon {
-            border-color: rgba(45, 212, 191, 0.55);
-            color: rgba(167, 243, 208, 0.95);
-            transform: translateY(-1px);
+        .diet-panel-cover-upload:hover::after {
+            border-color: rgba(45, 212, 191, 0.6);
+            opacity: 0.9;
+        }
+        .diet-panel-cover[data-has-image="true"] .diet-panel-cover-upload::before {
+            opacity: 0;
+        }
+        .diet-panel-cover[data-has-image="true"] .diet-panel-cover-upload::after {
+            opacity: 0;
         }
         .diet-panel-cover-upload.is-uploading::after {
             content: "";
             position: absolute;
+            top: 50%;
+            left: 50%;
             width: 2.75rem;
             height: 2.75rem;
+            transform: translate(-50%, -50%);
             border-radius: 9999px;
             border: 3px solid rgba(148, 163, 184, 0.35);
             border-top-color: rgba(56, 189, 248, 0.8);
+            background: transparent;
             animation: spin 0.85s linear infinite;
-        }
-        .diet-panel-cover-upload.is-uploading .diet-panel-cover-icon {
-            opacity: 0;
         }
         .diet-panel-cover-upload.is-disabled {
             pointer-events: none;
@@ -1561,41 +1606,35 @@
         <section id="dieta" class="section-content hidden">
             <div class="space-y-6">
                 <section id="diet-admin-media-card" class="rounded-3xl border border-white/10 bg-gray-950/70 p-4 sm:p-6 shadow-[0_45px_120px_-60px_rgba(59,130,246,0.55)]">
-                    <label id="diet-admin-media-trigger" for="diet-admin-media-input" class="diet-admin-upload-surface">
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="diet-admin-upload-icon">
-                                <i data-lucide="plus" class="h-6 w-6"></i>
-                            </div>
-                        </div>
+                    <label id="diet-admin-media-trigger" for="diet-admin-media-input" class="diet-admin-upload-surface" aria-label="Subir portada principal de dieta">
                         <input id="diet-admin-media-input" type="file" accept="image/*,video/*" class="hidden" />
                     </label>
                     <div id="diet-admin-media-preview" class="mt-4 hidden overflow-hidden rounded-3xl border border-white/10 bg-black/60"></div>
                 </section>
                 <details data-diet-panel="guided" open class="diet-panel group">
                     <summary class="diet-panel-summary [&::-webkit-details-marker]:hidden">
-                        <span class="flex items-center gap-3 text-white">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-200 shadow-[0_12px_30px_-20px_rgba(16,185,129,0.65)]">
-                                <i data-lucide="compass" class="h-5 w-5"></i>
-                            </span>
-                            <span class="flex flex-col text-left">
-                                <span class="text-sm font-semibold sm:text-base">Definición guiada · Objetivo activo</span>
-                                <span class="text-xs text-emerald-200/70 sm:text-sm">Configura la estrategia nutricional y su proyección.</span>
-                            </span>
-                        </span>
-                        <span class="diet-panel-summary-chevron ml-auto">
+                        <div class="diet-panel-summary-main">
+                            <div class="diet-panel-cover" data-panel-key="guided" data-has-image="false">
+                                <div class="diet-panel-cover-visual" data-panel-cover-preview="guided"></div>
+                                <label class="diet-panel-cover-upload" data-panel-cover-trigger="guided" aria-label="Subir portada de Definición guiada">
+                                    <input type="file" accept="image/*" class="hidden" data-panel-cover-input="guided" />
+                                </label>
+                            </div>
+                            <div class="diet-panel-summary-info text-white">
+                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-200 shadow-[0_12px_30px_-20px_rgba(16,185,129,0.65)]">
+                                    <i data-lucide="compass" class="h-5 w-5"></i>
+                                </span>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-semibold sm:text-base">Definición guiada · Objetivo activo</span>
+                                    <span class="text-xs text-emerald-200/70 sm:text-sm">Configura la estrategia nutricional y su proyección.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="diet-panel-summary-chevron self-end sm:ml-auto">
                             <i data-lucide="chevron-down" class="h-4 w-4 transition-transform"></i>
                         </span>
                     </summary>
                     <div class="diet-panel-content">
-                        <div class="diet-panel-cover" data-panel-key="guided" data-has-image="false">
-                            <div class="diet-panel-cover-visual" data-panel-cover-preview="guided"></div>
-                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="guided">
-                                <div class="diet-panel-cover-icon">
-                                    <i data-lucide="plus" class="h-5 w-5"></i>
-                                </div>
-                                <input type="file" accept="image/*" class="hidden" data-panel-cover-input="guided" />
-                            </label>
-                        </div>
                         <div class="diet-panel-body rounded-3xl border border-white/5 bg-gray-900/70 p-6 sm:p-8">
                             <div class="space-y-8">
                             <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-gray-900 p-6 sm:p-8 shadow-xl shadow-emerald-500/20">
@@ -1817,29 +1856,28 @@
                 </details>
                 <details data-diet-panel="daily" class="diet-panel group">
                     <summary class="diet-panel-summary [&::-webkit-details-marker]:hidden">
-                        <span class="flex items-center gap-3 text-white">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-400/15 text-emerald-200 shadow-[0_12px_30px_-20px_rgba(45,212,191,0.55)]">
-                                <i data-lucide="flame" class="h-5 w-5"></i>
-                            </span>
-                            <span class="flex flex-col text-left">
-                                <span class="text-sm font-semibold sm:text-base">Plan de dieta hoy</span>
-                                <span class="text-xs text-emerald-200/70 sm:text-sm">Controla calorías, progreso y recordatorios.</span>
-                            </span>
-                        </span>
-                        <span class="diet-panel-summary-chevron ml-auto">
+                        <div class="diet-panel-summary-main">
+                            <div class="diet-panel-cover" data-panel-key="daily" data-has-image="false">
+                                <div class="diet-panel-cover-visual" data-panel-cover-preview="daily"></div>
+                                <label class="diet-panel-cover-upload" data-panel-cover-trigger="daily" aria-label="Subir portada de Plan de dieta hoy">
+                                    <input type="file" accept="image/*" class="hidden" data-panel-cover-input="daily" />
+                                </label>
+                            </div>
+                            <div class="diet-panel-summary-info text-white">
+                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/15 text-emerald-200 shadow-[0_12px_30px_-20px_rgba(45,212,191,0.55)]">
+                                    <i data-lucide="flame" class="h-5 w-5"></i>
+                                </span>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-semibold sm:text-base">Plan de dieta hoy</span>
+                                    <span class="text-xs text-emerald-200/70 sm:text-sm">Controla calorías, progreso y recordatorios.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="diet-panel-summary-chevron self-end sm:ml-auto">
                             <i data-lucide="chevron-down" class="h-4 w-4 transition-transform"></i>
                         </span>
                     </summary>
                     <div class="diet-panel-content">
-                        <div class="diet-panel-cover" data-panel-key="daily" data-has-image="false">
-                            <div class="diet-panel-cover-visual" data-panel-cover-preview="daily"></div>
-                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="daily">
-                                <div class="diet-panel-cover-icon">
-                                    <i data-lucide="plus" class="h-5 w-5"></i>
-                                </div>
-                                <input type="file" accept="image/*" class="hidden" data-panel-cover-input="daily" />
-                            </label>
-                        </div>
                         <div class="diet-panel-body rounded-3xl border border-white/5 bg-gray-900/70 p-6 sm:p-8">
                             <div class="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)] items-start">
                                 <article class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-gray-900/95 via-gray-900/60 to-gray-900/90 p-6 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.85)]">
@@ -1932,29 +1970,28 @@
                 </details>
                 <details data-diet-panel="agenda" class="diet-panel group">
                     <summary class="diet-panel-summary [&::-webkit-details-marker]:hidden">
-                        <span class="flex items-center gap-3 text-white">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-300/15 text-emerald-100 shadow-[0_12px_30px_-20px_rgba(16,185,129,0.45)]">
-                                <i data-lucide="calendar" class="h-5 w-5"></i>
-                            </span>
-                            <span class="flex flex-col text-left">
-                                <span class="text-sm font-semibold sm:text-base">Agenda nutricional</span>
-                                <span class="text-xs text-emerald-200/70 sm:text-sm">Gestiona las comidas planificadas del día.</span>
-                            </span>
-                        </span>
-                        <span class="diet-panel-summary-chevron ml-auto">
+                        <div class="diet-panel-summary-main">
+                            <div class="diet-panel-cover" data-panel-key="agenda" data-has-image="false">
+                                <div class="diet-panel-cover-visual" data-panel-cover-preview="agenda"></div>
+                                <label class="diet-panel-cover-upload" data-panel-cover-trigger="agenda" aria-label="Subir portada de Agenda nutricional">
+                                    <input type="file" accept="image/*" class="hidden" data-panel-cover-input="agenda" />
+                                </label>
+                            </div>
+                            <div class="diet-panel-summary-info text-white">
+                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-300/15 text-emerald-100 shadow-[0_12px_30px_-20px_rgba(16,185,129,0.45)]">
+                                    <i data-lucide="calendar" class="h-5 w-5"></i>
+                                </span>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-semibold sm:text-base">Agenda nutricional</span>
+                                    <span class="text-xs text-emerald-200/70 sm:text-sm">Gestiona las comidas planificadas del día.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="diet-panel-summary-chevron self-end sm:ml-auto">
                             <i data-lucide="chevron-down" class="h-4 w-4 transition-transform"></i>
                         </span>
                     </summary>
                     <div class="diet-panel-content">
-                        <div class="diet-panel-cover" data-panel-key="agenda" data-has-image="false">
-                            <div class="diet-panel-cover-visual" data-panel-cover-preview="agenda"></div>
-                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="agenda">
-                                <div class="diet-panel-cover-icon">
-                                    <i data-lucide="plus" class="h-5 w-5"></i>
-                                </div>
-                                <input type="file" accept="image/*" class="hidden" data-panel-cover-input="agenda" />
-                            </label>
-                        </div>
                         <div class="diet-panel-body rounded-3xl border border-white/5 bg-gray-900/70 p-6 sm:p-8">
                             <article class="space-y-6 rounded-3xl border border-white/10 bg-gray-900/70 p-6">
                                 <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1974,29 +2011,28 @@
                 </details>
                 <details data-diet-panel="library" class="diet-panel group">
                     <summary class="diet-panel-summary [&::-webkit-details-marker]:hidden">
-                        <span class="flex items-center gap-3 text-white">
-                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-teal-400/15 text-teal-200 shadow-[0_12px_30px_-20px_rgba(45,212,191,0.55)]">
-                                <i data-lucide="library" class="h-5 w-5"></i>
-                            </span>
-                            <span class="flex flex-col text-left">
-                                <span class="text-sm font-semibold sm:text-base">Añade alimentos al plan</span>
-                                <span class="text-xs text-emerald-200/70 sm:text-sm">Administra la biblioteca y registra nuevas opciones.</span>
-                            </span>
-                        </span>
-                        <span class="diet-panel-summary-chevron ml-auto">
+                        <div class="diet-panel-summary-main">
+                            <div class="diet-panel-cover" data-panel-key="library" data-has-image="false">
+                                <div class="diet-panel-cover-visual" data-panel-cover-preview="library"></div>
+                                <label class="diet-panel-cover-upload" data-panel-cover-trigger="library" aria-label="Subir portada de Añade alimentos al plan">
+                                    <input type="file" accept="image/*" class="hidden" data-panel-cover-input="library" />
+                                </label>
+                            </div>
+                            <div class="diet-panel-summary-info text-white">
+                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-400/15 text-teal-200 shadow-[0_12px_30px_-20px_rgba(45,212,191,0.55)]">
+                                    <i data-lucide="library" class="h-5 w-5"></i>
+                                </span>
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-semibold sm:text-base">Añade alimentos al plan</span>
+                                    <span class="text-xs text-emerald-200/70 sm:text-sm">Administra la biblioteca y registra nuevas opciones.</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="diet-panel-summary-chevron self-end sm:ml-auto">
                             <i data-lucide="chevron-down" class="h-4 w-4 transition-transform"></i>
                         </span>
                     </summary>
                     <div class="diet-panel-content">
-                        <div class="diet-panel-cover" data-panel-key="library" data-has-image="false">
-                            <div class="diet-panel-cover-visual" data-panel-cover-preview="library"></div>
-                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="library">
-                                <div class="diet-panel-cover-icon">
-                                    <i data-lucide="plus" class="h-5 w-5"></i>
-                                </div>
-                                <input type="file" accept="image/*" class="hidden" data-panel-cover-input="library" />
-                            </label>
-                        </div>
                         <div class="diet-panel-body rounded-3xl border border-white/5 bg-gray-900/70 p-6 sm:p-8">
                             <aside id="add-food-section" class="space-y-6 rounded-3xl border border-white/10 bg-gray-900/70 p-6 shadow-[0_35px_90px_-55px_rgba(45,212,191,0.55)]">
                                 <div class="space-y-2">
