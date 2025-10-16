@@ -4040,7 +4040,7 @@
                             return;
                         }
                         const actionMap = {
-                            'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'open-routine-banner-upload': () => this.triggerRoutineBannerUpload(), 'remove-routine-banner-image': () => this.removeRoutineBannerImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(), 'routine-open-edit-modal': () => this.routine_openExerciseEditModal(parseInt(exerciseIndex)), 'routine-close-edit-modal': () => this.routine_closeExerciseEditModal(), 'routine-save-exercise-modal': () => this.routine_saveExerciseFromModal(), 'routine-open-timeline': () => this.routine_openTimelineView(), 'routine-close-timeline': () => this.routine_closeTimelineView(), 'routine-timeline-save': () => this.routine_handleTimelineSave(), 'routine-timeline-confirm-link': () => this.routine_handleTimelineLink(), 'routine-timeline-confirm-start': () => this.routine_handleTimelineStart(),
+                            'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'open-routine-banner-upload': () => this.triggerRoutineBannerUpload(), 'remove-routine-banner-image': () => this.removeRoutineBannerImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(), 'routine-open-edit-modal': () => this.routine_openExerciseEditModal(parseInt(exerciseIndex)), 'routine-close-edit-modal': () => this.routine_closeExerciseEditModal(), 'routine-save-exercise-modal': () => this.routine_saveExerciseFromModal(), 'routine-open-timeline': () => this.routine_openTimelineView(), 'routine-toggle-mini-window': () => this.routine_toggleMiniWindow(), 'routine-close-timeline': () => this.routine_closeTimelineView(), 'routine-timeline-save': () => this.routine_handleTimelineSave(), 'routine-timeline-confirm-link': () => this.routine_handleTimelineLink(), 'routine-timeline-confirm-start': () => this.routine_handleTimelineStart(),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
                             'routine-creator-switch-group': () => this.routine_creator_switchGroup(groupTarget),
                             'routine-creator-edit-group-image': (evt) => { evt.stopPropagation(); this.routine_creator_showGroupImageModal(groupTarget); },
@@ -4441,6 +4441,9 @@
                     if (existingRoutine) {
                         this._tempRoutine = JSON.parse(JSON.stringify(existingRoutine));
                         this._tempRoutine.modalEditingIndex = -1;
+                        if (typeof this._tempRoutine.miniWindowCollapsed !== 'boolean') {
+                            this._tempRoutine.miniWindowCollapsed = false;
+                        }
                     } else {
                         this._tempRoutine = {
                             id: `manual-${Date.now()}`,
@@ -4450,11 +4453,15 @@
                             currentDayIndex: 0,
                             editingIndex: -1,
                             modalEditingIndex: -1,
-                            activeExerciseGroup: ''
+                            activeExerciseGroup: '',
+                            miniWindowCollapsed: false
                         };
                     }
                     if (!this._tempRoutine.activeExerciseGroup) {
                         this._tempRoutine.activeExerciseGroup = '';
+                    }
+                    if (typeof this._tempRoutine.miniWindowCollapsed !== 'boolean') {
+                        this._tempRoutine.miniWindowCollapsed = false;
                     }
                     this._tempRoutine.editingClientId = clientId;
                     this._tempRoutine.assignedClientId = clientId;
@@ -7928,7 +7935,7 @@
 
                     const targetStep = typeof step === 'undefined' ? 1 : step;
                     if (targetStep === 1) {
-                        this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, modalEditingIndex: -1, editingClientId: null, assignedClientId: '', activeExerciseGroup: '' };
+                        this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, modalEditingIndex: -1, editingClientId: null, assignedClientId: '', activeExerciseGroup: '', miniWindowCollapsed: false };
                     }
                     const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(targetStep)}</div>`;
                     this.routine_openFullscreenView(viewHTML);
@@ -8416,23 +8423,35 @@
                                                 <div id="exercise-list-container" class="space-y-4"></div>
                                             </div>
                                         </section>
-                                        <div id="exercise-mini-window" class="pointer-events-none fixed inset-x-0 bottom-0 z-[45] mx-auto hidden w-full max-w-5xl px-4 pb-[calc(1.25rem+env(safe-area-inset-bottom,0px))] sm:px-6">
-                                            <div class="pointer-events-auto overflow-hidden rounded-3xl border border-white/10 bg-gray-950/95 shadow-[0_22px_65px_-32px_rgba(16,185,129,0.7)] backdrop-blur">
-                                                <div class="grid gap-4 p-4 sm:p-5">
-                                                    <div class="flex flex-wrap items-center justify-between gap-4">
-                                                        <div class="space-y-1">
+                                        <div id="exercise-mini-window" data-collapsed="false" class="pointer-events-none fixed inset-x-0 bottom-0 z-[45] mx-auto hidden w-full max-w-4xl px-4 pb-[calc(env(safe-area-inset-bottom,0px)+0.75rem)] sm:px-6">
+                                            <div class="pointer-events-auto overflow-hidden rounded-3xl border border-white/10 bg-gray-950/95 shadow-[0_18px_55px_-30px_rgba(16,185,129,0.6)] backdrop-blur">
+                                                <div class="flex flex-col gap-0.5">
+                                                    <div class="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
+                                                        <div class="space-y-0.5">
                                                             <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Resumen rápido</p>
                                                             <p data-mini-count class="text-sm font-semibold text-white">Sin ejercicios añadidos</p>
                                                         </div>
-                                                        <div class="flex items-center gap-3">
-                                                            <button data-action="routine-open-timeline" class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500 px-4 py-2 text-xs font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:border-emerald-300 hover:bg-emerald-400">
+                                                        <div class="flex items-center gap-2">
+                                                            <button data-action="routine-open-timeline" class="hidden items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500 px-3.5 py-1.5 text-[11px] font-semibold text-gray-900 shadow shadow-emerald-500/20 transition hover:border-emerald-300 hover:bg-emerald-400 sm:inline-flex">
+                                                                <i data-lucide="route" class="h-4 w-4"></i>
+                                                                <span>Ver rutina</span>
+                                                            </button>
+                                                            <button data-action="routine-toggle-mini-window" class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[11px] font-semibold text-gray-200 transition hover:border-emerald-300/50 hover:text-white">
+                                                                <span data-mini-toggle-label>Plegar</span>
+                                                                <i data-lucide="chevron-down" data-mini-toggle-icon class="h-4 w-4 transition-transform"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="border-t border-white/5 bg-gray-950/80 px-4 pb-3 pt-3 sm:px-5 sm:pt-4" data-mini-content>
+                                                        <div class="flex flex-wrap items-center justify-between gap-3 pb-2 sm:hidden">
+                                                            <button data-action="routine-open-timeline" class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500 px-3 py-1.5 text-[11px] font-semibold text-gray-900 shadow shadow-emerald-500/20 transition hover:border-emerald-300 hover:bg-emerald-400">
                                                                 <i data-lucide="route" class="h-4 w-4"></i>
                                                                 <span>Ver rutina</span>
                                                             </button>
                                                         </div>
-                                                    </div>
-                                                    <div data-thumbnail-strip id="exercise-thumbnail-strip" class="thumbnail-strip flex gap-3 overflow-x-auto pb-1">
-                                                        <p class="text-xs font-medium text-gray-400">Los ejercicios que añadas aparecerán aquí.</p>
+                                                        <div data-thumbnail-strip id="exercise-thumbnail-strip" class="thumbnail-strip flex snap-x gap-3 overflow-x-auto pb-1">
+                                                            <p class="text-xs font-medium text-gray-400">Los ejercicios que añadas aparecerán aquí.</p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -9518,12 +9537,24 @@
                     if (!miniWindow) return;
                     const strip = miniWindow.querySelector('[data-thumbnail-strip]');
                     const counter = miniWindow.querySelector('[data-mini-count]');
+                    const content = miniWindow.querySelector('[data-mini-content]');
+                    const toggleLabel = miniWindow.querySelector('[data-mini-toggle-label]');
+                    const toggleIcon = miniWindow.querySelector('[data-mini-toggle-icon]');
+                    const listContainer = document.getElementById('exercise-list-container');
                     const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex];
                     const exercises = currentDay?.exercises || [];
 
                     if (!exercises.length) {
-                        if (strip) strip.innerHTML = '';
+                        if (strip) {
+                            strip.innerHTML = '<p class="text-xs font-medium text-gray-400">Los ejercicios que añadas aparecerán aquí.</p>';
+                        }
                         if (counter) counter.textContent = 'Sin ejercicios añadidos';
+                        miniWindow.setAttribute('data-collapsed', 'false');
+                        if (content) content.classList.remove('hidden');
+                        if (toggleLabel) toggleLabel.textContent = 'Plegar';
+                        if (toggleIcon) toggleIcon.classList.remove('rotate-180');
+                        if (listContainer) listContainer.style.paddingBottom = '';
+                        if (this._tempRoutine) this._tempRoutine.miniWindowCollapsed = false;
                         miniWindow.classList.add('hidden');
                         miniWindow.classList.add('pointer-events-none');
                         return;
@@ -9531,9 +9562,21 @@
 
                     miniWindow.classList.remove('hidden');
                     miniWindow.classList.remove('pointer-events-none');
+                    const isCollapsed = Boolean(this._tempRoutine?.miniWindowCollapsed);
+
                     if (counter) {
                         const label = `${exercises.length} ejercicio${exercises.length === 1 ? '' : 's'} planificado${exercises.length === 1 ? '' : 's'}`;
                         counter.textContent = label;
+                    }
+
+                    miniWindow.setAttribute('data-collapsed', isCollapsed ? 'true' : 'false');
+                    if (content) content.classList.toggle('hidden', isCollapsed);
+                    if (toggleLabel) toggleLabel.textContent = isCollapsed ? 'Mostrar' : 'Plegar';
+                    if (toggleIcon) toggleIcon.classList.toggle('rotate-180', isCollapsed);
+
+                    if (listContainer) {
+                        const padding = isCollapsed ? '5.5rem' : '10rem';
+                        listContainer.style.paddingBottom = `calc(${padding} + env(safe-area-inset-bottom, 0px))`;
                     }
 
                     if (strip) {
@@ -9546,23 +9589,31 @@
                             const initials = exercise.name.split(' ').map(word => word[0] || '').join('').slice(0, 2).toUpperCase() || 'FX';
                             const thumbnailContent = hasImage
                                 ? `<img src="${sanitizedUrl}" alt="${exercise.name}" class="h-full w-full object-cover" loading="lazy">`
-                                : `<span class="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-500/30 via-teal-500/20 to-sky-500/30 text-lg font-bold text-emerald-100">${initials}</span>`;
+                                : `<span class="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-500/30 via-teal-500/20 to-sky-500/30 text-base font-bold text-emerald-100">${initials}</span>`;
 
                             return `
-                                <article class="group flex w-28 shrink-0 snap-center flex-col gap-2 text-center">
-                                    <div class="relative h-24 w-28 overflow-hidden rounded-2xl border border-white/10 bg-gray-900/80 shadow-lg shadow-emerald-500/10">
+                                <article class="group flex w-24 shrink-0 snap-center flex-col gap-2 text-center">
+                                    <div class="relative h-20 w-24 overflow-hidden rounded-2xl border border-white/10 bg-gray-900/80 shadow-lg shadow-emerald-500/10">
                                         ${thumbnailContent}
                                         <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-gray-950/50 via-gray-950/10 to-transparent opacity-0 transition group-hover:opacity-100"></div>
                                         <button data-action="routine-open-edit-modal" data-exercise-index="${index}" class="pointer-events-auto absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-950/80 text-emerald-200 shadow transition hover:bg-emerald-400 hover:text-gray-900">
                                             <i data-lucide="settings-2" class="h-4 w-4"></i>
                                         </button>
                                     </div>
-                                    <p class="truncate text-xs font-semibold text-gray-100">${exercise.name}</p>
+                                    <p class="truncate text-[11px] font-semibold text-gray-100">${exercise.name}</p>
                                 </article>`;
                         }).join('');
                     }
 
                     lucide.createIcons();
+                },
+                routine_toggleMiniWindow() {
+                    if (!this._tempRoutine) return;
+                    if (typeof this._tempRoutine.miniWindowCollapsed !== 'boolean') {
+                        this._tempRoutine.miniWindowCollapsed = false;
+                    }
+                    this._tempRoutine.miniWindowCollapsed = !this._tempRoutine.miniWindowCollapsed;
+                    this.routine_updateMiniWindow();
                 },
                 routine_openExerciseEditModal(index) {
                     const modal = document.getElementById('exercise-edit-modal');
