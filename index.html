@@ -7983,7 +7983,7 @@
                                         <div class="h-full w-1/2 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"></div>
                                     </div>
                                 </header>
-                                <div class="flex-1 overflow-y-auto">
+                                <div class="flex-1 overflow-y-auto overscroll-contain">
                                     <div class="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 py-8 sm:px-6 sm:py-10">
                                         <section class="overflow-hidden rounded-3xl border border-white/5 bg-white/5 shadow-[0_35px_120px_-60px_rgba(16,185,129,0.85)]">
                                             <div class="grid gap-10 p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
@@ -8059,7 +8059,7 @@
                         const activeGroup = this._tempRoutine.activeExerciseGroup || firstGroup;
                         this._tempRoutine.activeExerciseGroup = activeGroup;
                         this.preloadExerciseGroupImages(activeGroup);
-                        const groupsNav = `<aside id="exercise-group-nav" class="flex-1 w-full shrink-0 overflow-y-auto border-b border-white/5 bg-gray-950/80 md:w-80 md:flex-none md:border-b-0 md:border-r md:max-h-[calc(100vh-8rem)] md:overflow-y-auto">
+                        const groupsNav = `<aside id="exercise-group-nav" class="flex-1 w-full shrink-0 overflow-y-auto border-b border-white/5 bg-gray-950/80 md:w-80 md:flex-none md:border-b-0 md:border-r md:max-h-full md:overflow-y-auto">
                             <div class="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 md:grid-cols-1">
                                 ${groupKeys.map(group => {
                                         const rawUrl = groupImages[group] || '';
@@ -8554,22 +8554,24 @@
                                     </div>
                                 </footer>
                             </div>
-                            <div id="exercise-drawer" class="fixed inset-0 z-40 flex flex-col bg-gray-950/95 backdrop-blur-lg">
-                                <header class="sticky top-0 z-10 flex items-center gap-3 border-b border-white/5 bg-gray-950/90 px-4 py-4 sm:px-6">
-                                    <div class="flex flex-1 flex-col gap-1">
-                                        <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Añadir ejercicios</p>
-                                        <div class="relative">
-                                            <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500"></i>
-                                            <input id="exercise-search-input" type="search" placeholder="Busca por nombre, grupo o patrón de movimiento" class="w-full rounded-2xl border border-white/10 bg-gray-900/80 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                            <div id="exercise-drawer" class="fixed inset-0 z-40 flex flex-col justify-end bg-gray-950/80 backdrop-blur-lg">
+                                <div class="mx-auto flex w-full max-w-6xl flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-gray-950/95 shadow-[0_-35px_80px_-40px_rgba(16,185,129,0.65)] max-h-[80vh] md:max-h-[760px]">
+                                    <header class="flex items-center gap-3 border-b border-white/5 bg-gray-950/90 px-4 py-4 sm:px-6 md:rounded-t-3xl">
+                                        <div class="flex flex-1 flex-col gap-1">
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Añadir ejercicios</p>
+                                            <div class="relative">
+                                                <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500"></i>
+                                                <input id="exercise-search-input" type="search" placeholder="Busca por nombre, grupo o patrón de movimiento" class="w-full rounded-2xl border border-white/10 bg-gray-900/80 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                            </div>
                                         </div>
+                                        <button data-action="routine-creator-close-drawer" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white">
+                                            <i data-lucide="x"></i>
+                                        </button>
+                                    </header>
+                                    <div id="exercise-drawer-content" class="flex flex-1 flex-col overflow-hidden md:flex-row" data-current-group="${activeGroup}">
+                                        ${groupsNav}
+                                        ${exercisesPanel}
                                     </div>
-                                    <button data-action="routine-creator-close-drawer" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white">
-                                        <i data-lucide="x"></i>
-                                    </button>
-                                </header>
-                                <div id="exercise-drawer-content" class="flex flex-1 flex-col overflow-hidden md:flex-row" data-current-group="${activeGroup}">
-                                    ${groupsNav}
-                                    ${exercisesPanel}
                                 </div>
                             </div>
                         `;
@@ -10225,6 +10227,10 @@
                 async routine_delete(routineId) { this.state.userRoutines = this.state.userRoutines.filter(r => r.id !== routineId); await this.saveDataToFirestore(); this.hideModal(); this.routine_closeFullscreenView(); this.renderRoutinesSection(); this.showToast('Rutina eliminada', 'error'); },
                 routine_openFullscreenView(html) {
                     const container = document.getElementById('fullscreen-view-container');
+                    if (typeof this._bodyOverflowBackup === 'undefined') {
+                        this._bodyOverflowBackup = document.body.style.overflow;
+                    }
+                    document.body.style.overflow = 'hidden';
                     container.innerHTML = html;
                     container.classList.remove('pointer-events-none');
                     container.classList.remove('opacity-0');
@@ -10253,8 +10259,15 @@
                         view.addEventListener('transitionend', () => {
                             container.innerHTML = '';
                             container.classList.add('pointer-events-none');
+                            if (typeof this._bodyOverflowBackup !== 'undefined') {
+                                document.body.style.overflow = this._bodyOverflowBackup;
+                                delete this._bodyOverflowBackup;
+                            }
                             this.renderAsesoradosSection();
                         }, { once: true });
+                    } else if (typeof this._bodyOverflowBackup !== 'undefined') {
+                        document.body.style.overflow = this._bodyOverflowBackup;
+                        delete this._bodyOverflowBackup;
                     }
                 },
                 
