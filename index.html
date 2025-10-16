@@ -3995,7 +3995,7 @@
                             return;
                         }
                         const actionMap = {
-                            'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'open-routine-banner-upload': () => this.triggerRoutineBannerUpload(), 'remove-routine-banner-image': () => this.removeRoutineBannerImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(),
+                            'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'open-routine-banner-upload': () => this.triggerRoutineBannerUpload(), 'remove-routine-banner-image': () => this.removeRoutineBannerImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-open-exercise': () => this.routine_openExerciseSheet(parseInt(exerciseIndex)), 'routine-creator-close-sheet': () => this.routine_closeExerciseSheet(), 'routine-creator-save-sheet': () => this.routine_saveExerciseFromSheet(), 'routine-creator-open-timeline': () => this.routine_showTimeline(), 'routine-creator-close-timeline': () => this.routine_hideTimeline(), 'routine-creator-save-from-timeline': () => this.routine_saveFromTimeline(), 'routine-link-saved': () => this.routine_handleSavedLink(), 'routine-start-saved': () => this.routine_handleSavedStart(), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
                             'routine-creator-switch-group': () => this.routine_creator_switchGroup(groupTarget),
                             'routine-creator-edit-group-image': (evt) => { evt.stopPropagation(); this.routine_creator_showGroupImageModal(groupTarget); },
@@ -7451,7 +7451,7 @@
                 async getRecipeForMeal(mealIndex) {const meal = this.state.dailyDiet[mealIndex];if (!meal || meal.items.length === 0) { this.showToast("Añade alimentos a la comida primero.", "error"); return; }const ingredientsList = meal.items.map(item => `${item.name.split('(')[0].trim()} (${item.amount}g)`).join(', ');this.showModal('Generando Receta ✨', '<div class="flex justify-center items-center p-8"><i data-lucide="loader-2" class="w-10 h-10 animate-spin text-purple-400"></i></div>', []);lucide.createIcons();const prompt = `Eres un chef experto en comida saludable. Crea una receta simple y deliciosa usando los siguientes ingredientes: ${ingredientsList}. El objetivo es una comida saludable. Proporciona un nombre creativo para el plato, una lista de ingredientes y las instrucciones paso a paso. Formatea tu respuesta como HTML simple, usando <h2> para el nombre del plato, <h3> para los encabezados (Ingredientes, Instrucciones), y <ul> o <ol> para las listas.`;try {const recipeHtml = await this.callGeminiAPI(prompt);const body = `<div class="text-left prose prose-invert prose-sm max-w-none">${recipeHtml}</div>`;this.showModal(`Receta para ${meal.name} ✨`, body, [{ text: 'Cerrar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }]);} catch (error) { this.hideModal(); }},
                 async showExerciseInfoModal(exerciseName) { const exercise = this.getExerciseByName(exerciseName); let mediaHtml = ''; if (exercise && exercise.mediaUrl) { const isVideo = exercise.mediaUrl.includes('.mp4') || exercise.mediaUrl.includes('video'); if (isVideo) { mediaHtml = `<div class="mb-4 rounded-lg overflow-hidden bg-gray-900"><video src="${exercise.mediaUrl}" autoplay loop muted playsinline class="w-full h-auto object-cover"></video></div>`; } else { mediaHtml = `<div class="mb-4 rounded-lg overflow-hidden bg-gray-900"><img src="${exercise.mediaUrl}" alt="Demostración de ${exercise.name}" class="w-full h-auto object-cover"></div>`; } } else { mediaHtml = `<div class="mb-4 p-4 text-center bg-gray-700/50 rounded-lg text-sm text-gray-400">No hay video/GIF disponible para este ejercicio.</div>`; } this.showModal(`Info: ${exerciseName}`, `${mediaHtml}<div id="ai-instructions-container"><div class="flex justify-center items-center p-4"><i data-lucide="loader-2" class="w-8 h-8 animate-spin text-sky-400"></i></div></div>`, [{ text: 'Entendido', class: 'bg-emerald-600 text-gray-900', action: 'hide-modal' }]); lucide.createIcons(); const prompt = `Eres un entrenador personal certificado. Proporciona instrucciones claras y concisas sobre cómo realizar el ejercicio "${exerciseName}". Incluye una sección de "Músculos Principales" y una sección de "Errores Comunes" a evitar. Formatea la respuesta como HTML simple, usando <h3> para los encabezados y <ul> para las listas.`; try { const instructionsHtml = await this.callGeminiAPI(prompt); document.getElementById('ai-instructions-container').innerHTML = `<div class="text-left prose prose-invert prose-sm max-w-none">${instructionsHtml}</div>`; } catch (error) { document.getElementById('ai-instructions-container').innerHTML = `<p class="text-sm text-red-400">No se pudieron cargar las instrucciones.</p>`; } },
                 async generatePlanWithAI() {const button = document.querySelector('button[data-action="generate-plan"]');const { calories, protein, carbs, fats } = this.state.userGoals;const prompt = `Crea un plan de comidas de ejemplo para un día completo que cumpla con los siguientes objetivos nutricionales: ${calories} kcal, ${protein}g de proteína, ${carbs}g de carbohidratos y ${fats}g de grasas. El plan debe dividirse en 3 comidas: Desayuno, Almuerzo y Cena. Para cada comida, lista los alimentos y sus cantidades aproximadas en gramos. Responde únicamente con un objeto JSON válido con el formato: {"Desayuno": [{"name": "nombre_alimento", "amount": cantidad_gramos}], "Almuerzo": [...], "Cena": [...]}. No incluyas comentarios ni explicaciones adicionales, solo el JSON.`;try {const textResponse = await this.callGeminiAPI(prompt, button);const cleanJsonString = textResponse.replace(/```json|```/g, '').trim();const mealPlan = JSON.parse(cleanJsonString); this.state.dailyDiet = []; const mealNames = Object.keys(mealPlan);const timeMap = {'Desayuno': '08:00', 'Almuerzo': '13:00', 'Cena': '20:00'}; mealNames.forEach((mealName, index) => {const mealData = {id: `meal-${Date.now() + index}`, name: mealName, time: timeMap[mealName] || '12:00', items: []}; mealPlan[mealName].forEach(food => {const searchTerm = food.name.toLowerCase().split('(')[0].trim().replace(/de|en|con/g, '').trim().split(' ')[0];let dbFood = this.data.foodLibrary.find(f => f.name.toLowerCase().includes(searchTerm)); let foodEntry; if (dbFood) { const factor = food.amount / 100; foodEntry = { ...dbFood, name: `${food.name}`, amount: food.amount, totalCals: Math.round((dbFood.cals||0) * factor), totalP: Math.round((dbFood.p||0) * factor), totalC: Math.round((dbFood.c||0) * factor), totalF: Math.round((dbFood.f||0) * factor) }; } else { foodEntry = { name: food.name, amount: food.amount, totalCals: 150, totalP: 10, totalC: 15, totalF: 5 }; } mealData.items.push(foodEntry);}); this.state.dailyDiet.push(mealData); });this.showToast("¡Plan de dieta generado!");await this.saveDataToFirestore(); this.renderAll();} catch (error) {}},
-                async routine_generateExercisesWithAi() { const goalInput = document.getElementById('ai-goal-input'); const goal = goalInput.value.trim(); if (!goal) { this.showToast("Describe tu objetivo.", "error"); return; } const button = document.querySelector('button[data-action="generate-exercises-ai"]'); const prompt = `Basado en el siguiente objetivo de entrenamiento: "${goal}", sugiere entre 5 y 7 ejercicios. Responde ÚNICAMENTE con un array JSON de strings, como: ["nombre_ejercicio_1", "nombre_ejercicio_2", ...]. No incluyas texto adicional ni formato markdown. Asegúrate de que los nombres de los ejercicios sean comunes en el gimnasio.`; try { const textResponse = await this.callGeminiAPI(prompt, button); const cleanJsonString = textResponse.replace(/```json|```/g, '').trim(); const exercises = JSON.parse(cleanJsonString); const currentDayIndex = this._tempRoutine.currentDayIndex; if (Array.isArray(exercises)) { exercises.forEach(exName => { this._tempRoutine.plan[currentDayIndex].exercises.push({ name: exName, sets: 4, reps: '10', rest: '60s' }); }); this.hideModal(); this.routine_refreshExerciseList(); this.showToast('¡Ejercicios sugeridos por IA añadidos!'); } else { throw new Error('El formato de respuesta de la IA no es válido.'); } } catch (error) { this.showToast("No se pudo procesar la sugerencia de la IA. Inténtalo de nuevo.", "error"); } },
+                async routine_generateExercisesWithAi() { const goalInput = document.getElementById('ai-goal-input'); const goal = goalInput.value.trim(); if (!goal) { this.showToast("Describe tu objetivo.", "error"); return; } const button = document.querySelector('button[data-action="generate-exercises-ai"]'); const prompt = `Basado en el siguiente objetivo de entrenamiento: "${goal}", sugiere entre 5 y 7 ejercicios. Responde ÚNICAMENTE con un array JSON de strings, como: ["nombre_ejercicio_1", "nombre_ejercicio_2", ...]. No incluyas texto adicional ni formato markdown. Asegúrate de que los nombres de los ejercicios sean comunes en el gimnasio.`; try { const textResponse = await this.callGeminiAPI(prompt, button); const cleanJsonString = textResponse.replace(/```json|```/g, '').trim(); const exercises = JSON.parse(cleanJsonString); const currentDayIndex = this._tempRoutine.currentDayIndex; if (Array.isArray(exercises)) { exercises.forEach(exName => { this._tempRoutine.plan[currentDayIndex].exercises.push({ name: exName, sets: 4, reps: '10', weight: 'Auto', rest: '60s', mediaUrl: null }); }); this.hideModal(); this.routine_refreshExerciseList(); this.showToast('¡Ejercicios sugeridos por IA añadidos!'); } else { throw new Error('El formato de respuesta de la IA no es válido.'); } } catch (error) { this.showToast("No se pudo procesar la sugerencia de la IA. Inténtalo de nuevo.", "error"); } },
                 async analyzeWorkoutPerformance(e) {const button = e.target.closest('[data-action="analyze-workout-performance"]');const logDataString = button.dataset.logData;const log = JSON.parse(decodeURIComponent(logDataString));const goal = document.querySelector('#nutrition-form input[name="goal"]:checked')?.value || 'maintain';const goalMap = { lose: 'perder peso', maintain: 'mantenimiento', gain: 'ganar músculo' };const userGoalText = goalMap[goal];const prompt = `Eres un entrenador de fitness positivo y motivador. Mi objetivo principal es ${userGoalText}. Este es mi registro de entrenamiento de hoy: ${JSON.stringify(log)}. Proporciona un análisis breve (menos de 75 palabras), en español, sobre mi rendimiento. Destaca un aspecto positivo y sugiere una mejora simple y específica para mi próxima sesión. Envuelve el aspecto positivo en etiquetas <strong> y la sugerencia en etiquetas <em>.`;try {const analysisText = await this.callGeminiAPI(prompt, button);const container = document.getElementById('ai-analysis-container');if (container) { container.innerHTML = `<div class="mt-4 pt-4 border-t border-gray-700 text-left"><h4 class="font-bold text-gray-200 flex items-center gap-2"><i data-lucide="sparkles" class="w-5 h-5 text-purple-400"></i>Análisis del Coach IA</h4><p class="text-sm text-gray-300 mt-2 bg-gray-900/50 p-3 rounded-lg">${analysisText}</p></div>`; lucide.createIcons(); button.style.display = 'none'; }} catch (error) {}},
                 routine_showAiSuggestionModal() { const body = `<p class="text-gray-300 mb-4">Describe el objetivo para este día de entrenamiento y la IA te sugerirá ejercicios.</p><div><label for="ai-goal-input" class="block text-sm font-medium text-gray-400 mb-1">Objetivo del día</label><input type="text" id="ai-goal-input" class="w-full bg-gray-700 rounded-lg p-2 mt-1 border border-gray-600" placeholder="Ej: Hipertrofia para pecho y hombro"></div>`; const footer = [ {text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal'}, {text: '✨ Generar', class: 'bg-emerald-600 hover:bg-emerald-500 text-gray-900', action: 'generate-exercises-ai'} ]; this.showModal('Sugerencias de la IA', body, footer); setTimeout(() => document.getElementById('ai-goal-input').focus(), 100); },
                 getExerciseByName(name) { for (const group in this.data.exerciseLibrary) { for (const subGroup in this.data.exerciseLibrary[group]) { const exercise = this.data.exerciseLibrary[group][subGroup].find(ex => ex.name === name); if (exercise) return exercise; } } return null; },
@@ -8299,6 +8299,22 @@
                                             </div>
                                         </section>
                                         ` : ''}
+                                        <section class="rounded-3xl border border-white/5 bg-white/5">
+                                            <div class="flex flex-col gap-6 p-5 sm:p-8">
+                                                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div>
+                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Vista rápida del día</p>
+                                                        <h3 class="text-lg font-semibold text-white">Tus bloques de entrenamiento</h3>
+                                                        <p class="text-sm text-gray-300">Cada ejercicio que añadas aparecerá aquí como una mini ventana para editarlo al instante.</p>
+                                                    </div>
+                                                    <button data-action="routine-creator-add-exercise" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-400/40 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100">
+                                                        <i data-lucide="plus"></i>
+                                                        <span>Nuevo ejercicio</span>
+                                                    </button>
+                                                </div>
+                                                <div id="exercise-mini-gallery" class="min-h-[132px] rounded-2xl border border-dashed border-white/10 bg-gray-950/40 p-4"></div>
+                                            </div>
+                                        </section>
                                         <section class="rounded-3xl border border-white/5 bg-white/5 p-5 sm:p-8">
                                             <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                                                 <div class="flex flex-col gap-1">
@@ -8322,8 +8338,8 @@
                                             <div class="flex flex-col gap-6 p-5 sm:p-8">
                                                 <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                                     <div>
-                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Listado de ejercicios</p>
-                                                        <p class="text-sm text-gray-300">Edita sets, repeticiones y descansos en cada bloque para afinar la experiencia del día.</p>
+                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Detalle del bloque</p>
+                                                        <p class="text-sm text-gray-300">Revisa la configuración de cada ejercicio y edítalo desde su miniatura o el botón de acciones.</p>
                                                     </div>
                                                     <button data-action="routine-creator-add-exercise" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-400/40 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100">
                                                         <i data-lucide="plus"></i>
@@ -8336,17 +8352,80 @@
                                     </div>
                                 </div>
                                 <footer class="sticky bottom-0 z-30 border-t border-white/5 bg-gray-950/90 px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pt-3 backdrop-blur sm:px-6">
-                                    <div class="mx-auto flex w-full max-w-6xl flex-col gap-3 sm:flex-row">
-                                        <button data-action="routine-creator-add-exercise" class="inline-flex w-full flex-1 items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
-                                            <i data-lucide="plus"></i>
-                                            <span>Añadir ejercicio</span>
+                                    <div class="mx-auto flex w-full max-w-6xl flex-col gap-3">
+                                        <div id="exercise-thumbnail-strip" class="flex items-stretch gap-3 overflow-x-auto pb-2" aria-label="Secuencia de ejercicios"></div>
+                                        <div class="flex flex-col gap-3 sm:flex-row">
+                                            <button data-action="routine-creator-add-exercise" class="inline-flex w-full flex-1 items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
+                                                <i data-lucide="plus"></i>
+                                                <span>Añadir ejercicio</span>
+                                            </button>
+                                            <button id="routine-view-button" data-action="routine-creator-open-timeline" class="inline-flex w-full flex-1 items-center justify-center gap-2 rounded-2xl border border-emerald-400/40 bg-transparent px-5 py-3 text-sm font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100 disabled:opacity-40 disabled:pointer-events-none" disabled>
+                                                <i data-lucide="list-checks"></i>
+                                                <span>Ver rutina</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </footer>
+                            </div>
+                            <div id="exercise-sheet-backdrop" data-action="routine-creator-close-sheet" class="fixed inset-0 z-[65] hidden bg-gray-950/60 backdrop-blur-sm opacity-0 transition-opacity duration-300"></div>
+                            <div id="exercise-sheet" class="fixed inset-x-0 bottom-0 z-[70] translate-y-full transition-transform duration-300">
+                                <div class="mx-auto w-full max-w-xl rounded-t-3xl border-t border-white/10 bg-gray-900/95 px-5 pb-6 pt-5 shadow-2xl shadow-emerald-500/20">
+                                    <header class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Editar ejercicio</p>
+                                            <h3 id="exercise-sheet-title" class="text-lg font-semibold text-white">Ejercicio seleccionado</h3>
+                                        </div>
+                                        <button data-action="routine-creator-close-sheet" class="rounded-full bg-white/10 p-2 text-gray-400 transition hover:text-white">
+                                            <i data-lucide="x"></i>
                                         </button>
-                                        <button data-action="routine-creator-save" class="inline-flex w-full flex-1 items-center justify-center gap-2 rounded-2xl border border-emerald-400/40 bg-transparent px-5 py-3 text-sm font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100">
+                                    </header>
+                                    <div id="exercise-sheet-media" class="mt-4 h-40 overflow-hidden rounded-2xl border border-white/10 bg-gray-950/60"></div>
+                                    <div class="mt-5 grid grid-cols-2 gap-4">
+                                        <label class="flex flex-col gap-1 text-sm font-semibold text-gray-300">
+                                            Series
+                                            <input id="exercise-sheet-sets" type="number" min="1" class="rounded-xl border border-white/10 bg-gray-900/80 px-3 py-2 text-center text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                        </label>
+                                        <label class="flex flex-col gap-1 text-sm font-semibold text-gray-300">
+                                            Repeticiones
+                                            <input id="exercise-sheet-reps" type="text" class="rounded-xl border border-white/10 bg-gray-900/80 px-3 py-2 text-center text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                        </label>
+                                        <label class="flex flex-col gap-1 text-sm font-semibold text-gray-300">
+                                            Peso
+                                            <input id="exercise-sheet-weight" type="text" placeholder="kg o peso corporal" class="rounded-xl border border-white/10 bg-gray-900/80 px-3 py-2 text-center text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                            <span class="text-[11px] font-medium uppercase tracking-[0.3em] text-gray-500">Personaliza la carga</span>
+                                        </label>
+                                        <label class="flex flex-col gap-1 text-sm font-semibold text-gray-300">
+                                            Descanso (s)
+                                            <input id="exercise-sheet-rest" type="text" class="rounded-xl border border-white/10 bg-gray-900/80 px-3 py-2 text-center text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                        </label>
+                                    </div>
+                                    <button data-action="routine-creator-save-sheet" class="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
+                                        <i data-lucide="check-circle"></i>
+                                        <span>Guardar cambios</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="routine-timeline-overlay" class="pointer-events-none fixed inset-0 z-[80] flex items-end justify-center opacity-0 transition-opacity duration-300">
+                                <div data-action="routine-creator-close-timeline" class="absolute inset-0 bg-gray-950/70 backdrop-blur-sm"></div>
+                                <div id="routine-timeline-panel" class="relative z-10 w-full max-w-5xl translate-y-8 rounded-t-3xl border-t border-white/10 bg-gray-900/95 px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] pt-6 shadow-2xl shadow-emerald-500/10 transition-transform duration-300">
+                                    <header class="flex items-center justify-between gap-3 px-2 sm:px-4">
+                                        <div>
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Vista previa</p>
+                                            <h3 class="text-xl font-semibold text-white">Línea de tiempo de la rutina</h3>
+                                        </div>
+                                        <button data-action="routine-creator-close-timeline" class="rounded-full bg-white/10 p-2 text-gray-400 transition hover:text-white">
+                                            <i data-lucide="x"></i>
+                                        </button>
+                                    </header>
+                                    <div id="routine-timeline-content" class="mt-6 max-h-[50vh] overflow-y-auto px-2 sm:px-4"></div>
+                                    <div class="mt-6 flex flex-col gap-3 px-2 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+                                        <p class="text-sm text-gray-400">Guarda la rutina cuando estés conforme con la secuencia.</p>
+                                        <button data-action="routine-creator-save-from-timeline" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
                                             <i data-lucide="save"></i>
                                             <span>Guardar rutina</span>
                                         </button>
                                     </div>
-                                </footer>
+                                </div>
                             </div>
                             <div id="exercise-drawer" class="fixed inset-0 z-40 flex flex-col bg-gray-950/95 backdrop-blur-lg">
                                 <header class="sticky top-0 z-10 flex items-center gap-3 border-b border-white/5 bg-gray-950/90 px-4 py-4 sm:px-6">
@@ -9206,10 +9285,43 @@
                         }
                     });
                 },
-                routine_selectExercise(exerciseName) { this._tempRoutine.plan[this._tempRoutine.currentDayIndex].exercises.push({ name: exerciseName, sets: 4, reps: '10', rest: '60s' }); this.showToast(`${exerciseName} añadido`, 'success'); this.routine_refreshExerciseList(); },
-                routine_editExercise(index) { this._tempRoutine.editingIndex = parseInt(index); this.routine_refreshExerciseList(); },
-                routine_saveExerciseDetails(index) { const exercise = this._tempRoutine.plan[this._tempRoutine.currentDayIndex].exercises[index]; if (!exercise) return; const setsInput = document.getElementById(`sets-input-${index}`); const repsInput = document.getElementById(`reps-input-${index}`); const restInput = document.getElementById(`rest-input-${index}`); if (setsInput && repsInput && restInput) { exercise.sets = parseInt(setsInput.value) || exercise.sets; exercise.reps = repsInput.value.trim() || exercise.reps; exercise.rest = restInput.value.trim() || exercise.rest; } this._tempRoutine.editingIndex = -1; this.routine_refreshExerciseList(); },
-                routine_removeExercise(index) { this._tempRoutine.plan[this._tempRoutine.currentDayIndex].exercises.splice(index, 1); this.routine_refreshExerciseList(); },
+                
+                routine_selectExercise(exerciseName) {
+                    const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex];
+                    if (!currentDay) return;
+                    const libraryExercise = this.getExerciseByName(exerciseName) || {};
+                    currentDay.exercises.push({
+                        name: exerciseName,
+                        sets: 4,
+                        reps: '10',
+                        weight: libraryExercise.defaultWeight || 'Auto',
+                        rest: '60s',
+                        mediaUrl: libraryExercise.mediaUrl || null,
+                    });
+                    this.showToast(`${exerciseName} añadido`, 'success');
+                    this.routine_refreshExerciseList();
+                },
+                routine_editExercise(index) {
+                    const targetIndex = parseInt(index);
+                    if (Number.isNaN(targetIndex)) return;
+                    this._tempRoutine.editingIndex = targetIndex;
+                    this.routine_openExerciseSheet(targetIndex);
+                },
+                routine_saveExerciseDetails(index) {
+                    const parsedIndex = typeof index === 'number' ? index : parseInt(index);
+                    this.routine_openExerciseSheet(Number.isNaN(parsedIndex) ? this._tempRoutine.editingIndex : parsedIndex);
+                },
+                routine_removeExercise(index) {
+                    const targetIndex = parseInt(index);
+                    const exercises = this._tempRoutine.plan[this._tempRoutine.currentDayIndex].exercises;
+                    if (Number.isNaN(targetIndex)) return;
+                    exercises.splice(targetIndex, 1);
+                    if (this._tempRoutine.editingIndex === targetIndex) {
+                        this.routine_closeExerciseSheet();
+                    }
+                    this._tempRoutine.editingIndex = -1;
+                    this.routine_refreshExerciseList();
+                },
                 routine_refreshExerciseList() {
                     const container = document.getElementById('exercise-list-container');
                     if (!container) return;
@@ -9217,7 +9329,52 @@
                     if (!currentDay) return;
                     const exercises = currentDay.exercises;
 
+                    const gallery = document.getElementById('exercise-mini-gallery');
+                    const dock = document.getElementById('exercise-thumbnail-strip');
+                    const viewButton = document.getElementById('routine-view-button');
+
+                    const renderMedia = (exercise, variant) => {
+                        const mediaUrl = this.routine_getExerciseMedia(exercise);
+                        const rawName = exercise.name || 'Ejercicio';
+                        const safeName = this.escapeHtml(rawName);
+                        if (mediaUrl) {
+                            const sizing = variant === 'dock' ? 'h-16 w-24 object-cover' : 'h-24 w-full object-cover';
+                            return `<img src="${mediaUrl}" alt="${safeName}" class="${sizing} rounded-2xl border border-white/10 bg-gray-900/60" loading="lazy">`;
+                        }
+                        const initials = rawName.slice(0, 1).toUpperCase() || 'E';
+                        const sizeClasses = variant === 'dock' ? 'h-16 w-24 text-lg' : 'h-24 w-full text-2xl';
+                        return `<div class="${sizeClasses} flex items-center justify-center rounded-2xl border border-dashed border-emerald-400/40 bg-emerald-500/10 text-emerald-200 font-bold">${initials || 'E'}</div>`;
+                    };
+
+                    const buildThumbnail = (exercise, index, variant = 'gallery') => {
+                        const safeName = this.escapeHtml(exercise.name || 'Ejercicio');
+                        const baseClasses = variant === 'dock'
+                            ? 'flex h-20 min-w-[112px] flex-shrink-0 flex-col gap-2 rounded-2xl border border-white/10 bg-gray-900/80 p-2 shadow-lg shadow-emerald-500/10'
+                            : 'flex w-44 flex-shrink-0 flex-col gap-2 rounded-2xl border border-white/10 bg-gray-900/80 p-3 shadow-lg shadow-emerald-500/10';
+                        const labelClasses = variant === 'dock' ? 'text-[10px]' : 'text-xs';
+                        return `<button data-action="routine-creator-open-exercise" data-exercise-index="${index}" class="${baseClasses} text-left transition hover:border-emerald-400/60 hover:bg-gray-900/95">
+                            <div class="overflow-hidden rounded-2xl">${renderMedia(exercise, variant)}</div>
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="${labelClasses} font-semibold text-white truncate">${safeName}</span>
+                                <span class="text-[10px] font-bold uppercase tracking-[0.3em] text-emerald-300/80">#${index + 1}</span>
+                            </div>
+                        </button>`;
+                    };
+
                     if (exercises.length === 0) {
+                        if (gallery) {
+                            gallery.innerHTML = `<div class="flex h-full items-center justify-center rounded-2xl border border-dashed border-white/10 bg-gray-900/60 p-6 text-center text-sm text-gray-400">
+                                Añade tu primer ejercicio para empezar a construir la sesión.
+                            </div>`;
+                        }
+                        if (dock) {
+                            dock.innerHTML = `<div class="flex h-20 w-full items-center justify-center rounded-2xl border border-dashed border-white/10 bg-gray-900/60 px-4 text-center text-xs text-gray-400">
+                                Las miniaturas de tus ejercicios aparecerán aquí.
+                            </div>`;
+                        }
+                        if (viewButton) {
+                            viewButton.disabled = true;
+                        }
                         container.innerHTML = `
                         <div class="flex flex-col items-center justify-center text-center p-6 h-full">
                             <div class="bg-gray-800/50 border-2 border-dashed border-gray-700 rounded-2xl p-8 max-w-sm">
@@ -9235,53 +9392,307 @@
                             </div>
                         </div>`;
                     } else {
+                        if (gallery) {
+                            gallery.innerHTML = `<div class="flex gap-3 overflow-x-auto">${exercises.map((ex, idx) => buildThumbnail(ex, idx, 'gallery')).join('')}</div>`;
+                        }
+                        if (dock) {
+                            dock.innerHTML = exercises.map((ex, idx) => buildThumbnail(ex, idx, 'dock')).join('');
+                        }
+                        if (viewButton) {
+                            viewButton.disabled = false;
+                        }
+
                         container.innerHTML = exercises.map((ex, index) => {
-                            if (this._tempRoutine.editingIndex === index) {
-                                return `
-                                <div class="bg-gray-700/50 border border-emerald-500/50 p-4 rounded-xl space-y-4 section-fade-in shadow-lg" data-exercise-index="${index}">
-                                    <p class="font-bold text-lg text-white">${ex.name}</p>
-                                    <div class="grid grid-cols-3 gap-3">
-                                        <div>
-                                            <label class="text-xs font-medium text-gray-400">SERIES</label>
-                                            <input id="sets-input-${index}" type="number" value="${ex.sets}" class="w-full bg-gray-800 p-2 rounded-lg text-center text-white mt-1">
-                                        </div>
-                                        <div>
-                                            <label class="text-xs font-medium text-gray-400">REPS</label>
-                                            <input id="reps-input-${index}" type="text" value="${ex.reps}" class="w-full bg-gray-800 p-2 rounded-lg text-center text-white mt-1">
-                                        </div>
-                                        <div>
-                                            <label class="text-xs font-medium text-gray-400">DESC. (s)</label>
-                                            <input id="rest-input-${index}" type="text" value="${ex.rest}" class="w-full bg-gray-800 p-2 rounded-lg text-center text-white mt-1">
+                            const safeName = this.escapeHtml(ex.name || `Bloque ${index + 1}`);
+                            const sets = Number.isFinite(ex.sets) ? ex.sets : (parseInt(ex.sets, 10) || 1);
+                            const reps = ex.reps || '10';
+                            const rest = ex.rest || '60s';
+                            const weight = ex.weight || 'Auto';
+                            const media = renderMedia(ex, 'gallery');
+                            return `
+                                <article class="relative overflow-hidden rounded-2xl border border-white/5 bg-gray-900/70 p-4 section-fade-in" data-exercise-index="${index}">
+                                    <div class="grid gap-4 sm:grid-cols-[160px_minmax(0,1fr)] sm:items-center">
+                                        <div class="overflow-hidden rounded-2xl border border-white/10 bg-gray-950/60">${media}</div>
+                                        <div class="flex flex-col gap-3">
+                                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                                <div>
+                                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Bloque ${index + 1}</p>
+                                                    <h4 class="text-lg font-semibold text-white">${safeName}</h4>
+                                                </div>
+                                                <div class="flex items-center gap-1">
+                                                    <button data-action="routine-creator-open-exercise" data-exercise-index="${index}" class="rounded-full bg-white/5 p-2 text-gray-300 transition hover:bg-white/10 hover:text-white" title="Editar ejercicio">
+                                                        <i data-lucide="pencil" class="h-5 w-5"></i>
+                                                    </button>
+                                                    <button data-action="routine-creator-remove-exercise" data-exercise-index="${index}" class="rounded-full bg-red-500/10 p-2 text-red-400 transition hover:bg-red-500/20 hover:text-red-200" title="Eliminar ejercicio">
+                                                        <i data-lucide="trash-2" class="h-5 w-5"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <dl class="grid grid-cols-2 gap-3 text-sm text-gray-300 sm:grid-cols-4">
+                                                <div class="rounded-xl border border-white/5 bg-gray-900/80 p-3 text-center">
+                                                    <dt class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Series</dt>
+                                                    <dd class="mt-1 text-lg font-semibold text-white">${sets}</dd>
+                                                </div>
+                                                <div class="rounded-xl border border-white/5 bg-gray-900/80 p-3 text-center">
+                                                    <dt class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Reps</dt>
+                                                    <dd class="mt-1 text-lg font-semibold text-white">${this.escapeHtml(reps)}</dd>
+                                                </div>
+                                                <div class="rounded-xl border border-white/5 bg-gray-900/80 p-3 text-center">
+                                                    <dt class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Peso</dt>
+                                                    <dd class="mt-1 text-lg font-semibold text-white">${this.escapeHtml(weight)}</dd>
+                                                </div>
+                                                <div class="rounded-xl border border-white/5 bg-gray-900/80 p-3 text-center">
+                                                    <dt class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Descanso</dt>
+                                                    <dd class="mt-1 text-lg font-semibold text-white">${this.escapeHtml(rest)}</dd>
+                                                </div>
+                                            </dl>
                                         </div>
                                     </div>
-                                    <button data-action="routine-creator-save-exercise-details" data-exercise-index="${index}" class="w-full bg-emerald-500 text-gray-900 font-bold py-2.5 rounded-lg mt-2 flex items-center justify-center gap-2">
-                                        <i data-lucide="check-circle" class="w-5 h-5"></i><span>Guardar Cambios</span>
-                                    </button>
-                                </div>`;
-                            } else {
-                                return `
-                                <div class="bg-gray-800 p-3 rounded-xl flex items-center gap-4 section-fade-in" data-exercise-index="${index}">
-                                    <div class="bg-gray-900/50 w-12 h-12 rounded-lg flex items-center justify-center font-bold text-emerald-400 text-2xl flex-shrink-0">${index + 1}</div>
-                                    <div class="flex-grow">
-                                        <p class="font-semibold text-white">${ex.name}</p>
-                                        <div class="flex items-center gap-4 text-sm text-gray-400 mt-1">
-                                            <span class="flex items-center gap-1.5"><i data-lucide="layers" class="w-3.5 h-3.5"></i>${ex.sets} series</span>
-                                            <span class="flex items-center gap-1.5"><i data-lucide="repeat" class="w-3.5 h-3.5"></i>${ex.reps} reps</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex items-center gap-1 flex-shrink-0">
-                                        <button data-action="routine-creator-edit-exercise" class="p-2 rounded-full text-gray-400 hover:text-white hover:bg-gray-700/50 transition-colors">
-                                            <i data-lucide="edit" class="w-5 h-5"></i>
-                                        </button>
-                                        <button data-action="routine-creator-remove-exercise" data-exercise-index="${index}" class="p-2 rounded-full text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors">
-                                            <i data-lucide="trash-2" class="w-5 h-5"></i>
-                                        </button>
-                                    </div>
-                                </div>`;
-                            }
+                                </article>`;
                         }).join('');
                     }
                     lucide.createIcons();
+                },
+
+                escapeHtml(value) {
+                    if (typeof value === 'undefined' || value === null) return '';
+                    const stringValue = typeof value === 'string' ? value : String(value);
+                    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' };
+                    return stringValue.replace(/[&<>"'`]/g, (char) => map[char]);
+                },
+                routine_getExerciseMedia(exercise) {
+                    if (!exercise) return null;
+                    if (exercise.mediaUrl) return exercise.mediaUrl;
+                    const libraryExercise = exercise.name ? this.getExerciseByName(exercise.name) : null;
+                    return libraryExercise?.mediaUrl || null;
+                },
+                routine_openExerciseSheet(index) {
+                    const sheet = document.getElementById('exercise-sheet');
+                    const backdrop = document.getElementById('exercise-sheet-backdrop');
+                    const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex];
+                    if (!sheet || !backdrop || !currentDay) return;
+                    const exercises = currentDay.exercises || [];
+                    const targetIndex = parseInt(index);
+                    if (Number.isNaN(targetIndex) || !exercises[targetIndex]) return;
+                    this._tempRoutine.editingIndex = targetIndex;
+                    const exercise = exercises[targetIndex];
+                    const rawName = exercise.name || `Bloque ${targetIndex + 1}`;
+                    const safeName = this.escapeHtml(rawName);
+
+                    const titleEl = document.getElementById('exercise-sheet-title');
+                    if (titleEl) titleEl.textContent = exercise.name || `Bloque ${targetIndex + 1}`;
+
+                    const mediaEl = document.getElementById('exercise-sheet-media');
+                    if (mediaEl) {
+                        const mediaUrl = this.routine_getExerciseMedia(exercise);
+                        if (mediaUrl) {
+                            mediaEl.innerHTML = `<img src="${mediaUrl}" alt="${safeName}" class="h-full w-full object-cover" loading="lazy">`;
+                        } else {
+                            mediaEl.innerHTML = `<div class="flex h-full items-center justify-center bg-gray-900/60 text-emerald-200 text-4xl font-bold">${rawName.slice(0, 1).toUpperCase() || 'E'}</div>`;
+                        }
+                    }
+
+                    const setsInput = document.getElementById('exercise-sheet-sets');
+                    const repsInput = document.getElementById('exercise-sheet-reps');
+                    const weightInput = document.getElementById('exercise-sheet-weight');
+                    const restInput = document.getElementById('exercise-sheet-rest');
+                    if (setsInput) setsInput.value = Number.isFinite(exercise.sets) ? exercise.sets : (parseInt(exercise.sets, 10) || 1);
+                    if (repsInput) repsInput.value = exercise.reps || '10';
+                    if (weightInput) weightInput.value = exercise.weight || 'Auto';
+                    if (restInput) restInput.value = exercise.rest || '60s';
+
+                    sheet.dataset.exerciseIndex = String(targetIndex);
+                    backdrop.classList.remove('hidden');
+                    backdrop.classList.remove('opacity-0');
+                    requestAnimationFrame(() => {
+                        backdrop.classList.add('opacity-100');
+                        sheet.classList.remove('translate-y-full');
+                    });
+                },
+                routine_closeExerciseSheet() {
+                    const sheet = document.getElementById('exercise-sheet');
+                    const backdrop = document.getElementById('exercise-sheet-backdrop');
+                    if (!sheet || !backdrop) return;
+                    sheet.classList.add('translate-y-full');
+                    backdrop.classList.remove('opacity-100');
+                    backdrop.classList.add('opacity-0');
+                    setTimeout(() => {
+                        backdrop.classList.add('hidden');
+                    }, 250);
+                    sheet.dataset.exerciseIndex = '';
+                    this._tempRoutine.editingIndex = -1;
+                },
+                routine_saveExerciseFromSheet() {
+                    const sheet = document.getElementById('exercise-sheet');
+                    if (!sheet) return;
+                    const index = parseInt(sheet.dataset.exerciseIndex || '-1');
+                    const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex];
+                    if (!currentDay || Number.isNaN(index)) {
+                        this.routine_closeExerciseSheet();
+                        return;
+                    }
+                    const exercises = currentDay.exercises || [];
+                    const exercise = exercises[index];
+                    if (!exercise) {
+                        this.routine_closeExerciseSheet();
+                        return;
+                    }
+                    const setsInput = document.getElementById('exercise-sheet-sets');
+                    const repsInput = document.getElementById('exercise-sheet-reps');
+                    const weightInput = document.getElementById('exercise-sheet-weight');
+                    const restInput = document.getElementById('exercise-sheet-rest');
+                    const parsedSets = setsInput ? parseInt(setsInput.value, 10) : exercise.sets;
+                    exercise.sets = Number.isFinite(parsedSets) && parsedSets > 0 ? parsedSets : (Number(exercise.sets) || 1);
+                    exercise.reps = repsInput ? (repsInput.value.trim() || exercise.reps || '10') : (exercise.reps || '10');
+                    exercise.weight = weightInput ? (weightInput.value.trim() || exercise.weight || 'Auto') : (exercise.weight || 'Auto');
+                    exercise.rest = restInput ? (restInput.value.trim() || exercise.rest || '60s') : (exercise.rest || '60s');
+                    this.routine_closeExerciseSheet();
+                    this.routine_refreshExerciseList();
+                    this.showToast('Ejercicio actualizado', 'success');
+                },
+                routine_showTimeline() {
+                    const overlay = document.getElementById('routine-timeline-overlay');
+                    const panel = document.getElementById('routine-timeline-panel');
+                    const content = document.getElementById('routine-timeline-content');
+                    const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex];
+                    if (!overlay || !panel || !content || !currentDay) return;
+                    const exercises = currentDay.exercises || [];
+                    if (exercises.length === 0) {
+                        this.showToast('Añade ejercicios antes de visualizar la rutina.', 'info');
+                        return;
+                    }
+                    content.innerHTML = this.routine_buildTimelineHtml(exercises);
+                    lucide.createIcons();
+                    overlay.classList.remove('pointer-events-none');
+                    overlay.classList.remove('opacity-0');
+                    requestAnimationFrame(() => {
+                        overlay.classList.add('opacity-100');
+                        panel.classList.remove('translate-y-8');
+                    });
+                },
+                routine_hideTimeline() {
+                    const overlay = document.getElementById('routine-timeline-overlay');
+                    const panel = document.getElementById('routine-timeline-panel');
+                    if (!overlay || !panel) return;
+                    overlay.classList.remove('opacity-100');
+                    overlay.classList.add('opacity-0');
+                    panel.classList.add('translate-y-8');
+                    setTimeout(() => {
+                        overlay.classList.add('pointer-events-none');
+                    }, 250);
+                },
+                routine_saveFromTimeline() {
+                    this.routine_hideTimeline();
+                    this.routine_save();
+                },
+                routine_buildTimelineHtml(exercises) {
+                    const timelineItems = exercises.map((exercise, index) => {
+                        const rawName = exercise.name || `Bloque ${index + 1}`;
+                        const safeName = this.escapeHtml(rawName);
+                        const mediaUrl = this.routine_getExerciseMedia(exercise);
+                        const sets = Number.isFinite(exercise.sets) ? exercise.sets : (parseInt(exercise.sets, 10) || 1);
+                        const reps = this.escapeHtml(exercise.reps || '10');
+                        const weight = this.escapeHtml(exercise.weight || 'Auto');
+                        const rest = this.escapeHtml(exercise.rest || '60s');
+                        const media = mediaUrl
+                            ? `<img src="${mediaUrl}" alt="${safeName}" class="h-20 w-28 rounded-xl object-cover" loading="lazy">`
+                            : `<div class="flex h-20 w-28 items-center justify-center rounded-xl border border-dashed border-emerald-400/50 bg-emerald-500/10 text-emerald-200 text-xl font-bold">${(rawName || 'Bloque').charAt(0).toUpperCase()}</div>`;
+                        return `
+                            <li class="relative pl-6">
+                                <span class="absolute -left-3 top-3 inline-flex h-6 w-6 items-center justify-center rounded-full border-2 border-emerald-400/70 bg-gray-950 text-[10px] font-bold text-emerald-200">${index + 1}</span>
+                                <article class="rounded-2xl border border-white/10 bg-gray-900/80 p-4 shadow-lg shadow-emerald-500/10">
+                                    <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
+                                        ${media}
+                                        <div class="flex-1 space-y-3">
+                                            <div>
+                                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Bloque ${index + 1}</p>
+                                                <h4 class="text-lg font-semibold text-white">${safeName}</h4>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-3 text-sm text-gray-300">
+                                                <div class="rounded-xl border border-white/5 bg-gray-900/80 p-3 text-center">
+                                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Series</p>
+                                                    <p class="mt-1 text-lg font-semibold text-white">${sets}</p>
+                                                </div>
+                                                <div class="rounded-xl border border-white/5 bg-gray-900/80 p-3 text-center">
+                                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Reps</p>
+                                                    <p class="mt-1 text-lg font-semibold text-white">${reps}</p>
+                                                </div>
+                                                <div class="rounded-xl border border-white/5 bg-gray-900/80 p-3 text-center">
+                                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Peso</p>
+                                                    <p class="mt-1 text-lg font-semibold text-white">${weight}</p>
+                                                </div>
+                                                <div class="rounded-xl border border-white/5 bg-gray-900/80 p-3 text-center">
+                                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Descanso</p>
+                                                    <p class="mt-1 text-lg font-semibold text-white">${rest}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            </li>`;
+                    }).join('');
+
+                    const totalSets = exercises.reduce((acc, exercise) => acc + (Number(exercise.sets) || 0), 0);
+                    const uniqueRests = Array.from(new Set(exercises.map(ex => ex.rest || '60s'))).map(rest => this.escapeHtml(rest)).join(' · ');
+                    return `
+                        <div class="space-y-6">
+                            <ol class="relative space-y-6 border-l border-emerald-400/30 pl-6">
+                                ${timelineItems}
+                            </ol>
+                            <div class="grid gap-3 sm:grid-cols-3">
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/80 p-4 text-center">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Ejercicios</p>
+                                    <p class="mt-2 text-2xl font-semibold text-white">${exercises.length}</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/80 p-4 text-center">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Series totales</p>
+                                    <p class="mt-2 text-2xl font-semibold text-white">${totalSets}</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/80 p-4 text-center">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Descansos</p>
+                                    <p class="mt-2 text-sm font-semibold text-white">${uniqueRests}</p>
+                                </div>
+                            </div>
+                        </div>`;
+                },
+                routine_showRoutineSavedDialog(routine) {
+                    if (!routine) return;
+                    this._lastSavedRoutine = routine;
+                    const body = `<div class="space-y-4 text-left">
+                        <p class="text-sm text-gray-300">Tu rutina <strong>${this.escapeHtml(routine.name || 'Sin nombre')}</strong> se guardó con éxito. ¿Qué deseas hacer a continuación?</p>
+                        <div class="grid gap-3 rounded-2xl border border-white/10 bg-gray-900/70 p-4">
+                            <div class="flex items-center gap-3">
+                                <span class="grid h-10 w-10 place-items-center rounded-full bg-emerald-500/10 text-emerald-200"><i data-lucide="sparkles" class="h-5 w-5"></i></span>
+                                <div>
+                                    <p class="text-sm font-semibold text-white">${this.escapeHtml(routine.plan?.[0]?.day || 'Día 1')}</p>
+                                    <p class="text-xs text-gray-400">${routine.plan?.[0]?.exercises?.length || 0} ejercicios configurados</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                    const footer = [
+                        { text: 'Vincular rutina a asesorado', class: 'bg-white/10 text-white hover:bg-white/20', action: 'routine-link-saved' },
+                        { text: 'Comenzar rutina', class: 'bg-emerald-500 text-gray-900 hover:bg-emerald-400', action: 'routine-start-saved' }
+                    ];
+                    this.showModal('Rutina creada con éxito', body, footer);
+                    lucide.createIcons();
+                },
+                routine_handleSavedLink() {
+                    this.hideModal();
+                    this.showSection('asesorados');
+                },
+                routine_handleSavedStart() {
+                    this.hideModal();
+                    const routine = this._lastSavedRoutine;
+                    if (!routine) {
+                        this.showToast('No encontramos la rutina recién creada.', 'error');
+                        return;
+                    }
+                    const firstDayIndex = 0;
+                    this.startWorkout(routine.id, firstDayIndex);
+                },
+
+
                 },
 
                 renderCommunitySection() {
@@ -9646,6 +10057,7 @@
                             await this.saveDataToFirestore();
                             this.showToast('Rutina guardada con éxito');
                             this.renderRoutinesSection();
+                            this.routine_showRoutineSavedDialog(routinePayload);
                         }
 
                         this.routine_closeFullscreenView();
