@@ -203,74 +203,11 @@
         .diet-panel-summary {
             position: relative;
             z-index: 2;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
+            display: block;
             cursor: pointer;
-            padding: 1.1rem 1.25rem;
+            border-radius: 24px;
+            overflow: hidden;
             text-align: left;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            transition: background 0.3s ease;
-        }
-        @media (min-width: 640px) {
-            .diet-panel-summary {
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-                padding: 1.25rem 1.75rem;
-            }
-        }
-        .diet-panel-summary-main {
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
-            gap: 1rem;
-            width: 100%;
-        }
-        @media (min-width: 640px) {
-            .diet-panel-summary-main {
-                flex-direction: row;
-                align-items: center;
-                gap: 1.15rem;
-            }
-        }
-        .diet-panel-summary-info {
-            position: relative;
-            display: flex;
-            flex: 1 1 auto;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 1rem;
-            width: 100%;
-            padding: clamp(1rem, 3vw, 1.35rem) clamp(1.1rem, 4vw, 1.8rem);
-            border-radius: 22px;
-            border: 1px solid rgba(148, 163, 184, 0.18);
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.82), rgba(13, 148, 136, 0.22));
-            box-shadow: inset 0 0 25px rgba(15, 23, 42, 0.5);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-        }
-        @media (min-width: 640px) {
-            .diet-panel-summary-info {
-                width: auto;
-                gap: 0.9rem;
-            }
-        }
-        .diet-panel-summary-info::before {
-            content: "";
-            position: absolute;
-            inset: -45% 35% auto -20%;
-            height: 200%;
-            background: radial-gradient(circle at center, rgba(45, 212, 191, 0.25), rgba(15, 23, 42, 0));
-            opacity: 0.35;
-        }
-        .diet-panel-summary-info > * {
-            position: relative;
-            z-index: 1;
-        }
-        .diet-panel-summary:hover {
-            background: rgba(255, 255, 255, 0.03);
         }
         .diet-panel-content {
             position: relative;
@@ -289,65 +226,95 @@
         }
         .diet-panel-cover {
             position: relative;
-            overflow: hidden;
-            flex: 1 1 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            gap: 1.25rem;
             width: 100%;
-            aspect-ratio: 16 / 9;
-            border-radius: 20px;
+            min-height: clamp(220px, 32vw, 260px);
+            border-radius: 24px;
+            overflow: hidden;
             border: 1px solid rgba(148, 163, 184, 0.18);
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.88), rgba(8, 47, 73, 0.45));
-            box-shadow: inset 0 0 30px rgba(15, 23, 42, 0.6);
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(8, 47, 73, 0.6));
+            box-shadow: inset 0 0 40px rgba(15, 23, 42, 0.65);
+            isolation: isolate;
         }
-        @media (max-width: 639px) {
-            .diet-panel-cover {
-                margin: -1.1rem -1.25rem 0.85rem;
-                width: calc(100% + 2.5rem);
-                border-radius: 0;
-            }
-        }
-        @media (min-width: 640px) {
-            .diet-panel-cover {
-                flex: 0 0 220px;
-                width: 220px;
-                aspect-ratio: 5 / 4;
-                margin: 0;
-                border-radius: 20px;
-            }
-        }
-        @media (min-width: 1024px) {
-            .diet-panel-cover {
-                flex-basis: 240px;
-                width: 240px;
-            }
-        }
-        .diet-panel-cover::before {
+        .diet-panel-cover::after {
             content: "";
             position: absolute;
-            inset: -45% 15% auto -25%;
-            height: 220%;
-            background: radial-gradient(circle at center, rgba(56, 189, 248, 0.3), rgba(15, 23, 42, 0));
-            opacity: 0.5;
-        }
-        .diet-panel-cover[data-has-image="true"] {
-            border-color: rgba(16, 185, 129, 0.55);
-            box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.18);
+            inset: 0;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.1) 0%, rgba(15, 23, 42, 0.65) 68%, rgba(15, 23, 42, 0.9) 100%);
+            z-index: 1;
         }
         .diet-panel-cover-visual {
             position: absolute;
             inset: 0;
             background-size: cover;
             background-position: center;
-            opacity: 0;
-            transition: opacity 0.4s ease;
+            transform: scale(1);
+            transition: transform 0.5s ease;
+            filter: brightness(0.85);
+            z-index: 0;
         }
-        .diet-panel-cover[data-has-image="true"] .diet-panel-cover-visual {
-            opacity: 1;
+        .diet-panel:hover .diet-panel-cover-visual {
+            transform: scale(1.05);
+        }
+        .diet-panel-cover[data-custom-cover="true"] .diet-panel-cover-visual {
+            filter: brightness(0.92);
+        }
+        .diet-panel-cover::before {
+            content: "";
+            position: absolute;
+            inset: -40% 20% auto -20%;
+            height: 200%;
+            background: radial-gradient(circle at center, rgba(56, 189, 248, 0.35), rgba(15, 23, 42, 0));
+            opacity: 0.45;
+            z-index: 1;
+        }
+        .diet-panel-cover[data-custom-cover="true"] {
+            border-color: rgba(16, 185, 129, 0.55);
+            box-shadow: inset 0 0 35px rgba(16, 185, 129, 0.2);
+        }
+        .diet-panel-cover[data-custom-cover="true"]::after {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.05) 0%, rgba(15, 23, 42, 0.55) 68%, rgba(15, 23, 42, 0.85) 100%);
+        }
+        .diet-panel-cover-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: clamp(1.5rem, 4vw, 2rem);
+        }
+        .diet-panel-cover-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 3.1rem;
+            width: 3.1rem;
+            border-radius: 20px;
+            background: rgba(16, 185, 129, 0.18);
+            box-shadow: 0 20px 45px -28px rgba(16, 185, 129, 0.65);
+            color: rgba(240, 253, 244, 0.92);
+        }
+        .diet-panel-cover-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+        .diet-panel-cover-text h3 {
+            font-size: clamp(1rem, 2.8vw, 1.25rem);
+            font-weight: 700;
+            color: #f8fafc;
+        }
+        .diet-panel-cover-text span {
+            font-size: clamp(0.75rem, 2.2vw, 0.9rem);
+            color: rgba(226, 232, 240, 0.82);
         }
         .diet-panel-cover-toggle {
             position: absolute;
-            right: 0.85rem;
-            bottom: 0.85rem;
+            top: 1.1rem;
+            right: 1.1rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -355,9 +322,9 @@
             height: 2.35rem;
             border-radius: 9999px;
             border: 1px solid rgba(148, 163, 184, 0.28);
-            background: rgba(15, 23, 42, 0.75);
-            color: rgba(226, 232, 240, 0.85);
-            box-shadow: 0 18px 45px -35px rgba(56, 189, 248, 0.85);
+            background: rgba(15, 23, 42, 0.82);
+            color: rgba(226, 232, 240, 0.9);
+            box-shadow: 0 22px 55px -35px rgba(56, 189, 248, 0.85);
             z-index: 3;
             pointer-events: none;
             transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
@@ -378,21 +345,21 @@
         }
         .diet-panel-cover-upload {
             position: absolute;
-            left: 1rem;
-            bottom: 1rem;
-            z-index: 4;
+            top: 1.1rem;
+            left: 1.1rem;
+            z-index: 3;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 2.6rem;
-            height: 2.6rem;
+            width: 2.5rem;
+            height: 2.5rem;
             border-radius: 9999px;
             border: 1px solid rgba(148, 163, 184, 0.28);
             background: rgba(15, 23, 42, 0.78);
-            color: rgba(226, 232, 240, 0.85);
+            color: rgba(226, 232, 240, 0.9);
             cursor: pointer;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             transition: border-color 0.3s ease, color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
         }
         .diet-panel-cover-upload svg {
@@ -403,10 +370,10 @@
             border-color: rgba(94, 234, 212, 0.6);
             color: rgba(240, 253, 250, 0.95);
             background: rgba(15, 23, 42, 0.92);
-            box-shadow: 0 20px 45px -30px rgba(56, 189, 248, 0.65);
+            box-shadow: 0 25px 65px -35px rgba(56, 189, 248, 0.75);
         }
-        .diet-panel-cover[data-has-image="true"] .diet-panel-cover-upload {
-            border-color: rgba(16, 185, 129, 0.5);
+        .diet-panel-cover-upload.is-hidden {
+            display: none;
         }
         .diet-panel-cover-upload.is-uploading::after {
             content: "";
@@ -417,9 +384,37 @@
             border-top-color: rgba(56, 189, 248, 0.8);
             animation: spin 0.85s linear infinite;
         }
-        .diet-panel-cover-upload.is-disabled {
-            pointer-events: none;
-            opacity: 0.45;
+        .diet-panel-cover[data-panel-key="guided"] .diet-panel-cover-visual {
+            background-image: url('https://images.unsplash.com/photo-1514516430032-7f38caebc1ec?auto=format&fit=crop&w=1200&q=80');
+        }
+        .diet-panel-cover[data-panel-key="daily"] .diet-panel-cover-visual {
+            background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80');
+        }
+        .diet-panel-cover[data-panel-key="agenda"] .diet-panel-cover-visual {
+            background-image: url('https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?auto=format&fit=crop&w=1200&q=80');
+        }
+        .diet-panel-cover[data-panel-key="library"] .diet-panel-cover-visual {
+            background-image: url('https://images.unsplash.com/photo-1498837167922-ddd27525d352?auto=format&fit=crop&w=1200&q=80');
+        }
+        .diet-panel-cover[data-panel-key="guided"] .diet-panel-cover-icon {
+            background: rgba(16, 185, 129, 0.2);
+            box-shadow: 0 18px 45px -28px rgba(16, 185, 129, 0.75);
+            color: rgba(236, 253, 245, 0.95);
+        }
+        .diet-panel-cover[data-panel-key="daily"] .diet-panel-cover-icon {
+            background: rgba(250, 204, 21, 0.18);
+            box-shadow: 0 18px 45px -28px rgba(250, 204, 21, 0.6);
+            color: rgba(255, 251, 235, 0.95);
+        }
+        .diet-panel-cover[data-panel-key="agenda"] .diet-panel-cover-icon {
+            background: rgba(96, 165, 250, 0.18);
+            box-shadow: 0 18px 45px -28px rgba(96, 165, 250, 0.65);
+            color: rgba(239, 246, 255, 0.95);
+        }
+        .diet-panel-cover[data-panel-key="library"] .diet-panel-cover-icon {
+            background: rgba(45, 212, 191, 0.2);
+            box-shadow: 0 18px 45px -28px rgba(45, 212, 191, 0.7);
+            color: rgba(236, 253, 245, 0.95);
         }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -551,29 +546,27 @@
         }
         @media (max-width: 480px) {
             .diet-panel-summary {
-                padding: 1.15rem;
-                gap: 1rem;
+                border-radius: 20px;
             }
-            .diet-panel-summary-info {
-                flex-direction: column;
+            .diet-panel-cover {
+                min-height: 200px;
+            }
+            .diet-panel-cover-content {
                 align-items: flex-start;
-                padding: 0.95rem 1.05rem;
-                gap: 0.75rem;
+                flex-direction: column;
             }
-            .diet-panel-summary-info > *:first-child {
-                align-self: flex-start;
+            .diet-panel-cover-icon {
+                height: 2.6rem;
+                width: 2.6rem;
+                border-radius: 16px;
             }
-            .diet-panel-summary .diet-panel-summary-chevron {
-                width: 2.25rem;
-                height: 2.25rem;
+            .diet-panel-cover-toggle {
+                top: 0.85rem;
+                right: 0.85rem;
             }
             .diet-panel-content {
                 padding: 1.25rem;
                 gap: 1.25rem;
-            }
-            .diet-panel-cover {
-                flex-basis: 76px;
-                width: 76px;
             }
             .diet-panel-body .diet-responsive-grid {
                 grid-template-columns: 1fr !important;
@@ -1605,27 +1598,25 @@
             <div class="space-y-6">
                 <details data-diet-panel="guided" open class="diet-panel group">
                     <summary class="diet-panel-summary [&::-webkit-details-marker]:hidden">
-                        <div class="diet-panel-summary-main">
-                            <div class="diet-panel-cover" data-panel-key="guided" data-has-image="false">
-                                <div class="diet-panel-cover-visual" data-panel-cover-preview="guided"></div>
-                                <span class="diet-panel-cover-toggle" aria-hidden="true">
-                                    <i data-lucide="chevron-down"></i>
-                                </span>
-                                <label class="diet-panel-cover-upload" data-panel-cover-trigger="guided" aria-label="Subir portada de Definición guiada">
-                                    <span class="sr-only">Actualizar portada de Definición guiada</span>
-                                    <i data-lucide="image-up"></i>
-                                    <input type="file" accept="image/*" class="hidden" data-panel-cover-input="guided" />
-                                </label>
-                            </div>
-                            <div class="diet-panel-summary-info text-white">
-                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-200 shadow-[0_12px_30px_-20px_rgba(16,185,129,0.65)] sm:h-12 sm:w-12">
+                        <div class="diet-panel-cover" data-panel-key="guided">
+                            <div class="diet-panel-cover-visual" data-panel-cover-preview="guided"></div>
+                            <div class="diet-panel-cover-content">
+                                <span class="diet-panel-cover-icon">
                                     <i data-lucide="compass" class="h-5 w-5"></i>
                                 </span>
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-semibold sm:text-base">Definición guiada · Objetivo activo</span>
-                                    <span class="text-xs text-emerald-200/70 sm:text-sm">Configura la estrategia nutricional y su proyección.</span>
+                                <div class="diet-panel-cover-text">
+                                    <h3>Definición guiada · Objetivo activo</h3>
+                                    <span>Configura la estrategia nutricional y su proyección.</span>
                                 </div>
                             </div>
+                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="guided" aria-label="Subir portada de Definición guiada">
+                                <span class="sr-only">Actualizar portada de Definición guiada</span>
+                                <i data-lucide="image-up"></i>
+                                <input type="file" accept="image/*" class="hidden" data-panel-cover-input="guided" />
+                            </label>
+                            <span class="diet-panel-cover-toggle" aria-hidden="true">
+                                <i data-lucide="chevron-down"></i>
+                            </span>
                         </div>
                     </summary>
                     <div class="diet-panel-content">
@@ -1850,27 +1841,25 @@
                 </details>
                 <details data-diet-panel="daily" class="diet-panel group">
                     <summary class="diet-panel-summary [&::-webkit-details-marker]:hidden">
-                        <div class="diet-panel-summary-main">
-                            <div class="diet-panel-cover" data-panel-key="daily" data-has-image="false">
-                                <div class="diet-panel-cover-visual" data-panel-cover-preview="daily"></div>
-                                <span class="diet-panel-cover-toggle" aria-hidden="true">
-                                    <i data-lucide="chevron-down"></i>
-                                </span>
-                                <label class="diet-panel-cover-upload" data-panel-cover-trigger="daily" aria-label="Subir portada de Plan de dieta hoy">
-                                    <span class="sr-only">Actualizar portada de Plan de dieta hoy</span>
-                                    <i data-lucide="image-up"></i>
-                                    <input type="file" accept="image/*" class="hidden" data-panel-cover-input="daily" />
-                                </label>
-                            </div>
-                            <div class="diet-panel-summary-info text-white">
-                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-400/15 text-emerald-200 shadow-[0_12px_30px_-20px_rgba(45,212,191,0.55)] sm:h-12 sm:w-12">
+                        <div class="diet-panel-cover" data-panel-key="daily">
+                            <div class="diet-panel-cover-visual" data-panel-cover-preview="daily"></div>
+                            <div class="diet-panel-cover-content">
+                                <span class="diet-panel-cover-icon">
                                     <i data-lucide="flame" class="h-5 w-5"></i>
                                 </span>
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-semibold sm:text-base">Plan de dieta hoy</span>
-                                    <span class="text-xs text-emerald-200/70 sm:text-sm">Controla calorías, progreso y recordatorios.</span>
+                                <div class="diet-panel-cover-text">
+                                    <h3>Plan de dieta hoy</h3>
+                                    <span>Controla calorías, progreso y recordatorios.</span>
                                 </div>
                             </div>
+                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="daily" aria-label="Subir portada de Plan de dieta hoy">
+                                <span class="sr-only">Actualizar portada de Plan de dieta hoy</span>
+                                <i data-lucide="image-up"></i>
+                                <input type="file" accept="image/*" class="hidden" data-panel-cover-input="daily" />
+                            </label>
+                            <span class="diet-panel-cover-toggle" aria-hidden="true">
+                                <i data-lucide="chevron-down"></i>
+                            </span>
                         </div>
                     </summary>
                     <div class="diet-panel-content">
@@ -1966,27 +1955,25 @@
                 </details>
                 <details data-diet-panel="agenda" class="diet-panel group">
                     <summary class="diet-panel-summary [&::-webkit-details-marker]:hidden">
-                        <div class="diet-panel-summary-main">
-                            <div class="diet-panel-cover" data-panel-key="agenda" data-has-image="false">
-                                <div class="diet-panel-cover-visual" data-panel-cover-preview="agenda"></div>
-                                <span class="diet-panel-cover-toggle" aria-hidden="true">
-                                    <i data-lucide="chevron-down"></i>
-                                </span>
-                                <label class="diet-panel-cover-upload" data-panel-cover-trigger="agenda" aria-label="Subir portada de Agenda nutricional">
-                                    <span class="sr-only">Actualizar portada de Agenda nutricional</span>
-                                    <i data-lucide="image-up"></i>
-                                    <input type="file" accept="image/*" class="hidden" data-panel-cover-input="agenda" />
-                                </label>
-                            </div>
-                            <div class="diet-panel-summary-info text-white">
-                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-300/15 text-emerald-100 shadow-[0_12px_30px_-20px_rgba(16,185,129,0.45)] sm:h-12 sm:w-12">
+                        <div class="diet-panel-cover" data-panel-key="agenda">
+                            <div class="diet-panel-cover-visual" data-panel-cover-preview="agenda"></div>
+                            <div class="diet-panel-cover-content">
+                                <span class="diet-panel-cover-icon">
                                     <i data-lucide="calendar" class="h-5 w-5"></i>
                                 </span>
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-semibold sm:text-base">Agenda nutricional</span>
-                                    <span class="text-xs text-emerald-200/70 sm:text-sm">Gestiona las comidas planificadas del día.</span>
+                                <div class="diet-panel-cover-text">
+                                    <h3>Agenda nutricional</h3>
+                                    <span>Gestiona las comidas planificadas del día.</span>
                                 </div>
                             </div>
+                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="agenda" aria-label="Subir portada de Agenda nutricional">
+                                <span class="sr-only">Actualizar portada de Agenda nutricional</span>
+                                <i data-lucide="image-up"></i>
+                                <input type="file" accept="image/*" class="hidden" data-panel-cover-input="agenda" />
+                            </label>
+                            <span class="diet-panel-cover-toggle" aria-hidden="true">
+                                <i data-lucide="chevron-down"></i>
+                            </span>
                         </div>
                     </summary>
                     <div class="diet-panel-content">
@@ -2009,27 +1996,25 @@
                 </details>
                 <details data-diet-panel="library" class="diet-panel group">
                     <summary class="diet-panel-summary [&::-webkit-details-marker]:hidden">
-                        <div class="diet-panel-summary-main">
-                            <div class="diet-panel-cover" data-panel-key="library" data-has-image="false">
-                                <div class="diet-panel-cover-visual" data-panel-cover-preview="library"></div>
-                                <span class="diet-panel-cover-toggle" aria-hidden="true">
-                                    <i data-lucide="chevron-down"></i>
-                                </span>
-                                <label class="diet-panel-cover-upload" data-panel-cover-trigger="library" aria-label="Subir portada de Añade alimentos al plan">
-                                    <span class="sr-only">Actualizar portada de Biblioteca de alimentos</span>
-                                    <i data-lucide="image-up"></i>
-                                    <input type="file" accept="image/*" class="hidden" data-panel-cover-input="library" />
-                                </label>
-                            </div>
-                            <div class="diet-panel-summary-info text-white">
-                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-teal-400/15 text-teal-200 shadow-[0_12px_30px_-20px_rgba(45,212,191,0.55)] sm:h-12 sm:w-12">
+                        <div class="diet-panel-cover" data-panel-key="library">
+                            <div class="diet-panel-cover-visual" data-panel-cover-preview="library"></div>
+                            <div class="diet-panel-cover-content">
+                                <span class="diet-panel-cover-icon">
                                     <i data-lucide="library" class="h-5 w-5"></i>
                                 </span>
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-semibold sm:text-base">Añade alimentos al plan</span>
-                                    <span class="text-xs text-emerald-200/70 sm:text-sm">Administra la biblioteca y registra nuevas opciones.</span>
+                                <div class="diet-panel-cover-text">
+                                    <h3>Añade alimentos al plan</h3>
+                                    <span>Administra la biblioteca y registra nuevas opciones.</span>
                                 </div>
                             </div>
+                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="library" aria-label="Subir portada de Añade alimentos al plan">
+                                <span class="sr-only">Actualizar portada de Añade alimentos al plan</span>
+                                <i data-lucide="image-up"></i>
+                                <input type="file" accept="image/*" class="hidden" data-panel-cover-input="library" />
+                            </label>
+                            <span class="diet-panel-cover-toggle" aria-hidden="true">
+                                <i data-lucide="chevron-down"></i>
+                            </span>
                         </div>
                     </summary>
                     <div class="diet-panel-content">
@@ -3983,80 +3968,6 @@
                     } catch (error) {
                         console.error('Error uploading profile photo:', error);
                         this.showToast('No se pudo subir la foto de perfil.', 'error');
-                    }
-                },
-                async handleDietPanelCoverSelected(input) {
-                    if (!input) return;
-                    const panelKey = input.dataset.panelCoverInput;
-                    const file = input.files && input.files[0];
-                    input.value = '';
-
-                    if (!panelKey || !file) {
-                        return;
-                    }
-
-                    if (!this.isAsesor()) {
-                        this.showToast('Solo el admin puede subir contenido.', 'error');
-                        return;
-                    }
-
-                    if (!file.type.startsWith('image/')) {
-                        this.showToast('Selecciona una imagen válida.', 'error');
-                        return;
-                    }
-
-                    const maxSize = 12 * 1024 * 1024;
-                    if (file.size > maxSize) {
-                        this.showToast('La imagen supera el límite de 12MB.', 'error');
-                        return;
-                    }
-
-                    if (!this.state.dietPanelCovers) {
-                        const defaults = this.getDefaultState().dietPanelCovers || {};
-                        this.state.dietPanelCovers = Object.keys(defaults).reduce((acc, key) => {
-                            acc[key] = { ...defaults[key] };
-                            return acc;
-                        }, {});
-                    }
-
-                    const trigger = document.querySelector(`[data-panel-cover-trigger="${panelKey}"]`);
-                    const wrapper = document.querySelector(`.diet-panel-cover[data-panel-key="${panelKey}"]`);
-
-                    const setUploadingState = (isUploading) => {
-                        if (trigger) {
-                            trigger.classList.toggle('is-uploading', isUploading);
-                        }
-                        if (wrapper) {
-                            wrapper.classList.toggle('opacity-70', isUploading);
-                            wrapper.classList.toggle('pointer-events-none', isUploading);
-                        }
-                    };
-
-                    try {
-                        setUploadingState(true);
-                        const previousPath = this.state.dietPanelCovers?.[panelKey]?.storagePath || '';
-                        const uploadResult = await this.uploadImageToStorage(file, { pathPrefix: `diet_panel_covers/${panelKey}`, previousPath });
-
-                        if (!uploadResult.url) {
-                            this.showToast('No se pudo subir la imagen.', 'error');
-                            return;
-                        }
-
-                        this.state.dietPanelCovers[panelKey] = {
-                            url: uploadResult.url,
-                            storagePath: uploadResult.storagePath,
-                            updatedAt: new Date().toISOString()
-                        };
-
-                        this.preloadImage(uploadResult.url, { priority: 'high' });
-                        this.renderDietPanelCovers();
-                        await this.saveDataToFirestore();
-                        this.showToast('Portada actualizada.', 'success');
-                    } catch (error) {
-                        console.error('Error uploading diet panel cover:', error);
-                        this.showToast('No se pudo subir la imagen.', 'error');
-                    } finally {
-                        setUploadingState(false);
                     }
                 },
                 getFirebaseAuthErrorMessage(error) { switch (error.code) { case 'auth/invalid-email': return 'Email no válido.'; case 'auth/user-not-found': return 'Usuario no encontrado.'; case 'auth/wrong-password': return 'Contraseña incorrecta.'; case 'auth/email-already-in-use': return 'Este email ya está registrado.'; case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.'; case 'auth/invalid-credential': return 'Credenciales inválidas.'; default: return error.message || 'Ha ocurrido un error. Inténtalo de nuevo.'; } },
@@ -7218,6 +7129,84 @@
                     const metrics = this._getWeightProgressMetrics();
                     this._applyWeightMetrics(metrics);
                 },
+                async handleDietPanelCoverSelected(input) {
+                    if (!input) return;
+
+                    const panelKey = input.dataset.panelCoverInput;
+                    const file = input.files && input.files[0];
+                    input.value = '';
+
+                    if (!panelKey || !file) {
+                        return;
+                    }
+
+                    if (!this.isAsesor()) {
+                        this.showToast('Solo el admin puede subir contenido.', 'error');
+                        return;
+                    }
+
+                    if (!file.type.startsWith('image/')) {
+                        this.showToast('Selecciona una imagen válida.', 'error');
+                        return;
+                    }
+
+                    const maxSize = 12 * 1024 * 1024;
+                    if (file.size > maxSize) {
+                        this.showToast('La imagen supera el límite de 12MB.', 'error');
+                        return;
+                    }
+
+                    if (!this.state.dietPanelCovers) {
+                        const defaults = this.getDefaultState().dietPanelCovers || {};
+                        this.state.dietPanelCovers = Object.keys(defaults).reduce((acc, key) => {
+                            acc[key] = { ...defaults[key] };
+                            return acc;
+                        }, {});
+                    }
+
+                    const trigger = document.querySelector(`[data-panel-cover-trigger="${panelKey}"]`);
+                    const wrapper = document.querySelector(`.diet-panel-cover[data-panel-key="${panelKey}"]`);
+
+                    const setUploadingState = (isUploading) => {
+                        if (trigger) {
+                            trigger.classList.toggle('is-uploading', isUploading);
+                        }
+                        if (wrapper) {
+                            wrapper.classList.toggle('opacity-70', isUploading);
+                            wrapper.classList.toggle('pointer-events-none', isUploading);
+                        }
+                    };
+
+                    try {
+                        setUploadingState(true);
+                        const previousPath = this.state.dietPanelCovers?.[panelKey]?.storagePath || '';
+                        const uploadResult = await this.uploadImageToStorage(file, {
+                            pathPrefix: `diet_panel_covers/${panelKey}`,
+                            previousPath
+                        });
+
+                        if (!uploadResult.url) {
+                            this.showToast('No se pudo subir la imagen.', 'error');
+                            return;
+                        }
+
+                        this.state.dietPanelCovers[panelKey] = {
+                            url: uploadResult.url,
+                            storagePath: uploadResult.storagePath,
+                            updatedAt: new Date().toISOString()
+                        };
+
+                        this.preloadImage(uploadResult.url, { priority: 'high' });
+                        this.renderDietPanelCovers();
+                        await this.saveDataToFirestore();
+                        this.showToast('Portada actualizada.', 'success');
+                    } catch (error) {
+                        console.error('Error uploading diet panel cover:', error);
+                        this.showToast('No se pudo subir la imagen.', 'error');
+                    } finally {
+                        setUploadingState(false);
+                    }
+                },
                 renderDietPanelCovers() {
                     const covers = this.state.dietPanelCovers || {};
                     const isAdmin = this.isAsesor();
@@ -7228,22 +7217,33 @@
                         const preview = document.querySelector(`[data-panel-cover-preview="${key}"]`);
                         const trigger = document.querySelector(`[data-panel-cover-trigger="${key}"]`);
                         const input = document.querySelector(`[data-panel-cover-input="${key}"]`);
-                        if (!wrapper || !preview || !trigger || !input) {
+                        if (!wrapper || !preview) {
                             return;
                         }
 
                         const coverData = covers[key] || {};
+                        const hasCustomCover = Boolean(coverData.url);
 
-                        if (coverData.url) {
+                        if (hasCustomCover) {
                             preview.style.backgroundImage = `url('${coverData.url}')`;
-                            wrapper.dataset.hasImage = 'true';
                         } else {
                             preview.style.backgroundImage = '';
-                            wrapper.dataset.hasImage = 'false';
                         }
 
-                        trigger.classList.toggle('is-disabled', !isAdmin);
-                        input.disabled = !isAdmin;
+                        wrapper.dataset.customCover = hasCustomCover ? 'true' : 'false';
+
+                        if (trigger) {
+                            trigger.classList.toggle('is-hidden', !isAdmin);
+                            if (!isAdmin) {
+                                trigger.setAttribute('aria-hidden', 'true');
+                            } else {
+                                trigger.removeAttribute('aria-hidden');
+                            }
+                        }
+
+                        if (input) {
+                            input.disabled = !isAdmin;
+                        }
                     });
 
                     lucide.createIcons();
