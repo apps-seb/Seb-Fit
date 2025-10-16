@@ -21,6 +21,25 @@
 
     <style>
         body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+        .nav-btn { position: relative; }
+        .nav-btn .nav-badge {
+            position: absolute;
+            top: 6px;
+            right: 14px;
+            min-width: 1.25rem;
+            height: 1.25rem;
+            display: grid;
+            place-items: center;
+            border-radius: 9999px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #f97316, #fb7185);
+            color: #0f172a;
+            box-shadow: 0 8px 16px -6px rgba(251, 113, 133, 0.65);
+        }
+        .nav-btn.has-unread:not(.is-active) {
+            color: #fbbf24 !important;
+        }
         body.mobile-menu-open { overflow: hidden; }
         #profile-avatar,
         #user-avatar {
@@ -809,6 +828,11 @@
                         <i data-lucide="utensils"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Dieta</span>
                     </button>
+                    <button id="nav-notificaciones" data-section="notificaciones" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="bell"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Notificaciones</span>
+                        <span id="nav-notifications-badge" class="nav-badge hidden">0</span>
+                    </button>
                     <button id="nav-historial" data-section="historial" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="history"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Historial</span>
@@ -834,6 +858,11 @@
                     <button data-section="comunidad" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
                         <i data-lucide="trophy"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">Ranking</span>
+                    </button>
+                    <button data-section="notificaciones" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
+                        <i data-lucide="bell"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">Avisos</span>
+                        <span id="nav-notifications-badge-mobile" class="nav-badge hidden">0</span>
                     </button>
                     <button data-section="dieta" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
                         <i data-lucide="utensils"></i>
@@ -2173,6 +2202,72 @@
         </section>
     </template>
 
+    
+    
+
+    <template id="template-notificaciones">
+        <section id="notificaciones" class="section-content hidden">
+            <div class="space-y-6">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div class="space-y-2">
+                        <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">Centro de alertas</span>
+                        <h2 class="text-3xl font-bold text-white sm:text-4xl">Notificaciones</h2>
+                        <p class="max-w-2xl text-sm text-gray-300">Mantén a tus atletas al tanto de progresos, avisos importantes y recordatorios. Gestiona fácilmente qué mensajes quedan pendientes de revisión.</p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button data-action="notifications-mark-all-read" class="inline-flex items-center gap-2 rounded-full border border-emerald-400/50 bg-emerald-400/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:bg-emerald-400/20">
+                            <i data-lucide="check-circle" class="h-4 w-4"></i>
+                            Marcar todas
+                        </button>
+                        <button data-action="notifications-clear-read" class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-200 transition hover:border-rose-400/50 hover:bg-rose-500/10">
+                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                            Limpiar leídas
+                        </button>
+                    </div>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-3">
+                    <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-4 shadow-inner shadow-emerald-500/10">
+                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Total</p>
+                        <p id="notifications-total-count" class="mt-2 text-3xl font-black text-white">0</p>
+                        <p class="text-xs text-gray-500">Avisos registrados</p>
+                    </div>
+                    <div class="rounded-3xl border border-emerald-400/30 bg-emerald-500/10 p-4 shadow-inner shadow-emerald-500/20">
+                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200">Pendientes</p>
+                        <p id="notifications-unread-count" class="mt-2 text-3xl font-black text-emerald-100">0</p>
+                        <p class="text-xs text-emerald-100/70">Sin leer</p>
+                    </div>
+                    <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-4 shadow-inner shadow-sky-500/10">
+                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-sky-300">Última actividad</p>
+                        <p id="notifications-last-update" class="mt-2 text-sm font-semibold text-white">--</p>
+                        <p class="text-xs text-gray-500">Actualizado automáticamente</p>
+                    </div>
+                </div>
+                <div id="notifications-filter-group" class="flex flex-wrap items-center gap-2">
+                    <button data-action="notifications-set-filter" data-filter="all" class="notifications-filter-btn inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-gray-200 transition hover:border-emerald-400/40 hover:bg-emerald-400/10">
+                        <i data-lucide="inbox" class="h-4 w-4"></i>
+                        Todas
+                    </button>
+                    <button data-action="notifications-set-filter" data-filter="unread" class="notifications-filter-btn inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:bg-emerald-400/20">
+                        <i data-lucide="circle-dot" class="h-4 w-4"></i>
+                        Sin leer
+                    </button>
+                    <button data-action="notifications-set-filter" data-filter="progreso" class="notifications-filter-btn inline-flex items-center gap-2 rounded-full border border-blue-400/30 bg-blue-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-blue-200 transition hover:bg-blue-500/20">
+                        <i data-lucide="activity" class="h-4 w-4"></i>
+                        Progreso
+                    </button>
+                    <button data-action="notifications-set-filter" data-filter="nutricion" class="notifications-filter-btn inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-amber-100 transition hover:bg-amber-500/20">
+                        <i data-lucide="utensils" class="h-4 w-4"></i>
+                        Nutrición
+                    </button>
+                    <button data-action="notifications-set-filter" data-filter="coach" class="notifications-filter-btn inline-flex items-center gap-2 rounded-full border border-purple-400/30 bg-purple-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-purple-100 transition hover:bg-purple-500/20">
+                        <i data-lucide="megaphone" class="h-4 w-4"></i>
+                        Coach
+                    </button>
+                </div>
+                <div id="notifications-list" class="space-y-3"></div>
+            </div>
+        </section>
+    </template>
     <template id="template-historial"><section id="historial" class="section-content hidden"><div class="space-y-6"><div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><h2 class="text-2xl font-bold flex items-center gap-3"><span class="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-300 shadow-inner shadow-emerald-500/20"><i data-lucide="history" class="h-6 w-6"></i></span><span>Historial de Progreso</span></h2><p class="text-sm text-gray-400">Visualiza la evolución de tus entrenamientos, tiempos y cargas.</p></div><button data-action="show-workout-history" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10"><i data-lucide="gallery-vertical-end" class="h-4 w-4"></i>Ver resumen detallado</button></div><div id="history-overview" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4"></div><div id="history-cards" class="space-y-4"></div></div></section></template>
     <template id="template-comunidad">
         <section id="comunidad" class="section-content hidden">
@@ -2522,6 +2617,42 @@
                             agenda: { url: '', storagePath: '', updatedAt: null },
                             library: { url: '', storagePath: '', updatedAt: null }
                         },
+                        notifications: [
+                            {
+                                id: `notif-${now.getTime()}-welcome`,
+                                title: 'Bienvenido a FitTrack',
+                                message: 'Configura tus objetivos y activa tus primeras rutinas para que podamos enviarte recordatorios personalizados.',
+                                type: 'general',
+                                createdAt: now.toISOString(),
+                                read: false,
+                                readAt: null,
+                                link: '',
+                                highlight: 'Nuevo usuario'
+                            },
+                            {
+                                id: `notif-${now.getTime()}-progreso`,
+                                title: 'Racha activa de entrenamientos',
+                                message: 'Registraste 4 sesiones esta semana. Mantén la constancia para desbloquear recomendaciones avanzadas.',
+                                type: 'progreso',
+                                createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 5).toISOString(),
+                                read: false,
+                                readAt: null,
+                                link: '',
+                                highlight: 'Sigue así'
+                            },
+                            {
+                                id: `notif-${now.getTime()}-nutricion`,
+                                title: 'Checklist nutricional del día',
+                                message: 'Revisa tu agenda de comidas y confirma si completaste la hidratación planificada.',
+                                type: 'nutricion',
+                                createdAt: new Date(now.getTime() - 1000 * 60 * 60 * 24).toISOString(),
+                                read: true,
+                                readAt: new Date(now.getTime() - 1000 * 60 * 60 * 2).toISOString(),
+                                link: '',
+                                highlight: 'Nutrición'
+                            }
+                        ],
+                        notificationsFilter: 'all',
                         isMobileMenuOpen: false,
                         community: {
                             stats: { totalAthletes: 0, totalVolume: 0, totalSessions: 0 },
@@ -2914,6 +3045,9 @@
                             } else {
                                 this.state.dietPanelCovers = { ...defaultState.dietPanelCovers };
                             }
+                            this.state.notifications = Array.isArray(data.notifications) ? [...data.notifications] : [];
+                            this.state.notificationsFilter = data.notificationsFilter || defaultState.notificationsFilter;
+                            this.normalizeNotificationsState();
                             if (this.state.profilePhoto?.url) {
                                 this.preloadImage(this.state.profilePhoto.url, { priority: 'high' });
                             }
@@ -3639,6 +3773,7 @@
                         }
                     }
                     this.updateHeaderInsights();
+                    this.updateNotificationIndicators();
                 },
                 applyProfilePhotoToAvatar(element, options = {}) {
                     if (!element) return;
@@ -3736,6 +3871,352 @@
                     setText('header-projection-summary', projection.summary || 'Añade registros para proyectar tu meta.');
                     setText('header-last-update', metrics.lastWeighInLabel || 'Registra tu peso para comenzar.');
                     setText('header-projection-pace', projection.paceText || 'Registra tu peso para ver el ritmo.');
+                },
+                escapeHtml(value) {
+                    if (value === null || value === undefined) {
+                        return '';
+                    }
+                    return String(value).replace(/[&<>"']/g, (char) => ({
+                        '&': '&amp;',
+                        '<': '&lt;',
+                        '>': '&gt;',
+                        '"': '&quot;',
+                        "'": '&#39;'
+                    })[char] || char);
+                },
+                formatRelativeTime(value) {
+                    if (!value) {
+                        return '--';
+                    }
+                    const date = value instanceof Date ? value : new Date(value);
+                    if (Number.isNaN(date.getTime())) {
+                        return '--';
+                    }
+                    const seconds = Math.round((date.getTime() - Date.now()) / 1000);
+                    const divisions = [
+                        { amount: 60, unit: 'second' },
+                        { amount: 60, unit: 'minute' },
+                        { amount: 24, unit: 'hour' },
+                        { amount: 7, unit: 'day' },
+                        { amount: 4.34524, unit: 'week' },
+                        { amount: 12, unit: 'month' },
+                        { amount: Number.POSITIVE_INFINITY, unit: 'year' }
+                    ];
+                    let duration = seconds;
+                    const rtf = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
+                    for (const division of divisions) {
+                        if (Math.abs(duration) < division.amount) {
+                            return rtf.format(Math.round(duration), division.unit);
+                        }
+                        duration /= division.amount;
+                    }
+                    return '--';
+                },
+                normalizeNotificationsState() {
+                    if (!Array.isArray(this.state.notifications)) {
+                        this.state.notifications = [];
+                    }
+                    const aliasMap = {
+                        progress: 'progreso',
+                        progreso: 'progreso',
+                        logro: 'progreso',
+                        record: 'progreso',
+                        nutrition: 'nutricion',
+                        nutrición: 'nutricion',
+                        coach: 'coach',
+                        aviso: 'general',
+                        alerta: 'general'
+                    };
+                    const generateId = (index = 0) => {
+                        try {
+                            if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+                                return crypto.randomUUID();
+                            }
+                        } catch (error) {
+                            /* noop */
+                        }
+                        return `notif-${Date.now()}-${index}-${Math.random().toString(36).slice(2, 8)}`;
+                    };
+                    const seen = new Set();
+                    const normalized = [];
+                    const nowIso = new Date().toISOString();
+                    this.state.notifications.forEach((raw, index) => {
+                        if (!raw || typeof raw !== 'object') {
+                            return;
+                        }
+                        let id = raw.id || generateId(index);
+                        if (seen.has(id)) {
+                            id = `${id}-${index}`;
+                        }
+                        seen.add(id);
+                        const rawType = typeof raw.type === 'string' ? raw.type.toLowerCase() : 'general';
+                        const type = aliasMap[rawType] || rawType || 'general';
+                        let createdAt = raw.createdAt || raw.date || raw.timestamp || nowIso;
+                        let createdDate = new Date(createdAt);
+                        if (Number.isNaN(createdDate.getTime())) {
+                            createdDate = new Date(nowIso);
+                        }
+                        const createdAtIso = createdDate.toISOString();
+                        const isRead = Boolean(raw.read);
+                        let readAt = isRead ? (raw.readAt || nowIso) : null;
+                        if (readAt) {
+                            const readDate = new Date(readAt);
+                            readAt = Number.isNaN(readDate.getTime()) ? new Date().toISOString() : readDate.toISOString();
+                        }
+                        normalized.push({
+                            id,
+                            title: raw.title || 'Notificación',
+                            message: raw.message || raw.body || '',
+                            type,
+                            createdAt: createdAtIso,
+                            read: isRead,
+                            readAt,
+                            link: raw.link || raw.url || '',
+                            highlight: raw.highlight || raw.badge || ''
+                        });
+                    });
+                    normalized.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                    this.state.notifications = normalized;
+                    if (!this.state.notificationsFilter) {
+                        this.state.notificationsFilter = 'all';
+                    }
+                },
+                getNotificationTypeConfig(type = 'general') {
+                    const map = {
+                        general: { label: 'General', icon: 'bell', badgeClasses: 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200' },
+                        progreso: { label: 'Progreso', icon: 'activity', badgeClasses: 'border-blue-400/40 bg-blue-500/10 text-blue-100' },
+                        nutricion: { label: 'Nutrición', icon: 'utensils', badgeClasses: 'border-amber-400/40 bg-amber-500/10 text-amber-100' },
+                        coach: { label: 'Coach', icon: 'megaphone', badgeClasses: 'border-purple-400/40 bg-purple-500/10 text-purple-100' }
+                    };
+                    return map[type] || map.general;
+                },
+                getFilteredNotifications() {
+                    if (!Array.isArray(this.state.notifications)) {
+                        return [];
+                    }
+                    const filter = this.state.notificationsFilter || 'all';
+                    if (filter === 'all') {
+                        return this.state.notifications;
+                    }
+                    if (filter === 'unread') {
+                        return this.state.notifications.filter(item => !item.read);
+                    }
+                    return this.state.notifications.filter(item => (item.type || 'general') === filter);
+                },
+                updateNotificationIndicators() {
+                    if (!Array.isArray(this.state.notifications)) {
+                        return;
+                    }
+                    const total = this.state.notifications.length;
+                    const unread = this.state.notifications.filter(item => !item.read).length;
+                    const latest = this.state.notifications[0] ? new Date(this.state.notifications[0].createdAt) : null;
+                    const updateText = (id, text) => {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            el.textContent = text;
+                        }
+                    };
+                    updateText('notifications-total-count', total);
+                    updateText('notifications-unread-count', unread);
+                    if (latest && !Number.isNaN(latest.getTime())) {
+                        const relative = this.formatRelativeTime(latest);
+                        const absolute = latest.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
+                        updateText('notifications-last-update', `${relative} · ${absolute}`);
+                    } else {
+                        updateText('notifications-last-update', 'Sin registros');
+                    }
+                    const updateBadge = (id) => {
+                        const badge = document.getElementById(id);
+                        if (!badge) {
+                            return;
+                        }
+                        if (unread > 0) {
+                            badge.textContent = unread > 9 ? '9+' : String(unread);
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
+                    };
+                    updateBadge('nav-notifications-badge');
+                    updateBadge('nav-notifications-badge-mobile');
+                    const desktopBtn = document.getElementById('nav-notificaciones');
+                    if (desktopBtn) {
+                        desktopBtn.classList.toggle('has-unread', unread > 0);
+                    }
+                    const mobileBtn = document.querySelector('#mobile-bottom-nav [data-section="notificaciones"]');
+                    if (mobileBtn) {
+                        mobileBtn.classList.toggle('has-unread', unread > 0);
+                    }
+                },
+                renderNotificationsSection() {
+                    const container = document.getElementById('notifications-list');
+                    const filterGroup = document.getElementById('notifications-filter-group');
+                    if (!container || !filterGroup) {
+                        return;
+                    }
+                    this.normalizeNotificationsState();
+                    const notifications = this.getFilteredNotifications();
+                    const activeFilter = this.state.notificationsFilter || 'all';
+                    filterGroup.querySelectorAll('.notifications-filter-btn').forEach((button) => {
+                        const isActive = button.dataset.filter === activeFilter;
+                        button.classList.toggle('ring-2', isActive);
+                        button.classList.toggle('ring-emerald-300/50', isActive);
+                        button.classList.toggle('opacity-60', !isActive);
+                    });
+                    if (notifications.length === 0) {
+                        container.innerHTML = `
+                            <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-6 text-center text-sm text-gray-400">
+                                <div class="flex flex-col items-center gap-3">
+                                    <span class="flex h-12 w-12 items-center justify-center rounded-full bg-white/5 text-gray-500">
+                                        <i data-lucide="bell-ring" class="h-6 w-6"></i>
+                                    </span>
+                                    <p class="text-base font-semibold text-white">Sin notificaciones</p>
+                                    <p>Cuando se generen avisos aparecerán aquí automáticamente.</p>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        container.innerHTML = notifications.map((notification) => {
+                            const config = this.getNotificationTypeConfig(notification.type || 'general');
+                            const isUnread = !notification.read;
+                            const createdDate = new Date(notification.createdAt);
+                            const relativeTime = this.formatRelativeTime(createdDate);
+                            const absoluteTime = Number.isNaN(createdDate.getTime()) ? '--' : createdDate.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
+                            const linkHtml = notification.link ? `
+                                <a href="${this.escapeHtml(notification.link)}" target="_blank" rel="noopener" class="inline-flex items-center gap-1 text-xs font-semibold text-emerald-300 hover:text-emerald-200">
+                                    Ver detalle
+                                    <i data-lucide="external-link" class="h-3.5 w-3.5"></i>
+                                </a>
+                            ` : '';
+                            const highlight = notification.highlight ? `<span class="text-xs font-semibold text-emerald-200">${this.escapeHtml(notification.highlight)}</span>` : '';
+                            return `
+                                <article class="rounded-3xl border ${isUnread ? 'border-emerald-400/40 bg-emerald-500/5 shadow-lg shadow-emerald-500/15' : 'border-white/10 bg-gray-900/60'} p-5 section-fade-in">
+                                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                        <div class="flex flex-1 items-start gap-4">
+                                            <span class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl border ${config.badgeClasses} shadow-inner">
+                                                <i data-lucide="${config.icon}" class="h-5 w-5"></i>
+                                            </span>
+                                            <div class="space-y-2">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <p class="text-base font-semibold text-white">${this.escapeHtml(notification.title)}</p>
+                                                    <span class="inline-flex items-center gap-1 rounded-full border ${config.badgeClasses} px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.3em]">${config.label}</span>
+                                                    ${isUnread ? '<span class="inline-flex items-center rounded-full bg-emerald-400/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-emerald-200">Nuevo</span>' : ''}
+                                                </div>
+                                                <p class="text-sm text-gray-300 leading-relaxed">${this.escapeHtml(notification.message)}</p>
+                                                <div class="flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                                                    <span>${relativeTime}</span>
+                                                    <span>·</span>
+                                                    <span>${absoluteTime}</span>
+                                                    ${highlight}
+                                                </div>
+                                                ${linkHtml}
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col items-end gap-2">
+                                            <button data-action="notifications-toggle-read" data-notification-id="${notification.id}" class="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-gray-200 transition hover:border-emerald-400/40 hover:bg-emerald-500/10">
+                                                <i data-lucide="${isUnread ? 'check' : 'undo-2'}" class="h-4 w-4"></i>
+                                                ${isUnread ? 'Marcar como leído' : 'Marcar como no leído'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </article>
+                            `;
+                        }).join('');
+                    }
+                    this.updateNotificationIndicators();
+                    lucide.createIcons();
+                },
+                setNotificationsFilter(filter) {
+                    if (!filter || this.state.notificationsFilter === filter) {
+                        return;
+                    }
+                    this.state.notificationsFilter = filter;
+                    this.renderNotificationsSection();
+                    Promise.resolve(this.saveDataToFirestore()).catch((error) => {
+                        console.error('Error saving notification filter:', error);
+                    });
+                },
+                async toggleNotificationRead(notificationId) {
+                    if (!notificationId) {
+                        return;
+                    }
+                    const index = this.state.notifications.findIndex(item => item.id === notificationId);
+                    if (index === -1) {
+                        return;
+                    }
+                    const previous = { ...this.state.notifications[index] };
+                    const notification = { ...previous };
+                    notification.read = !notification.read;
+                    notification.readAt = notification.read ? new Date().toISOString() : null;
+                    this.state.notifications.splice(index, 1, notification);
+                    this.normalizeNotificationsState();
+                    try {
+                        await this.saveDataToFirestore();
+                        const message = notification.read ? 'Notificación marcada como leída.' : 'Notificación marcada como no leída.';
+                        this.showToast(message, 'success');
+                    } catch (error) {
+                        console.error('Error updating notification:', error);
+                        this.state.notifications.splice(index, 1, previous);
+                        this.normalizeNotificationsState();
+                        this.showToast('No se pudo actualizar la notificación.', 'error');
+                    }
+                    this.renderNotificationsSection();
+                },
+                async markAllNotificationsRead() {
+                    if (!Array.isArray(this.state.notifications) || this.state.notifications.length === 0) {
+                        this.showToast('No hay notificaciones disponibles.', 'info');
+                        return;
+                    }
+                    const previous = this.state.notifications.map(notification => ({ ...notification }));
+                    let updated = false;
+                    this.state.notifications = this.state.notifications.map((notification) => {
+                        if (notification.read) {
+                            return notification;
+                        }
+                        updated = true;
+                        return { ...notification, read: true, readAt: new Date().toISOString() };
+                    });
+                    if (!updated) {
+                        this.showToast('Todas las notificaciones ya están leídas.', 'info');
+                        return;
+                    }
+                    this.normalizeNotificationsState();
+                    try {
+                        await this.saveDataToFirestore();
+                        this.showToast('Listo, todo marcado como leído.', 'success');
+                        this.renderNotificationsSection();
+                    } catch (error) {
+                        console.error('Error marking notifications as read:', error);
+                        this.state.notifications = previous;
+                        this.normalizeNotificationsState();
+                        this.renderNotificationsSection();
+                        this.showToast('No se pudieron marcar todas las notificaciones.', 'error');
+                    }
+                },
+                async clearReadNotifications() {
+                    if (!Array.isArray(this.state.notifications) || this.state.notifications.length === 0) {
+                        this.showToast('No hay notificaciones para limpiar.', 'info');
+                        return;
+                    }
+                    const unread = this.state.notifications.filter(notification => !notification.read);
+                    if (unread.length === this.state.notifications.length) {
+                        this.showToast('No hay notificaciones leídas para limpiar.', 'info');
+                        return;
+                    }
+                    const previous = this.state.notifications.map(notification => ({ ...notification }));
+                    this.state.notifications = unread;
+                    this.normalizeNotificationsState();
+                    try {
+                        await this.saveDataToFirestore();
+                        this.showToast('Notificaciones leídas eliminadas.', 'success');
+                        this.renderNotificationsSection();
+                    } catch (error) {
+                        console.error('Error clearing notifications:', error);
+                        this.state.notifications = previous;
+                        this.normalizeNotificationsState();
+                        this.renderNotificationsSection();
+                        this.showToast('No se pudieron limpiar las notificaciones.', 'error');
+                    }
                 },
                 updateNutritionAnalytics() {
                     const metrics = this._getWeightProgressMetrics();
@@ -4034,7 +4515,7 @@
                             return; 
                         }
                         
-                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate, leaderboard, storagePath } = button.dataset;
+                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate, leaderboard, storagePath, notificationId, filter } = button.dataset;
                         if (action === 'trigger-profile-photo-upload') {
                             this.triggerProfilePhotoUpload();
                             return;
@@ -4066,6 +4547,10 @@
                             'delete-custom-food': () => this._deleteCustomFood(foodId, storagePath),
                             'confirm-delete-predefined-food': () => this._confirmDeletePredefinedFood(foodId),
                             'delete-predefined-food': () => this._deletePredefinedFood(foodId, storagePath),
+                            'notifications-set-filter': () => this.setNotificationsFilter(filter || 'all'),
+                            'notifications-toggle-read': () => this.toggleNotificationRead(notificationId),
+                            'notifications-mark-all-read': () => this.markAllNotificationsRead(),
+                            'notifications-clear-read': () => this.clearReadNotifications(),
                             'community-switch-leaderboard': () => this.switchCommunityLeaderboard(leaderboard),
                             'community-refresh': () => this.refreshCommunityData(),
                         };
@@ -4244,6 +4729,7 @@
                     this.renderProfileSection();
                     this.renderNutricionSection();
                     this.renderCommunitySection();
+                    this.renderNotificationsSection();
                     if (this.isAsesor()) {
                         this.renderAsesoradosSection();
                     }
@@ -4272,6 +4758,7 @@
                     }
                     if(id==='dieta'){this.renderFoodList();}
                     if(id==='comunidad'){this.animateCommunityCounters();}
+                    if(id==='notificaciones'){this.renderNotificationsSection();}
                 },
                 
                 async renderAsesoradosSection() {
@@ -6770,7 +7257,26 @@
                 },
                 showModal(t,b,f=[]){document.getElementById('custom-modal-title').textContent=t;document.getElementById('custom-modal-body').innerHTML=b;const ft=document.getElementById('custom-modal-footer');ft.innerHTML=f.map(btn=>{const d=Object.entries(btn).filter(([k])=>k!=='text'&&k!=='class').map(([k,v])=>`data-${k}="${v}"`).join(' ');return`<button ${d} class="font-bold py-2 px-4 rounded-lg transition ${btn.class}">${btn.text}</button>`}).join('');document.getElementById('custom-modal').classList.remove('hidden');document.getElementById('custom-modal-panel').classList.remove('modal-fade-out');},
                 hideModal(){const m=document.getElementById('custom-modal'),p=document.getElementById('custom-modal-panel');p.classList.add('modal-fade-out');p.addEventListener('animationend',()=>m.classList.add('hidden'),{once:true});},
-                showToast(m,t='success'){const c=document.getElementById('toast-container'),el=document.createElement('div');el.className=`toast ${t==='success'?'bg-emerald-500':'bg-red-500'} text-white font-bold py-2 px-4 rounded-lg shadow-lg`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.remove(),3000);},
+                showToast(message, type = 'success') {
+                    const container = document.getElementById('toast-container');
+                    if (!container) {
+                        return;
+                    }
+                    const el = document.createElement('div');
+                    const baseClasses = 'toast font-bold py-2 px-4 rounded-lg shadow-lg';
+                    let className = `${baseClasses} bg-emerald-500 text-white`;
+                    if (type === 'error') {
+                        className = `${baseClasses} bg-rose-500 text-white`;
+                    } else if (type === 'info') {
+                        className = `${baseClasses} bg-slate-800 text-gray-100`;
+                    } else if (type === 'warning') {
+                        className = `${baseClasses} bg-amber-400 text-gray-900`;
+                    }
+                    el.className = className;
+                    el.textContent = message;
+                    container.appendChild(el);
+                    setTimeout(() => el.remove(), 3000);
+                },
             formatTime(seconds) { const m = Math.floor(seconds / 60); const s = seconds % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; },
             formatNumberCompact(value) {
                 const numeric = typeof value === 'number' ? value : parseFloat(value);
