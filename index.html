@@ -50,46 +50,37 @@
         #user-avatar.has-photo img {
             opacity: 1;
         }
+        #user-menu-card {
+            transform-origin: top right;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        #user-menu-card[data-open="false"] {
+            opacity: 0;
+            transform: translateY(-0.75rem) scale(0.96);
+            pointer-events: none;
+        }
+        #user-menu-card[data-open="true"] {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
 
-        .glass-header {
-            position: relative;
-            overflow: hidden;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 64, 175, 0.45)) border-box;
-            border: 1px solid rgba(148, 163, 184, 0.25);
-            box-shadow: 0 25px 60px -35px rgba(14, 165, 233, 0.65);
-            backdrop-filter: blur(16px) saturate(140%);
-            -webkit-backdrop-filter: blur(16px) saturate(140%);
-            transition: opacity 0.3s ease, background-color 0.3s ease, box-shadow 0.35s ease;
+        .app-header {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            background: rgba(15, 23, 42, 0.92);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
         }
-        .glass-header::before {
-            content: "";
-            position: absolute;
-            inset: -60% 45% auto -20%;
-            height: 220%;
-            background: radial-gradient(circle at center, rgba(45, 212, 191, 0.35), rgba(15, 23, 42, 0));
-            opacity: 0.7;
-            transform: rotate(12deg);
-        }
-        .glass-header::after {
-            content: "";
-            position: absolute;
-            inset: auto -40% -120% 35%;
-            height: 260%;
-            background: radial-gradient(circle at center, rgba(59, 130, 246, 0.28), rgba(15, 23, 42, 0));
-            opacity: 0.65;
-        }
-        .glass-header:hover {
-            box-shadow: 0 35px 65px -30px rgba(34, 197, 94, 0.55);
-        }
-        .header-highlight {
-            border: 1px solid rgba(148, 163, 184, 0.2);
-            background: linear-gradient(140deg, rgba(148, 163, 184, 0.12), rgba(15, 23, 42, 0.65));
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+        @media (min-width: 1024px) {
+            .app-header {
+                border-radius: 1rem;
+                border: 1px solid rgba(148, 163, 184, 0.12);
+                margin: 1.5rem 1.5rem 0;
+            }
         }
         .header-metric {
             position: relative;
@@ -875,62 +866,45 @@
             <div id="mobile-menu-backdrop" class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"></div>
 
             <div class="flex-1 flex flex-col min-h-screen lg:min-h-0 lg:max-h-screen">
-                <header id="main-header" class="glass-header px-4 sm:px-6 py-4 sticky top-0 z-20 shadow-lg lg:rounded-2xl lg:mt-6 lg:mr-6 lg:ml-6">
-                    <div class="absolute inset-0 pointer-events-none">
-                        <div class="absolute -top-32 left-10 h-40 w-40 rounded-full bg-emerald-400/15 blur-3xl"></div>
-                        <div class="absolute -bottom-36 right-0 h-48 w-48 rounded-full bg-sky-500/20 blur-3xl"></div>
-                    </div>
-                    <div class="relative flex w-full items-center justify-between gap-4">
+                <header id="main-header" class="app-header sticky top-0 z-20 px-4 py-3 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between gap-4">
                         <div class="flex items-center gap-3">
                             <button id="mobile-menu-toggle" type="button" aria-controls="app-sidebar" aria-expanded="false" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-200 transition hover:border-emerald-400/60 hover:bg-emerald-400/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-emerald-400/60 lg:hidden">
                                 <span class="sr-only">Abrir menú</span>
                                 <i data-lucide="menu" class="h-5 w-5"></i>
                             </button>
-                            <div class="flex items-center gap-3 rounded-2xl header-highlight px-3 py-2">
+                            <div class="flex items-center gap-3">
                                 <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 shadow-inner shadow-emerald-500/20">
                                     <i data-lucide="dumbbell" class="h-5 w-5"></i>
                                 </div>
-                                <div>
-                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/80">Panel principal</p>
-                                    <h1 class="text-xl font-bold tracking-tight text-white">FitTrack</h1>
+                                <div class="leading-tight">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/80">FitTrack</p>
+                                    <p class="text-sm text-slate-200">Tu asistente fitness personal</p>
                                 </div>
                             </div>
                         </div>
-                        <div class="hidden sm:flex flex-1 items-center justify-center gap-3 md:gap-5">
-                            <div class="analytics-chip header-metric text-left text-xs text-emerald-100/90">
-                                <i data-lucide="target" class="h-4 w-4 text-emerald-300"></i>
-                                <div>
-                                    <p class="text-[10px] uppercase tracking-[0.28em] text-emerald-100/70">Objetivo</p>
-                                    <p id="header-goal-label" class="text-sm font-semibold text-white">--</p>
-                                    <p id="header-direction-description" class="text-[10px] text-emerald-100/70">Define tu foco actual</p>
-                                </div>
-                            </div>
-                            <div class="analytics-chip header-metric items-center gap-3 text-xs text-emerald-100/80">
-                                <div>
-                                    <p class="text-[10px] uppercase tracking-[0.28em] text-emerald-100/70">Progreso</p>
-                                    <div class="header-progress-bar mt-1 w-28 md:w-36">
-                                        <span id="header-progress-bar"></span>
+                        <div id="user-menu-container" class="relative">
+                            <button id="user-avatar" type="button" data-action="toggle-user-menu" aria-haspopup="true" aria-expanded="false" class="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-emerald-500 text-gray-900 shadow-lg shadow-emerald-500/30 transition focus:outline-none focus:ring-2 focus:ring-emerald-400/60">
+                                <img id="user-avatar-img" alt="Foto de perfil" class="h-full w-full object-cover" />
+                                <span class="absolute inset-0 grid place-items-center text-sm font-bold"></span>
+                            </button>
+                            <div id="user-menu-card" class="absolute right-0 top-full z-30 mt-3 w-60 rounded-3xl border border-white/10 bg-slate-950/95 p-4 text-left shadow-xl shadow-emerald-500/20 backdrop-blur" data-open="false" aria-hidden="true">
+                                <div class="flex items-center gap-3">
+                                    <div id="user-menu-avatar" class="relative h-12 w-12 overflow-hidden rounded-2xl bg-emerald-500/15 text-gray-900 shadow-inner shadow-emerald-500/10">
+                                        <img id="user-menu-avatar-img" alt="Foto de perfil" class="h-full w-full object-cover" />
+                                        <span class="absolute inset-0 grid place-items-center text-base font-bold text-emerald-900"></span>
+                                    </div>
+                                    <div class="flex-1 leading-tight">
+                                        <p id="user-menu-name" class="text-sm font-semibold text-white">Usuario</p>
+                                        <p id="user-menu-role" class="text-xs font-medium uppercase tracking-[0.3em] text-emerald-200/80">--</p>
                                     </div>
                                 </div>
-                                <p id="header-progress-label" class="text-sm font-semibold text-emerald-100">0%</p>
-                            </div>
-                            <div class="analytics-chip header-metric hidden md:flex items-center gap-3 text-xs text-emerald-100/80">
-                                <i data-lucide="calendar" class="h-4 w-4 text-sky-300"></i>
-                                <div>
-                                    <p class="text-[10px] uppercase tracking-[0.28em] text-emerald-100/70">Proyección</p>
-                                    <p id="header-projection-summary" class="text-sm font-semibold text-white/90">--</p>
-                                    <p id="header-last-update" class="text-[10px] text-emerald-100/60">Actualiza tus métricas</p>
+                                <div class="mt-4 space-y-2">
+                                    <button type="button" data-action="sign-out" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/60">
+                                        <i data-lucide="log-out" class="h-4 w-4"></i>
+                                        Cerrar sesión
+                                    </button>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3 sm:gap-4">
-                            <div class="hidden sm:flex flex-col items-end leading-tight">
-                                <p id="header-direction-label" class="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-100/90">Objetivo activo</p>
-                                <p id="header-projection-pace" class="text-[11px] text-emerald-200/80">--</p>
-                            </div>
-                            <div id="user-avatar" class="relative h-10 w-10 overflow-hidden rounded-full bg-emerald-500 text-gray-900 shadow-lg shadow-emerald-500/30">
-                                <img id="user-avatar-img" alt="Foto de perfil" class="h-full w-full" />
-                                <span class="absolute inset-0 grid place-items-center text-sm font-bold"></span>
                             </div>
                         </div>
                     </div>
@@ -2520,7 +2494,8 @@
             getAuth,
             onAuthStateChanged,
             createUserWithEmailAndPassword,
-            signInWithEmailAndPassword
+            signInWithEmailAndPassword,
+            signOut
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { 
             getFirestore,
@@ -2613,6 +2588,16 @@
                     return this.isAdmin() || this.isCoach();
                 },
 
+                getRoleDisplayLabel(role = null) {
+                    const value = (role || this.state?.role || 'asesorado').toLowerCase();
+                    const labels = {
+                        admin: 'Administrador',
+                        entrenador: 'Entrenador',
+                        asesorado: 'Asesorado'
+                    };
+                    return labels[value] || 'Asesorado';
+                },
+
                 canEditGlobalMedia() {
                     return this.isAdmin();
                 },
@@ -2658,6 +2643,7 @@
                             library: { url: '', storagePath: '', updatedAt: null }
                         },
                         isMobileMenuOpen: false,
+                        isUserMenuOpen: false,
                         community: {
                             stats: { totalAthletes: 0, totalVolume: 0, totalSessions: 0 },
                             leaderboards: { volume: [], sessions: [], progress: [] },
@@ -3754,6 +3740,7 @@
                             this.showAppUI();
                             await this.initAppLogic();
                         } else {
+                            this.closeUserMenu(true);
                             this.state = this.getDefaultState();
                             this.showAuthUI();
                         }
@@ -3864,6 +3851,22 @@
                         console.error("Registration error:", error);
                     } finally {
                         this.setButtonLoading(button, false);
+                    }
+                },
+
+                async handleSignOut() {
+                    if (!this.auth) {
+                        return;
+                    }
+                    this.closeUserMenu(true);
+                    this.showLaunchScreen();
+                    try {
+                        await signOut(this.auth);
+                        this.showToast('Sesión cerrada correctamente.', 'success');
+                    } catch (error) {
+                        console.error('Error signing out:', error);
+                        this.showToast('No se pudo cerrar sesión. Inténtalo de nuevo.', 'error');
+                        this.hideLaunchScreen();
                     }
                 },
 
@@ -4001,21 +4004,45 @@
                 },
                 setButtonLoading(button, isLoading) { if (isLoading) { button.disabled = true; button.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`; lucide.createIcons(); } else { button.disabled = false; button.innerHTML = `<span>${button.closest('form').id === 'login-form' ? 'Iniciar Sesión' : 'Crear Cuenta'}</span>`; } },
                 updateUserInfoUI() {
-                    const name = this.state.userName || 'Usuario';
+                    const name = (this.state.userName || 'Usuario').trim() || 'Usuario';
+                    const firstName = name.split(' ')[0] || name;
                     const welcome = document.getElementById('welcome-message');
                     if (welcome) {
-                        welcome.textContent = `Hola, ${name.split(' ')[0]}`;
+                        welcome.textContent = `Hola, ${firstName}`;
                     }
+
                     const avatarContainer = document.getElementById('user-avatar');
                     if (avatarContainer) {
                         this.applyProfilePhotoToAvatar(avatarContainer, { priority: 'high', loading: 'eager' });
                         if (!this.state.profilePhoto?.url) {
                             const span = avatarContainer.querySelector('span');
                             if (span) {
-                                span.textContent = name.charAt(0).toUpperCase();
+                                span.textContent = firstName.charAt(0).toUpperCase();
                             }
                         }
                     }
+
+                    const menuAvatarContainer = document.getElementById('user-menu-avatar');
+                    if (menuAvatarContainer) {
+                        this.applyProfilePhotoToAvatar(menuAvatarContainer, { priority: 'auto', loading: 'lazy' });
+                        if (!this.state.profilePhoto?.url) {
+                            const span = menuAvatarContainer.querySelector('span');
+                            if (span) {
+                                span.textContent = firstName.charAt(0).toUpperCase();
+                            }
+                        }
+                    }
+
+                    const menuName = document.getElementById('user-menu-name');
+                    if (menuName) {
+                        menuName.textContent = name;
+                    }
+
+                    const menuRole = document.getElementById('user-menu-role');
+                    if (menuRole) {
+                        menuRole.textContent = this.getRoleDisplayLabel();
+                    }
+
                     this.updateHeaderInsights();
                 },
                 applyProfilePhotoToAvatar(element, options = {}) {
@@ -4081,6 +4108,44 @@
                         if (span) {
                             span.textContent = initial;
                         }
+                    }
+                },
+                openUserMenu() {
+                    const menu = document.getElementById('user-menu-card');
+                    const trigger = document.getElementById('user-avatar');
+                    if (!menu || !trigger) {
+                        this.state.isUserMenuOpen = false;
+                        return;
+                    }
+                    menu.setAttribute('data-open', 'true');
+                    menu.setAttribute('aria-hidden', 'false');
+                    trigger.setAttribute('aria-expanded', 'true');
+                    this.state.isUserMenuOpen = true;
+                },
+                closeUserMenu(force = false) {
+                    const menu = document.getElementById('user-menu-card');
+                    const trigger = document.getElementById('user-avatar');
+                    if (!menu || !trigger) {
+                        this.state.isUserMenuOpen = false;
+                        return;
+                    }
+                    if (!force && !this.state?.isUserMenuOpen) {
+                        return;
+                    }
+                    menu.setAttribute('data-open', 'false');
+                    menu.setAttribute('aria-hidden', 'true');
+                    trigger.setAttribute('aria-expanded', 'false');
+                    this.state.isUserMenuOpen = false;
+                },
+                toggleUserMenu(event) {
+                    if (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    if (this.state?.isUserMenuOpen) {
+                        this.closeUserMenu();
+                    } else {
+                        this.openUserMenu();
                     }
                 },
                 updateHeaderInsights() {
@@ -4442,6 +4507,14 @@
                             }
                             return;
                         }
+                        if (action === 'toggle-user-menu') {
+                            this.toggleUserMenu(e);
+                            return;
+                        }
+                        if (action === 'sign-out') {
+                            this.handleSignOut();
+                            return;
+                        }
                         const actionMap = {
                             'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'open-routine-banner-upload': () => this.triggerRoutineBannerUpload(), 'remove-routine-banner-image': () => this.removeRoutineBannerImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(), 'routine-open-edit-modal': () => this.routine_openExerciseEditModal(parseInt(exerciseIndex)), 'routine-close-edit-modal': () => this.routine_closeExerciseEditModal(), 'routine-save-exercise-modal': () => this.routine_saveExerciseFromModal(), 'routine-open-timeline': () => this.routine_openTimelineView(), 'routine-toggle-mini-window': () => this.routine_toggleMiniWindow(), 'routine-close-timeline': () => this.routine_closeTimelineView(), 'routine-timeline-save': () => this.routine_handleTimelineSave(), 'routine-timeline-confirm-link': () => this.routine_handleTimelineLink(), 'routine-timeline-confirm-start': () => this.routine_handleTimelineStart(),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
@@ -4527,10 +4600,34 @@
                         mobileBackdrop.addEventListener('click', () => this.closeMobileMenu(true));
                     }
                     document.addEventListener('keydown', (event) => {
-                        if (event.key === 'Escape' && this.state?.isMobileMenuOpen) {
+                        if (event.key !== 'Escape') {
+                            return;
+                        }
+                        let handled = false;
+                        if (this.state?.isMobileMenuOpen) {
                             this.closeMobileMenu(true);
+                            handled = true;
+                        }
+                        if (this.state?.isUserMenuOpen) {
+                            this.closeUserMenu();
+                            handled = true;
+                        }
+                        if (handled) {
+                            event.preventDefault();
                         }
                     });
+
+                    const userMenuContainer = document.getElementById('user-menu-container');
+                    if (userMenuContainer) {
+                        document.addEventListener('click', (event) => {
+                            if (!this.state?.isUserMenuOpen) {
+                                return;
+                            }
+                            if (!userMenuContainer.contains(event.target)) {
+                                this.closeUserMenu();
+                            }
+                        });
+                    }
 
                     if(sidebar){
                         const setSidebarStateForViewport = () => {
