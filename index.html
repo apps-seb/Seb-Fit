@@ -932,12 +932,6 @@
                                 <img id="user-avatar-img" alt="Foto de perfil" class="h-full w-full" />
                                 <span class="absolute inset-0 grid place-items-center text-sm font-bold"></span>
                             </div>
-                            <button id="logout-action" type="button" class="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:border-rose-400/50 hover:bg-gradient-to-r hover:from-rose-500/20 hover:via-rose-500/10 hover:to-transparent focus:outline-none focus:ring-2 focus:ring-rose-400/60">
-                                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-rose-500/20 text-rose-200 shadow-inner shadow-rose-500/30 transition group-hover:bg-rose-500/30 group-hover:text-rose-100">
-                                    <i data-lucide="log-out" class="h-4 w-4"></i>
-                                </span>
-                                <span class="tracking-[0.28em] uppercase">Cerrar sesión</span>
-                            </button>
                         </div>
                     </div>
                 </header>
@@ -2522,12 +2516,11 @@
     <script type="module">
         // Importaciones de Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { 
-            getAuth, 
+        import {
+            getAuth,
             onAuthStateChanged,
             createUserWithEmailAndPassword,
-            signInWithEmailAndPassword,
-            signOut 
+            signInWithEmailAndPassword
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { 
             getFirestore,
@@ -2681,14 +2674,129 @@
                     };
                 },
 
+                getDashboardCoverImage() {
+                    const globalImage = this.sharedMedia?.dashboardCover?.image || '';
+                    const localImage = this.state?.dashboardCover?.image || '';
+                    if (this.canEditGlobalMedia()) {
+                        return localImage || globalImage;
+                    }
+                    return globalImage || localImage;
+                },
+
+                getDietPanelCoversForRender() {
+                    const globalCovers = this.sharedMedia?.dietPanelCovers || {};
+                    const localCovers = this.state?.dietPanelCovers || {};
+                    if (this.canEditGlobalMedia()) {
+                        return { ...globalCovers, ...localCovers };
+                    }
+                    return Object.keys(globalCovers).length ? globalCovers : localCovers;
+                },
+
+                async loadDashboardCoverFromFirestore() {
+                    if (!this.db) return;
+                    const defaults = this.getDefaultState().dashboardCover || { image: '', storagePath: '', updatedAt: null };
+                    try {
+                        const docRef = doc(this.db, 'app_data', 'dashboard_cover');
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            this.sharedMedia.dashboardCover = { ...defaults, ...(docSnap.data() || {}) };
+                        } else {
+                            this.sharedMedia.dashboardCover = { ...defaults };
+                            if (this.canEditGlobalMedia()) {
+                                await setDoc(docRef, this.sharedMedia.dashboardCover);
+                            }
+                        }
+                        if (this.sharedMedia.dashboardCover.image) {
+                            this.preloadImage(this.sharedMedia.dashboardCover.image, { priority: 'high' });
+                        }
+                        const shouldSyncState = !this.canEditGlobalMedia()
+                            || !this.state.dashboardCover
+                            || !this.state.dashboardCover.image;
+                        if (shouldSyncState) {
+                            this.state.dashboardCover = { ...defaults, ...this.sharedMedia.dashboardCover };
+                        }
+                    } catch (error) {
+                        console.error('Error loading dashboard cover:', error);
+                    }
+                },
+
+                async saveDashboardCoverToFirestore() {
+                    if (!this.db) return;
+                    try {
+                        const docRef = doc(this.db, 'app_data', 'dashboard_cover');
+                        await setDoc(docRef, this.sharedMedia.dashboardCover || {}, { merge: true });
+                    } catch (error) {
+                        console.error('Error saving dashboard cover:', error);
+                        this.showToast('No se pudo actualizar la portada global.', 'error');
+                    }
+                },
+
+                async loadDietPanelCoversFromFirestore() {
+                    if (!this.db) return;
+                    const defaults = this.getDefaultState().dietPanelCovers || {};
+                    try {
+                        const docRef = doc(this.db, 'app_data', 'diet_panel_covers');
+                        const docSnap = await getDoc(docRef);
+                        if (docSnap.exists()) {
+                            const data = docSnap.data() || {};
+                            this.sharedMedia.dietPanelCovers = Object.keys(defaults).reduce((acc, key) => {
+                                acc[key] = { ...defaults[key], ...(data[key] || {}) };
+                                if (acc[key].url) {
+                                    this.preloadImage(acc[key].url, { priority: 'high' });
+                                }
+                                return acc;
+                            }, {});
+                        } else {
+                            this.sharedMedia.dietPanelCovers = Object.keys(defaults).reduce((acc, key) => {
+                                acc[key] = { ...defaults[key] };
+                                return acc;
+                            }, {});
+                            if (this.canEditGlobalMedia()) {
+                                await setDoc(docRef, this.sharedMedia.dietPanelCovers);
+                            }
+                        }
+                        this.state.dietPanelCovers = this.state.dietPanelCovers || {};
+                        const shouldForceSync = !this.canEditGlobalMedia();
+                        Object.keys(defaults).forEach((key) => {
+                            const localData = this.state.dietPanelCovers[key];
+                            if (shouldForceSync || !localData || !localData.url) {
+                                this.state.dietPanelCovers[key] = { ...defaults[key], ...(this.sharedMedia.dietPanelCovers[key] || {}) };
+                            }
+                        });
+                    } catch (error) {
+                        console.error('Error loading diet panel covers:', error);
+                    }
+                },
+
+                async saveDietPanelCoversToFirestore() {
+                    if (!this.db) return;
+                    try {
+                        const docRef = doc(this.db, 'app_data', 'diet_panel_covers');
+                        await setDoc(docRef, this.sharedMedia.dietPanelCovers || {}, { merge: true });
+                    } catch (error) {
+                        console.error('Error saving diet panel covers:', error);
+                        this.showToast('No se pudo actualizar la portada de la dieta.', 'error');
+                    }
+                },
+
                 state: null,
                 _tempClientData: null, // Estado temporal para el editor de dieta del cliente
                 _isUploadingDashboardCover: false,
                 _dashboardCoverProgressTimeout: null,
                 _isUploadingRoutineBanner: false,
                 _routineBannerProgressTimeout: null,
-                
-                data: { 
+
+                sharedMedia: {
+                    dashboardCover: { image: '', storagePath: '', updatedAt: null },
+                    dietPanelCovers: {
+                        guided: { url: '', storagePath: '', updatedAt: null },
+                        daily: { url: '', storagePath: '', updatedAt: null },
+                        agenda: { url: '', storagePath: '', updatedAt: null },
+                        library: { url: '', storagePath: '', updatedAt: null }
+                    }
+                },
+
+                data: {
                     predefinedRoutines: {
                         "Clásicos de Hipertrofia": [
                             { id: 'pre-ppl', name: 'Empuje/Tire/Pierna (PPL)', description: 'División clásica y efectiva para ganar músculo y fuerza.', icon: 'git-merge', plan: [ { day: 'Día 1: Empuje (Pecho, Hombro, Tríceps)', exercises: [{name:'Press de Banca Plano con Barra',sets:4,reps:'8-12', rest:'60s'},{name:'Press Inclinado con Mancuernas',sets:3,reps:'10-12', rest:'60s'},{name:'Elevaciones Laterales con Mancuernas',sets:4,reps:'12-15', rest:'45s'},{name:'Extensiones de Tríceps en Polea',sets:3,reps:'12-15', rest:'45s'}] }, { day: 'Día 2: Tire (Espalda, Bíceps)', exercises: [{name:'Dominadas (Agarre Ancho)',sets:4,reps:'Al fallo', rest:'90s'},{name:'Remo con Barra',sets:4,reps:'8-10', rest:'75s'},{name:'Face Pulls',sets:3,reps:'15-20', rest:'45s'},{name:'Curl con Barra Z',sets:4,reps:'10-12', rest:'60s'}] }, { day: 'Día 3: Pierna', exercises: [{name:'Sentadilla con Barra',sets:4,reps:'8-10', rest:'90s'},{name:'Peso Muerto Rumano con Mancuernas',sets:3,reps:'10-12', rest:'75s'},{name:'Curl Femoral Tumbado',sets:3,reps:'12-15', rest:'60s'},{name:'Elevación de Talones de Pie',sets:4,reps:'15-20', rest:'45s'}] } ] },
@@ -2946,6 +3054,8 @@
                     await this.loadExerciseLibraryFromFirestore();
                     await this.loadExerciseGroupImagesFromFirestore();
                     this.preloadExerciseGroupImages();
+                    await this.loadDashboardCoverFromFirestore();
+                    await this.loadDietPanelCoversFromFirestore();
                     await this.loadAndMergeFoodData(); // Cargar alimentos
                     this.loadTemplates();
                     await this.loadCommunityData();
@@ -3651,10 +3761,6 @@
 
                     document.getElementById('login-form').addEventListener('submit', (e) => this.handleLogin(e));
                     document.getElementById('register-form').addEventListener('submit', (e) => this.handleRegister(e));
-                    const logoutControl = document.getElementById('logout-action');
-                    if (logoutControl) {
-                        logoutControl.addEventListener('click', () => this.handleLogout());
-                    }
                     document.querySelectorAll('[data-action="toggle-auth"]').forEach(btn => {
                         btn.addEventListener('click', (event) => {
                             const target = event.currentTarget.dataset.authTarget || null;
@@ -3813,21 +3919,6 @@
                     if (registerSubtitleEl) registerSubtitleEl.textContent = copy.registerSubtitle;
                 },
 
-                async handleLogout() {
-                    if (!this.auth) return;
-                    try {
-                        this.showLaunchScreen();
-                        await signOut(this.auth);
-                        this.state = this.getDefaultState();
-                        this.closeMobileMenu(true);
-                        this.showAuthUI();
-                        this.showToast('Sesión cerrada correctamente.', 'success');
-                    } catch (error) {
-                        console.error('Logout error:', error);
-                        this.hideLaunchScreen();
-                        this.showToast('Error al cerrar sesión.', 'error');
-                    }
-                },
                 showAppUI() {
                     this.hideLaunchScreen();
                     document.getElementById('auth-container').classList.add('hidden');
@@ -6336,7 +6427,7 @@
                     lucide.createIcons();
                 },
                 refreshDashboardCoverControls() {
-                    const hasImage = Boolean(this.state.dashboardCover?.image);
+                    const hasImage = Boolean(this.state.dashboardCover?.image || this.sharedMedia?.dashboardCover?.image);
                     const uploadBtn = document.querySelector('button[data-action="open-cover-upload"]');
                     if (uploadBtn) {
                         uploadBtn.disabled = this._isUploadingDashboardCover;
@@ -6364,7 +6455,7 @@
                     const placeholder = document.getElementById('dashboard-cover-placeholder');
                     if (!preview || !placeholder) return;
 
-                    const imageData = this.state.dashboardCover?.image;
+                    const imageData = this.getDashboardCoverImage();
 
                     if (imageData) {
                         preview.src = imageData;
@@ -6666,7 +6757,7 @@
                     }
                 },
                 async deleteDashboardCoverFromStorage() {
-                    const storagePath = this.state.dashboardCover?.storagePath;
+                    const storagePath = this.state?.dashboardCover?.storagePath || this.sharedMedia?.dashboardCover?.storagePath;
                     if (!storagePath) return;
                     try {
                         const fileRef = ref(this.storage, storagePath);
@@ -6784,6 +6875,7 @@
                                     storagePath: filePath,
                                     updatedAt: Date.now()
                                 };
+                                this.sharedMedia.dashboardCover = { ...this.state.dashboardCover };
                                 this.updateCoverPreview();
                                 if (progressBar) {
                                     progressBar.style.width = '100%';
@@ -6791,6 +6883,7 @@
                                 if (progressText) {
                                     progressText.textContent = 'Subida completa 100%';
                                 }
+                                await this.saveDashboardCoverToFirestore();
                                 await this.saveDataToFirestore();
                                 this.showToast('Portada actualizada.');
                                 hideProgress(1500);
@@ -6818,12 +6911,13 @@
                         return;
                     }
                     await this.deleteDashboardCoverFromStorage();
-                    this.state.dashboardCover.image = '';
-                    this.state.dashboardCover.storagePath = '';
-                    this.state.dashboardCover.updatedAt = null;
+                    const defaults = this.getDefaultState().dashboardCover || { image: '', storagePath: '', updatedAt: null };
+                    this.state.dashboardCover = { ...defaults };
+                    this.sharedMedia.dashboardCover = { ...defaults };
                     this.updateCoverPreview();
                     const input = document.getElementById('dashboard-cover-input');
                     if (input) input.value = '';
+                    await this.saveDashboardCoverToFirestore();
                     await this.saveDataToFirestore();
                     this.showToast('Portada eliminada.');
                 },
@@ -7844,7 +7938,9 @@
 
                     try {
                         setUploadingState(true);
-                        const previousPath = this.state.dietPanelCovers?.[panelKey]?.storagePath || '';
+                        const previousPath = this.state.dietPanelCovers?.[panelKey]?.storagePath
+                            || this.sharedMedia?.dietPanelCovers?.[panelKey]?.storagePath
+                            || '';
                         const uploadResult = await this.uploadImageToStorage(file, {
                             pathPrefix: `diet_panel_covers/${panelKey}`,
                             previousPath
@@ -7860,9 +7956,14 @@
                             storagePath: uploadResult.storagePath,
                             updatedAt: new Date().toISOString()
                         };
+                        if (!this.sharedMedia.dietPanelCovers) {
+                            this.sharedMedia.dietPanelCovers = {};
+                        }
+                        this.sharedMedia.dietPanelCovers[panelKey] = { ...this.state.dietPanelCovers[panelKey] };
 
                         this.preloadImage(uploadResult.url, { priority: 'high' });
                         this.renderDietPanelCovers();
+                        await this.saveDietPanelCoversToFirestore();
                         await this.saveDataToFirestore();
                         this.showToast('Portada actualizada.', 'success');
                     } catch (error) {
@@ -7873,8 +7974,8 @@
                     }
                 },
                 renderDietPanelCovers() {
-                    const covers = this.state.dietPanelCovers || {};
-                    const isAdmin = this.isAsesor();
+                    const covers = this.getDietPanelCoversForRender() || {};
+                    const canManageCovers = this.canEditGlobalMedia();
                     const keys = ['guided', 'daily', 'agenda', 'library'];
 
                     keys.forEach((key) => {
@@ -7898,8 +7999,8 @@
                         wrapper.dataset.customCover = hasCustomCover ? 'true' : 'false';
 
                         if (trigger) {
-                            trigger.classList.toggle('is-hidden', !isAdmin);
-                            if (!isAdmin) {
+                            trigger.classList.toggle('is-hidden', !canManageCovers);
+                            if (!canManageCovers) {
                                 trigger.setAttribute('aria-hidden', 'true');
                             } else {
                                 trigger.removeAttribute('aria-hidden');
@@ -7907,7 +8008,7 @@
                         }
 
                         if (input) {
-                            input.disabled = !isAdmin;
+                            input.disabled = !canManageCovers;
                         }
                     });
 
@@ -8673,6 +8774,7 @@
 
                     if (step === 2) {
                         const isAdmin = this.isAsesor();
+                        const canEditGroupImages = this.canEditGlobalMedia();
                         const assignedClientId = this._tempRoutine.assignedClientId || this._tempRoutine.editingClientId;
                         const assignedClient = assignedClientId ? (this.state.asesorados || []).find(c => c.id === assignedClientId) : null;
                         const assignmentInfo = assignedClient ? `<p class="mt-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-200/80">Asignada a ${assignedClient.userName}</p>` : '';
@@ -8711,7 +8813,7 @@
                                                 ${hasImage ? `<img src="${sanitizedUrl}" alt="Grupo muscular ${group}" class="routine-group-image h-full w-full object-cover opacity-0 transition-opacity duration-500" decoding="async" loading="eager" fetchpriority="${fetchPriority}">` : ''}
                                             </div>
                                         `;
-                                        const editButton = isAdmin
+                                        const editButton = canEditGroupImages
                                             ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-gray-950/85 text-white shadow-lg transition hover:-translate-y-0.5 hover:border-white/40 hover:bg-white hover:text-gray-900"><i data-lucide="image-up" class="h-5 w-5"></i></button>`
                                             : '';
                                         const accentConfig = (() => {
