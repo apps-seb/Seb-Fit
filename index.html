@@ -50,6 +50,20 @@
         #user-avatar.has-photo img {
             opacity: 1;
         }
+        #user-menu-card {
+            transform-origin: top right;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+        #user-menu-card[data-open="false"] {
+            opacity: 0;
+            transform: translateY(-0.75rem) scale(0.96);
+            pointer-events: none;
+        }
+        #user-menu-card[data-open="true"] {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            pointer-events: auto;
+        }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
@@ -928,9 +942,29 @@
                                 <p id="header-direction-label" class="text-xs font-semibold uppercase tracking-[0.28em] text-emerald-100/90">Objetivo activo</p>
                                 <p id="header-projection-pace" class="text-[11px] text-emerald-200/80">--</p>
                             </div>
-                            <div id="user-avatar" class="relative h-10 w-10 overflow-hidden rounded-full bg-emerald-500 text-gray-900 shadow-lg shadow-emerald-500/30">
-                                <img id="user-avatar-img" alt="Foto de perfil" class="h-full w-full" />
-                                <span class="absolute inset-0 grid place-items-center text-sm font-bold"></span>
+                            <div id="user-menu-container" class="relative">
+                                <button id="user-avatar" type="button" data-action="toggle-user-menu" aria-haspopup="true" aria-expanded="false" class="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-emerald-500 text-gray-900 shadow-lg shadow-emerald-500/30 transition focus:outline-none focus:ring-2 focus:ring-emerald-400/60">
+                                    <img id="user-avatar-img" alt="Foto de perfil" class="h-full w-full object-cover" />
+                                    <span class="absolute inset-0 grid place-items-center text-sm font-bold"></span>
+                                </button>
+                                <div id="user-menu-card" class="absolute right-0 top-full z-30 mt-3 w-64 rounded-3xl border border-white/10 bg-gray-950/95 p-4 text-left shadow-2xl shadow-emerald-500/20 backdrop-blur-xl" data-open="false" aria-hidden="true">
+                                    <div class="flex items-center gap-3">
+                                        <div id="user-menu-avatar" class="relative h-12 w-12 overflow-hidden rounded-2xl bg-emerald-500/15 text-gray-900 shadow-inner shadow-emerald-500/10">
+                                            <img id="user-menu-avatar-img" alt="Foto de perfil" class="h-full w-full object-cover" />
+                                            <span class="absolute inset-0 grid place-items-center text-base font-bold text-emerald-900"></span>
+                                        </div>
+                                        <div class="flex-1">
+                                            <p id="user-menu-name" class="text-sm font-semibold text-white">Usuario</p>
+                                            <p id="user-menu-role" class="text-xs font-medium uppercase tracking-[0.3em] text-emerald-200/80">--</p>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4 flex flex-col gap-2">
+                                        <button type="button" data-action="sign-out" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/60">
+                                            <i data-lucide="log-out" class="h-4 w-4"></i>
+                                            Cerrar sesión
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2520,7 +2554,8 @@
             getAuth,
             onAuthStateChanged,
             createUserWithEmailAndPassword,
-            signInWithEmailAndPassword
+            signInWithEmailAndPassword,
+            signOut
         } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { 
             getFirestore,
@@ -2613,6 +2648,16 @@
                     return this.isAdmin() || this.isCoach();
                 },
 
+                getRoleDisplayLabel(role = null) {
+                    const value = (role || this.state?.role || 'asesorado').toLowerCase();
+                    const labels = {
+                        admin: 'Administrador',
+                        entrenador: 'Entrenador',
+                        asesorado: 'Asesorado'
+                    };
+                    return labels[value] || 'Asesorado';
+                },
+
                 canEditGlobalMedia() {
                     return this.isAdmin();
                 },
@@ -2658,6 +2703,7 @@
                             library: { url: '', storagePath: '', updatedAt: null }
                         },
                         isMobileMenuOpen: false,
+                        isUserMenuOpen: false,
                         community: {
                             stats: { totalAthletes: 0, totalVolume: 0, totalSessions: 0 },
                             leaderboards: { volume: [], sessions: [], progress: [] },
@@ -3754,6 +3800,7 @@
                             this.showAppUI();
                             await this.initAppLogic();
                         } else {
+                            this.closeUserMenu(true);
                             this.state = this.getDefaultState();
                             this.showAuthUI();
                         }
@@ -3864,6 +3911,22 @@
                         console.error("Registration error:", error);
                     } finally {
                         this.setButtonLoading(button, false);
+                    }
+                },
+
+                async handleSignOut() {
+                    if (!this.auth) {
+                        return;
+                    }
+                    this.closeUserMenu(true);
+                    this.showLaunchScreen();
+                    try {
+                        await signOut(this.auth);
+                        this.showToast('Sesión cerrada correctamente.', 'success');
+                    } catch (error) {
+                        console.error('Error signing out:', error);
+                        this.showToast('No se pudo cerrar sesión. Inténtalo de nuevo.', 'error');
+                        this.hideLaunchScreen();
                     }
                 },
 
@@ -4001,21 +4064,45 @@
                 },
                 setButtonLoading(button, isLoading) { if (isLoading) { button.disabled = true; button.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`; lucide.createIcons(); } else { button.disabled = false; button.innerHTML = `<span>${button.closest('form').id === 'login-form' ? 'Iniciar Sesión' : 'Crear Cuenta'}</span>`; } },
                 updateUserInfoUI() {
-                    const name = this.state.userName || 'Usuario';
+                    const name = (this.state.userName || 'Usuario').trim() || 'Usuario';
+                    const firstName = name.split(' ')[0] || name;
                     const welcome = document.getElementById('welcome-message');
                     if (welcome) {
-                        welcome.textContent = `Hola, ${name.split(' ')[0]}`;
+                        welcome.textContent = `Hola, ${firstName}`;
                     }
+
                     const avatarContainer = document.getElementById('user-avatar');
                     if (avatarContainer) {
                         this.applyProfilePhotoToAvatar(avatarContainer, { priority: 'high', loading: 'eager' });
                         if (!this.state.profilePhoto?.url) {
                             const span = avatarContainer.querySelector('span');
                             if (span) {
-                                span.textContent = name.charAt(0).toUpperCase();
+                                span.textContent = firstName.charAt(0).toUpperCase();
                             }
                         }
                     }
+
+                    const menuAvatarContainer = document.getElementById('user-menu-avatar');
+                    if (menuAvatarContainer) {
+                        this.applyProfilePhotoToAvatar(menuAvatarContainer, { priority: 'auto', loading: 'lazy' });
+                        if (!this.state.profilePhoto?.url) {
+                            const span = menuAvatarContainer.querySelector('span');
+                            if (span) {
+                                span.textContent = firstName.charAt(0).toUpperCase();
+                            }
+                        }
+                    }
+
+                    const menuName = document.getElementById('user-menu-name');
+                    if (menuName) {
+                        menuName.textContent = name;
+                    }
+
+                    const menuRole = document.getElementById('user-menu-role');
+                    if (menuRole) {
+                        menuRole.textContent = this.getRoleDisplayLabel();
+                    }
+
                     this.updateHeaderInsights();
                 },
                 applyProfilePhotoToAvatar(element, options = {}) {
@@ -4081,6 +4168,44 @@
                         if (span) {
                             span.textContent = initial;
                         }
+                    }
+                },
+                openUserMenu() {
+                    const menu = document.getElementById('user-menu-card');
+                    const trigger = document.getElementById('user-avatar');
+                    if (!menu || !trigger) {
+                        this.state.isUserMenuOpen = false;
+                        return;
+                    }
+                    menu.setAttribute('data-open', 'true');
+                    menu.setAttribute('aria-hidden', 'false');
+                    trigger.setAttribute('aria-expanded', 'true');
+                    this.state.isUserMenuOpen = true;
+                },
+                closeUserMenu(force = false) {
+                    const menu = document.getElementById('user-menu-card');
+                    const trigger = document.getElementById('user-avatar');
+                    if (!menu || !trigger) {
+                        this.state.isUserMenuOpen = false;
+                        return;
+                    }
+                    if (!force && !this.state?.isUserMenuOpen) {
+                        return;
+                    }
+                    menu.setAttribute('data-open', 'false');
+                    menu.setAttribute('aria-hidden', 'true');
+                    trigger.setAttribute('aria-expanded', 'false');
+                    this.state.isUserMenuOpen = false;
+                },
+                toggleUserMenu(event) {
+                    if (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    if (this.state?.isUserMenuOpen) {
+                        this.closeUserMenu();
+                    } else {
+                        this.openUserMenu();
                     }
                 },
                 updateHeaderInsights() {
@@ -4442,6 +4567,14 @@
                             }
                             return;
                         }
+                        if (action === 'toggle-user-menu') {
+                            this.toggleUserMenu(e);
+                            return;
+                        }
+                        if (action === 'sign-out') {
+                            this.handleSignOut();
+                            return;
+                        }
                         const actionMap = {
                             'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'open-routine-banner-upload': () => this.triggerRoutineBannerUpload(), 'remove-routine-banner-image': () => this.removeRoutineBannerImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(), 'routine-open-edit-modal': () => this.routine_openExerciseEditModal(parseInt(exerciseIndex)), 'routine-close-edit-modal': () => this.routine_closeExerciseEditModal(), 'routine-save-exercise-modal': () => this.routine_saveExerciseFromModal(), 'routine-open-timeline': () => this.routine_openTimelineView(), 'routine-toggle-mini-window': () => this.routine_toggleMiniWindow(), 'routine-close-timeline': () => this.routine_closeTimelineView(), 'routine-timeline-save': () => this.routine_handleTimelineSave(), 'routine-timeline-confirm-link': () => this.routine_handleTimelineLink(), 'routine-timeline-confirm-start': () => this.routine_handleTimelineStart(),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
@@ -4527,10 +4660,34 @@
                         mobileBackdrop.addEventListener('click', () => this.closeMobileMenu(true));
                     }
                     document.addEventListener('keydown', (event) => {
-                        if (event.key === 'Escape' && this.state?.isMobileMenuOpen) {
+                        if (event.key !== 'Escape') {
+                            return;
+                        }
+                        let handled = false;
+                        if (this.state?.isMobileMenuOpen) {
                             this.closeMobileMenu(true);
+                            handled = true;
+                        }
+                        if (this.state?.isUserMenuOpen) {
+                            this.closeUserMenu();
+                            handled = true;
+                        }
+                        if (handled) {
+                            event.preventDefault();
                         }
                     });
+
+                    const userMenuContainer = document.getElementById('user-menu-container');
+                    if (userMenuContainer) {
+                        document.addEventListener('click', (event) => {
+                            if (!this.state?.isUserMenuOpen) {
+                                return;
+                            }
+                            if (!userMenuContainer.contains(event.target)) {
+                                this.closeUserMenu();
+                            }
+                        });
+                    }
 
                     if(sidebar){
                         const setSidebarStateForViewport = () => {
