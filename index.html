@@ -1000,9 +1000,10 @@
                         <div class="flex flex-col gap-4 border-t border-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
                             <div class="space-y-1">
                                 <h3 class="text-lg font-semibold text-white">Portada promocional</h3>
-                                <p class="text-sm text-gray-300">Sube un banner alargado para destacar promociones, retos o anuncios importantes.</p>
+                                <p class="text-sm text-gray-300" data-hide-coach-cover>Sube un banner alargado para destacar promociones, retos o anuncios importantes.</p>
+                                <p class="text-sm text-gray-400 hidden" data-coach-cover-note="dashboard">Esta portada es gestionada por el administrador.</p>
                             </div>
-                            <div class="flex flex-wrap items-center gap-3">
+                            <div class="flex flex-wrap items-center gap-3" data-cover-action-group="dashboard" data-hide-coach-cover>
                                 <input type="file" id="dashboard-cover-input" accept="image/*" class="hidden">
                                 <button data-action="open-cover-upload" class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
                                     <i data-lucide="image-plus" class="h-4 w-4"></i>
@@ -1206,17 +1207,18 @@
                         </div>
                         <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent"></div>
                     </div>
-                    <div class="flex flex-col gap-4 border-t border-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-                        <div class="space-y-1">
-                            <h3 class="text-lg font-semibold text-white">Banner destacado para rutinas</h3>
-                            <p class="text-sm text-gray-300">Formato recomendado 21:9 (ej. 2100×900 px) optimizado para verse sin parpadeos.</p>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <input type="file" id="routine-banner-input" accept="image/*" class="hidden">
-                            <button data-action="open-routine-banner-upload" class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
-                                <i data-lucide="image-plus" class="h-4 w-4"></i>
-                                Subir banner
-                            </button>
+                        <div class="flex flex-col gap-4 border-t border-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                            <div class="space-y-1">
+                                <h3 class="text-lg font-semibold text-white">Banner destacado para rutinas</h3>
+                                <p class="text-sm text-gray-300" data-hide-coach-cover>Formato recomendado 21:9 (ej. 2100×900 px) optimizado para verse sin parpadeos.</p>
+                                <p class="text-sm text-gray-400 hidden" data-coach-cover-note="routine">Este banner se configura directamente desde el administrador.</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-3" data-hide-coach-cover>
+                                <input type="file" id="routine-banner-input" accept="image/*" class="hidden">
+                                <button data-action="open-routine-banner-upload" class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
+                                    <i data-lucide="image-plus" class="h-4 w-4"></i>
+                                    Subir banner
+                                </button>
                             <button data-action="remove-routine-banner-image" class="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-semibold text-gray-200 transition hover:border-red-400/60 hover:text-red-300">
                                 <i data-lucide="trash-2" class="h-4 w-4"></i>
                                 Quitar
@@ -1767,7 +1769,7 @@
                                     <span>Configura la estrategia nutricional y su proyección.</span>
                                 </div>
                             </div>
-                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="guided" aria-label="Subir portada de Definición guiada">
+                            <label class="diet-panel-cover-upload" data-hide-coach-cover data-panel-cover-trigger="guided" aria-label="Subir portada de Definición guiada">
                                 <span class="sr-only">Actualizar portada de Definición guiada</span>
                                 <i data-lucide="image-up"></i>
                                 <input type="file" accept="image/*" class="hidden" data-panel-cover-input="guided" />
@@ -2010,7 +2012,7 @@
                                     <span>Controla calorías, progreso y recordatorios.</span>
                                 </div>
                             </div>
-                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="daily" aria-label="Subir portada de Plan de dieta hoy">
+                            <label class="diet-panel-cover-upload" data-hide-coach-cover data-panel-cover-trigger="daily" aria-label="Subir portada de Plan de dieta hoy">
                                 <span class="sr-only">Actualizar portada de Plan de dieta hoy</span>
                                 <i data-lucide="image-up"></i>
                                 <input type="file" accept="image/*" class="hidden" data-panel-cover-input="daily" />
@@ -2124,7 +2126,7 @@
                                     <span>Gestiona las comidas planificadas del día.</span>
                                 </div>
                             </div>
-                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="agenda" aria-label="Subir portada de Agenda nutricional">
+                            <label class="diet-panel-cover-upload" data-hide-coach-cover data-panel-cover-trigger="agenda" aria-label="Subir portada de Agenda nutricional">
                                 <span class="sr-only">Actualizar portada de Agenda nutricional</span>
                                 <i data-lucide="image-up"></i>
                                 <input type="file" accept="image/*" class="hidden" data-panel-cover-input="agenda" />
@@ -2165,7 +2167,7 @@
                                     <span>Administra la biblioteca y registra nuevas opciones.</span>
                                 </div>
                             </div>
-                            <label class="diet-panel-cover-upload" data-panel-cover-trigger="library" aria-label="Subir portada de Añade alimentos al plan">
+                            <label class="diet-panel-cover-upload" data-hide-coach-cover data-panel-cover-trigger="library" aria-label="Subir portada de Añade alimentos al plan">
                                 <span class="sr-only">Actualizar portada de Añade alimentos al plan</span>
                                 <i data-lucide="image-up"></i>
                                 <input type="file" accept="image/*" class="hidden" data-panel-cover-input="library" />
@@ -2619,6 +2621,10 @@
                     return this.isAdmin();
                 },
 
+                canManageRoutineCover() {
+                    return this.isAdmin() || this.isClient();
+                },
+
                 getDefaultState() {
                     const now = new Date();
                     return {
@@ -2973,6 +2979,7 @@
                         if (addFoodSection) addFoodSection.style.display = 'block';
                         if (dietAdminActions) dietAdminActions.style.display = 'flex';
                         if (navRutinasText) navRutinasText.textContent = 'Rutinas';
+                        this.applyRoleBasedCoverVisibility();
                         return;
                     }
 
@@ -2985,6 +2992,7 @@
                         if (addFoodSection) addFoodSection.style.display = 'block';
                         if (dietAdminActions) dietAdminActions.style.display = this.canEditGlobalMedia() ? 'flex' : 'none';
                         if (navRutinasText) navRutinasText.textContent = 'Rutinas';
+                        this.applyRoleBasedCoverVisibility();
                         return;
                     }
 
@@ -2996,6 +3004,38 @@
                     if (addFoodSection) addFoodSection.style.display = 'none';
                     if (dietAdminActions) dietAdminActions.style.display = 'none';
                     if (navRutinasText) navRutinasText.textContent = 'Mi Rutina';
+                    this.applyRoleBasedCoverVisibility();
+                    return;
+                },
+
+                applyRoleBasedCoverVisibility() {
+                    const hideCoachInstructions = this.isCoach();
+                    const hideGlobalUploads = !this.canEditGlobalMedia();
+
+                    document.querySelectorAll('[data-hide-coach-cover]').forEach(element => {
+                        element.classList.toggle('hidden', hideCoachInstructions);
+                    });
+
+                    document.querySelectorAll('[data-coach-cover-note]').forEach(element => {
+                        element.classList.toggle('hidden', !hideCoachInstructions);
+                    });
+
+                    document.querySelectorAll('.diet-panel-cover-upload').forEach(label => {
+                        const shouldHide = hideGlobalUploads || hideCoachInstructions;
+                        label.classList.toggle('is-hidden', shouldHide);
+                    });
+
+                    const dashboardActions = document.querySelector('[data-cover-action-group="dashboard"]');
+                    if (dashboardActions) {
+                        const shouldHide = hideGlobalUploads || hideCoachInstructions;
+                        dashboardActions.classList.toggle('hidden', shouldHide);
+                    }
+
+                    const routineBannerCard = document.getElementById('routine-admin-banner-card');
+                    if (routineBannerCard) {
+                        const shouldHide = hideGlobalUploads || hideCoachInstructions;
+                        routineBannerCard.classList.toggle('hidden', shouldHide);
+                    }
                 },
 
                 async saveDataToFirestore() {
@@ -3767,7 +3807,21 @@
                     if (registerSubtitleEl) registerSubtitleEl.textContent = copy.registerSubtitle;
                 },
 
-                async handleLogout() { try { await signOut(this.auth); } catch (error) { this.showToast('Error al cerrar sesión.', 'error'); } },
+                async handleLogout() {
+                    if (!this.auth) return;
+                    try {
+                        this.showLaunchScreen();
+                        await signOut(this.auth);
+                        this.state = this.getDefaultState();
+                        this.closeMobileMenu(true);
+                        this.showAuthUI();
+                        this.showToast('Sesión cerrada correctamente.', 'success');
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                        this.hideLaunchScreen();
+                        this.showToast('Error al cerrar sesión.', 'error');
+                    }
+                },
                 showAppUI() {
                     this.hideLaunchScreen();
                     document.getElementById('auth-container').classList.add('hidden');
@@ -4513,6 +4567,7 @@
                     this.updateDashboard();
                     this.updateHeaderInsights();
                     lucide.createIcons();
+                    this.applyRoleBasedCoverVisibility();
                 },
                 showSection(id, animate=true){
                     this.state.currentSection=id;
@@ -6319,11 +6374,11 @@
                 },
                 refreshRoutineBannerControls() {
                     const card = document.getElementById('routine-admin-banner-card');
-                    const isAdmin = this.isAsesor();
+                    const canManage = this.canEditGlobalMedia();
                     if (card) {
-                        card.classList.toggle('hidden', !isAdmin);
+                        card.classList.toggle('hidden', !canManage);
                     }
-                    if (!isAdmin) {
+                    if (!canManage) {
                         return;
                     }
 
@@ -6352,11 +6407,11 @@
                 },
                 updateRoutineBannerPreview() {
                     const card = document.getElementById('routine-admin-banner-card');
-                    const isAdmin = this.isAsesor();
+                    const canManage = this.canEditGlobalMedia();
                     if (card) {
-                        card.classList.toggle('hidden', !isAdmin);
+                        card.classList.toggle('hidden', !canManage);
                     }
-                    if (!isAdmin) return;
+                    if (!canManage) return;
 
                     const preview = document.getElementById('routine-admin-banner-preview');
                     const skeleton = document.getElementById('routine-admin-banner-skeleton');
@@ -8518,6 +8573,43 @@
                 },
                 routine_getCreatorContent(step) {
                     if (step === 1) {
+                        const canUploadCover = this.canManageRoutineCover();
+                        const coverDescription = canUploadCover
+                            ? `<p class="mt-2 text-sm text-gray-300">Resalta tu rutina con una portada envolvente para motivar a tus asesorados.</p>`
+                            : `<p class="mt-2 text-sm text-gray-400">El administrador se encargará de la portada visual. Cuida los detalles de tu rutina y nosotros aplicaremos el diseño.</p>`;
+                        const coverControl = canUploadCover
+                            ? `<label for="routine-cover-image-input" class="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-gray-950/60 transition hover:border-emerald-400/60">
+                                    <input type="file" accept="image/*" id="routine-cover-image-input" class="absolute inset-0 h-full w-full cursor-pointer opacity-0">
+                                    <div id="cover-image-placeholder" class="flex h-full flex-col items-center justify-center gap-3 text-gray-400">
+                                        <span class="grid h-16 w-16 place-items-center rounded-full border border-white/10 bg-white/5 text-white transition group-hover:border-emerald-400/50 group-hover:text-emerald-200">
+                                            <i data-lucide="image"></i>
+                                        </span>
+                                        <div class="text-center">
+                                            <p class="text-sm font-semibold text-white">Arrastra o selecciona una imagen</p>
+                                            <p class="text-xs text-gray-500">Ideal 1280 × 720 px</p>
+                                        </div>
+                                    </div>
+                                    <img id="routine-cover-preview" class="hidden h-full w-full object-cover" alt="Vista previa de la portada">
+                                </label>`
+                            : `<div class="relative block aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-gray-950/60">
+                                    <div class="flex h-full flex-col items-center justify-center gap-3 px-6 text-center text-gray-400">
+                                        <span class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/5 text-gray-300">
+                                            <i data-lucide="shield-alert"></i>
+                                        </span>
+                                        <div class="space-y-1">
+                                            <p class="text-sm text-gray-300">La portada se gestiona desde administración.</p>
+                                            <p class="text-xs text-gray-500">Enfócate en personalizar contenido y narrativa, el arte se adaptará automáticamente.</p>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        const coverProgress = canUploadCover
+                            ? `<div id="cover-upload-progress-container" class="hidden items-center gap-3 rounded-2xl border border-white/10 bg-gray-950/70 px-4 py-3">
+                                    <div class="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
+                                        <div id="cover-upload-progress-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-300"></div>
+                                    </div>
+                                    <span id="cover-upload-progress-text" class="text-xs font-semibold text-gray-300"></span>
+                                </div>`
+                            : '';
                         return `
                             <div class="min-h-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
                                 <header class="sticky top-0 z-10 border-b border-white/5 bg-gray-950/80 backdrop-blur">
@@ -8540,27 +8632,10 @@
                                                 <div class="flex flex-col gap-4">
                                                     <div>
                                                         <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Imagen de portada</p>
-                                                        <p class="mt-2 text-sm text-gray-300">Resalta tu rutina con una portada envolvente para motivar a tus asesorados.</p>
+                                                        ${coverDescription}
                                                     </div>
-                                                    <label for="routine-cover-image-input" class="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-gray-950/60 transition hover:border-emerald-400/60">
-                                                        <input type="file" accept="image/*" id="routine-cover-image-input" class="absolute inset-0 h-full w-full cursor-pointer opacity-0">
-                                                        <div id="cover-image-placeholder" class="flex h-full flex-col items-center justify-center gap-3 text-gray-400">
-                                                            <span class="grid h-16 w-16 place-items-center rounded-full border border-white/10 bg-white/5 text-white transition group-hover:border-emerald-400/50 group-hover:text-emerald-200">
-                                                                <i data-lucide="image"></i>
-                                                            </span>
-                                                            <div class="text-center">
-                                                                <p class="text-sm font-semibold text-white">Arrastra o selecciona una imagen</p>
-                                                                <p class="text-xs text-gray-500">Ideal 1280 × 720 px</p>
-                                                            </div>
-                                                        </div>
-                                                        <img id="routine-cover-preview" class="hidden h-full w-full object-cover" alt="Vista previa de la portada">
-                                                    </label>
-                                                    <div id="cover-upload-progress-container" class="hidden items-center gap-3 rounded-2xl border border-white/10 bg-gray-950/70 px-4 py-3">
-                                                        <div class="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-                                                            <div id="cover-upload-progress-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-300"></div>
-                                                        </div>
-                                                        <span id="cover-upload-progress-text" class="text-xs font-semibold text-gray-300"></span>
-                                                    </div>
+                                                    ${coverControl}
+                                                    ${coverProgress}
                                                 </div>
                                                 <div class="flex flex-col gap-6">
                                                     <div>
@@ -9131,8 +9206,8 @@
                 },
                 // ▼▼▼ CÓDIGO A INSERTAR ▼▼▼
                 routine_handleCoverImageSelect(event) {
-                    if (!this.canEditGlobalMedia()) {
-                        this.showToast('Solo el administrador puede actualizar esta portada.', 'error');
+                    if (!this.canManageRoutineCover()) {
+                        this.showToast('Esta portada solo puede configurarse desde la administración.', 'error');
                         if (event?.target) event.target.value = '';
                         return;
                     }
@@ -9154,8 +9229,8 @@
                 },
 
                 async routine_uploadCoverImage(file) {
-                    if (!this.canEditGlobalMedia()) {
-                        this.showToast('Solo el administrador puede actualizar esta portada.', 'error');
+                    if (!this.canManageRoutineCover()) {
+                        this.showToast('Esta portada solo puede configurarse desde la administración.', 'error');
                         return;
                     }
                     if (!file) return;
