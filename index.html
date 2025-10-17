@@ -1312,24 +1312,192 @@
     
     <template id="template-asesorados">
         <section id="asesorados" class="section-content hidden">
-            <div class="space-y-6">
-                <div>
-                    <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Gestión de Asesorados</span></h2>
-                    <p class="text-gray-400">Invita y gestiona los planes de tus clientes.</p>
-                </div>
-                
-                <div class="bg-gray-700/50 p-4 rounded-2xl">
-                    <h3 class="font-semibold text-lg mb-3">Invitar a un Nuevo Cliente</h3>
-                    <form id="invite-form" class="flex flex-col gap-3 sm:flex-row">
-                        <input type="email" id="invite-email" placeholder="email@cliente.com" required class="w-full bg-gray-700 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
-                        <button type="submit" class="bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition sm:w-auto">Invitar</button>
-                    </form>
+            <div class="space-y-8 pb-10">
+                <div class="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-gray-950/95 via-gray-900/80 to-gray-900/40 p-6 sm:p-8 shadow-[0_45px_140px_-70px_rgba(16,185,129,0.75)]">
+                    <div class="pointer-events-none absolute inset-0">
+                        <div class="absolute -top-24 -left-16 h-56 w-56 rounded-full bg-emerald-500/20 blur-3xl"></div>
+                        <div class="absolute -bottom-24 right-0 h-72 w-72 rounded-full bg-sky-500/20 blur-3xl"></div>
+                    </div>
+                    <div class="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                        <div class="space-y-4">
+                            <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200"><i data-lucide="users" class="h-4 w-4"></i>Suite de acompañamiento</span>
+                            <div class="space-y-2">
+                                <h2 class="text-3xl font-black leading-tight text-white sm:text-4xl">Gestión integral de asesorados</h2>
+                                <p class="max-w-2xl text-sm text-emerald-50/80 sm:text-base">Centraliza la creación de rutinas personalizadas, la vinculación con tus colecciones existentes, la planificación nutricional semanal y el seguimiento diario con checklists inteligentes.</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/80">
+                                <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="sparkles" class="h-3.5 w-3.5 text-emerald-300"></i>Experiencia premium</span>
+                                <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="workflow" class="h-3.5 w-3.5 text-emerald-300"></i>Flujo guiado</span>
+                                <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="lock" class="h-3.5 w-3.5 text-emerald-300"></i>Privacidad asegurada</span>
+                            </div>
+                        </div>
+                        <div class="grid w-full gap-3 text-sm text-emerald-100/80 sm:max-w-xl lg:grid-cols-2">
+                            <div class="header-metric rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/20">
+                                <p class="text-[11px] uppercase tracking-[0.28em] text-emerald-100/70">Clientes activos</p>
+                                <p id="asesorados-active-count" class="mt-2 text-3xl font-bold text-white">--</p>
+                                <p class="text-[11px] text-emerald-100/60">Actualiza tu cartera al instante</p>
+                            </div>
+                            <div class="header-metric rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/20">
+                                <p class="text-[11px] uppercase tracking-[0.28em] text-emerald-100/70">Rutinas asignadas</p>
+                                <p id="asesorados-routines-count" class="mt-2 text-3xl font-bold text-white">--</p>
+                                <p class="text-[11px] text-emerald-100/60">Combina creadas y predefinidas</p>
+                            </div>
+                            <div class="header-metric rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/20">
+                                <p class="text-[11px] uppercase tracking-[0.28em] text-emerald-100/70">Planes de dieta</p>
+                                <p id="asesorados-diets-count" class="mt-2 text-3xl font-bold text-white">--</p>
+                                <p class="text-[11px] text-emerald-100/60">Organiza semana a semana</p>
+                            </div>
+                            <div class="header-metric rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/20">
+                                <p class="text-[11px] uppercase tracking-[0.28em] text-emerald-100/70">Check-ins diarios</p>
+                                <p id="asesorados-checkins-count" class="mt-2 text-3xl font-bold text-white">--</p>
+                                <p class="text-[11px] text-emerald-100/60">Checklist automatizado</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div>
-                    <h3 class="font-semibold text-lg mb-3">Mis Clientes</h3>
-                    <div id="asesorados-list" class="space-y-3">
-                        <p class="text-gray-500 text-center p-4">Aún no tienes clientes.</p>
+                <div class="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.85fr)]">
+                    <div class="space-y-6">
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-emerald-500/10">
+                            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white">Invitar a un nuevo asesorado</h3>
+                                    <p class="text-sm text-gray-400">Comparte un acceso personalizado y comienza la construcción de su ecosistema de entrenamiento.</p>
+                                </div>
+                                <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><i data-lucide="mail" class="h-3.5 w-3.5 text-emerald-300"></i>Invitación directa</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><i data-lucide="shield-check" class="h-3.5 w-3.5 text-emerald-300"></i>Acceso seguro</span>
+                                </div>
+                            </div>
+                            <form id="invite-form" class="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,220px)]" autocomplete="off">
+                                <input type="email" id="invite-email" placeholder="email@cliente.com" required class="w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-400 px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-gray-900 shadow-[0_20px_45px_-25px_rgba(16,185,129,0.95)] transition hover:from-emerald-300 hover:via-emerald-400 hover:to-teal-300">
+                                    <i data-lucide="send" class="h-4 w-4"></i>
+                                    Invitar
+                                </button>
+                            </form>
+                            <p class="mt-3 text-xs text-gray-500">El asesorado recibirá instrucciones para completar su registro y activar los módulos de rutina, nutrición y seguimiento.</p>
+                        </div>
+
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-emerald-500/10">
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white">Cartera de asesorados</h3>
+                                    <p class="text-sm text-gray-400">Accede al perfil, administra sus planes y revisa sus registros día a día.</p>
+                                </div>
+                                <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><i data-lucide="list-checks" class="h-3.5 w-3.5 text-emerald-300"></i>Check diario</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><i data-lucide="activity" class="h-3.5 w-3.5 text-emerald-300"></i>Progreso continuo</span>
+                                </div>
+                            </div>
+                            <div id="asesorados-list" class="mt-5 space-y-3">
+                                <div class="rounded-2xl border border-dashed border-white/10 bg-gray-900/60 p-6 text-center text-sm text-gray-400">
+                                    Aún no tienes clientes. Envía tu primera invitación para comenzar.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-gray-900/80 to-sky-500/10 p-6 shadow-lg shadow-emerald-500/10">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i data-lucide="dumbbell" class="h-5 w-5 text-emerald-300"></i>Arquitectura de rutinas</h3>
+                            <div class="mt-4 grid gap-3 text-sm text-emerald-50/80">
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <h4 class="text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="wand2" class="h-4 w-4 text-emerald-300"></i>Creador inmersivo</h4>
+                                    <p class="mt-2 text-gray-300">Diseña sesiones personalizadas, gestiona bloques, tempo y progresiones para cada asesorado con visualizaciones en tiempo real.</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <h4 class="text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="library" class="h-4 w-4 text-emerald-300"></i>Vincula múltiples rutinas</h4>
+                                    <p class="mt-2 text-gray-300">Añade planes previamente creados por ti o selecciona colecciones predefinidas para combinar enfoques y periodizar objetivos.</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <h4 class="text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="refresh-cw" class="h-4 w-4 text-emerald-300"></i>Actualizaciones dinámicas</h4>
+                                    <p class="mt-2 text-gray-300">Sincroniza cambios con un clic y mantén un registro histórico de las iteraciones aplicadas en cada perfil.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-emerald-500/10">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i data-lucide="utensils-crossed" class="h-5 w-5 text-emerald-300"></i>Planner nutricional semanal</h3>
+                            <p class="mt-2 text-sm text-gray-300">Configura objetivos diarios, organiza comidas por semana y habilita checklists inteligentes que tu asesorado marcará al completar cada ingesta.</p>
+                            <ul class="mt-4 space-y-3 text-sm text-gray-300">
+                                <li class="flex items-start gap-3"><span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200"><i data-lucide="calendar-range" class="h-3.5 w-3.5"></i></span><span>Planificación semanal con vistas comparativas para medir adherencia.</span></li>
+                                <li class="flex items-start gap-3"><span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200"><i data-lucide="check-square" class="h-3.5 w-3.5"></i></span><span>Checklist diario sincronizado con recordatorios y feedback instantáneo.</span></li>
+                                <li class="flex items-start gap-3"><span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200"><i data-lucide="flame" class="h-3.5 w-3.5"></i></span><span>Control de calorías, macros y registros fotográficos de cada comida.</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-emerald-500/10">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i data-lucide="user-round" class="h-5 w-5 text-emerald-300"></i>Perfil y seguimiento integral</h3>
+                            <p class="mt-2 text-sm text-gray-300">Accede a métricas de progreso, gráficos, notas de sesiones y checkpoints físicos para evaluar la evolución del asesorado.</p>
+                            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <h4 class="text-sm font-semibold text-white">Bitácora de progreso</h4>
+                                    <p class="mt-2 text-xs text-gray-400">Registra medidas, PRs, percepción de esfuerzo y objetivos alcanzados.</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <h4 class="text-sm font-semibold text-white">Alertas inteligentes</h4>
+                                    <p class="mt-2 text-xs text-gray-400">Recibe notificaciones cuando se detecten desviaciones en adherencia o cargas.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+                    <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-gray-950/90 via-gray-900/70 to-gray-900/40 p-6 shadow-lg shadow-emerald-500/10">
+                        <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i data-lucide="clipboard-check" class="h-5 w-5 text-emerald-300"></i>Checklists diarios inteligentes</h3>
+                        <p class="mt-2 text-sm text-gray-300">Visualiza el estado de cumplimiento día a día y automatiza recordatorios en función de los hitos marcados.</p>
+                        <div class="mt-5 grid gap-4 text-sm text-gray-300">
+                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold text-white">Entrenamiento</span>
+                                    <span class="rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200">100%</span>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-400">Sesiones completadas, movilidad y estiramientos con confirmación del asesorado.</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold text-white">Nutrición</span>
+                                    <span class="rounded-full bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-sky-200">80%</span>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-400">Checklist de comidas, hidratación y suplementos con adjuntos fotográficos.</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold text-white">Hábitos clave</span>
+                                    <span class="rounded-full bg-amber-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200">En curso</span>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-400">Sueño, pasos y rutinas de bienestar integradas en el tablero diario.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-gray-900/80 to-sky-500/10 p-6 shadow-lg shadow-emerald-500/10">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i data-lucide="message-circle" class="h-5 w-5 text-emerald-300"></i>Canal privado de seguimiento</h3>
+                            <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-300"><i data-lucide="image" class="h-3.5 w-3.5 text-emerald-200"></i>Multimedia segura</span>
+                        </div>
+                        <p class="text-sm text-gray-300">Mantén una conversación exclusiva con cada asesorado, comparte feedback y recibe imágenes de progreso, comidas y evaluaciones directamente en el historial.</p>
+                        <div class="mt-5 grid gap-4 md:grid-cols-2">
+                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <h4 class="text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="shield" class="h-4 w-4 text-emerald-300"></i>Privado y encriptado</h4>
+                                <p class="mt-2 text-xs text-gray-400">Solo tú y tu asesorado acceden a este canal. Incluye recibo de lectura y filtros por etiquetas.</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <h4 class="text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="images" class="h-4 w-4 text-emerald-300"></i>Galería de progresos</h4>
+                                <p class="mt-2 text-xs text-gray-400">Recibe fotos, clips o capturas de métricas y vincúlalas al día, rutina o comida correspondiente.</p>
+                            </div>
+                        </div>
+                        <div class="mt-5 rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                            <div class="flex items-start gap-3">
+                                <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200"><i data-lucide="bot" class="h-4 w-4"></i></span>
+                                <div class="space-y-1">
+                                    <p class="text-sm font-semibold text-white">Sugerencias automáticas</p>
+                                    <p class="text-xs text-gray-400">Activa mensajes inteligentes con recomendaciones de ajuste cuando el asesorado marque dificultades o envíe feedback específico.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4788,21 +4956,144 @@
                 async renderAsesoradosSection() {
                     const listContainer = document.getElementById('asesorados-list');
                     if (!listContainer) return;
+
                     await this.fetchAsesorados();
-                    if (this.state.asesorados.length > 0) {
-                        listContainer.innerHTML = this.state.asesorados.map(client => `
-                            <button data-action="manage-client" data-client-id="${client.id}" class="w-full bg-gray-700 rounded-2xl p-4 flex items-center space-x-4 text-left hover:bg-gray-600/80 transition-colors">
-                                <div class="w-10 h-10 rounded-full bg-emerald-500/50 flex items-center justify-center font-bold text-white flex-shrink-0">${client.userName.charAt(0).toUpperCase()}</div>
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-white">${client.userName}</h4>
-                                    <p class="text-sm text-gray-400">${client.email}</p>
-                                </div>
-                                <i data-lucide="chevron-right" class="text-gray-500"></i>
-                            </button>
-                        `).join('');
-                    } else {
-                        listContainer.innerHTML = `<p class="text-gray-500 text-center p-4">Aún no tienes clientes. ¡Invita a alguien!</p>`;
+
+                    const formatCount = (value) => Number.isFinite(value) ? value.toLocaleString('es-ES') : '0';
+
+                    const totalClients = this.state.asesorados.length;
+                    const totalAssignedRoutines = this.state.asesorados.reduce((acc, client) => {
+                        const routines = Array.isArray(client.userRoutines) ? client.userRoutines.length : 0;
+                        return acc + routines;
+                    }, 0);
+                    const totalActiveDiets = this.state.asesorados.reduce((acc, client) => {
+                        const hasDiet = Array.isArray(client.dailyDiet) && client.dailyDiet.length > 0;
+                        return acc + (hasDiet ? 1 : 0);
+                    }, 0);
+                    const totalCheckins = this.state.asesorados.reduce((acc, client) => {
+                        if (Array.isArray(client.dailyChecklist)) {
+                            return acc + client.dailyChecklist.filter(item => item?.completed).length;
+                        }
+                        if (Array.isArray(client.checklist)) {
+                            return acc + client.checklist.filter(item => item?.completed).length;
+                        }
+                        if (Array.isArray(client.checkIns)) {
+                            return acc + client.checkIns.filter(item => item?.completed).length;
+                        }
+                        if (Array.isArray(client.dailyDiet)) {
+                            return acc + client.dailyDiet.reduce((mealSum, meal) => {
+                                if (!Array.isArray(meal?.items)) return mealSum;
+                                return mealSum + meal.items.filter(item => item?.completed).length;
+                            }, 0);
+                        }
+                        const fallback = client?.dailyCheckinsCompleted ?? client?.checkinsCompleted ?? client?.checkins ?? 0;
+                        return acc + (typeof fallback === 'number' ? fallback : 0);
+                    }, 0);
+
+                    const activeCountEl = document.getElementById('asesorados-active-count');
+                    const routinesCountEl = document.getElementById('asesorados-routines-count');
+                    const dietsCountEl = document.getElementById('asesorados-diets-count');
+                    const checkinsCountEl = document.getElementById('asesorados-checkins-count');
+
+                    if (activeCountEl) {
+                        activeCountEl.textContent = formatCount(totalClients);
                     }
+                    if (routinesCountEl) {
+                        routinesCountEl.textContent = formatCount(totalAssignedRoutines);
+                    }
+                    if (dietsCountEl) {
+                        dietsCountEl.textContent = formatCount(totalActiveDiets);
+                    }
+                    if (checkinsCountEl) {
+                        checkinsCountEl.textContent = formatCount(totalCheckins);
+                    }
+
+                    if (totalClients > 0) {
+                        listContainer.innerHTML = this.state.asesorados.map(client => {
+                            const name = client.userName || 'Asesorado';
+                            const email = client.email || 'Sin email';
+                            const initial = (name || email).charAt(0).toUpperCase();
+                            const routines = Array.isArray(client.userRoutines) ? client.userRoutines.length : 0;
+                            const mealsPlanned = Array.isArray(client.dailyDiet)
+                                ? client.dailyDiet.reduce((sum, meal) => sum + (Array.isArray(meal?.items) ? meal.items.length : 0), 0)
+                                : 0;
+                            const dietDays = Array.isArray(client.dailyDiet) ? client.dailyDiet.length : 0;
+                            const goalCalories = typeof client?.userGoals?.calories === 'number' ? client.userGoals.calories : null;
+                            const goalCaloriesLabel = goalCalories !== null ? formatCount(goalCalories) : null;
+                            const checklistCompleted = (() => {
+                                if (Array.isArray(client.dailyChecklist)) {
+                                    return client.dailyChecklist.filter(item => item?.completed).length;
+                                }
+                                if (Array.isArray(client.checklist)) {
+                                    return client.checklist.filter(item => item?.completed).length;
+                                }
+                                if (Array.isArray(client.checkIns)) {
+                                    return client.checkIns.filter(item => item?.completed).length;
+                                }
+                                const fallback = client?.dailyCheckinsCompleted ?? client?.checkinsCompleted ?? client?.checkins ?? 0;
+                                return typeof fallback === 'number' ? fallback : 0;
+                            })();
+                            const routineBadge = routines > 0
+                                ? `${formatCount(routines)} ${routines === 1 ? 'rutina activa' : 'rutinas activas'}`
+                                : 'Crea su primera rutina';
+                            const nutritionBadge = dietDays > 0
+                                ? `${formatCount(dietDays)} ${dietDays === 1 ? 'día planificado' : 'días planificados'}`
+                                : 'Agenda nutricional pendiente';
+                            const checkinsLabel = checklistCompleted === 1 ? 'check-in' : 'check-ins';
+                            const checkinsBadge = checklistCompleted > 0
+                                ? `${formatCount(checklistCompleted)} ${checkinsLabel} completados`
+                                : 'Checklist en configuración';
+
+                            return `
+                                <button data-action="manage-client" data-client-id="${client.id}" class="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-gray-900/60 p-5 text-left transition hover:border-emerald-400/50 hover:shadow-[0_25px_65px_-40px_rgba(16,185,129,0.85)] focus:outline-none focus:ring-2 focus:ring-emerald-400/50">
+                                    <div class="absolute inset-0 opacity-0 transition group-hover:opacity-100">
+                                        <div class="h-full w-full bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_60%)]"></div>
+                                    </div>
+                                    <div class="relative z-[1] flex flex-col gap-4">
+                                        <div class="flex items-start justify-between gap-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/20 text-lg font-bold text-emerald-200">${initial}</div>
+                                                <div>
+                                                    <h4 class="text-lg font-semibold text-white">${name}</h4>
+                                                    <p class="text-sm text-gray-400">${email}</p>
+                                                </div>
+                                            </div>
+                                            <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-300"><i data-lucide="arrow-up-right" class="h-3.5 w-3.5 text-emerald-300"></i>Gestionar</span>
+                                        </div>
+                                        <div class="grid gap-3 md:grid-cols-3 text-sm">
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-3">
+                                                <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Rutinas</p>
+                                                <p class="mt-1 text-base font-semibold text-white">${routineBadge}</p>
+                                                <p class="text-[11px] text-emerald-200/80">Personalizadas y biblioteca</p>
+                                            </div>
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-3">
+                                                <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Nutrición</p>
+                                                <p class="mt-1 text-base font-semibold text-white">${nutritionBadge}</p>
+                                                <p class="text-[11px] text-emerald-200/80">${goalCaloriesLabel ? `${goalCaloriesLabel} kcal objetivo` : 'Define metas calóricas'}</p>
+                                            </div>
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-3">
+                                                <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Seguimiento</p>
+                                                <p class="mt-1 text-base font-semibold text-white">${checkinsBadge}</p>
+                                                <p class="text-[11px] text-emerald-200/80">${mealsPlanned > 0 ? `${formatCount(mealsPlanned)} registros planificados` : 'Activa checklist diaria'}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-emerald-200"><i data-lucide="repeat" class="h-3.5 w-3.5"></i>${routines > 0 ? 'Actualizar rutina' : 'Crear rutina'}</span>
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-sky-400/30 bg-sky-500/10 px-3 py-1 text-sky-200"><i data-lucide="calendar-check-2" class="h-3.5 w-3.5"></i>${dietDays > 0 ? 'Agenda semanal activa' : 'Planifica dieta'}</span>
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1 text-violet-200"><i data-lucide="message-square" class="h-3.5 w-3.5"></i>Chat privado</span>
+                                        </div>
+                                    </div>
+                                </button>
+                            `;
+                        }).join('');
+                    } else {
+                        listContainer.innerHTML = `
+                            <div class="rounded-2xl border border-dashed border-white/10 bg-gray-900/60 p-6 text-center text-sm text-gray-400">
+                                Aún no tienes clientes. Envía tu primera invitación para comenzar.
+                            </div>
+                        `;
+                    }
+
                     lucide.createIcons();
                 },
 
