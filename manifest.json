@@ -1,6 +1,6 @@
 {
-  "name": "FitTrack",
-  "short_name": "FitTrack",
+  "name": "SEBFIT",
+  "short_name": "SEBFIT",
   "description": "Tu asistente fitness personal instalable y con acceso básico sin conexión.",
   "lang": "es",
   "start_url": "./",
