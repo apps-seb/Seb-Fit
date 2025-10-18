@@ -829,6 +829,10 @@
                         <i data-lucide="trophy"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Ranking</span>
                     </button>
+                    <button id="nav-premios" data-section="premios" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="gift"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Premios</span>
+                    </button>
                     <button id="nav-360" data-section="seguimiento360" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="radar"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">360°</span>
@@ -850,6 +854,10 @@
                     <button data-section="comunidad" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
                         <i data-lucide="trophy"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">Ranking</span>
+                    </button>
+                    <button data-section="premios" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
+                        <i data-lucide="gift"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">Premios</span>
                     </button>
                     <button data-section="dieta" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
                         <i data-lucide="utensils"></i>
@@ -2453,7 +2461,106 @@
             </div>
         </section>
     </template>
-    
+
+    <template id="template-premios">
+        <section id="premios" class="section-content hidden">
+            <div class="space-y-8 pb-12">
+                <div class="relative overflow-hidden rounded-[2.5rem] border border-emerald-400/30 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-sky-500/10 p-8 sm:p-10 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.85)]">
+                    <div class="pointer-events-none absolute inset-0">
+                        <div class="absolute -top-32 left-6 h-64 w-64 rounded-full bg-emerald-400/20 blur-3xl"></div>
+                        <div class="absolute -bottom-36 right-10 h-72 w-72 rounded-full bg-sky-400/20 blur-3xl"></div>
+                    </div>
+                    <div class="relative grid gap-8 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1fr)] lg:items-center">
+                        <button data-action="gamification-configure" class="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100 transition hover:border-emerald-300 hover:text-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-400/60" aria-label="Configurar premios por entrenar">
+                            <i data-lucide="settings-2" class="h-4 w-4"></i>
+                            Ajustar reglas
+                        </button>
+                        <div class="space-y-4 text-white">
+                            <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/50 bg-emerald-500/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.4em] text-emerald-100">Premios por entrenar</span>
+                            <h2 class="text-3xl font-bold sm:text-4xl">Suma puntos y desbloquea recompensas reales</h2>
+                            <p id="gamification-summary-helper" class="text-sm text-emerald-50/80">Verifica cada entrenamiento con una foto y recibe puntos automáticos. ¡Mientras más constante seas, más premios desbloquearás!</p>
+                            <div class="space-y-3">
+                                <div class="header-progress-bar bg-emerald-500/20">
+                                    <span id="gamification-progress-bar" class="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"></span>
+                                </div>
+                                <p id="gamification-progress-label" class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200/80">0 / 100 pts para el próximo premio</p>
+                            </div>
+                        </div>
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <div class="rounded-3xl border border-white/15 bg-white/10 p-4 text-white backdrop-blur">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200/80">Puntos acumulados</p>
+                                <p id="gamification-points" class="mt-3 text-4xl font-black tracking-tight">0</p>
+                                <p id="gamification-total-sessions" class="text-xs text-gray-200/70">Sesiones verificadas: 0</p>
+                            </div>
+                            <div class="rounded-3xl border border-emerald-400/40 bg-emerald-500/10 p-4 text-emerald-100 shadow-[0_20px_60px_-35px_rgba(16,185,129,0.75)]">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/80">Ritmo de puntos</p>
+                                <p id="gamification-points-per-session" class="mt-3 text-3xl font-semibold">+10 pts / sesión</p>
+                                <p id="gamification-next-reward-label" class="text-xs text-emerald-100/70">Tu próximo premio aparece aquí.</p>
+                            </div>
+                            <div class="rounded-3xl border border-white/15 bg-white/10 p-4 text-white backdrop-blur sm:col-span-2">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200/80">Intervalo entre premios</p>
+                                <p id="gamification-cooldown-label" class="mt-2 text-base font-semibold">1 sesión verificada cada 8h</p>
+                                <p id="gamification-cooldown-hint" class="text-xs text-gray-200/70">Asegúrate de aprovechar tus entrenamientos diarios.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="gamification-pending-card" data-gamification-area="pending" class="hidden rounded-3xl border border-white/10 bg-gray-900/70 p-6 shadow-[0_20px_60px_-35px_rgba(16,185,129,0.6)]">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="space-y-1 text-white">
+                            <p class="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-200">Sesión pendiente de verificación</p>
+                            <h3 id="gamification-pending-title" class="text-xl font-semibold">Tu entrenamiento espera la foto</h3>
+                            <p id="gamification-pending-helper" class="text-sm text-gray-300">Toma una foto rápida para sumar puntos antes de que cierre la ventana de registro.</p>
+                        </div>
+                        <div class="flex flex-col items-stretch gap-3 sm:flex-row">
+                            <button data-action="gamification-open-upload" class="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-400">
+                                <i data-lucide="camera"></i>
+                                Sube tu foto y gana tus puntos
+                            </button>
+                            <button data-action="gamification-go-section" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:border-emerald-400/60 hover:text-emerald-100">
+                                <i data-lucide="gift"></i>
+                                Ver premios
+                            </button>
+                        </div>
+                    </div>
+                    <input type="file" accept="image/*" capture="environment" data-gamification-proof-input class="hidden">
+                </div>
+                <div class="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.9fr)] items-start">
+                    <section class="flex flex-col gap-5 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_30px_80px_-60px_rgba(56,189,248,0.45)]">
+                        <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-400/40 bg-emerald-500/10 text-emerald-200">
+                                    <i data-lucide="history"></i>
+                                </span>
+                                <div>
+                                    <h3 class="text-base font-semibold text-white">Historial de sesiones verificadas</h3>
+                                    <p class="text-xs text-gray-400">Revisa tus fotos con sello de hora y los puntos ganados.</p>
+                                </div>
+                            </div>
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Privacidad y control</p>
+                        </header>
+                        <div id="gamification-history-list" class="space-y-3"></div>
+                    </section>
+                    <section class="flex flex-col gap-5 rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_30px_80px_-60px_rgba(139,92,246,0.45)]">
+                        <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-purple-400/40 bg-purple-500/10 text-purple-200">
+                                    <i data-lucide="sparkles"></i>
+                                </span>
+                                <div>
+                                    <h3 class="text-base font-semibold text-white">Premios disponibles</h3>
+                                    <p class="text-xs text-gray-400">Visualiza qué recompensas están listas para ti.</p>
+                                </div>
+                            </div>
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Motivación constante</p>
+                        </header>
+                        <div id="gamification-rewards-grid" class="grid gap-4"></div>
+                    </section>
+                </div>
+            </div>
+        </section>
+    </template>
+
     <template id="template-perfil">
         <section id="perfil" class="section-content hidden">
             <div class="space-y-10 pb-12">
@@ -2829,8 +2936,10 @@
                 firebaseApp: firebaseApp,
                 auth: null,
                 db: null,
-                storage: null, 
-                
+                storage: null,
+                pendingGamificationSummary: null,
+                isProcessingGamificationProof: false,
+
                 isAdmin() {
                     return this.state && this.state.role === 'admin';
                 },
@@ -2857,12 +2966,114 @@
                     return labels[value] || 'Asesorado';
                 },
 
+                escapeHtml(value = '') {
+                    return `${value}`.replace(/[&<>"']/g, (char) => {
+                        const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+                        return map[char] || char;
+                    });
+                },
+
                 canEditGlobalMedia() {
                     return this.isAdmin();
                 },
 
                 canManageRoutineCover() {
                     return this.isAdmin() || this.isCoach() || this.isClient();
+                },
+
+                getDefaultRewardsConfig() {
+                    return [
+                        { id: 'reward-100', name: 'Primer desbloqueo', description: 'Sticker exclusivo para compartir en redes.', pointsRequired: 100, icon: 'sparkles', status: 'locked', unlockedAt: null, claimedAt: null },
+                        { id: 'reward-250', name: 'Kit de hábitos', description: 'Plantilla descargable para planificar tus semanas.', pointsRequired: 250, icon: 'milestone', status: 'locked', unlockedAt: null, claimedAt: null },
+                        { id: 'reward-500', name: 'Sesión premium', description: 'Acceso prioritario a una clase o asesoría especial.', pointsRequired: 500, icon: 'trophy', status: 'locked', unlockedAt: null, claimedAt: null },
+                        { id: 'reward-1000', name: 'Caja sorpresa', description: 'Merchandising edición limitada para atletas constantes.', pointsRequired: 1000, icon: 'gift', status: 'locked', unlockedAt: null, claimedAt: null }
+                    ];
+                },
+
+                normalizeGamificationState(source = {}) {
+                    const defaults = {
+                        points: 0,
+                        pointsPerSession: 10,
+                        cooldownHours: 8,
+                        lastAwardedAt: null,
+                        history: [],
+                        rewards: this.getDefaultRewardsConfig()
+                    };
+
+                    const normalizedRewards = this.getDefaultRewardsConfig().map((reward) => {
+                        const existing = Array.isArray(source.rewards) ? source.rewards.find(item => item.id === reward.id) : null;
+                        if (!existing) {
+                            const status = (typeof source.points === 'number' && source.points >= reward.pointsRequired) ? 'unlocked' : reward.status;
+                            return { ...reward, status, unlockedAt: status === 'unlocked' ? new Date().toISOString() : reward.unlockedAt };
+                        }
+                        const totalPoints = typeof source.points === 'number' ? source.points : defaults.points;
+                        const status = existing.status === 'claimed' || existing.claimedAt
+                            ? 'claimed'
+                            : totalPoints >= reward.pointsRequired || existing.status === 'unlocked'
+                                ? 'unlocked'
+                                : 'locked';
+                        return {
+                            ...reward,
+                            ...existing,
+                            status,
+                            unlockedAt: existing.unlockedAt || (status !== 'locked' ? existing.awardedAt || existing.unlockedAt || new Date().toISOString() : null),
+                            claimedAt: existing.claimedAt || null
+                        };
+                    });
+
+                    const parsedPointsPerSession = Number(source.pointsPerSession);
+                    const sanitizedPointsPerSession = Number.isFinite(parsedPointsPerSession) && parsedPointsPerSession > 0
+                        ? Math.max(1, Math.round(parsedPointsPerSession))
+                        : defaults.pointsPerSession;
+                    const parsedCooldown = Number(source.cooldownHours);
+                    const sanitizedCooldownHours = Number.isFinite(parsedCooldown) && parsedCooldown >= 0
+                        ? Math.max(0, Math.round(parsedCooldown))
+                        : defaults.cooldownHours;
+
+                    const parsedPoints = Number(source.points);
+                    const sanitizedPoints = Number.isFinite(parsedPoints) && parsedPoints >= 0
+                        ? Math.round(parsedPoints)
+                        : defaults.points;
+
+                    const history = Array.isArray(source.history) ? source.history.map(entry => {
+                        const awardedAt = entry.awardedAt || entry.date || entry.createdAt || new Date().toISOString();
+                        const sessionId = entry.sessionId || entry.referenceId || entry.sessionRef || entry.id || null;
+                        const routineName = entry.routineName || entry.sessionName || 'Sesión';
+                        const dayName = entry.dayName || entry.day || '';
+                        const pointsAwarded = typeof entry.pointsAwarded === 'number' ? entry.pointsAwarded : (typeof entry.points === 'number' ? entry.points : sanitizedPointsPerSession);
+                        const duration = typeof entry.duration === 'number' ? entry.duration : (typeof entry.totalDuration === 'number' ? entry.totalDuration : 0);
+                        const sessionType = entry.sessionType || entry.type || entry.routineType || dayName || routineName;
+                        const userId = entry.userId || source.userId || this.state?.currentUser?.uid || this.auth?.currentUser?.uid || null;
+                        return {
+                            id: entry.id || `proof-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                            sessionId,
+                            routineName,
+                            dayName,
+                            sessionType,
+                            userId,
+                            duration,
+                            pointsAwarded,
+                            awardedAt,
+                            photoDataUrl: entry.photoDataUrl || entry.photo || null,
+                            timestampLabel: entry.timestampLabel || entry.timestamp || '',
+                            photoDeletedAt: entry.photoDeletedAt || null
+                        };
+                    }) : [];
+
+                    history.sort((a, b) => new Date(b.awardedAt || 0) - new Date(a.awardedAt || 0));
+
+                    const lastAward = source.lastAwardedAt || (history.length ? history[0].awardedAt : null);
+
+                    return {
+                        ...defaults,
+                        ...source,
+                        points: sanitizedPoints,
+                        pointsPerSession: sanitizedPointsPerSession,
+                        cooldownHours: sanitizedCooldownHours,
+                        history,
+                        rewards: normalizedRewards,
+                        lastAwardedAt: lastAward
+                    };
                 },
 
                 getDefaultState() {
@@ -2908,6 +3119,7 @@
                             agenda: { url: '', storagePath: '', updatedAt: null },
                             library: { url: '', storagePath: '', updatedAt: null }
                         },
+                        gamification: this.normalizeGamificationState(),
                         isMobileMenuOpen: false,
                         isUserMenuOpen: false,
                         community: {
@@ -2924,6 +3136,34 @@
                         },
                         isCommunityLoading: false
                     };
+                },
+
+                getNextGamificationReward(points = null) {
+                    const totalPoints = typeof points === 'number' ? points : (this.state?.gamification?.points || 0);
+                    const rewards = this.state?.gamification?.rewards || this.getDefaultRewardsConfig();
+                    return rewards.find(reward => reward.status !== 'claimed' && totalPoints < reward.pointsRequired) || null;
+                },
+
+                getGamificationCooldownInfo() {
+                    const gamification = this.state?.gamification || this.normalizeGamificationState();
+                    const cooldownMs = Math.max(0, Number(gamification.cooldownHours || 0)) * 3600000;
+                    if (!cooldownMs) {
+                        return { inCooldown: false, nextAvailable: null };
+                    }
+                    const reference = gamification.lastAwardedAt || (Array.isArray(gamification.history) && gamification.history.length ? gamification.history[0].awardedAt : null);
+                    if (!reference) {
+                        return { inCooldown: false, nextAvailable: null };
+                    }
+                    const lastAward = new Date(reference);
+                    if (Number.isNaN(lastAward.getTime())) {
+                        return { inCooldown: false, nextAvailable: null };
+                    }
+                    const nextAvailable = new Date(lastAward.getTime() + cooldownMs);
+                    return { inCooldown: nextAvailable > new Date(), nextAvailable };
+                },
+
+                formatPoints(value = 0) {
+                    return new Intl.NumberFormat('es-ES').format(Math.max(0, Math.round(value)));
                 },
 
                 getDashboardCoverImage() {
@@ -3470,6 +3710,7 @@
                                 this.state.dietPanelCovers = { ...defaultState.dietPanelCovers };
                             }
                             this.state.followUp360 = this._normalizeFollowUpSnapshot(data.followUp360 || data.followUp || this.state.followUp360);
+                            this.state.gamification = this.normalizeGamificationState(data.gamification || {});
                             if (this.state.profilePhoto?.url) {
                                 this.preloadImage(this.state.profilePhoto.url, { priority: 'high' });
                             }
@@ -4826,6 +5067,12 @@
                             'followup-open-checkin-modal': () => this.openFollowUpCheckInModal(clientId),
                             'followup-save-checkin': () => this.saveFollowUpCheckIn(clientId),
                             'followup-clear-checkin': () => this.clearFollowUpCheckIn(clientId),
+                            'gamification-open-upload': () => this.openGamificationUpload(button),
+                            'gamification-go-section': () => this.showSection('premios'),
+                            'gamification-remove-photo': () => this.removeGamificationPhoto(button.dataset.recordId),
+                            'gamification-claim-reward': () => this.claimGamificationReward(button.dataset.rewardId),
+                            'gamification-configure': () => this.openGamificationConfigModal(),
+                            'save-gamification-config': () => this.saveGamificationConfig(),
                         };
                         
                         // Prevenir que el checkbox dispare el evento del label padre
@@ -4851,6 +5098,12 @@
                         if (e.target.id === 'profile-photo-input') {
                             const file = e.target.files && e.target.files[0];
                             this.handleProfilePhotoSelected(file);
+                            e.target.value = '';
+                            return;
+                        }
+                        if (e.target.matches('[data-gamification-proof-input]')) {
+                            const file = e.target.files && e.target.files[0];
+                            this.handleGamificationProofSelected(file);
                             e.target.value = '';
                             return;
                         }
@@ -5038,6 +5291,7 @@
                     this.renderWorkoutHistorySection();
                     this.renderProfileSection();
                     this.renderNutricionSection();
+                    this.renderGamificationSection();
                     this.renderCommunitySection();
                     if (this.isAdmin()) {
                         this.renderRolesSection();
@@ -13064,6 +13318,585 @@
                     lucide.createIcons();
                     container.scrollLeft = container.scrollWidth;
                 },
+
+                renderGamificationSection() {
+                    const section = document.getElementById('premios');
+                    if (!section) {
+                        return;
+                    }
+
+                    const gamification = this.normalizeGamificationState(this.state?.gamification || {});
+                    this.state.gamification = gamification;
+
+                    const points = gamification.points || 0;
+                    const pointsLabel = this.formatPoints(points);
+                    const totalSessions = Array.isArray(gamification.history) ? gamification.history.length : 0;
+                    const pointsPerSession = gamification.pointsPerSession || 0;
+                    const nextReward = this.getNextGamificationReward(points);
+                    const highestReward = gamification.rewards.reduce((max, reward) => Math.max(max, reward.pointsRequired || 0), 0);
+                    const targetPoints = nextReward ? nextReward.pointsRequired : (highestReward || Math.max(pointsPerSession, 1));
+                    const progressPercent = targetPoints ? Math.min(100, Math.round((points / targetPoints) * 100)) : 100;
+                    const cooldownInfo = this.getGamificationCooldownInfo();
+
+                    const pointsEl = document.getElementById('gamification-points');
+                    if (pointsEl) pointsEl.textContent = pointsLabel;
+
+                    const totalSessionsEl = document.getElementById('gamification-total-sessions');
+                    if (totalSessionsEl) totalSessionsEl.textContent = `Sesiones verificadas: ${this.formatPoints(totalSessions)}`;
+
+                    const perSessionEl = document.getElementById('gamification-points-per-session');
+                    if (perSessionEl) perSessionEl.textContent = `+${this.formatPoints(pointsPerSession)} pts / sesión`;
+
+                    const nextRewardEl = document.getElementById('gamification-next-reward-label');
+                    if (nextRewardEl) {
+                        nextRewardEl.textContent = nextReward
+                            ? `Próximo premio (${nextReward.pointsRequired} pts): ${nextReward.name}`
+                            : '¡Has desbloqueado todos los premios disponibles!';
+                    }
+
+                    const summaryHelperEl = document.getElementById('gamification-summary-helper');
+                    if (summaryHelperEl) {
+                        if (nextReward) {
+                            const remaining = Math.max(0, nextReward.pointsRequired - points);
+                            summaryHelperEl.textContent = `Te faltan ${this.formatPoints(remaining)} puntos para ${nextReward.name}. Sube una foto al terminar cada sesión y suma ${pointsPerSession} pts automáticos.`;
+                        } else {
+                            summaryHelperEl.textContent = 'Has desbloqueado todos los premios actuales. Mantén tu constancia y prepárate para nuevas recompensas.';
+                        }
+                    }
+
+                    const progressBarEl = document.getElementById('gamification-progress-bar');
+                    if (progressBarEl) progressBarEl.style.width = `${progressPercent}%`;
+
+                    const progressLabelEl = document.getElementById('gamification-progress-label');
+                    if (progressLabelEl) {
+                        const targetLabel = nextReward ? `${points}/${nextReward.pointsRequired}` : `${points}`;
+                        progressLabelEl.textContent = `${targetLabel} pts para el próximo logro`;
+                    }
+
+                    const cooldownLabelEl = document.getElementById('gamification-cooldown-label');
+                    if (cooldownLabelEl) {
+                        const hours = Math.max(0, Number(gamification.cooldownHours || 0));
+                        cooldownLabelEl.textContent = hours
+                            ? `Máx. 1 sesión con puntos cada ${hours}h`
+                            : 'Sin intervalo de espera configurado';
+                    }
+
+                    const cooldownHintEl = document.getElementById('gamification-cooldown-hint');
+                    if (cooldownHintEl) {
+                        if (cooldownInfo.inCooldown && cooldownInfo.nextAvailable) {
+                            const nextLabel = cooldownInfo.nextAvailable.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
+                            cooldownHintEl.textContent = `Podrás registrar otra sesión con puntos a partir de ${nextLabel}.`;
+                        } else {
+                            cooldownHintEl.textContent = 'Entrena con constancia y acumula puntos cada vez que verifiques tu sesión.';
+                        }
+                    }
+
+                    const pendingCard = document.getElementById('gamification-pending-card');
+                    if (pendingCard) {
+                        const pendingSummary = this.pendingGamificationSummary;
+                        const alreadyRecorded = pendingSummary
+                            ? gamification.history.some(entry => entry.sessionId === pendingSummary.id)
+                            : false;
+                        if (pendingSummary && !alreadyRecorded) {
+                            pendingCard.classList.remove('hidden');
+                            const titleEl = document.getElementById('gamification-pending-title');
+                            if (titleEl) {
+                                const routine = pendingSummary.routineName ? this.escapeHtml(pendingSummary.routineName) : 'Entrenamiento en vivo';
+                                const durationLabel = typeof pendingSummary.totalDuration === 'number'
+                                    ? this.formatTime(pendingSummary.totalDuration)
+                                    : '';
+                                titleEl.innerHTML = `${routine}${durationLabel ? ` · ${durationLabel}` : ''}`;
+                            }
+                            const helperEl = document.getElementById('gamification-pending-helper');
+                            if (helperEl) {
+                                if (cooldownInfo.inCooldown && cooldownInfo.nextAvailable) {
+                                    helperEl.textContent = 'Tu sesión está lista, pero debes esperar a que termine el intervalo de descanso para sumar puntos.';
+                                } else {
+                                    helperEl.textContent = 'Captura una foto con sello automático de hora para validar tu esfuerzo.';
+                                }
+                            }
+                            const uploadButton = pendingCard.querySelector('[data-action="gamification-open-upload"]');
+                            if (uploadButton) {
+                                uploadButton.disabled = Boolean(cooldownInfo.inCooldown);
+                                uploadButton.classList.toggle('opacity-60', Boolean(cooldownInfo.inCooldown));
+                                uploadButton.setAttribute('aria-disabled', cooldownInfo.inCooldown ? 'true' : 'false');
+                                uploadButton.textContent = cooldownInfo.inCooldown
+                                    ? 'Espera a que termine el intervalo'
+                                    : 'Sube tu foto y gana tus puntos';
+                            }
+                        } else {
+                            pendingCard.classList.add('hidden');
+                        }
+                    }
+
+                    const historyContainer = document.getElementById('gamification-history-list');
+                    if (historyContainer) {
+                        if (gamification.history.length === 0) {
+                            historyContainer.innerHTML = `<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-5 text-sm text-gray-400">Verifica tu próximo entrenamiento para ver aquí la foto con sello de hora y los puntos obtenidos.</div>`;
+                        } else {
+                            const historyHtml = gamification.history.map(record => {
+                                const date = record.awardedAt ? new Date(record.awardedAt) : null;
+                                const absolute = date ? date.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' }) : 'Fecha no disponible';
+                                const relative = record.awardedAt ? this.formatRelativeTime(record.awardedAt) : '';
+                                const routine = this.escapeHtml(record.routineName || 'Sesión');
+                                const pointsEarned = this.formatPoints(record.pointsAwarded || pointsPerSession);
+                                const durationLabel = record.duration ? this.formatTime(record.duration) : '—';
+                                const timestampLabel = record.timestampLabel ? this.escapeHtml(record.timestampLabel) : 'Sello automático generado';
+                                const sessionType = record.sessionType ? this.escapeHtml(record.sessionType) : '';
+                                const subtitleParts = [absolute];
+                                if (relative) subtitleParts.push(relative);
+                                if (sessionType && sessionType !== routine) subtitleParts.push(sessionType);
+                                const subtitle = subtitleParts.join(' · ');
+                                const sessionTypeChip = sessionType && sessionType !== routine
+                                    ? `<span class="inline-flex items-center gap-1 rounded-full border border-purple-400/40 bg-purple-500/10 px-2.5 py-1 text-purple-100"><i data-lucide="dumbbell" class="h-3.5 w-3.5"></i>${sessionType}</span>`
+                                    : '';
+                                const photoHtml = record.photoDataUrl
+                                    ? `<img src="${record.photoDataUrl}" alt="Foto verificada" class="h-20 w-20 rounded-xl object-cover border border-white/10">`
+                                    : `<div class="grid h-20 w-20 place-items-center rounded-xl border border-dashed border-white/15 bg-white/5 text-[11px] text-gray-400">Foto eliminada</div>`;
+                                const removeButton = record.photoDataUrl
+                                    ? `<button data-action="gamification-remove-photo" data-record-id="${record.id}" class="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-200 transition hover:border-rose-400/60 hover:text-rose-200"><i data-lucide="trash-2" class="h-3.5 w-3.5"></i>Eliminar foto</button>`
+                                    : `<span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200"><i data-lucide="shield-check" class="h-3.5 w-3.5"></i>Registro conservado</span>`;
+                                return `
+                                    <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-gray-900/70 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                        <div class="flex items-center gap-4">
+                                            ${photoHtml}
+                                            <div class="space-y-1">
+                                                <p class="text-sm font-semibold text-white">${routine}</p>
+                                                <p class="text-xs text-gray-400">${subtitle}</p>
+                                                <p class="text-xs text-emerald-200/80">${timestampLabel}</p>
+                                                <div class="flex flex-wrap gap-2 text-[11px] text-gray-300">
+                                                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-1 text-emerald-100"><i data-lucide="plus-circle" class="h-3.5 w-3.5"></i>${pointsEarned} pts</span>
+                                                    <span class="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/10 px-2.5 py-1 text-sky-100"><i data-lucide="timer" class="h-3.5 w-3.5"></i>${durationLabel}</span>
+                                                    ${sessionTypeChip}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col items-start gap-2 sm:items-end">
+                                            ${removeButton}
+                                        </div>
+                                    </article>
+                                `;
+                            }).join('');
+                            historyContainer.innerHTML = historyHtml;
+                        }
+                    }
+
+                    const rewardsContainer = document.getElementById('gamification-rewards-grid');
+                    if (rewardsContainer) {
+                        const rewardsHtml = gamification.rewards.map(reward => {
+                            const status = reward.status || 'locked';
+                            const baseClasses = 'rounded-2xl border p-4 transition';
+                            const statusClasses = status === 'claimed'
+                                ? 'border-emerald-400/50 bg-emerald-500/10 text-emerald-100 shadow-[0_20px_60px_-40px_rgba(16,185,129,0.75)]'
+                                : status === 'unlocked'
+                                    ? 'border-sky-400/40 bg-sky-500/10 text-sky-100 shadow-[0_20px_60px_-40px_rgba(56,189,248,0.65)]'
+                                    : 'border-white/10 bg-white/5 text-gray-200 opacity-80';
+                            const statusLabel = status === 'claimed'
+                                ? 'Canjeado'
+                                : status === 'unlocked'
+                                    ? 'Listo para canjear'
+                                    : `Necesitas ${this.formatPoints(Math.max(0, reward.pointsRequired - points))} pts`;
+                            const actionHtml = status === 'unlocked'
+                                ? `<button data-action=\"gamification-claim-reward\" data-reward-id=\"${reward.id}\" class=\"inline-flex items-center gap-2 rounded-full bg-white/90 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] text-sky-900 transition hover:bg-white\"><i data-lucide=\"check-circle\" class=\"h-3.5 w-3.5\"></i>Canjear</button>`
+                                : '';
+                            const icon = reward.icon || 'gift';
+                            return `
+                                <article class=\"${baseClasses} ${statusClasses}\">
+                                    <div class=\"flex items-start justify-between gap-3\">
+                                        <div class=\"space-y-1\">
+                                            <p class=\"text-sm font-semibold\">${this.escapeHtml(reward.name)}</p>
+                                            <p class=\"text-xs text-current/80\">${this.escapeHtml(reward.description || '')}</p>
+                                        </div>
+                                        <span class=\"inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-white/10 text-base\"><i data-lucide=\"${icon}\"></i></span>
+                                    </div>
+                                    <div class=\"mt-4 flex items-center justify-between gap-2 text-[11px] font-semibold uppercase tracking-[0.3em]\">
+                                        <span>${reward.pointsRequired} pts</span>
+                                        <span>${statusLabel}</span>
+                                    </div>
+                                    ${actionHtml ? `<div class=\"mt-4 flex\">${actionHtml}</div>` : ''}
+                                </article>
+                            `;
+                        }).join('');
+                        rewardsContainer.innerHTML = rewardsHtml;
+                    }
+                },
+
+                buildGamificationSummarySection(summary) {
+                    const gamification = this.state?.gamification || this.normalizeGamificationState();
+                    const totalPoints = gamification.points || 0;
+                    const pointsPerSession = gamification.pointsPerSession || 0;
+                    const existingRecord = Array.isArray(gamification.history)
+                        ? gamification.history.find(record => record.sessionId === summary.id)
+                        : null;
+                    const nextReward = this.getNextGamificationReward(totalPoints);
+                    const highestReward = gamification.rewards.reduce((max, reward) => Math.max(max, reward.pointsRequired || 0), 0);
+                    const targetPoints = nextReward ? nextReward.pointsRequired : (highestReward || Math.max(pointsPerSession, 1));
+                    const progressPercent = targetPoints ? Math.min(100, Math.round((totalPoints / targetPoints) * 100)) : 100;
+                    const cooldownInfo = this.getGamificationCooldownInfo();
+                    const inCooldown = cooldownInfo.inCooldown && !existingRecord;
+                    const cooldownLabel = inCooldown && cooldownInfo.nextAvailable
+                        ? `Podrás registrar otra sesión a partir de ${cooldownInfo.nextAvailable.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })}.`
+                        : `Cada sesión verificada suma ${pointsPerSession} puntos.`;
+
+                    const existingPreview = existingRecord
+                        ? `<div class="flex gap-3 rounded-2xl border border-emerald-400/40 bg-emerald-500/10 p-3">
+                                <div class="flex-shrink-0">
+                                    ${existingRecord.photoDataUrl
+                                        ? `<img src="${existingRecord.photoDataUrl}" alt="Foto verificada" class="h-16 w-16 rounded-xl object-cover border border-white/20">`
+                                        : `<div class="grid h-16 w-16 place-items-center rounded-xl border border-dashed border-white/25 bg-white/10 text-[11px] text-emerald-100">Foto eliminada</div>`}
+                                </div>
+                                <div class="space-y-1 text-emerald-100">
+                                    <p class="text-sm font-semibold">Sesión verificada</p>
+                                    <p class="text-xs">${existingRecord.timestampLabel || 'Sello generado automáticamente'}</p>
+                                    <p class="text-xs">Puntos otorgados: <strong>${this.formatPoints(existingRecord.pointsAwarded || pointsPerSession)}</strong></p>
+                                </div>
+                            </div>`
+                        : '';
+
+                    const actionArea = existingRecord
+                        ? `<div class="flex flex-wrap items-center justify-between gap-3 text-xs text-gray-300">
+                                <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 font-semibold uppercase tracking-[0.3em] text-emerald-100"><i data-lucide="shield-check" class="h-3.5 w-3.5"></i>Puntos acreditados</span>
+                                <button data-action="gamification-go-section" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 font-semibold text-white transition hover:border-emerald-400/60 hover:text-emerald-100"><i data-lucide="gift" class="h-3.5 w-3.5"></i>Ver premios</button>
+                            </div>`
+                        : (() => {
+                            const uploadButtonClass = inCooldown
+                                ? 'inline-flex items-center gap-2 rounded-full bg-emerald-500/60 px-4 py-2 text-sm font-semibold text-gray-900/70 shadow-lg shadow-emerald-500/25'
+                                : 'inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-400';
+                            const uploadAttrs = inCooldown ? 'disabled aria-disabled="true"' : '';
+                            return `<div data-gamification-area="modal" class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div class="space-y-1 text-sm text-gray-300">
+                                    <p>${inCooldown ? 'Estás dentro del intervalo de espera. Sube tu foto cuando el temporizador lo permita.' : 'Sube una foto con sello automático de hora para sumar tus puntos.'}</p>
+                                    <p class="text-xs text-gray-400">${cooldownLabel}</p>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <button data-action="gamification-open-upload" class="${uploadButtonClass}" ${uploadAttrs}>
+                                        <i data-lucide="camera"></i>
+                                        ${inCooldown ? 'Espera a que termine el intervalo' : 'Sube tu foto y gana tus puntos'}
+                                    </button>
+                                    <button data-action="gamification-go-section" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:border-emerald-400/60 hover:text-emerald-100">
+                                        <i data-lucide="gift"></i>
+                                        Ver premios
+                                    </button>
+                                </div>
+                                <input type="file" accept="image/*" capture="environment" data-gamification-proof-input class="hidden">
+                            </div>`;
+                        })();
+
+                    return `
+                        <section class="rounded-3xl border border-white/10 bg-white/5 p-5 space-y-4">
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Premios por entrenar</p>
+                                    <h4 class="text-lg font-semibold text-white">${existingRecord ? 'Sesión verificada' : 'Verifica tu entrenamiento para sumar puntos'}</h4>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-gray-400">Total acumulado</p>
+                                    <p class="text-xl font-bold text-emerald-300">${this.formatPoints(totalPoints)} pts</p>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="header-progress-bar">
+                                    <span style="width: ${progressPercent}%"></span>
+                                </div>
+                                <p class="text-xs text-gray-400">${nextReward ? `${totalPoints}/${nextReward.pointsRequired} pts · Próximo premio: ${nextReward.name}` : 'Todos los premios actuales están desbloqueados.'}</p>
+                            </div>
+                            ${existingPreview}
+                            ${actionArea}
+                        </section>
+                    `;
+                },
+
+                openGamificationUpload(button) {
+                    const pendingSummary = this.pendingGamificationSummary;
+                    if (!pendingSummary) {
+                        this.showToast('Completa un entrenamiento en vivo para subir tu foto y sumar puntos.', 'error');
+                        return;
+                    }
+                    const area = button?.closest('[data-gamification-area]') || document;
+                    const input = area.querySelector('[data-gamification-proof-input]') || document.querySelector('[data-gamification-proof-input]');
+                    if (!input) {
+                        this.showToast('No se encontró el selector de fotos.', 'error');
+                        return;
+                    }
+                    input.click();
+                },
+
+                openGamificationConfigModal() {
+                    const gamification = this.state?.gamification || this.normalizeGamificationState();
+                    const pointsPerSession = gamification.pointsPerSession || 10;
+                    const cooldownHours = gamification.cooldownHours || 0;
+                    const rewardsPreview = Array.isArray(gamification.rewards) && gamification.rewards.length
+                        ? `<div class="space-y-2">${gamification.rewards.map(reward => {
+                                const name = this.escapeHtml(reward.name || 'Premio');
+                                const description = this.escapeHtml(reward.description || '');
+                                const points = this.formatPoints(reward.pointsRequired || 0);
+                                const statusLabel = reward.status === 'claimed'
+                                    ? 'Canjeado'
+                                    : reward.status === 'unlocked'
+                                        ? 'Desbloqueado'
+                                        : 'Bloqueado';
+                                return `<div class="flex items-start justify-between gap-3 rounded-2xl border border-white/10 bg-gray-900/60 p-3">
+                                            <div>
+                                                <p class="text-sm font-semibold text-white">${name}</p>
+                                                <p class="text-xs text-gray-400">${description}</p>
+                                            </div>
+                                            <div class="text-right text-xs text-gray-300">
+                                                <p class="font-semibold text-emerald-200">${points} pts</p>
+                                                <p>${statusLabel}</p>
+                                            </div>
+                                        </div>`;
+                            }).join('')}</div>`
+                        : '';
+
+                    const body = `
+                        <form id="gamification-config-form" class="space-y-5 text-left">
+                            <p class="text-sm text-gray-300">Define cuántos puntos otorgas por cada sesión verificada y el intervalo mínimo entre acreditaciones para evitar spam.</p>
+                            <div class="grid gap-4 sm:grid-cols-2">
+                                <label class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-gray-900/70 p-4 text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                    <span>Puntos por sesión</span>
+                                    <input type="number" min="1" step="1" name="points-per-session" value="${pointsPerSession}" class="w-full rounded-lg border border-white/5 bg-gray-900/70 px-3 py-2 text-base font-semibold text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40" required>
+                                    <span class="text-[11px] font-normal normal-case text-gray-400">Valor mínimo 1 punto por sesión validada.</span>
+                                </label>
+                                <label class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-gray-900/70 p-4 text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                    <span>Intervalo (horas)</span>
+                                    <input type="number" min="0" step="1" name="cooldown-hours" value="${cooldownHours}" class="w-full rounded-lg border border-white/5 bg-gray-900/70 px-3 py-2 text-base font-semibold text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40" required>
+                                    <span class="text-[11px] font-normal normal-case text-gray-400">Configura 0 para permitir múltiples registros seguidos.</span>
+                                </label>
+                            </div>
+                            ${rewardsPreview ? `<div class="space-y-2">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Tabla de recompensas</p>
+                                ${rewardsPreview}
+                            </div>` : ''}
+                        </form>
+                    `;
+
+                    const footer = [
+                        { text: 'Cancelar', class: 'bg-white/5 text-gray-300 border border-white/10 hover:text-white', action: 'hide-modal' },
+                        { text: 'Guardar cambios', class: 'bg-emerald-500 text-gray-900 hover:bg-emerald-400', action: 'save-gamification-config' }
+                    ];
+                    this.showModal('Configurar premios por entrenar', body, footer);
+                    lucide.createIcons();
+                },
+
+                async saveGamificationConfig() {
+                    const form = document.getElementById('gamification-config-form');
+                    if (!form) {
+                        this.hideModal();
+                        return;
+                    }
+                    const pointsInput = form.querySelector('input[name="points-per-session"]');
+                    const cooldownInput = form.querySelector('input[name="cooldown-hours"]');
+                    const rawPoints = Number(pointsInput?.value);
+                    const rawCooldown = Number(cooldownInput?.value);
+                    if (!Number.isFinite(rawPoints) || rawPoints <= 0) {
+                        this.showToast('Ingresa un valor válido de puntos por sesión.', 'error');
+                        return;
+                    }
+                    if (!Number.isFinite(rawCooldown) || rawCooldown < 0) {
+                        this.showToast('Ingresa un intervalo válido en horas.', 'error');
+                        return;
+                    }
+                    const pointsPerSession = Math.max(1, Math.round(rawPoints));
+                    const cooldownHours = Math.max(0, Math.round(rawCooldown));
+                    if (pointsInput) pointsInput.value = pointsPerSession;
+                    if (cooldownInput) cooldownInput.value = cooldownHours;
+
+                    const gamification = this.state.gamification || this.normalizeGamificationState();
+                    gamification.pointsPerSession = pointsPerSession;
+                    gamification.cooldownHours = cooldownHours;
+                    this.state.gamification = this.normalizeGamificationState({ ...gamification });
+                    this.updateGamificationRewards(new Date());
+                    await this.saveDataToFirestore();
+                    this.renderGamificationSection();
+                    lucide.createIcons();
+                    this.hideModal();
+                    this.showToast('Configuración actualizada.', 'success');
+                },
+
+                async handleGamificationProofSelected(file) {
+                    if (!file) {
+                        return;
+                    }
+                    const summary = this.pendingGamificationSummary;
+                    if (!summary) {
+                        this.showToast('No hay una sesión pendiente de verificación.', 'error');
+                        return;
+                    }
+                    if (this.isProcessingGamificationProof) {
+                        return;
+                    }
+                    const gamification = this.state.gamification || this.normalizeGamificationState();
+                    const existingRecord = Array.isArray(gamification.history)
+                        ? gamification.history.find(entry => entry.sessionId === summary.id)
+                        : null;
+                    if (existingRecord) {
+                        this.showToast('Esta sesión ya tiene puntos asignados.', 'error');
+                        this.renderGamificationSection();
+                        lucide.createIcons();
+                        return;
+                    }
+
+                    const cooldownInfo = this.getGamificationCooldownInfo();
+                    if (cooldownInfo.inCooldown) {
+                        this.showToast('Debes esperar a que finalice el intervalo antes de sumar puntos a otra sesión.', 'error');
+                        return;
+                    }
+
+                    this.isProcessingGamificationProof = true;
+                    try {
+                        const processedPhoto = await this.generateTimestampedProof(file);
+                        const now = new Date();
+                        const pointsPerSession = gamification.pointsPerSession || 0;
+                        const userId = this.state?.currentUser?.uid || this.auth?.currentUser?.uid || null;
+                        const sessionType = summary.sessionType || summary.dayName || summary.routineType || summary.routineName || 'Sesión';
+                        const record = {
+                            id: `proof-${Date.now()}`,
+                            sessionId: summary.id,
+                            routineName: summary.routineName || 'Sesión',
+                            dayName: summary.dayName || '',
+                            sessionType,
+                            userId,
+                            duration: summary.totalDuration || 0,
+                            pointsAwarded: pointsPerSession,
+                            awardedAt: now.toISOString(),
+                            photoDataUrl: processedPhoto.dataUrl,
+                            timestampLabel: processedPhoto.timestampLabel,
+                            photoDeletedAt: null
+                        };
+                        gamification.history.unshift(record);
+                        gamification.points = (gamification.points || 0) + pointsPerSession;
+                        gamification.lastAwardedAt = record.awardedAt;
+                        this.state.gamification = gamification;
+                        this.updateGamificationRewards(now);
+                        this.pendingGamificationSummary = null;
+                        await this.saveDataToFirestore();
+                        this.renderGamificationSection();
+                        lucide.createIcons();
+                        this.showToast('¡Sesión verificada! Puntos asignados.', 'success');
+                        this.showWorkoutSummaryModal(summary);
+                    } catch (error) {
+                        console.error('Error procesando la foto de verificación:', error);
+                        this.showToast('No se pudo procesar la foto. Inténtalo nuevamente.', 'error');
+                    } finally {
+                        this.isProcessingGamificationProof = false;
+                    }
+                },
+
+                generateTimestampedProof(file) {
+                    return new Promise((resolve, reject) => {
+                        const image = new Image();
+                        const url = URL.createObjectURL(file);
+                        image.onload = () => {
+                            try {
+                                const canvas = document.createElement('canvas');
+                                canvas.width = image.width;
+                                canvas.height = image.height;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+                                const timestamp = new Date();
+                                const timestampLabel = timestamp.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
+                                const padding = Math.max(canvas.width, canvas.height) * 0.02;
+                                const fontSize = Math.max(18, Math.round(canvas.width * 0.035));
+                                ctx.font = `${fontSize}px 'Inter', sans-serif`;
+                                ctx.textBaseline = 'bottom';
+                                const textWidth = ctx.measureText(timestampLabel).width;
+                                const boxWidth = textWidth + padding * 2;
+                                const boxHeight = fontSize + padding * 2;
+                                const x = canvas.width - boxWidth - padding;
+                                const y = canvas.height - boxHeight - padding;
+                                ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+                                ctx.fillRect(x, y, boxWidth, boxHeight);
+                                ctx.fillStyle = 'rgba(240, 253, 244, 0.95)';
+                                ctx.fillText(timestampLabel, x + padding, y + boxHeight - padding * 0.75);
+                                const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                                URL.revokeObjectURL(url);
+                                resolve({ dataUrl, timestampLabel });
+                            } catch (error) {
+                                URL.revokeObjectURL(url);
+                                reject(error);
+                            }
+                        };
+                        image.onerror = (error) => {
+                            URL.revokeObjectURL(url);
+                            reject(error);
+                        };
+                        image.src = url;
+                    });
+                },
+
+                updateGamificationRewards(referenceDate = new Date()) {
+                    const gamification = this.state.gamification || this.normalizeGamificationState();
+                    const totalPoints = gamification.points || 0;
+                    const newlyUnlocked = [];
+                    gamification.rewards.forEach(reward => {
+                        if (reward.status === 'claimed') {
+                            return;
+                        }
+                        if (totalPoints >= reward.pointsRequired) {
+                            if (reward.status !== 'unlocked') {
+                                reward.status = 'unlocked';
+                                reward.unlockedAt = reward.unlockedAt || referenceDate.toISOString();
+                                newlyUnlocked.push(reward);
+                            }
+                        } else {
+                            reward.status = 'locked';
+                            reward.unlockedAt = null;
+                        }
+                    });
+                    if (newlyUnlocked.length) {
+                        const first = newlyUnlocked[0];
+                        this.showToast(`¡Nuevo premio desbloqueado: ${first.name}!`, 'success');
+                    }
+                    this.state.gamification = gamification;
+                },
+
+                async removeGamificationPhoto(recordId) {
+                    if (!recordId) {
+                        return;
+                    }
+                    const gamification = this.state.gamification || this.normalizeGamificationState();
+                    const record = Array.isArray(gamification.history)
+                        ? gamification.history.find(entry => entry.id === recordId)
+                        : null;
+                    if (!record) {
+                        this.showToast('No encontramos ese registro.', 'error');
+                        return;
+                    }
+                    if (!record.photoDataUrl) {
+                        this.showToast('La foto ya fue eliminada.', 'error');
+                        return;
+                    }
+                    record.photoDataUrl = null;
+                    record.photoDeletedAt = new Date().toISOString();
+                    this.state.gamification = gamification;
+                    await this.saveDataToFirestore();
+                    this.renderGamificationSection();
+                    lucide.createIcons();
+                    this.showToast('Foto eliminada. Tus puntos se mantienen.', 'success');
+                },
+
+                async claimGamificationReward(rewardId) {
+                    if (!rewardId) {
+                        return;
+                    }
+                    const gamification = this.state.gamification || this.normalizeGamificationState();
+                    const reward = gamification.rewards.find(item => item.id === rewardId);
+                    if (!reward) {
+                        this.showToast('No encontramos ese premio.', 'error');
+                        return;
+                    }
+                    if (reward.status !== 'unlocked') {
+                        this.showToast('Aún no puedes canjear este premio.', 'error');
+                        return;
+                    }
+                    reward.status = 'claimed';
+                    reward.claimedAt = new Date().toISOString();
+                    this.state.gamification = gamification;
+                    await this.saveDataToFirestore();
+                    this.renderGamificationSection();
+                    lucide.createIcons();
+                    this.showToast('¡Premio marcado como canjeado!', 'success');
+                },
                 routine_showRenameDayModal(index) {
                     const currentName = this._tempRoutine.plan[index].day;
                     const body = `<div class="space-y-4"><label class="flex flex-col gap-2 text-left"><span class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Nombre del día</span><input type="text" id="rename-day-input" value="${currentName}" class="w-full rounded-2xl border border-white/10 bg-gray-900/70 px-3 py-2 text-base font-semibold text-white focus:border-emerald-400 focus:outline-none" /></label></div>`;
@@ -13877,8 +14710,10 @@
                     }
                     this.state.workoutHistory[dateString].push(summary);
                     this.state.workoutHistory[dateString].sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
+                    this.pendingGamificationSummary = summary;
                     this.showWorkoutSummaryModal(summary);
                 } else {
+                    this.pendingGamificationSummary = null;
                     this.hideModal();
                 }
 
@@ -13941,6 +14776,7 @@
                     : '<p class="text-gray-500 text-sm p-3 bg-gray-900/60 rounded-2xl text-center">No se registraron pesos en esta sesión.</p>';
 
                 const logString = encodeURIComponent(JSON.stringify(summary.log));
+                const gamificationSection = this.buildGamificationSummarySection(summary);
                 const body = `
                     <div class="space-y-6 text-left">
                         <div class="rounded-3xl bg-gradient-to-br from-emerald-500/20 via-teal-500/10 to-cyan-500/20 border border-emerald-400/20 p-5 text-emerald-100">
@@ -13979,6 +14815,7 @@
                                 ${exerciseSections}
                             </div>
                         </div>
+                        ${gamificationSection}
                         <div id="ai-analysis-container" class="space-y-2"></div>
                     </div>
                 `;
