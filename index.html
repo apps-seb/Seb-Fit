@@ -1223,13 +1223,22 @@
                             </span>
                             <h2 class="max-w-xl text-4xl font-black leading-tight text-white sm:text-5xl">Diseña tu próxima rutina con un lienzo impecable</h2>
                         </div>
-                        <button id="create-routine-btn" data-action="routine-create" class="group relative inline-flex items-center gap-3 rounded-full border border-emerald-400/40 bg-white px-7 py-4 text-base font-semibold text-gray-900 shadow-[0_25px_55px_-30px_rgba(16,185,129,0.85)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-300/60 hover:bg-emerald-50">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-500 text-gray-900 shadow-inner shadow-emerald-500/40 transition group-hover:bg-emerald-400">
-                                <i data-lucide="plus" class="h-5 w-5"></i>
-                            </span>
-                            <span class="pr-1">Crear rutina</span>
-                            <span class="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-emerald-500/20 via-teal-400/10 to-cyan-400/20 opacity-0 blur-lg transition group-hover:opacity-100"></span>
-                        </button>
+                        <div class="flex flex-col gap-3">
+                            <button id="create-routine-btn" data-action="routine-create" class="group relative inline-flex items-center gap-3 rounded-full border border-emerald-400/40 bg-white px-7 py-4 text-base font-semibold text-gray-900 shadow-[0_25px_55px_-30px_rgba(16,185,129,0.85)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-300/60 hover:bg-emerald-50">
+                                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-500 text-gray-900 shadow-inner shadow-emerald-500/40 transition group-hover:bg-emerald-400">
+                                    <i data-lucide="plus" class="h-5 w-5"></i>
+                                </span>
+                                <span class="pr-1">Crear rutina</span>
+                                <span class="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-emerald-500/20 via-teal-400/10 to-cyan-400/20 opacity-0 blur-lg transition group-hover:opacity-100"></span>
+                            </button>
+                            <button data-action="open-create-exercise-modal" class="group relative inline-flex items-center gap-3 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-7 py-4 text-base font-semibold text-emerald-100 shadow-[0_25px_55px_-40px_rgba(16,185,129,0.75)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-300/60 hover:bg-emerald-500/20">
+                                <span class="flex h-11 w-11 items-center justify-center rounded-full border border-emerald-300/50 bg-gray-950/60 text-emerald-200 shadow-inner shadow-emerald-500/20 transition group-hover:border-transparent group-hover:bg-emerald-400 group-hover:text-gray-900">
+                                    <i data-lucide="dumbbell" class="h-5 w-5"></i>
+                                </span>
+                                <span class="pr-1">Nuevo ejercicio</span>
+                                <span class="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-emerald-500/10 via-teal-400/10 to-cyan-400/10 opacity-0 blur-lg transition group-hover:opacity-100"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -2651,7 +2660,92 @@
             </div>
         </section>
     </template>
-    
+
+    <div id="create-exercise-modal" class="fixed inset-0 z-50 hidden" aria-hidden="true">
+        <div data-action="close-create-exercise-modal" class="sheet-backdrop absolute inset-0 bg-gray-950/60 backdrop-blur-sm"></div>
+        <section class="mobile-sheet relative z-10 flex h-full w-full flex-col px-0">
+            <div class="flex h-full w-full flex-col overflow-hidden border border-white/10 bg-gray-900/95 shadow-[0_-25px_60px_-35px_rgba(16,185,129,0.65)]">
+                <header class="flex items-center justify-between gap-4 border-b border-white/5 px-6 py-4">
+                    <div>
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Nuevo ejercicio</p>
+                        <h3 class="text-lg font-bold text-white">Añade movimientos a tu biblioteca</h3>
+                        <p class="mt-1 text-xs text-gray-400">Disponibiliza ejercicios personalizados en segundos.</p>
+                    </div>
+                    <button data-action="close-create-exercise-modal" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400 transition hover:border-emerald-400/60 hover:bg-emerald-500/10 hover:text-white">
+                        <i data-lucide="x"></i>
+                    </button>
+                </header>
+                <div class="flex-1 overflow-y-auto px-6 pb-6">
+                    <form data-role="create-exercise-form" data-context="global" class="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]" autocomplete="off">
+                        <div class="space-y-5">
+                            <div>
+                                <label for="global-new-exercise-name" class="text-sm font-semibold text-gray-200">Nombre del ejercicio</label>
+                                <input id="global-new-exercise-name" data-field="exercise-name" type="text" placeholder="Ej. Remo con mancuerna unilateral" class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-950/60 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-200">Clasificación</p>
+                                    <p class="text-xs text-gray-500">Organiza el nuevo ejercicio dentro de tu biblioteca.</p>
+                                </div>
+                                <div class="grid gap-4 sm:grid-cols-2">
+                                    <div class="flex flex-col gap-2">
+                                        <span class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Grupo muscular</span>
+                                        <select id="global-new-exercise-group" data-field="exercise-group" class="w-full rounded-2xl border border-white/10 bg-gray-950/60 px-3 py-3 text-sm font-medium text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                            <option value="" selected disabled>Selecciona un grupo muscular</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <span class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Subgrupo</span>
+                                        <select id="global-new-exercise-subgroup" data-field="exercise-subgroup" class="w-full rounded-2xl border border-white/10 bg-gray-950/60 px-3 py-3 text-sm font-medium text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                            <option value="" selected disabled>Selecciona un subgrupo</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div data-new-group-field class="hidden flex-col gap-2">
+                                    <label for="global-new-exercise-group-name" class="text-sm font-semibold text-gray-200">Nombre del nuevo grupo muscular</label>
+                                    <input id="global-new-exercise-group-name" data-field="new-group-name" type="text" placeholder="Ej. Antebrazo" class="rounded-2xl border border-white/10 bg-gray-950/60 px-3 py-3 text-sm font-medium text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                </div>
+                                <div data-new-subgroup-field class="hidden flex-col gap-2">
+                                    <label for="global-new-exercise-subgroup-name" class="text-sm font-semibold text-gray-200">Nombre del nuevo subgrupo</label>
+                                    <input id="global-new-exercise-subgroup-name" data-field="new-subgroup-name" type="text" placeholder="Ej. Flexores" class="rounded-2xl border border-white/10 bg-gray-950/60 px-3 py-3 text-sm font-medium text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-5">
+                            <div class="flex flex-col gap-2">
+                                <label for="global-new-exercise-image" class="text-sm font-semibold text-gray-200">Imagen del ejercicio</label>
+                                <p class="text-xs text-gray-500">Comparte una vista previa inspiradora del movimiento.</p>
+                            </div>
+                            <label for="global-new-exercise-image" class="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-dashed border-emerald-400/40 bg-emerald-500/5 transition hover:border-emerald-300/60 hover:bg-emerald-500/10">
+                                <input type="file" accept="image/*" id="global-new-exercise-image" data-field="exercise-image" class="absolute inset-0 h-full w-full cursor-pointer opacity-0">
+                                <div data-field="image-placeholder" class="flex h-full flex-col items-center justify-center gap-3 text-emerald-200/80">
+                                    <span class="grid h-14 w-14 place-items-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200 transition group-hover:border-emerald-300/60 group-hover:bg-emerald-500/20">
+                                        <i data-lucide="upload-cloud" class="h-6 w-6"></i>
+                                    </span>
+                                    <div class="text-center">
+                                        <p class="text-sm font-semibold text-white">Sube una imagen representativa</p>
+                                        <p class="text-xs text-gray-500">PNG, JPG o GIF · Máx. 5 MB</p>
+                                    </div>
+                                </div>
+                                <img data-field="image-preview" class="hidden h-full w-full object-cover transition duration-500 group-hover:scale-[1.01]" alt="Vista previa del ejercicio">
+                            </label>
+                            <div data-field="upload-progress-container" class="hidden items-center gap-3 rounded-2xl border border-white/10 bg-gray-950/70 px-4 py-3">
+                                <div class="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
+                                    <div data-field="upload-progress-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-300"></div>
+                                </div>
+                                <span data-field="upload-progress-text" class="text-xs font-semibold text-gray-300"></span>
+                            </div>
+                            <button type="submit" data-role="submit-new-exercise" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
+                                <i data-lucide="plus"></i>
+                                <span data-label>Guardar ejercicio</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </div>
+
     <script type="module">
         // Importaciones de Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -4691,6 +4785,8 @@
                         const actionMap = {
                             'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'open-routine-banner-upload': () => this.triggerRoutineBannerUpload(), 'remove-routine-banner-image': () => this.removeRoutineBannerImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(), 'routine-open-edit-modal': () => this.routine_openExerciseEditModal(parseInt(exerciseIndex)), 'routine-close-edit-modal': () => this.routine_closeExerciseEditModal(), 'routine-save-exercise-modal': () => this.routine_saveExerciseFromModal(), 'routine-open-timeline': () => this.routine_openTimelineView(), 'routine-toggle-mini-window': () => this.routine_toggleMiniWindow(), 'routine-close-timeline': () => this.routine_closeTimelineView(), 'routine-timeline-save': () => this.routine_handleTimelineSave(), 'routine-timeline-confirm-link': () => this.routine_handleTimelineLink(), 'routine-timeline-confirm-start': () => this.routine_handleTimelineStart(),
                             'show-media-viewer': () => this.showMediaViewer(mediaUrl),
+                            'open-create-exercise-modal': () => this.admin_openCreateExerciseModal(),
+                            'close-create-exercise-modal': () => this.admin_closeCreateExerciseModal(),
                             'routine-creator-switch-group': () => this.routine_creator_switchGroup(groupTarget),
                             'routine-creator-edit-group-image': (evt) => { evt.stopPropagation(); this.routine_creator_showGroupImageModal(groupTarget); },
                             'routine-creator-upload-group-image': () => this.routine_creator_uploadGroupImage(groupTarget),
@@ -4796,6 +4892,11 @@
                         }
                         if (this.state?.isUserMenuOpen) {
                             this.closeUserMenu();
+                            handled = true;
+                        }
+                        const createExerciseModal = document.getElementById('create-exercise-modal');
+                        if (createExerciseModal && createExerciseModal.getAttribute('data-open') === 'true') {
+                            this.admin_closeCreateExerciseModal();
                             handled = true;
                         }
                         if (handled) {
@@ -10634,6 +10735,34 @@
                             : totalExercises === 1
                                 ? '1 ejercicio configurado'
                                 : `${totalExercises} ejercicios configurados`;
+                        const totalDays = this._tempRoutine.plan.length || 0;
+                        const configuredDays = this._tempRoutine.plan.filter(day => (day.exercises || []).length > 0).length;
+                        const safeTotalDays = Math.max(totalDays, 1);
+                        const completionRate = totalDays ? Math.round((configuredDays / totalDays) * 100) : 0;
+                        const completionWidth = Math.min(completionRate, 100);
+                        const totalSets = currentDay.exercises.reduce((sum, ex) => {
+                            const setsValue = parseInt(ex.sets, 10);
+                            return sum + (Number.isNaN(setsValue) ? 0 : setsValue);
+                        }, 0);
+                        const sessionStatusLabel = totalExercises === 0
+                            ? 'Sin ejercicios'
+                            : totalExercises === 1
+                                ? '1 ejercicio'
+                                : `${totalExercises} ejercicios`;
+                        const intensityLevel = totalExercises >= 6
+                            ? 'Carga alta'
+                            : totalExercises >= 3
+                                ? 'Carga media'
+                                : totalExercises > 0
+                                    ? 'Carga ligera'
+                                    : 'Pendiente';
+                        const intensityBadgeClass = totalExercises >= 6
+                            ? 'text-rose-200/90 border-rose-400/40 bg-rose-500/10'
+                            : totalExercises >= 3
+                                ? 'text-amber-200/90 border-amber-400/40 bg-amber-500/10'
+                                : totalExercises > 0
+                                    ? 'text-sky-200/90 border-sky-400/40 bg-sky-500/10'
+                                    : 'text-gray-300 border-white/10 bg-white/5';
                         const groupImages = this.data.exerciseGroupImages || {};
                         const groupKeys = Object.keys(this.data.exerciseLibrary);
                         const firstGroup = groupKeys[0] || '';
@@ -10887,119 +11016,49 @@
                                 </header>
                                 <div class="flex-1 overflow-y-auto pb-28 sm:pb-12">
                                     <div class="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-10">
-                                        ${isAdmin ? `
-                                        <section class="rounded-3xl border border-white/5 bg-white/5 p-5 shadow-[0_35px_120px_-60px_rgba(16,185,129,0.85)] sm:p-8">
-                                            <div class="flex flex-col gap-6">
-                                                <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                                                    <div>
-                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Nuevo ejercicio</p>
-                                                        <h2 class="text-2xl font-semibold text-white sm:text-3xl">Añade movimientos a tu biblioteca</h2>
-                                                        <p class="mt-2 text-sm leading-relaxed text-gray-300">Crea ejercicios personalizados con imagen y clasifícalos para que estén disponibles al planificar cada día.</p>
-                                                        <p class="mt-3 text-xs text-gray-500">Configurando <span class="font-semibold text-emerald-200">${dayName}</span>. ${dayStatus}.</p>
-                                                    </div>
-                                                </div>
-                                                <form id="create-exercise-form" class="grid gap-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]" autocomplete="off">
-                                                    <div class="space-y-5">
-                                                        <div>
-                                                            <label for="new-exercise-name" class="text-sm font-semibold text-gray-200">Nombre del ejercicio</label>
-                                                            <input id="new-exercise-name" type="text" placeholder="Ej. Remo con mancuerna unilateral" class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-950/60 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
-                                                        </div>
-                                                        <div class="space-y-4">
-                                                            <div>
-                                                                <p class="text-sm font-semibold text-gray-200">Clasificación</p>
-                                                                <p class="text-xs text-gray-500">Selecciona el grupo muscular y subgrupo donde estará disponible este movimiento.</p>
-                                                            </div>
-                                                            <div class="grid gap-4 sm:grid-cols-2">
-                                                                <div class="flex flex-col gap-2">
-                                                                    <span class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Grupo muscular</span>
-                                                                    <select id="new-exercise-group" class="w-full rounded-2xl border border-white/10 bg-gray-950/60 px-3 py-3 text-sm font-medium text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
-                                                                        <option value="" ${activeGroup ? '' : 'selected'} disabled>Selecciona un grupo muscular</option>
-                                                                        ${groupKeys.map(group => `<option value="${group}" ${group === activeGroup ? 'selected' : ''}>${group}</option>`).join('')}
-                                                                        <option value="__new__">Crear nuevo grupo muscular</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="flex flex-col gap-2">
-                                                                    <span class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Subgrupo</span>
-                                                                    <select id="new-exercise-subgroup" class="w-full rounded-2xl border border-white/10 bg-gray-950/60 px-3 py-3 text-sm font-medium text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
-                                                                        <option value="" selected disabled>Selecciona un subgrupo</option>
-                                                                        ${(this.data.exerciseLibrary[activeGroup] ? Object.keys(this.data.exerciseLibrary[activeGroup]) : []).map(sub => `<option value="${sub}">${sub}</option>`).join('')}
-                                                                        <option value="__new__">Crear nuevo subgrupo</option>
-                                                                    </select>
-                                                                </div>
-                                                            </div>
-                                                            <div data-new-group-field class="hidden flex-col gap-2">
-                                                                <label for="new-exercise-group-name" class="text-sm font-semibold text-gray-200">Nombre del nuevo grupo muscular</label>
-                                                                <input id="new-exercise-group-name" type="text" placeholder="Ej. Antebrazo" class="rounded-2xl border border-white/10 bg-gray-950/60 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
-                                                            </div>
-                                                            <div data-new-subgroup-field class="hidden flex-col gap-2">
-                                                                <label for="new-exercise-subgroup-name" class="text-sm font-semibold text-gray-200">Nombre del nuevo subgrupo</label>
-                                                                <input id="new-exercise-subgroup-name" type="text" placeholder="Ej. Flexores" class="rounded-2xl border border-white/10 bg-gray-950/60 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex flex-col gap-5">
-                                                        <div class="flex flex-col gap-2">
-                                                            <label for="new-exercise-image" class="text-sm font-semibold text-gray-200">Imagen del ejercicio</label>
-                                                            <p class="text-xs text-gray-500">Utiliza un formato horizontal o cuadrado para lograr la mejor visualización.</p>
-                                                        </div>
-                                                        <label for="new-exercise-image" class="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-dashed border-emerald-400/40 bg-gray-950/60 transition hover:border-emerald-300/60">
-                                                            <input type="file" accept="image/*" id="new-exercise-image" class="absolute inset-0 h-full w-full cursor-pointer opacity-0">
-                                                            <div id="new-exercise-image-placeholder" class="flex h-full flex-col items-center justify-center gap-3 text-emerald-200/80">
-                                                                <span class="grid h-14 w-14 place-items-center rounded-full border border-emerald-400/40 bg-emerald-500/10 text-emerald-200 transition group-hover:border-emerald-300 group-hover:bg-emerald-400/10">
-                                                                    <i data-lucide="upload-cloud" class="h-6 w-6"></i>
-                                                                </span>
-                                                                <div class="text-center">
-                                                                    <p class="text-sm font-semibold text-white">Sube una imagen representativa</p>
-                                                                    <p class="text-xs text-gray-500">PNG, JPG o GIF · Máx. 5 MB</p>
-                                                                </div>
-                                                            </div>
-                                                            <img id="new-exercise-preview" class="hidden h-full w-full object-cover transition duration-500 group-hover:scale-[1.01]" alt="Vista previa del ejercicio">
-                                                        </label>
-                                                        <div id="new-exercise-upload-progress-container" class="hidden items-center gap-3 rounded-2xl border border-white/10 bg-gray-950/70 px-4 py-3">
-                                                            <div class="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
-                                                                <div id="new-exercise-upload-progress-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-300"></div>
-                                                            </div>
-                                                            <span id="new-exercise-upload-progress-text" class="text-xs font-semibold text-gray-300"></span>
-                                                        </div>
-                                                        <button type="submit" data-role="submit-new-exercise" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
-                                                            <i data-lucide="plus"></i>
-                                                            <span data-label>Guardar ejercicio</span>
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </section>
-                                        ` : ''}
-                                        <section class="rounded-3xl border border-white/5 bg-white/5 p-5 sm:p-8">
-                                            <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                                                <div class="flex flex-col gap-1">
-                                                    <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Acciones rápidas</p>
-                                                    <h3 class="text-lg font-semibold text-white">Construye tu sesión perfecta</h3>
-                                                    <p class="text-sm text-gray-300">Añade ejercicios manualmente o deja que nuestra IA proponga combinaciones inteligentes.</p>
-                                                </div>
-                                                <div class="flex flex-col gap-3 sm:flex-row">
-                                                    <button data-action="routine-creator-add-exercise" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:bg-emerald-400">
-                                                        <i data-lucide="plus"></i>
-                                                        <span>Añadir ejercicio</span>
-                                                    </button>
-                                                    <button data-action="routine-creator-suggest-ai" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-500/20 transition hover:opacity-90">
-                                                        <i data-lucide="sparkles"></i>
-                                                        <span>Sugerir con IA</span>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </section>
+                                        
                                         <section class="overflow-hidden rounded-3xl border border-white/5 bg-white/5">
                                             <div class="flex flex-col gap-6 p-5 sm:p-8">
-                                                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                                                    <div>
-                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Listado de ejercicios</p>
-                                                        <p class="text-sm text-gray-300">Edita sets, repeticiones y descansos en cada bloque para afinar la experiencia del día.</p>
+                                                <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                                                    <div class="flex flex-col gap-2">
+                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Planificación del día</p>
+                                                        <div class="flex flex-wrap items-center gap-3">
+                                                            <h3 class="text-2xl font-semibold text-white">${dayName}</h3>
+                                                            <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-gray-200">${sessionStatusLabel}</span>
+                                                            ${isAdmin ? `<span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-200/80">${dayStatus}</span>` : ''}
+                                                        </div>
                                                     </div>
-                                                    <button data-action="routine-creator-add-exercise" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-400/40 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100">
-                                                        <i data-lucide="plus"></i>
-                                                        <span>Nuevo ejercicio</span>
-                                                    </button>
+                                                    <div class="flex flex-wrap items-center gap-2">
+                                                        <button data-action="routine-creator-add-exercise" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-4 py-2.5 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                                            <i data-lucide="plus" class="h-4 w-4"></i>
+                                                            <span>Añadir ejercicio</span>
+                                                        </button>
+                                                        <button data-action="routine-creator-suggest-ai" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white/90 transition hover:border-emerald-300/40 hover:text-white">
+                                                            <i data-lucide="sparkles" class="h-4 w-4"></i>
+                                                            <span>Sugerir con IA</span>
+                                                        </button>
+                                                        <button data-action="routine-open-timeline" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-transparent px-4 py-2.5 text-sm font-semibold text-gray-300 transition hover:border-emerald-300/40 hover:text-emerald-100">
+                                                            <i data-lucide="route" class="h-4 w-4"></i>
+                                                            <span>Ver rutina</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="flex flex-col gap-3 rounded-2xl border border-white/10 bg-gray-950/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                                    <div class="flex flex-col gap-2">
+                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Listado de ejercicios</p>
+                                                        <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.25em] text-gray-300/80">
+                                                            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold text-white/80">${completionRate}% progreso</span>
+                                                            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold text-white/80">${configuredDays}/${safeTotalDays} días</span>
+                                                            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold text-white/80">${totalSets} series</span>
+                                                            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold text-white/80">${intensityLevel}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex flex-wrap items-center gap-2">
+                                                        <button data-action="open-create-exercise-modal" type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-400/40 px-4 py-2 text-sm font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100">
+                                                            <i data-lucide="plus"></i>
+                                                            <span>Nuevo ejercicio</span>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                                 <div id="exercise-list-container" class="space-y-4"></div>
                                             </div>
@@ -11330,107 +11389,250 @@
                         panel.classList.remove('flex');
                     }
                 },
-                admin_setupExerciseCreationForm() {
-                    if (!this.isAsesor()) return;
 
-                    const form = document.getElementById('create-exercise-form');
-                    if (!form) return;
-
-                    const groupSelect = form.querySelector('#new-exercise-group');
-                    const subgroupSelect = form.querySelector('#new-exercise-subgroup');
-                    const newGroupField = form.querySelector('[data-new-group-field]');
-                    const newSubgroupField = form.querySelector('[data-new-subgroup-field]');
-                    const newGroupInput = form.querySelector('#new-exercise-group-name');
-                    const newSubgroupInput = form.querySelector('#new-exercise-subgroup-name');
-                    const imageInput = form.querySelector('#new-exercise-image');
-                    const previewImage = form.querySelector('#new-exercise-preview');
-                    const placeholder = form.querySelector('#new-exercise-image-placeholder');
-
-                    const handleSubgroupChange = () => {
-                        if (!subgroupSelect) return;
-                        if (subgroupSelect.value === '__new__') {
-                            newSubgroupField?.classList.remove('hidden');
-                            newSubgroupInput?.focus();
-                        } else {
-                            newSubgroupField?.classList.add('hidden');
-                            if (newSubgroupInput) newSubgroupInput.value = '';
-                        }
+                admin_collectExerciseFormElements(form) {
+                    if (!form) return {};
+                    return {
+                        form,
+                        nameInput: form.querySelector('[data-field="exercise-name"]'),
+                        groupSelect: form.querySelector('[data-field="exercise-group"]'),
+                        subgroupSelect: form.querySelector('[data-field="exercise-subgroup"]'),
+                        newGroupField: form.querySelector('[data-new-group-field]'),
+                        newSubgroupField: form.querySelector('[data-new-subgroup-field]'),
+                        newGroupInput: form.querySelector('[data-field="new-group-name"]'),
+                        newSubgroupInput: form.querySelector('[data-field="new-subgroup-name"]'),
+                        imageInput: form.querySelector('[data-field="exercise-image"]'),
+                        previewImage: form.querySelector('[data-field="image-preview"]'),
+                        placeholder: form.querySelector('[data-field="image-placeholder"]'),
+                        progressContainer: form.querySelector('[data-field="upload-progress-container"]'),
+                        progressBar: form.querySelector('[data-field="upload-progress-bar"]'),
+                        progressText: form.querySelector('[data-field="upload-progress-text"]'),
+                        submitButton: form.querySelector('[data-role="submit-new-exercise"]'),
+                        labelElement: form.querySelector('[data-role="submit-new-exercise"] [data-label]')
                     };
-
-                    const populateSubgroups = (groupName) => {
-                        if (!subgroupSelect) return;
-                        if (!groupName || groupName === '__new__') {
-                            subgroupSelect.innerHTML = '<option value="__new__" selected>Crear nuevo subgrupo</option>';
-                            subgroupSelect.value = '__new__';
-                            subgroupSelect.disabled = true;
-                            handleSubgroupChange();
-                            return;
-                        }
-
-                        const subgroups = Object.keys(this.data.exerciseLibrary?.[groupName] || {});
-                        const placeholderSelected = subgroups.length === 0 ? ' selected' : '';
-                        subgroupSelect.innerHTML = `
-                            <option value="" disabled${placeholderSelected}>Selecciona un subgrupo</option>
-                            ${subgroups.map(sub => `<option value="${sub}">${sub}</option>`).join('')}
-                            <option value="__new__">Crear nuevo subgrupo</option>
-                        `;
-                        subgroupSelect.disabled = false;
-                        if (subgroups.length > 0) {
-                            subgroupSelect.value = subgroups[0];
-                        } else {
-                            subgroupSelect.value = '__new__';
-                        }
-                        handleSubgroupChange();
-                    };
-
-                    const handleGroupChange = () => {
-                        if (!groupSelect) return;
-                        const value = groupSelect.value;
-                        if (value === '__new__') {
-                            newGroupField?.classList.remove('hidden');
-                            newGroupInput?.focus();
-                        } else {
-                            newGroupField?.classList.add('hidden');
-                            if (newGroupInput) newGroupInput.value = '';
-                        }
-                        populateSubgroups(value);
-                    };
+                },
+                admin_populateExerciseFormOptions(form, elements, targetGroup = '', targetSubgroup = '') {
+                    if (!form || !elements) return;
+                    const { groupSelect, subgroupSelect, newGroupField, newSubgroupField, newGroupInput, newSubgroupInput } = elements;
+                    const groups = Object.keys(this.data.exerciseLibrary || {});
+                    let selectedGroup = targetGroup || form.dataset.defaultGroup || this._tempRoutine?.activeExerciseGroup || '';
+                    if (!selectedGroup && groups.length === 0) {
+                        selectedGroup = '__new__';
+                    }
 
                     if (groupSelect) {
-                        if (!groupSelect.value) {
-                            const groupKeys = Object.keys(this.data.exerciseLibrary || {});
-                            groupSelect.value = groupKeys[0] || '__new__';
+                        const placeholder = document.createElement('option');
+                        placeholder.value = '';
+                        placeholder.disabled = true;
+                        placeholder.textContent = 'Selecciona un grupo muscular';
+                        groupSelect.innerHTML = '';
+                        groupSelect.appendChild(placeholder);
+
+                        groups.forEach(group => {
+                            const option = document.createElement('option');
+                            option.value = group;
+                            option.textContent = group;
+                            if (group === selectedGroup) {
+                                option.selected = true;
+                            }
+                            groupSelect.appendChild(option);
+                        });
+
+                        const newOption = document.createElement('option');
+                        newOption.value = '__new__';
+                        newOption.textContent = 'Crear nuevo grupo muscular';
+                        if (selectedGroup === '__new__') {
+                            newOption.selected = true;
                         }
-                        handleGroupChange();
-                        groupSelect.addEventListener('change', handleGroupChange);
+                        groupSelect.appendChild(newOption);
+
+                        if (!groupSelect.value) {
+                            if (selectedGroup && (selectedGroup === '__new__' || groups.includes(selectedGroup))) {
+                                groupSelect.value = selectedGroup;
+                            } else if (groups.length > 0) {
+                                groupSelect.value = groups[0];
+                            }
+                        }
+
+                        if (!groupSelect.value && selectedGroup === '__new__') {
+                            groupSelect.value = '__new__';
+                        }
+
+                        placeholder.selected = !groupSelect.value;
+                        selectedGroup = groupSelect.value;
+                    }
+
+                    if (newGroupField) {
+                        const showNewGroup = selectedGroup === '__new__';
+                        newGroupField.classList.toggle('hidden', !showNewGroup);
+                        if (!showNewGroup && newGroupInput) {
+                            newGroupInput.value = '';
+                        }
                     }
 
                     if (subgroupSelect) {
-                        subgroupSelect.addEventListener('change', handleSubgroupChange);
+                        const subgroups = selectedGroup && selectedGroup !== '__new__'
+                            ? Object.keys(this.data.exerciseLibrary?.[selectedGroup] || {})
+                            : [];
+
+                        const placeholder = document.createElement('option');
+                        placeholder.value = '';
+                        placeholder.disabled = true;
+                        placeholder.textContent = 'Selecciona un subgrupo';
+
+                        subgroupSelect.innerHTML = '';
+                        subgroupSelect.appendChild(placeholder);
+
+                        subgroups.forEach(subgroup => {
+                            const option = document.createElement('option');
+                            option.value = subgroup;
+                            option.textContent = subgroup;
+                            if (subgroup === targetSubgroup) {
+                                option.selected = true;
+                            }
+                            subgroupSelect.appendChild(option);
+                        });
+
+                        const newOption = document.createElement('option');
+                        newOption.value = '__new__';
+                        newOption.textContent = 'Crear nuevo subgrupo';
+                        subgroupSelect.appendChild(newOption);
+
+                        let finalSubgroup = targetSubgroup;
+                        if (selectedGroup === '__new__') {
+                            finalSubgroup = '__new__';
+                        } else if (finalSubgroup && finalSubgroup !== '__new__' && !subgroups.includes(finalSubgroup)) {
+                            finalSubgroup = subgroups[0] || '__new__';
+                        } else if (!finalSubgroup) {
+                            finalSubgroup = subgroups[0] || '__new__';
+                        }
+
+                        if (finalSubgroup) {
+                            subgroupSelect.value = finalSubgroup;
+                        }
+
+                        if (!subgroupSelect.value) {
+                            placeholder.selected = true;
+                        }
+
+                        if (newSubgroupField) {
+                            const showNewSubgroup = subgroupSelect.value === '__new__';
+                            newSubgroupField.classList.toggle('hidden', !showNewSubgroup);
+                            if (!showNewSubgroup && newSubgroupInput) {
+                                newSubgroupInput.value = '';
+                            }
+                        }
+                    }
+                },
+                admin_resetExerciseCreationForm(form) {
+                    if (!form) return;
+                    const elements = this.admin_collectExerciseFormElements(form);
+                    if (elements.nameInput) {
+                        elements.nameInput.value = '';
+                    }
+                    if (elements.newGroupInput) {
+                        elements.newGroupInput.value = '';
+                    }
+                    if (elements.newSubgroupInput) {
+                        elements.newSubgroupInput.value = '';
+                    }
+                    if (elements.imageInput) {
+                        elements.imageInput.value = '';
+                    }
+                    if (elements.previewImage) {
+                        elements.previewImage.classList.add('hidden');
+                    }
+                    if (elements.placeholder) {
+                        elements.placeholder.classList.remove('hidden');
+                    }
+                    if (elements.progressContainer) {
+                        elements.progressContainer.classList.add('hidden');
+                    }
+                    if (elements.progressBar) {
+                        elements.progressBar.style.width = '0%';
+                    }
+                    if (elements.progressText) {
+                        elements.progressText.textContent = '';
+                    }
+                    if (elements.submitButton) {
+                        elements.submitButton.disabled = false;
+                        elements.submitButton.classList.remove('opacity-60', 'cursor-not-allowed');
+                        if (elements.labelElement) {
+                            const defaultLabel = elements.submitButton.dataset.defaultLabel || 'Guardar ejercicio';
+                            elements.labelElement.textContent = defaultLabel;
+                        }
                     }
 
-                    if (imageInput) {
-                        imageInput.addEventListener('change', () => {
-                            const file = imageInput.files?.[0];
-                            if (!file) {
-                                if (previewImage) previewImage.classList.add('hidden');
-                                placeholder?.classList.remove('hidden');
-                                return;
+                    const defaultGroup = form.dataset.defaultGroup || this._tempRoutine?.activeExerciseGroup || '';
+                    const defaultSubgroup = form.dataset.defaultSubgroup || '';
+                    this.admin_populateExerciseFormOptions(form, elements, defaultGroup, defaultSubgroup);
+                },
+                admin_setupExerciseCreationForm(root) {
+                    if (!this.isAsesor()) return;
+
+                    let forms = [];
+                    if (root instanceof HTMLFormElement && root.matches('[data-role="create-exercise-form"]')) {
+                        forms = [root];
+                    } else {
+                        const scope = root || document;
+                        forms = Array.from(scope.querySelectorAll('[data-role="create-exercise-form"]'));
+                    }
+
+                    forms.forEach(form => {
+                        if (!form) return;
+                        const elements = this.admin_collectExerciseFormElements(form);
+                        if (elements.submitButton && !elements.submitButton.dataset.defaultLabel) {
+                            elements.submitButton.dataset.defaultLabel = elements.labelElement?.textContent || 'Guardar ejercicio';
+                        }
+
+                        if (form.dataset.exerciseFormBound !== 'true') {
+                            form.dataset.exerciseFormBound = 'true';
+
+                            if (elements.groupSelect) {
+                                elements.groupSelect.addEventListener('change', () => {
+                                    const nextGroup = elements.groupSelect?.value || '';
+                                    const desiredSubgroup = nextGroup === '__new__' ? '__new__' : elements.subgroupSelect?.value || '';
+                                    this.admin_populateExerciseFormOptions(form, elements, nextGroup, desiredSubgroup);
+                                });
                             }
 
-                            const reader = new FileReader();
-                            reader.onload = (e) => {
-                                if (previewImage) {
-                                    previewImage.src = e.target?.result || '';
-                                    previewImage.classList.remove('hidden');
-                                }
-                                placeholder?.classList.add('hidden');
-                            };
-                            reader.readAsDataURL(file);
-                        });
-                    }
+                            if (elements.subgroupSelect) {
+                                elements.subgroupSelect.addEventListener('change', () => {
+                                    if (!elements.newSubgroupField || !elements.newSubgroupInput) return;
+                                    const show = elements.subgroupSelect.value === '__new__';
+                                    elements.newSubgroupField.classList.toggle('hidden', !show);
+                                    if (!show) {
+                                        elements.newSubgroupInput.value = '';
+                                    }
+                                });
+                            }
 
-                    form.addEventListener('submit', (event) => this.admin_handleExerciseCreation(event));
+                            if (elements.imageInput) {
+                                elements.imageInput.addEventListener('change', () => {
+                                    const file = elements.imageInput?.files?.[0];
+                                    if (!file) {
+                                        elements.previewImage?.classList.add('hidden');
+                                        elements.placeholder?.classList.remove('hidden');
+                                        return;
+                                    }
+
+                                    const reader = new FileReader();
+                                    reader.onload = (e) => {
+                                        if (elements.previewImage) {
+                                            elements.previewImage.src = e.target?.result || '';
+                                            elements.previewImage.classList.remove('hidden');
+                                        }
+                                        elements.placeholder?.classList.add('hidden');
+                                    };
+                                    reader.readAsDataURL(file);
+                                });
+                            }
+
+                            form.addEventListener('submit', (event) => this.admin_handleExerciseCreation(event));
+                        }
+
+                        this.admin_resetExerciseCreationForm(form);
+                    });
                 },
                 async admin_handleExerciseCreation(event) {
                     event.preventDefault();
@@ -11440,18 +11642,23 @@
                     }
 
                     const form = event.currentTarget;
-                    const nameInput = form.querySelector('#new-exercise-name');
-                    const groupSelect = form.querySelector('#new-exercise-group');
-                    const subgroupSelect = form.querySelector('#new-exercise-subgroup');
-                    const newGroupInput = form.querySelector('#new-exercise-group-name');
-                    const newSubgroupInput = form.querySelector('#new-exercise-subgroup-name');
-                    const imageInput = form.querySelector('#new-exercise-image');
-                    const progressContainer = form.querySelector('#new-exercise-upload-progress-container');
-                    const progressBar = form.querySelector('#new-exercise-upload-progress-bar');
-                    const progressText = form.querySelector('#new-exercise-upload-progress-text');
-                    const submitButton = form.querySelector('[data-role="submit-new-exercise"]');
-                    const labelElement = submitButton?.querySelector('[data-label]');
-                    const originalLabel = labelElement?.textContent || 'Guardar ejercicio';
+                    const context = form?.dataset?.context || 'routine';
+                    const elements = this.admin_collectExerciseFormElements(form);
+                    const {
+                        nameInput,
+                        groupSelect,
+                        subgroupSelect,
+                        newGroupInput,
+                        newSubgroupInput,
+                        imageInput,
+                        progressContainer,
+                        progressBar,
+                        progressText,
+                        submitButton,
+                        labelElement
+                    } = elements;
+
+                    const originalLabel = submitButton?.dataset.defaultLabel || labelElement?.textContent || 'Guardar ejercicio';
 
                     const exerciseName = nameInput?.value.trim();
                     if (!exerciseName) {
@@ -11540,7 +11747,6 @@
                     const storagePath = `exercise_media/${slugify(groupName)}/${slugify(subgroupName)}-${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
                     const storageRef = ref(this.storage, storagePath);
 
-                    let shouldReload = false;
                     try {
                         const downloadURL = await new Promise((resolve, reject) => {
                             const uploadTask = uploadBytesResumable(storageRef, file);
@@ -11571,9 +11777,18 @@
                         const docRef = doc(this.db, 'app_data', 'exercise_library');
                         await setDoc(docRef, this.data.exerciseLibrary);
 
-                        shouldReload = true;
-                        this._tempRoutine.activeExerciseGroup = groupName;
+                        form.dataset.defaultGroup = groupName;
+                        form.dataset.defaultSubgroup = subgroupName;
+
                         this.showToast('Ejercicio creado correctamente.', 'success');
+
+                        if (context === 'routine') {
+                            this._tempRoutine.activeExerciseGroup = groupName;
+                            this.routine_enterCreator(2);
+                        } else {
+                            this.admin_resetExerciseCreationForm(form);
+                            this.admin_closeCreateExerciseModal(true);
+                        }
                     } catch (error) {
                         console.error('Error creating exercise:', error);
                         this.showToast('No se pudo crear el ejercicio.', 'error');
@@ -11581,9 +11796,44 @@
                         toggleButtonState(false);
                         hideProgress();
                     }
-
-                    if (shouldReload) {
-                        this.routine_enterCreator(2);
+                },
+                admin_openCreateExerciseModal() {
+                    if (!this.isAsesor()) {
+                        this.showToast('Acción no permitida.', 'error');
+                        return;
+                    }
+                    const modal = document.getElementById('create-exercise-modal');
+                    if (!modal) return;
+                    const form = modal.querySelector('[data-role="create-exercise-form"]');
+                    if (form) {
+                        form.dataset.defaultGroup = this._tempRoutine?.activeExerciseGroup || form.dataset.defaultGroup || '';
+                        form.dataset.defaultSubgroup = form.dataset.defaultSubgroup || '';
+                        this.admin_setupExerciseCreationForm(form);
+                    }
+                    modal.classList.remove('hidden');
+                    requestAnimationFrame(() => modal.setAttribute('data-open', 'true'));
+                    lucide.createIcons();
+                },
+                admin_closeCreateExerciseModal(keepState = false) {
+                    const modal = document.getElementById('create-exercise-modal');
+                    if (!modal) return;
+                    modal.removeAttribute('data-open');
+                    const sheet = modal.querySelector('.mobile-sheet');
+                    const handleClose = () => {
+                        modal.classList.add('hidden');
+                        if (!keepState) {
+                            const form = modal.querySelector('[data-role="create-exercise-form"]');
+                            if (form) {
+                                form.dataset.defaultGroup = '';
+                                form.dataset.defaultSubgroup = '';
+                                this.admin_resetExerciseCreationForm(form);
+                            }
+                        }
+                    };
+                    if (sheet) {
+                        sheet.addEventListener('transitionend', () => handleClose(), { once: true });
+                    } else {
+                        handleClose();
                     }
                 },
                 admin_showEditExerciseModal(group, subGroup, exerciseIndex) {
