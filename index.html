@@ -829,6 +829,10 @@
                         <i data-lucide="trophy"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Ranking</span>
                     </button>
+                    <button id="nav-360" data-section="seguimiento360" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
+                        <i data-lucide="radar"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">360°</span>
+                    </button>
                     <button data-section="perfil" class="nav-btn flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:py-3 lg:uppercase lg:tracking-normal">
                         <i data-lucide="user"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase lg:text-sm lg:font-semibold lg:tracking-normal lg:normal-case">Perfil</span>
@@ -850,6 +854,10 @@
                     <button data-section="dieta" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
                         <i data-lucide="utensils"></i>
                         <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">Dieta</span>
+                    </button>
+                    <button data-section="seguimiento360" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
+                        <i data-lucide="radar"></i>
+                        <span class="nav-label text-[11px] font-semibold tracking-wide uppercase">360°</span>
                     </button>
                     <button data-section="perfil" class="nav-btn flex-1 flex flex-col items-center gap-1 pt-2 pb-1 uppercase tracking-wide text-[11px] font-semibold">
                         <i data-lucide="user"></i>
@@ -1093,6 +1101,107 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+    </template>
+
+    <template id="template-seguimiento360">
+        <section id="seguimiento360" class="section-content hidden">
+            <div class="space-y-10 pb-12">
+                <div class="relative overflow-hidden rounded-[2.5rem] border border-emerald-400/30 bg-gradient-to-br from-emerald-500/15 via-teal-500/10 to-sky-500/10 p-8 sm:p-10 shadow-[0_45px_120px_-60px_rgba(16,185,129,0.85)]">
+                    <div class="pointer-events-none absolute inset-0">
+                        <div class="absolute -top-36 right-10 h-72 w-72 rounded-full bg-emerald-400/30 blur-3xl"></div>
+                        <div class="absolute -bottom-40 left-0 h-80 w-80 rounded-full bg-sky-400/20 blur-3xl"></div>
+                    </div>
+                    <div class="relative space-y-8">
+                        <div class="space-y-4">
+                            <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/50 bg-emerald-500/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.4em] text-emerald-100">Seguimiento 360°</span>
+                            <div class="space-y-2">
+                                <h2 class="text-3xl font-bold text-white sm:text-4xl">Tu progreso acompañado en un solo lugar</h2>
+                                <p class="max-w-3xl text-sm text-emerald-50/80 sm:text-base">Revisa cada nota, métrica y acción que tu entrenador registra para ti. Todo organizado, transparente y listo para que avances con claridad.</p>
+                            </div>
+                        </div>
+                        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                            <div class="rounded-2xl border border-emerald-400/40 bg-gray-900/60 p-5 shadow-[0_20px_45px_-35px_rgba(16,185,129,0.9)]">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-emerald-100/80">Próximo check-in</p>
+                                <p id="followup-next-checkin" class="mt-3 text-2xl font-semibold text-white">Sin programar</p>
+                                <p id="followup-next-checkin-remaining" class="mt-2 text-xs text-emerald-100/80">Define junto a tu entrenador tu próximo punto de contacto.</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/15 bg-white/5 p-5 backdrop-blur">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-gray-300">Última actualización</p>
+                                <p id="followup-last-update" class="mt-3 text-2xl font-semibold text-white">Sin registros</p>
+                                <p id="followup-last-update-detail" class="mt-2 text-xs text-gray-300">Tu entrenador añadirá información cuando corresponda.</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/15 bg-white/5 p-5 backdrop-blur md:col-span-2 xl:col-span-2">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.4em] text-gray-300">Resumen de registros</p>
+                                <div class="mt-4 grid gap-3 sm:grid-cols-3">
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-500">Notas</p>
+                                        <p id="followup-total-notes" class="mt-2 text-2xl font-bold text-white">0</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-500">Métricas</p>
+                                        <p id="followup-total-metrics" class="mt-2 text-2xl font-bold text-white">0</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-500">Acciones</p>
+                                        <p id="followup-total-tasks" class="mt-2 text-2xl font-bold text-white">0</p>
+                                        <p id="followup-open-tasks-hint" class="mt-1 text-[11px] text-emerald-200/80">Sin acciones asignadas.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.85fr)] items-start">
+                    <div class="space-y-6">
+                        <section class="flex flex-col rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_30px_80px_-60px_rgba(148,163,184,0.55)]">
+                            <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-400/40 bg-emerald-500/15 text-emerald-200">
+                                        <i data-lucide="notebook-pen" class="h-5 w-5"></i>
+                                    </span>
+                                    <div>
+                                        <h3 class="text-base font-semibold text-white">Notas del entrenador</h3>
+                                        <p class="text-xs text-gray-400">Revisa los aprendizajes y ajustes clave después de cada seguimiento.</p>
+                                    </div>
+                                </div>
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Contexto & feedback</p>
+                            </header>
+                            <div id="followup-notes-list" class="mt-5 space-y-3"></div>
+                        </section>
+                        <section class="flex flex-col rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_30px_80px_-60px_rgba(56,189,248,0.55)]">
+                            <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-sky-400/40 bg-sky-500/15 text-sky-200">
+                                        <i data-lucide="activity" class="h-5 w-5"></i>
+                                    </span>
+                                    <div>
+                                        <h3 class="text-base font-semibold text-white">Métricas registradas</h3>
+                                        <p class="text-xs text-gray-400">Indicadores de energía, peso y bienestar para monitorear tu evolución.</p>
+                                    </div>
+                                </div>
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-sky-200/70">Datos & señales</p>
+                            </header>
+                            <div id="followup-metrics-list" class="mt-5 space-y-3"></div>
+                        </section>
+                    </div>
+                    <section class="flex flex-col rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_30px_80px_-60px_rgba(139,92,246,0.55)]">
+                        <header class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-violet-400/40 bg-violet-500/15 text-violet-200">
+                                    <i data-lucide="target" class="h-5 w-5"></i>
+                                </span>
+                                <div>
+                                    <h3 class="text-base font-semibold text-white">Acciones y recordatorios</h3>
+                                    <p class="text-xs text-gray-400">Objetivos concretos para sostener tus hábitos entre sesiones.</p>
+                                </div>
+                            </div>
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-violet-200/70">Compromisos activos</p>
+                        </header>
+                        <div id="followup-tasks-list" class="mt-5 space-y-3"></div>
+                    </section>
                 </div>
             </div>
         </section>
@@ -2651,6 +2760,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
     </template>
@@ -2798,6 +2908,13 @@
                         physicalStats: { age: 25, weight: 75, height: 180, gender: 'male', activity: 1.55 },
                         targetWeight: 75,
                         weightLog: [],
+                        followUp360: {
+                            notes: [],
+                            metrics: [],
+                            tasks: [],
+                            nextCheckIn: null,
+                            lastUpdated: null
+                        },
                         asesorados: [],
                         activeWorkout: null,
                         timer: { status: 'idle', timeLeft: 0, intervalId: null, initialRestTime: 0 },
@@ -3371,6 +3488,7 @@
                             } else {
                                 this.state.dietPanelCovers = { ...defaultState.dietPanelCovers };
                             }
+                            this.state.followUp360 = this._normalizeFollowUpSnapshot(data.followUp360 || data.followUp || this.state.followUp360);
                             if (this.state.profilePhoto?.url) {
                                 this.preloadImage(this.state.profilePhoto.url, { priority: 'high' });
                             }
@@ -4714,6 +4832,17 @@
                             'delete-predefined-food': () => this._deletePredefinedFood(foodId, storagePath),
                             'community-switch-leaderboard': () => this.switchCommunityLeaderboard(leaderboard),
                             'community-refresh': () => this.refreshCommunityData(),
+                            'followup-open-note-modal': () => this.openFollowUpNoteModal(clientId),
+                            'followup-save-note': () => this.saveFollowUpNote(clientId),
+                            'followup-open-metric-modal': () => this.openFollowUpMetricModal(clientId),
+                            'followup-save-metric': () => this.saveFollowUpMetric(clientId),
+                            'followup-open-task-modal': () => this.openFollowUpTaskModal(clientId),
+                            'followup-save-task': () => this.saveFollowUpTask(clientId),
+                            'followup-toggle-task': () => this.toggleFollowUpTask(clientId, button.dataset.taskId),
+                            'followup-remove-entry': () => this.removeFollowUpEntry(clientId, button.dataset.entryType, button.dataset.entryId),
+                            'followup-open-checkin-modal': () => this.openFollowUpCheckInModal(clientId),
+                            'followup-save-checkin': () => this.saveFollowUpCheckIn(clientId),
+                            'followup-clear-checkin': () => this.clearFollowUpCheckIn(clientId),
                         };
                         
                         // Prevenir que el checkbox dispare el evento del label padre
@@ -5045,6 +5174,26 @@
                             const checkinsBadge = checklistCompleted > 0
                                 ? `${formatCount(checklistCompleted)} ${checkinsLabel} completados`
                                 : 'Checklist en configuración';
+                            const followUp = this.ensureFollowUpStructure(client);
+                            const followUpNotes = followUp.notes.length;
+                            const followUpMetrics = followUp.metrics.length;
+                            const followUpTasksOpen = followUp.tasks.filter(task => task.status !== 'completed').length;
+                            const followUpSummary = (followUpNotes + followUpMetrics) > 0
+                                ? `${formatCount(followUpNotes)} ${followUpNotes === 1 ? 'nota' : 'notas'} · ${formatCount(followUpMetrics)} ${followUpMetrics === 1 ? 'métrica' : 'métricas'}`
+                                : 'Seguimiento por iniciar';
+                            const nextCheckInDate = followUp.nextCheckIn ? this._normalizeDateValue(followUp.nextCheckIn) : null;
+                            const lastUpdateSource = followUp.lastUpdated || followUp.notes[0]?.createdAt || followUp.metrics[0]?.recordedAt || null;
+                            const lastUpdateRelative = lastUpdateSource ? this.formatRelativeTime(lastUpdateSource) : '';
+                            const followUpStatus = nextCheckInDate
+                                ? `${nextCheckInDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} · ${this.formatRelativeTime(nextCheckInDate)}`
+                                : (followUpTasksOpen > 0
+                                    ? `${formatCount(followUpTasksOpen)} ${followUpTasksOpen === 1 ? 'acción abierta' : 'acciones abiertas'}`
+                                    : (followUpNotes || followUpMetrics
+                                        ? (lastUpdateRelative ? `Actualizado ${lastUpdateRelative}` : 'Seguimiento actualizado')
+                                        : 'Activa el seguimiento 360°'));
+                            const followUpBadge = nextCheckInDate
+                                ? 'Check-in programado'
+                                : (followUpNotes || followUpMetrics ? 'Seguimiento activo' : 'Seguimiento 360° listo');
 
                             return `
                                 <button data-action="manage-client" data-client-id="${client.id}" class="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-gray-900/60 p-5 text-left transition hover:border-emerald-400/50 hover:shadow-[0_25px_65px_-40px_rgba(16,185,129,0.85)] focus:outline-none focus:ring-2 focus:ring-emerald-400/50">
@@ -5074,15 +5223,16 @@
                                                 <p class="text-[11px] text-emerald-200/80">${goalCaloriesLabel ? `${goalCaloriesLabel} kcal objetivo` : 'Define metas calóricas'}</p>
                                             </div>
                                             <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-3">
-                                                <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Seguimiento</p>
-                                                <p class="mt-1 text-base font-semibold text-white">${checkinsBadge}</p>
-                                                <p class="text-[11px] text-emerald-200/80">${mealsPlanned > 0 ? `${formatCount(mealsPlanned)} registros planificados` : 'Activa checklist diaria'}</p>
+                                                <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Seguimiento 360°</p>
+                                                <p class="mt-1 text-base font-semibold text-white">${followUpSummary}</p>
+                                                <p class="text-[11px] text-emerald-200/80">${followUpStatus}</p>
+                                                <p class="mt-2 text-[11px] text-gray-400">${checkinsBadge}</p>
                                             </div>
                                         </div>
                                         <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
                                             <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-emerald-200"><i data-lucide="repeat" class="h-3.5 w-3.5"></i>${routines > 0 ? 'Actualizar rutina' : 'Crear rutina'}</span>
                                             <span class="inline-flex items-center gap-1 rounded-full border border-sky-400/30 bg-sky-500/10 px-3 py-1 text-sky-200"><i data-lucide="calendar-check-2" class="h-3.5 w-3.5"></i>${dietDays > 0 ? 'Agenda semanal activa' : 'Planifica dieta'}</span>
-                                            <span class="inline-flex items-center gap-1 rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1 text-violet-200"><i data-lucide="message-square" class="h-3.5 w-3.5"></i>Chat privado</span>
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1 text-violet-200"><i data-lucide="radar" class="h-3.5 w-3.5"></i>${followUpBadge}</span>
                                         </div>
                                     </div>
                                 </button>
@@ -5355,7 +5505,11 @@
                     const usersRef = collection(this.db, "users");
                     const q = query(usersRef, where("coachId", "==", this.state.currentUser.uid));
                     const querySnapshot = await getDocs(q);
-                    this.state.asesorados = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    this.state.asesorados = querySnapshot.docs.map(doc => {
+                        const clientData = { id: doc.id, ...doc.data() };
+                        this.ensureFollowUpStructure(clientData);
+                        return clientData;
+                    });
                 },
                 async handleInviteClient(e) {
                     if (!this.isCoach()) {
@@ -5649,14 +5803,7 @@
                                                 ${dietHTML}
                                             </div>
                                             <aside class="space-y-6">
-                                                <section class="rounded-3xl border border-white/10 bg-slate-950/70 p-6 backdrop-blur">
-                                                    <h4 class="text-lg font-bold text-white">Seguimiento 360°</h4>
-                                                    <p class="mt-2 text-sm text-gray-400">Accede al historial de progresos, notas y próximas acciones. El chat interno estará disponible en próximas entregas.</p>
-                                                    <div class="mt-4 grid gap-3">
-                                                        <div class="rounded-2xl border border-white/5 bg-white/5 p-3 text-xs text-gray-300"><p class="font-semibold text-white">Notas rápidas</p><p class="mt-1 text-gray-400">Documenta hallazgos relevantes tras cada sesión.</p></div>
-                                                        <div class="rounded-2xl border border-white/5 bg-white/5 p-3 text-xs text-gray-300"><p class="font-semibold text-white">Galería privada</p><p class="mt-1 text-gray-400">Próximamente podrás cargar fotos de progreso y alimentación.</p></div>
-                                                    </div>
-                                                </section>
+                                                ${this.renderClientFollowUpPanel(client)}
                                             </aside>
                                         </div>
                                     </main>
@@ -7924,6 +8071,273 @@
                         if (idealWeightEl) idealWeightEl.textContent = '--';
                     }
 
+                    const followUp = this._normalizeFollowUpSnapshot(this.state.followUp360);
+                    const relativeFormatter = (typeof Intl !== 'undefined' && typeof Intl.RelativeTimeFormat === 'function')
+                        ? new Intl.RelativeTimeFormat('es', { numeric: 'auto' })
+                        : null;
+                    const formatFollowUpDate = (iso, { includeTime = true, fallback = 'Sin registro' } = {}) => {
+                        if (!iso) return fallback;
+                        const date = new Date(iso);
+                        if (Number.isNaN(date.getTime())) return fallback;
+                        const now = new Date();
+                        const includeYear = date.getFullYear() !== now.getFullYear();
+                        const dateOptions = includeYear
+                            ? { day: 'numeric', month: 'long', year: 'numeric' }
+                            : { day: 'numeric', month: 'long' };
+                        const dateLabel = date.toLocaleDateString('es-ES', dateOptions);
+                        if (!includeTime) {
+                            return dateLabel;
+                        }
+                        const timeLabel = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                        return `${dateLabel} · ${timeLabel} h`;
+                    };
+                    const formatFollowUpRelative = (iso) => {
+                        if (!iso) return '';
+                        const date = new Date(iso);
+                        if (Number.isNaN(date.getTime())) return '';
+                        const diffMs = date.getTime() - Date.now();
+                        const absoluteDiff = Math.abs(diffMs);
+                        const units = [
+                            { max: 60 * 1000, value: 1000, unit: 'second' },
+                            { max: 60 * 60 * 1000, value: 60 * 1000, unit: 'minute' },
+                            { max: 24 * 60 * 60 * 1000, value: 60 * 60 * 1000, unit: 'hour' },
+                            { max: 7 * 24 * 60 * 60 * 1000, value: 24 * 60 * 60 * 1000, unit: 'day' },
+                            { max: 30 * 24 * 60 * 60 * 1000, value: 7 * 24 * 60 * 60 * 1000, unit: 'week' },
+                            { max: 365 * 24 * 60 * 60 * 1000, value: 30 * 24 * 60 * 60 * 1000, unit: 'month' },
+                            { max: Infinity, value: 365 * 24 * 60 * 60 * 1000, unit: 'year' },
+                        ];
+                        for (const { max, value, unit } of units) {
+                            if (absoluteDiff < max) {
+                                const amount = Math.round(diffMs / value);
+                                if (relativeFormatter) {
+                                    return relativeFormatter.format(amount, unit);
+                                }
+                                const absAmount = Math.abs(amount);
+                                const prefix = amount >= 0 ? 'en' : 'hace';
+                                const unitLabelMap = {
+                                    second: 'segundo',
+                                    minute: 'minuto',
+                                    hour: 'hora',
+                                    day: 'día',
+                                    week: 'semana',
+                                    month: 'mes',
+                                    year: 'año'
+                                };
+                                const unitLabel = unitLabelMap[unit] || unit;
+                                return `${prefix} ${absAmount} ${unitLabel}${absAmount === 1 ? '' : 's'}`;
+                            }
+                        }
+                        return '';
+                    };
+                    const escapeHtml = (value = '') => `${value}`
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;');
+                    const truncateText = (value = '', max = 140) => {
+                        const stringValue = `${value}`;
+                        return stringValue.length > max ? `${stringValue.slice(0, max - 1)}…` : stringValue;
+                    };
+
+                    const nextCheckInEl = document.getElementById('followup-next-checkin');
+                    if (nextCheckInEl) {
+                        nextCheckInEl.textContent = followUp.nextCheckIn
+                            ? formatFollowUpDate(followUp.nextCheckIn)
+                            : 'Sin programar';
+                    }
+                    const nextCheckInHintEl = document.getElementById('followup-next-checkin-remaining');
+                    if (nextCheckInHintEl) {
+                        nextCheckInHintEl.textContent = followUp.nextCheckIn
+                            ? (formatFollowUpRelative(followUp.nextCheckIn) || 'Próximo contacto programado.')
+                            : 'Define junto a tu entrenador tu próximo punto de contacto.';
+                    }
+                    const lastUpdateEl = document.getElementById('followup-last-update');
+                    if (lastUpdateEl) {
+                        lastUpdateEl.textContent = followUp.lastUpdated
+                            ? formatFollowUpDate(followUp.lastUpdated)
+                            : 'Sin registros';
+                    }
+                    const lastUpdateDetailEl = document.getElementById('followup-last-update-detail');
+                    if (lastUpdateDetailEl) {
+                        lastUpdateDetailEl.textContent = followUp.lastUpdated
+                            ? `Actualizado ${formatFollowUpRelative(followUp.lastUpdated) || 'recientemente.'}`
+                            : 'Tu entrenador añadirá información cuando corresponda.';
+                    }
+                    const totalNotesEl = document.getElementById('followup-total-notes');
+                    if (totalNotesEl) totalNotesEl.textContent = followUp.notes.length;
+                    const totalMetricsEl = document.getElementById('followup-total-metrics');
+                    if (totalMetricsEl) totalMetricsEl.textContent = followUp.metrics.length;
+                    const totalTasksEl = document.getElementById('followup-total-tasks');
+                    if (totalTasksEl) totalTasksEl.textContent = followUp.tasks.length;
+                    const openTasksCount = followUp.tasks.filter(task => task.status !== 'completed').length;
+                    const openTasksHintEl = document.getElementById('followup-open-tasks-hint');
+                    if (openTasksHintEl) {
+                        if (!followUp.tasks.length) {
+                            openTasksHintEl.textContent = 'Sin acciones asignadas.';
+                        } else if (openTasksCount === 0) {
+                            openTasksHintEl.textContent = 'Todas las acciones están completas.';
+                        } else {
+                            openTasksHintEl.textContent = `${openTasksCount} ${openTasksCount === 1 ? 'acción pendiente' : 'acciones pendientes'}.`;
+                        }
+                    }
+
+                    const buildTags = (tags = []) => {
+                        if (!Array.isArray(tags) || !tags.length) {
+                            return '';
+                        }
+                        return `<div class="mt-3 flex flex-wrap gap-1.5">${tags.slice(0, 4).map(tag => `<span class="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] uppercase tracking-[0.25em] text-gray-300">#${escapeHtml(tag)}</span>`).join('')}</div>`;
+                    };
+
+                    const notesListEl = document.getElementById('followup-notes-list');
+                    if (notesListEl) {
+                        if (followUp.notes.length) {
+                            const noteItems = followUp.notes.slice(0, 4).map(note => {
+                                const metaParts = [];
+                                const dateLabel = formatFollowUpDate(note.createdAt, { includeTime: false, fallback: '' });
+                                if (dateLabel) metaParts.push(dateLabel);
+                                const relativeLabel = formatFollowUpRelative(note.createdAt);
+                                if (relativeLabel) metaParts.push(relativeLabel);
+                                if (note.authorName) metaParts.push(`Por ${escapeHtml(note.authorName)}`);
+                                const meta = metaParts.join(' · ');
+                                const content = note.content
+                                    ? escapeHtml(truncateText(note.content, 180))
+                                    : 'Sin detalles adicionales.';
+                                return `
+                                    <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                        <div class="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p class="text-sm font-semibold text-white">${escapeHtml(note.title || 'Nota')}</p>
+                                                <p class="text-xs text-gray-400">${meta}</p>
+                                            </div>
+                                            <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-emerald-400/30 bg-emerald-500/10 text-emerald-200">
+                                                <i data-lucide="file-text" class="h-4 w-4"></i>
+                                            </span>
+                                        </div>
+                                        <p class="mt-3 text-sm text-gray-300">${content}</p>
+                                        ${buildTags(note.tags)}
+                                    </article>
+                                `;
+                            }).join('');
+                            notesListEl.innerHTML = noteItems;
+                        } else {
+                            notesListEl.innerHTML = `<div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/40 p-4 text-sm text-gray-400">Tu entrenador aún no ha registrado notas. Recibirás aquí los comentarios importantes.</div>`;
+                        }
+                    }
+
+                    const metricsListEl = document.getElementById('followup-metrics-list');
+                    if (metricsListEl) {
+                        if (followUp.metrics.length) {
+                            const metricItems = followUp.metrics.slice(0, 4).map(metric => {
+                                const recordedAt = metric.recordedAt || metric.date;
+                                const dateLabel = formatFollowUpDate(recordedAt, { includeTime: false, fallback: 'Sin registro' });
+                                const relativeLabel = formatFollowUpRelative(recordedAt);
+                                const moodBadge = metric.mood
+                                    ? `<span class="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-sky-200"><i data-lucide="smile" class="h-3.5 w-3.5"></i>${escapeHtml(metric.mood)}</span>`
+                                    : '';
+                                const weightLabel = typeof metric.weight === 'number' ? `${metric.weight.toFixed(1)} kg` : '—';
+                                const bodyFatLabel = typeof metric.bodyFat === 'number' ? `${metric.bodyFat.toFixed(1)} %` : '—';
+                                const energyLabel = typeof metric.energy === 'number' ? `${Math.round(metric.energy)}/10` : '—';
+                                const sleepLabel = typeof metric.sleep === 'number' ? `${metric.sleep.toFixed(1)} h` : '—';
+                                const hydrationLabel = typeof metric.hydration === 'number' ? `${metric.hydration.toFixed(1)} L` : '—';
+                                const comment = metric.notes ? escapeHtml(truncateText(metric.notes, 150)) : '';
+                                const authorLabel = metric.authorName ? ` · ${escapeHtml(metric.authorName)}` : '';
+                                return `
+                                    <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                        <div class="flex flex-wrap items-start justify-between gap-3">
+                                            <div>
+                                                <p class="text-sm font-semibold text-white">${dateLabel}${authorLabel}</p>
+                                                <p class="text-xs text-gray-400">${relativeLabel || ''}</p>
+                                            </div>
+                                            ${moodBadge}
+                                        </div>
+                                        <div class="mt-4 grid grid-cols-2 gap-2 text-xs text-gray-300">
+                                            <div class="rounded-xl border border-white/10 bg-gray-900/70 p-2">
+                                                <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-500">Peso</p>
+                                                <p class="mt-1 text-sm font-semibold text-white">${weightLabel}</p>
+                                            </div>
+                                            <div class="rounded-xl border border-white/10 bg-gray-900/70 p-2">
+                                                <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-500">Grasa</p>
+                                                <p class="mt-1 text-sm font-semibold text-white">${bodyFatLabel}</p>
+                                            </div>
+                                            <div class="rounded-xl border border-white/10 bg-gray-900/70 p-2">
+                                                <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-500">Energía</p>
+                                                <p class="mt-1 text-sm font-semibold text-white">${energyLabel}</p>
+                                            </div>
+                                            <div class="rounded-xl border border-white/10 bg-gray-900/70 p-2">
+                                                <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-500">Sueño</p>
+                                                <p class="mt-1 text-sm font-semibold text-white">${sleepLabel}</p>
+                                            </div>
+                                            <div class="rounded-xl border border-white/10 bg-gray-900/70 p-2 col-span-2">
+                                                <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-500">Hidratación</p>
+                                                <p class="mt-1 text-sm font-semibold text-white">${hydrationLabel}</p>
+                                            </div>
+                                        </div>
+                                        ${comment ? `<p class="mt-3 text-sm text-gray-300">${comment}</p>` : ''}
+                                    </article>
+                                `;
+                            }).join('');
+                            metricsListEl.innerHTML = metricItems;
+                        } else {
+                            metricsListEl.innerHTML = `<div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/40 p-4 text-sm text-gray-400">Aquí verás las métricas que registre tu entrenador: peso, descanso, energía y más.</div>`;
+                        }
+                    }
+
+                    const tasksListEl = document.getElementById('followup-tasks-list');
+                    if (tasksListEl) {
+                        if (followUp.tasks.length) {
+                            const sortedTasks = [...followUp.tasks].sort((a, b) => {
+                                if (a.status !== b.status) {
+                                    return a.status === 'open' ? -1 : 1;
+                                }
+                                const dateA = new Date(a.dueDate || a.createdAt || 0);
+                                const dateB = new Date(b.dueDate || b.createdAt || 0);
+                                return dateA - dateB;
+                            });
+                            const taskItems = sortedTasks.slice(0, 4).map(task => {
+                                const isCompleted = task.status === 'completed';
+                                const containerClasses = isCompleted
+                                    ? 'rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-4'
+                                    : 'rounded-2xl border border-white/10 bg-gray-900/60 p-4';
+                                const statusBadge = isCompleted
+                                    ? '<span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200"><i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i>Completada</span>'
+                                    : '<span class="inline-flex items-center gap-1 rounded-full border border-yellow-400/30 bg-yellow-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-yellow-200"><i data-lucide="clock" class="h-3.5 w-3.5"></i>Pendiente</span>';
+                                const infoParts = [];
+                                if (task.dueDate) {
+                                    infoParts.push(formatFollowUpDate(task.dueDate));
+                                    const dueRelative = formatFollowUpRelative(task.dueDate);
+                                    if (dueRelative) infoParts.push(dueRelative);
+                                } else if (!isCompleted) {
+                                    infoParts.push('Sin fecha objetivo definida');
+                                }
+                                if (isCompleted && task.completedAt) {
+                                    const completedRelative = formatFollowUpRelative(task.completedAt);
+                                    infoParts.push(`Finalizada ${completedRelative || ''}`.trim());
+                                }
+                                const info = infoParts.filter(Boolean).join(' · ');
+                                const description = task.description
+                                    ? escapeHtml(truncateText(task.description, 160))
+                                    : 'Tu entrenador añadirá detalles al completar esta acción.';
+                                return `
+                                    <article class="${containerClasses}">
+                                        <div class="flex flex-wrap items-start justify-between gap-3">
+                                            <div>
+                                                <p class="text-sm font-semibold text-white">${escapeHtml(task.title || 'Acción de seguimiento')}</p>
+                                                <p class="text-xs text-gray-400">${info}</p>
+                                            </div>
+                                            ${statusBadge}
+                                        </div>
+                                        <p class="mt-3 text-sm text-gray-300">${description}</p>
+                                    </article>
+                                `;
+                            }).join('');
+                            tasksListEl.innerHTML = taskItems;
+                        } else {
+                            tasksListEl.innerHTML = `<div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/40 p-4 text-sm text-gray-400">Cuando haya acciones concretas, tu entrenador las listará aquí con las instrucciones a seguir.</div>`;
+                        }
+                    }
+
+                    lucide.createIcons();
                     this.updateDietWeightInfo();
                 },
                 calculateWorkoutStreak() {
@@ -8109,6 +8523,898 @@
                         button.innerHTML = html;
                     }
                 },
+                createId(prefix = 'id') {
+                    const random = Math.floor(Math.random() * 1_000_000);
+                    return `${prefix}-${Date.now()}-${random}`;
+                },
+                _normalizeDateValue(value, fallback = null) {
+                    if (!value && !fallback) {
+                        return new Date();
+                    }
+                    if (value instanceof Date) {
+                        return value;
+                    }
+                    if (value && typeof value === 'object') {
+                        if (typeof value.toDate === 'function') {
+                            return value.toDate();
+                        }
+                        if (typeof value.seconds === 'number') {
+                            return new Date(value.seconds * 1000);
+                        }
+                    }
+                    if (typeof value === 'number') {
+                        const fromNumber = new Date(value);
+                        if (!Number.isNaN(fromNumber.getTime())) {
+                            return fromNumber;
+                        }
+                    }
+                    if (typeof value === 'string') {
+                        const parsed = new Date(value);
+                        if (!Number.isNaN(parsed.getTime())) {
+                            return parsed;
+                        }
+                        const isoCandidate = new Date(`${value}`);
+                        if (!Number.isNaN(isoCandidate.getTime())) {
+                            return isoCandidate;
+                        }
+                    }
+                    if (fallback) {
+                        if (fallback instanceof Date) {
+                            return fallback;
+                        }
+                        if (typeof fallback === 'string' || typeof fallback === 'number') {
+                            const fallbackDate = new Date(fallback);
+                            if (!Number.isNaN(fallbackDate.getTime())) {
+                                return fallbackDate;
+                            }
+                        }
+                    }
+                    return new Date();
+                },
+                getFollowUpDefaults() {
+                    return {
+                        notes: [],
+                        metrics: [],
+                        tasks: [],
+                        nextCheckIn: null,
+                        lastUpdated: null
+                    };
+                },
+                _normalizeFollowUpSnapshot(snapshot) {
+                    const defaults = this.getFollowUpDefaults();
+                    const followUp = { ...defaults, ...(snapshot || {}) };
+                    const ensureArray = (value) => Array.isArray(value) ? value : [];
+                    followUp.notes = ensureArray(followUp.notes).map(note => {
+                        if (!note) return null;
+                        const createdAt = this._normalizeDateValue(note.createdAt || note.date || note.recordedAt || new Date());
+                        const tags = Array.isArray(note.tags)
+                            ? note.tags.map(tag => `${tag}`.trim()).filter(Boolean).slice(0, 5)
+                            : [];
+                        const title = (note.title || '').trim();
+                        const content = (note.content || note.text || '').trim();
+                        return {
+                            id: note.id || this.createId('note'),
+                            title: title || (content ? content.split('\n')[0].slice(0, 120) : 'Nota'),
+                            content,
+                            tags,
+                            createdAt: createdAt.toISOString(),
+                            createdBy: note.createdBy || note.authorId || '',
+                            authorName: note.authorName || note.author || ''
+                        };
+                    }).filter(Boolean);
+                    followUp.metrics = ensureArray(followUp.metrics).map(metric => {
+                        if (!metric) return null;
+                        const recorded = this._normalizeDateValue(metric.recordedAt || metric.date || metric.createdAt || new Date());
+                        const createdAt = this._normalizeDateValue(metric.createdAt || recorded);
+                        const parseNumber = (value) => {
+                            if (value === '' || value === null || typeof value === 'undefined') return null;
+                            const parsed = Number(value);
+                            return Number.isFinite(parsed) ? parsed : null;
+                        };
+                        return {
+                            id: metric.id || this.createId('metric'),
+                            date: recorded.toISOString().split('T')[0],
+                            recordedAt: recorded.toISOString(),
+                            weight: parseNumber(metric.weight ?? metric.bodyWeight),
+                            bodyFat: parseNumber(metric.bodyFat ?? metric.bodyfat),
+                            energy: parseNumber(metric.energy ?? metric.energyLevel),
+                            sleep: parseNumber(metric.sleep ?? metric.sleepHours),
+                            hydration: parseNumber(metric.hydration ?? metric.water),
+                            mood: (metric.mood || metric.moodLabel || '').toString(),
+                            notes: (metric.notes || metric.comment || '').trim(),
+                            createdAt: createdAt.toISOString(),
+                            createdBy: metric.createdBy || metric.authorId || '',
+                            authorName: metric.authorName || metric.author || ''
+                        };
+                    }).filter(Boolean);
+                    followUp.tasks = ensureArray(followUp.tasks).map(task => {
+                        if (!task) return null;
+                        const createdAt = this._normalizeDateValue(task.createdAt || task.date || new Date());
+                        const dueDate = task.dueDate ? this._normalizeDateValue(task.dueDate, createdAt) : null;
+                        const completedAt = task.completedAt ? this._normalizeDateValue(task.completedAt, dueDate || createdAt) : null;
+                        const status = task.status === 'completed' ? 'completed' : 'open';
+                        const priority = (task.priority || 'medium').toLowerCase();
+                        return {
+                            id: task.id || this.createId('task'),
+                            title: (task.title || '').trim() || 'Acción de seguimiento',
+                            description: (task.description || '').trim(),
+                            dueDate: dueDate ? dueDate.toISOString() : null,
+                            status,
+                            priority: ['low', 'medium', 'high'].includes(priority) ? priority : 'medium',
+                            createdAt: createdAt.toISOString(),
+                            completedAt: completedAt ? completedAt.toISOString() : null,
+                            createdBy: task.createdBy || task.authorId || '',
+                            authorName: task.authorName || task.author || ''
+                        };
+                    }).filter(Boolean);
+                    followUp.nextCheckIn = followUp.nextCheckIn ? this._normalizeDateValue(followUp.nextCheckIn).toISOString() : null;
+                    followUp.lastUpdated = followUp.lastUpdated ? this._normalizeDateValue(followUp.lastUpdated).toISOString() : null;
+                    followUp.notes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    followUp.metrics.sort((a, b) => new Date(b.recordedAt || b.createdAt) - new Date(a.recordedAt || a.createdAt));
+                    followUp.tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                    return followUp;
+                },
+                ensureFollowUpStructure(entity) {
+                    if (!entity) {
+                        return this.getFollowUpDefaults();
+                    }
+                    const normalized = this._normalizeFollowUpSnapshot(entity.followUp360 || entity.followUp);
+                    entity.followUp360 = normalized;
+                    return normalized;
+                },
+                _sanitizeFollowUpForSave(followUp) {
+                    const normalized = this._normalizeFollowUpSnapshot(followUp);
+                    return {
+                        notes: normalized.notes.map(note => ({
+                            id: note.id || this.createId('note'),
+                            title: note.title || '',
+                            content: note.content || '',
+                            tags: Array.isArray(note.tags) ? note.tags.filter(tag => typeof tag === 'string' && tag.trim()).map(tag => tag.trim()).slice(0, 5) : [],
+                            createdAt: this._normalizeDateValue(note.createdAt).toISOString(),
+                            createdBy: note.createdBy || '',
+                            authorName: note.authorName || ''
+                        })),
+                        metrics: normalized.metrics.map(metric => ({
+                            id: metric.id || this.createId('metric'),
+                            date: metric.date || (metric.recordedAt ? this._normalizeDateValue(metric.recordedAt).toISOString().split('T')[0] : null),
+                            recordedAt: metric.recordedAt ? this._normalizeDateValue(metric.recordedAt).toISOString() : null,
+                            weight: typeof metric.weight === 'number' ? metric.weight : null,
+                            bodyFat: typeof metric.bodyFat === 'number' ? metric.bodyFat : null,
+                            energy: typeof metric.energy === 'number' ? metric.energy : null,
+                            sleep: typeof metric.sleep === 'number' ? metric.sleep : null,
+                            hydration: typeof metric.hydration === 'number' ? metric.hydration : null,
+                            mood: metric.mood || '',
+                            notes: metric.notes || '',
+                            createdAt: this._normalizeDateValue(metric.createdAt || metric.recordedAt || metric.date).toISOString(),
+                            createdBy: metric.createdBy || '',
+                            authorName: metric.authorName || ''
+                        })),
+                        tasks: normalized.tasks.map(task => ({
+                            id: task.id || this.createId('task'),
+                            title: task.title || '',
+                            description: task.description || '',
+                            dueDate: task.dueDate ? this._normalizeDateValue(task.dueDate).toISOString() : null,
+                            status: task.status === 'completed' ? 'completed' : 'open',
+                            priority: task.priority || 'medium',
+                            createdAt: this._normalizeDateValue(task.createdAt).toISOString(),
+                            completedAt: task.completedAt ? this._normalizeDateValue(task.completedAt).toISOString() : null,
+                            createdBy: task.createdBy || '',
+                            authorName: task.authorName || ''
+                        })),
+                        nextCheckIn: normalized.nextCheckIn ? this._normalizeDateValue(normalized.nextCheckIn).toISOString() : null,
+                        lastUpdated: normalized.lastUpdated ? this._normalizeDateValue(normalized.lastUpdated).toISOString() : null
+                    };
+                },
+                getClientFollowUp(clientId) {
+                    if (!clientId) {
+                        return null;
+                    }
+                    const client = (this.state.asesorados || []).find(c => c.id === clientId);
+                    if (!client) {
+                        return null;
+                    }
+                    const normalized = this.ensureFollowUpStructure(client);
+                    return JSON.parse(JSON.stringify(normalized));
+                },
+                async persistClientFollowUp(clientId, followUp, options = {}) {
+                    if (!clientId) {
+                        this.showToast('Cliente no identificado.', 'error');
+                        return false;
+                    }
+                    if (!this.db) {
+                        this.showToast('No se pudo conectar a la base de datos.', 'error');
+                        return false;
+                    }
+                    const { refresh = true, successMessage = null } = options;
+                    const payload = this._sanitizeFollowUpForSave(followUp);
+                    payload.lastUpdated = new Date().toISOString();
+                    try {
+                        const clientRef = doc(this.db, 'users', clientId);
+                        await updateDoc(clientRef, { followUp360: payload });
+                        if (refresh) {
+                            await this.fetchAsesorados();
+                        }
+                        if (successMessage) {
+                            this.showToast(successMessage, 'success');
+                        }
+                        return true;
+                    } catch (error) {
+                        console.error('Error updating follow up:', error);
+                        this.showToast('No se pudo guardar el seguimiento.', 'error');
+                        return false;
+                    }
+                },
+                openFollowUpNoteModal(clientId) {
+                    const client = (this.state.asesorados || []).find(c => c.id === clientId);
+                    if (!client) {
+                        this.showToast('Cliente no encontrado.', 'error');
+                        return;
+                    }
+                    const baseName = client.userName || client.email || 'tu asesorado';
+                    const firstName = baseName.includes(' ') ? baseName.split(' ')[0] : (baseName.split('@')[0] || baseName);
+                    const body = `
+                        <form id="followup-note-form" class="space-y-4">
+                            <div>
+                                <label for="followup-note-title" class="block text-sm font-semibold text-gray-200 mb-1">Título de la nota</label>
+                                <input id="followup-note-title" type="text" maxlength="120" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="Resumen breve de la sesión">
+                            </div>
+                            <div>
+                                <label for="followup-note-content" class="block text-sm font-semibold text-gray-200 mb-1">Detalle</label>
+                                <textarea id="followup-note-content" rows="5" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none resize-none" placeholder="Observaciones relevantes, respuesta al entrenamiento, próximos pasos..."></textarea>
+                            </div>
+                            <div>
+                                <label for="followup-note-tags" class="block text-sm font-semibold text-gray-200 mb-1">Etiquetas</label>
+                                <input id="followup-note-tags" type="text" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="separar por comas (ej. movilidad, nutrición)">
+                                <p class="mt-1 text-xs text-gray-500">Hasta 5 etiquetas para clasificar tus notas.</p>
+                            </div>
+                        </form>
+                    `;
+                    const footer = [
+                        { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                        { text: 'Guardar nota', class: 'bg-emerald-500 text-slate-950 hover:bg-emerald-400', action: 'followup-save-note', 'client-id': clientId }
+                    ];
+                    this.showModal(`Nueva nota para ${firstName}`, body, footer);
+                    lucide.createIcons();
+                    setTimeout(() => {
+                        const input = document.getElementById('followup-note-title');
+                        if (input) input.focus();
+                    }, 50);
+                },
+                async saveFollowUpNote(clientId) {
+                    const form = document.getElementById('followup-note-form');
+                    if (!form) {
+                        this.showToast('No se encontró el formulario.', 'error');
+                        return;
+                    }
+                    const titleInput = document.getElementById('followup-note-title');
+                    const contentInput = document.getElementById('followup-note-content');
+                    const tagsInput = document.getElementById('followup-note-tags');
+                    const title = titleInput?.value.trim() || '';
+                    const content = contentInput?.value.trim() || '';
+                    if (!title && !content) {
+                        this.showToast('Agrega al menos un título o contenido.', 'error');
+                        return;
+                    }
+                    const tags = tagsInput?.value
+                        ? tagsInput.value.split(',').map(tag => tag.trim()).filter(Boolean).slice(0, 5)
+                        : [];
+                    const followUp = this.getClientFollowUp(clientId);
+                    if (!followUp) {
+                        this.showToast('No se pudo cargar el seguimiento.', 'error');
+                        return;
+                    }
+                    const note = {
+                        id: this.createId('note'),
+                        title: title || 'Nota',
+                        content,
+                        tags,
+                        createdAt: new Date().toISOString(),
+                        createdBy: this.state.currentUser?.uid || '',
+                        authorName: this.state.userName || this.state.currentUser?.email || ''
+                    };
+                    followUp.notes.unshift(note);
+                    this.setModalButtonLoading('followup-save-note', true, 'Guardar nota');
+                    try {
+                        const success = await this.persistClientFollowUp(clientId, followUp);
+                        if (success) {
+                            this.hideModal();
+                            this.showToast('Nota guardada en el seguimiento.', 'success');
+                            await this.showClientManager(clientId);
+                        }
+                    } finally {
+                        this.setModalButtonLoading('followup-save-note', false, 'Guardar nota');
+                    }
+                },
+                openFollowUpMetricModal(clientId) {
+                    const followUp = this.getClientFollowUp(clientId) || this.getFollowUpDefaults();
+                    const now = new Date();
+                    const today = now.toISOString().split('T')[0];
+                    const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                    const lastMetric = followUp.metrics && followUp.metrics.length ? followUp.metrics[0] : null;
+                    const body = `
+                        <form id="followup-metric-form" class="space-y-4">
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <label for="followup-metric-date" class="block text-sm font-semibold text-gray-200 mb-1">Fecha</label>
+                                    <input type="date" id="followup-metric-date" value="${today}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label for="followup-metric-time" class="block text-sm font-semibold text-gray-200 mb-1">Hora</label>
+                                    <input type="time" id="followup-metric-time" value="${time}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                                </div>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-3">
+                                <div>
+                                    <label for="followup-metric-weight" class="block text-sm font-semibold text-gray-200 mb-1">Peso (kg)</label>
+                                    <input type="number" step="0.1" id="followup-metric-weight" value="${lastMetric?.weight ?? ''}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="Ej. 72.4">
+                                </div>
+                                <div>
+                                    <label for="followup-metric-bodyfat" class="block text-sm font-semibold text-gray-200 mb-1">Grasa (%)</label>
+                                    <input type="number" step="0.1" id="followup-metric-bodyfat" value="${lastMetric?.bodyFat ?? ''}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="Ej. 14.2">
+                                </div>
+                                <div>
+                                    <label for="followup-metric-energy" class="block text-sm font-semibold text-gray-200 mb-1">Energía (1-10)</label>
+                                    <input type="number" min="1" max="10" id="followup-metric-energy" value="${lastMetric?.energy ?? ''}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="8">
+                                </div>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-3">
+                                <div>
+                                    <label for="followup-metric-sleep" class="block text-sm font-semibold text-gray-200 mb-1">Sueño (h)</label>
+                                    <input type="number" step="0.1" id="followup-metric-sleep" value="${lastMetric?.sleep ?? ''}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="7.5">
+                                </div>
+                                <div>
+                                    <label for="followup-metric-hydration" class="block text-sm font-semibold text-gray-200 mb-1">Agua (L)</label>
+                                    <input type="number" step="0.1" id="followup-metric-hydration" value="${lastMetric?.hydration ?? ''}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="2.5">
+                                </div>
+                                <div>
+                                    <label for="followup-metric-mood" class="block text-sm font-semibold text-gray-200 mb-1">Estado de ánimo</label>
+                                    <select id="followup-metric-mood" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                                        <option value="">Selecciona</option>
+                                        <option value="excelente">Excelente</option>
+                                        <option value="positivo">Positivo</option>
+                                        <option value="neutral">Neutral</option>
+                                        <option value="fatigado">Fatigado</option>
+                                        <option value="estresado">Estresado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="followup-metric-notes" class="block text-sm font-semibold text-gray-200 mb-1">Comentario</label>
+                                <textarea id="followup-metric-notes" rows="3" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none resize-none" placeholder="Contexto de la medición, señales destacadas..."></textarea>
+                            </div>
+                        </form>
+                    `;
+                    const footer = [
+                        { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                        { text: 'Registrar métrica', class: 'bg-emerald-500 text-slate-950 hover:bg-emerald-400', action: 'followup-save-metric', 'client-id': clientId }
+                    ];
+                    this.showModal('Registrar métrica', body, footer);
+                    if (lastMetric?.mood) {
+                        const moodSelect = document.getElementById('followup-metric-mood');
+                        if (moodSelect) {
+                            moodSelect.value = lastMetric.mood;
+                        }
+                    }
+                    lucide.createIcons();
+                },
+                async saveFollowUpMetric(clientId) {
+                    const form = document.getElementById('followup-metric-form');
+                    if (!form) {
+                        this.showToast('No se encontró el formulario de métricas.', 'error');
+                        return;
+                    }
+                    const dateInput = document.getElementById('followup-metric-date');
+                    const timeInput = document.getElementById('followup-metric-time');
+                    const dateValue = dateInput?.value;
+                    if (!dateValue) {
+                        this.showToast('Selecciona la fecha del registro.', 'error');
+                        return;
+                    }
+                    const parseDecimal = (elementId) => {
+                        const el = document.getElementById(elementId);
+                        if (!el) return null;
+                        const raw = el.value;
+                        if (raw === '' || raw === null || typeof raw === 'undefined') return null;
+                        const parsed = parseFloat(raw);
+                        return Number.isFinite(parsed) ? parsed : null;
+                    };
+                    const parseInteger = (elementId) => {
+                        const el = document.getElementById(elementId);
+                        if (!el) return null;
+                        const raw = el.value;
+                        if (raw === '' || raw === null || typeof raw === 'undefined') return null;
+                        const parsed = parseInt(raw, 10);
+                        return Number.isFinite(parsed) ? parsed : null;
+                    };
+                    const weight = parseDecimal('followup-metric-weight');
+                    const bodyFat = parseDecimal('followup-metric-bodyfat');
+                    const energy = parseInteger('followup-metric-energy');
+                    const sleep = parseDecimal('followup-metric-sleep');
+                    const hydration = parseDecimal('followup-metric-hydration');
+                    const moodSelect = document.getElementById('followup-metric-mood');
+                    const notesInput = document.getElementById('followup-metric-notes');
+                    const notes = notesInput?.value.trim() || '';
+                    if (weight === null && bodyFat === null && energy === null && sleep === null && hydration === null && !notes) {
+                        this.showToast('Registra al menos una métrica o añade una nota.', 'error');
+                        return;
+                    }
+                    const recordDate = this._normalizeDateValue(`${dateValue}T${timeInput?.value || '09:00'}`);
+                    const followUp = this.getClientFollowUp(clientId);
+                    if (!followUp) {
+                        this.showToast('No se pudo cargar el seguimiento.', 'error');
+                        return;
+                    }
+                    const metric = {
+                        id: this.createId('metric'),
+                        date: recordDate.toISOString().split('T')[0],
+                        recordedAt: recordDate.toISOString(),
+                        weight,
+                        bodyFat,
+                        energy,
+                        sleep,
+                        hydration,
+                        mood: moodSelect?.value || '',
+                        notes,
+                        createdAt: new Date().toISOString(),
+                        createdBy: this.state.currentUser?.uid || '',
+                        authorName: this.state.userName || this.state.currentUser?.email || ''
+                    };
+                    followUp.metrics.unshift(metric);
+                    this.setModalButtonLoading('followup-save-metric', true, 'Registrar métrica');
+                    try {
+                        const success = await this.persistClientFollowUp(clientId, followUp);
+                        if (success) {
+                            this.hideModal();
+                            this.showToast('Métrica registrada correctamente.', 'success');
+                            await this.showClientManager(clientId);
+                        }
+                    } finally {
+                        this.setModalButtonLoading('followup-save-metric', false, 'Registrar métrica');
+                    }
+                },
+                openFollowUpTaskModal(clientId) {
+                    const followUp = this.getClientFollowUp(clientId) || this.getFollowUpDefaults();
+                    const baseDate = followUp.nextCheckIn ? this._normalizeDateValue(followUp.nextCheckIn) : new Date();
+                    const dateValue = baseDate.toISOString().split('T')[0];
+                    const body = `
+                        <form id="followup-task-form" class="space-y-4">
+                            <div>
+                                <label for="followup-task-title" class="block text-sm font-semibold text-gray-200 mb-1">Acción / Recordatorio</label>
+                                <input id="followup-task-title" type="text" maxlength="120" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="Ej. Reforzar movilidad de cadera">
+                            </div>
+                            <div>
+                                <label for="followup-task-description" class="block text-sm font-semibold text-gray-200 mb-1">Detalles</label>
+                                <textarea id="followup-task-description" rows="3" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none resize-none" placeholder="Instrucciones claras, materiales necesarios, criterios de éxito..."></textarea>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-3">
+                                <div>
+                                    <label for="followup-task-date" class="block text-sm font-semibold text-gray-200 mb-1">Fecha objetivo</label>
+                                    <input type="date" id="followup-task-date" value="${dateValue}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label for="followup-task-time" class="block text-sm font-semibold text-gray-200 mb-1">Hora</label>
+                                    <input type="time" id="followup-task-time" value="09:00" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label for="followup-task-priority" class="block text-sm font-semibold text-gray-200 mb-1">Prioridad</label>
+                                    <select id="followup-task-priority" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                                        <option value="medium">Media</option>
+                                        <option value="high">Alta</option>
+                                        <option value="low">Baja</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    `;
+                    const footer = [
+                        { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                        { text: 'Guardar acción', class: 'bg-emerald-500 text-slate-950 hover:bg-emerald-400', action: 'followup-save-task', 'client-id': clientId }
+                    ];
+                    this.showModal('Nueva acción de seguimiento', body, footer);
+                    lucide.createIcons();
+                    setTimeout(() => {
+                        const input = document.getElementById('followup-task-title');
+                        if (input) input.focus();
+                    }, 50);
+                },
+                async saveFollowUpTask(clientId) {
+                    const form = document.getElementById('followup-task-form');
+                    if (!form) {
+                        this.showToast('No se encontró el formulario de acciones.', 'error');
+                        return;
+                    }
+                    const titleInput = document.getElementById('followup-task-title');
+                    const descriptionInput = document.getElementById('followup-task-description');
+                    const dateInput = document.getElementById('followup-task-date');
+                    const timeInput = document.getElementById('followup-task-time');
+                    const prioritySelect = document.getElementById('followup-task-priority');
+                    const title = titleInput?.value.trim();
+                    if (!title) {
+                        this.showToast('Define un título para la acción.', 'error');
+                        return;
+                    }
+                    const followUp = this.getClientFollowUp(clientId);
+                    if (!followUp) {
+                        this.showToast('No se pudo cargar el seguimiento.', 'error');
+                        return;
+                    }
+                    let dueDateIso = null;
+                    if (dateInput?.value) {
+                        const dueDate = this._normalizeDateValue(`${dateInput.value}T${timeInput?.value || '09:00'}`);
+                        dueDateIso = dueDate.toISOString();
+                    }
+                    const task = {
+                        id: this.createId('task'),
+                        title,
+                        description: descriptionInput?.value.trim() || '',
+                        dueDate: dueDateIso,
+                        status: 'open',
+                        priority: prioritySelect?.value || 'medium',
+                        createdAt: new Date().toISOString(),
+                        createdBy: this.state.currentUser?.uid || '',
+                        authorName: this.state.userName || this.state.currentUser?.email || ''
+                    };
+                    followUp.tasks.unshift(task);
+                    this.setModalButtonLoading('followup-save-task', true, 'Guardar acción');
+                    try {
+                        const success = await this.persistClientFollowUp(clientId, followUp);
+                        if (success) {
+                            this.hideModal();
+                            this.showToast('Acción registrada.', 'success');
+                            await this.showClientManager(clientId);
+                        }
+                    } finally {
+                        this.setModalButtonLoading('followup-save-task', false, 'Guardar acción');
+                    }
+                },
+                async toggleFollowUpTask(clientId, taskId) {
+                    if (!clientId || !taskId) {
+                        return;
+                    }
+                    const followUp = this.getClientFollowUp(clientId);
+                    if (!followUp) {
+                        this.showToast('Seguimiento no disponible.', 'error');
+                        return;
+                    }
+                    const task = followUp.tasks.find(item => item.id === taskId);
+                    if (!task) {
+                        this.showToast('Tarea no encontrada.', 'error');
+                        return;
+                    }
+                    if (task.status === 'completed') {
+                        task.status = 'open';
+                        task.completedAt = null;
+                    } else {
+                        task.status = 'completed';
+                        task.completedAt = new Date().toISOString();
+                    }
+                    const success = await this.persistClientFollowUp(clientId, followUp);
+                    if (success) {
+                        this.showToast(task.status === 'completed' ? 'Tarea completada.' : 'Tarea reactivada.', 'success');
+                        await this.showClientManager(clientId);
+                    }
+                },
+                async removeFollowUpEntry(clientId, entryType, entryId) {
+                    if (!clientId || !entryType || !entryId) {
+                        return;
+                    }
+                    const followUp = this.getClientFollowUp(clientId);
+                    if (!followUp) {
+                        this.showToast('Seguimiento no disponible.', 'error');
+                        return;
+                    }
+                    const key = entryType === 'note' ? 'notes' : entryType === 'metric' ? 'metrics' : 'tasks';
+                    if (!Array.isArray(followUp[key])) {
+                        this.showToast('Elemento no encontrado.', 'error');
+                        return;
+                    }
+                    const initialLength = followUp[key].length;
+                    followUp[key] = followUp[key].filter(item => item.id !== entryId);
+                    if (followUp[key].length === initialLength) {
+                        this.showToast('Elemento no encontrado.', 'error');
+                        return;
+                    }
+                    const success = await this.persistClientFollowUp(clientId, followUp);
+                    if (success) {
+                        this.showToast('Elemento eliminado del seguimiento.', 'success');
+                        await this.showClientManager(clientId);
+                    }
+                },
+                openFollowUpCheckInModal(clientId) {
+                    const followUp = this.getClientFollowUp(clientId) || this.getFollowUpDefaults();
+                    const baseDate = followUp.nextCheckIn ? this._normalizeDateValue(followUp.nextCheckIn) : new Date();
+                    const dateValue = baseDate.toISOString().split('T')[0];
+                    const timeValue = `${String(baseDate.getHours()).padStart(2, '0')}:${String(baseDate.getMinutes()).padStart(2, '0')}`;
+                    const body = `
+                        <form id="followup-checkin-form" class="space-y-4">
+                            <p class="text-sm text-gray-300">Programa el próximo punto de contacto para mantener el seguimiento constante.</p>
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div>
+                                    <label for="followup-checkin-date" class="block text-sm font-semibold text-gray-200 mb-1">Fecha</label>
+                                    <input type="date" id="followup-checkin-date" value="${dateValue}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label for="followup-checkin-time" class="block text-sm font-semibold text-gray-200 mb-1">Hora</label>
+                                    <input type="time" id="followup-checkin-time" value="${timeValue}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                                </div>
+                            </div>
+                        </form>
+                    `;
+                    const footer = [
+                        { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                        { text: 'Guardar check-in', class: 'bg-emerald-500 text-slate-950 hover:bg-emerald-400', action: 'followup-save-checkin', 'client-id': clientId }
+                    ];
+                    this.showModal('Programar próximo check-in', body, footer);
+                    lucide.createIcons();
+                },
+                async saveFollowUpCheckIn(clientId) {
+                    const form = document.getElementById('followup-checkin-form');
+                    if (!form) {
+                        this.showToast('No se encontró el formulario.', 'error');
+                        return;
+                    }
+                    const dateInput = document.getElementById('followup-checkin-date');
+                    const timeInput = document.getElementById('followup-checkin-time');
+                    const dateValue = dateInput?.value;
+                    if (!dateValue) {
+                        this.showToast('Selecciona la fecha del check-in.', 'error');
+                        return;
+                    }
+                    const checkinDate = this._normalizeDateValue(`${dateValue}T${timeInput?.value || '09:00'}`);
+                    const followUp = this.getClientFollowUp(clientId);
+                    if (!followUp) {
+                        this.showToast('No se pudo cargar el seguimiento.', 'error');
+                        return;
+                    }
+                    followUp.nextCheckIn = checkinDate.toISOString();
+                    this.setModalButtonLoading('followup-save-checkin', true, 'Guardar check-in');
+                    try {
+                        const success = await this.persistClientFollowUp(clientId, followUp);
+                        if (success) {
+                            this.hideModal();
+                            this.showToast('Check-in programado.', 'success');
+                            await this.showClientManager(clientId);
+                        }
+                    } finally {
+                        this.setModalButtonLoading('followup-save-checkin', false, 'Guardar check-in');
+                    }
+                },
+                async clearFollowUpCheckIn(clientId) {
+                    const followUp = this.getClientFollowUp(clientId);
+                    if (!followUp) {
+                        this.showToast('Seguimiento no disponible.', 'error');
+                        return;
+                    }
+                    followUp.nextCheckIn = null;
+                    const success = await this.persistClientFollowUp(clientId, followUp);
+                    if (success) {
+                        this.showToast('Check-in eliminado.', 'success');
+                        await this.showClientManager(clientId);
+                    }
+                },
+                buildFollowUpTimeline(followUp) {
+                    const normalized = this._normalizeFollowUpSnapshot(followUp);
+                    const entries = [];
+                    normalized.notes.forEach(note => {
+                        entries.push({
+                            type: 'note',
+                            id: note.id,
+                            title: note.title,
+                            content: note.content,
+                            tags: note.tags,
+                            createdAt: note.createdAt,
+                            authorName: note.authorName
+                        });
+                    });
+                    normalized.metrics.forEach(metric => {
+                        entries.push({
+                            type: 'metric',
+                            id: metric.id,
+                            weight: metric.weight,
+                            bodyFat: metric.bodyFat,
+                            notes: metric.notes,
+                            createdAt: metric.recordedAt || metric.createdAt,
+                            date: metric.date
+                        });
+                    });
+                    normalized.tasks.filter(task => task.status === 'completed').forEach(task => {
+                        entries.push({
+                            type: 'task',
+                            id: task.id,
+                            title: task.title,
+                            description: task.description,
+                            createdAt: task.completedAt || task.createdAt
+                        });
+                    });
+                    entries.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                    return entries.slice(0, 6);
+                },
+                renderClientFollowUpPanel(client) {
+                    const followUp = this.ensureFollowUpStructure(client);
+                    const baseName = client.userName || client.email || 'tu asesorado';
+                    const firstName = baseName.includes(' ') ? baseName.split(' ')[0] : (baseName.split('@')[0] || baseName);
+                    const notesCount = followUp.notes.length;
+                    const metricsCount = followUp.metrics.length;
+                    const openTasks = followUp.tasks.filter(task => task.status !== 'completed');
+                    const latestMetric = followUp.metrics.length ? followUp.metrics[0] : null;
+                    const latestNote = followUp.notes.length ? followUp.notes[0] : null;
+                    const nextCheckInDate = followUp.nextCheckIn ? this._normalizeDateValue(followUp.nextCheckIn) : null;
+                    const nextCheckInLabel = nextCheckInDate
+                        ? nextCheckInDate.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'long' })
+                        : 'Sin programar';
+                    const nextCheckInRelative = nextCheckInDate ? this.formatRelativeTime(nextCheckInDate) : 'Define una próxima revisión';
+                    const tasksHtml = openTasks.length
+                        ? openTasks.map(task => {
+                            const dueDateLabel = task.dueDate
+                                ? this._normalizeDateValue(task.dueDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
+                                : 'Sin fecha';
+                            const relative = task.dueDate ? this.formatRelativeTime(task.dueDate) : 'Cuando lo definas';
+                            const priorityLabel = task.priority === 'high' ? 'Alta' : task.priority === 'low' ? 'Baja' : 'Media';
+                            const priorityColor = task.priority === 'high'
+                                ? 'text-rose-200 border-rose-400/40 bg-rose-500/10'
+                                : task.priority === 'low'
+                                    ? 'text-sky-200 border-sky-400/40 bg-sky-500/10'
+                                    : 'text-emerald-200 border-emerald-400/40 bg-emerald-500/10';
+                            return `
+                                <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="space-y-2">
+                                            <p class="text-sm font-semibold text-white">${task.title}</p>
+                                            ${task.description ? `<p class="text-xs text-gray-400 leading-relaxed">${task.description}</p>` : ''}
+                                            <div class="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.3em]">
+                                                <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-300">${dueDateLabel}</span>
+                                                <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-400">${relative}</span>
+                                                <span class="inline-flex items-center gap-1 rounded-full border ${priorityColor} px-3 py-1">${priorityLabel}</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-col gap-2">
+                                            <button data-action="followup-toggle-task" data-client-id="${client.id}" data-task-id="${task.id}" class="inline-flex items-center justify-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100"><i data-lucide="check" class="h-3.5 w-3.5"></i>Completar</button>
+                                            <button data-action="followup-remove-entry" data-client-id="${client.id}" data-entry-type="task" data-entry-id="${task.id}" class="inline-flex items-center justify-center rounded-full border border-rose-400/40 bg-rose-500/10 p-1.5 text-rose-200 transition hover:border-rose-300 hover:text-rose-100" title="Eliminar">
+                                                <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </article>
+                            `;
+                        }).join('')
+                        : `<div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/50 p-4 text-sm text-gray-400">No hay acciones activas. Asigna próximos pasos para ${firstName}.</div>`;
+                    const timelineEntries = this.buildFollowUpTimeline(followUp);
+                    const timelineHtml = timelineEntries.length
+                        ? timelineEntries.map(entry => {
+                            const createdAt = entry.createdAt ? this._normalizeDateValue(entry.createdAt) : new Date();
+                            const absolute = createdAt.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+                            const relative = this.formatRelativeTime(createdAt);
+                            if (entry.type === 'note') {
+                                const tags = entry.tags && entry.tags.length
+                                    ? `<div class="mt-2 flex flex-wrap gap-1 text-[10px] uppercase tracking-[0.35em] text-emerald-200/80">${entry.tags.map(tag => `<span class="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5">${tag}</span>`).join('')}</div>`
+                                    : '';
+                                return `
+                                    <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                        <div class="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p class="flex items-center gap-2 text-sm font-semibold text-white"><i data-lucide="notebook-pen" class="h-4 w-4 text-emerald-300"></i>Nota de progreso</p>
+                                                <p class="text-xs text-gray-400">${absolute} · ${relative}</p>
+                                                <p class="mt-2 text-sm text-gray-300 leading-relaxed">${entry.content || entry.title}</p>
+                                                ${tags}
+                                            </div>
+                                            <button data-action="followup-remove-entry" data-client-id="${client.id}" data-entry-type="note" data-entry-id="${entry.id}" class="inline-flex items-center justify-center rounded-full border border-rose-400/40 bg-rose-500/10 p-1.5 text-rose-200 transition hover:border-rose-300 hover:text-rose-100" title="Eliminar nota">
+                                                <i data-lucide="x" class="h-4 w-4"></i>
+                                            </button>
+                                        </div>
+                                    </article>
+                                `;
+                            }
+                            if (entry.type === 'metric') {
+                                const weight = typeof entry.weight === 'number' ? `${entry.weight.toFixed(1)} kg` : '—';
+                                const bodyFat = typeof entry.bodyFat === 'number' ? `${entry.bodyFat.toFixed(1)} %` : '—';
+                                return `
+                                    <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                        <div class="flex items-start justify-between gap-3">
+                                            <div>
+                                                <p class="flex items-center gap-2 text-sm font-semibold text-white"><i data-lucide="activity" class="h-4 w-4 text-sky-300"></i>Registro biométrico</p>
+                                                <p class="text-xs text-gray-400">${absolute} · ${relative}</p>
+                                                <div class="mt-3 flex flex-wrap gap-2 text-xs text-gray-300">
+                                                    <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="scale" class="h-3.5 w-3.5"></i>${weight}</span>
+                                                    <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="percent" class="h-3.5 w-3.5"></i>${bodyFat}</span>
+                                                    ${entry.notes ? `<span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-300">${entry.notes}</span>` : ''}
+                                                </div>
+                                            </div>
+                                            <button data-action="followup-remove-entry" data-client-id="${client.id}" data-entry-type="metric" data-entry-id="${entry.id}" class="inline-flex items-center justify-center rounded-full border border-rose-400/40 bg-rose-500/10 p-1.5 text-rose-200 transition hover:border-rose-300 hover:text-rose-100" title="Eliminar métrica">
+                                                <i data-lucide="x" class="h-4 w-4"></i>
+                                            </button>
+                                        </div>
+                                    </article>
+                                `;
+                            }
+                            return `
+                                <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p class="flex items-center gap-2 text-sm font-semibold text-white"><i data-lucide="check-circle" class="h-4 w-4 text-emerald-300"></i>Acción completada</p>
+                                            <p class="text-xs text-gray-400">${absolute} · ${relative}</p>
+                                            <p class="mt-2 text-sm text-gray-300 leading-relaxed">${entry.title}</p>
+                                            ${entry.description ? `<p class="text-xs text-gray-400 mt-1">${entry.description}</p>` : ''}
+                                        </div>
+                                        <button data-action="followup-toggle-task" data-client-id="${client.id}" data-task-id="${entry.id}" class="inline-flex items-center justify-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100">Reabrir</button>
+                                    </div>
+                                </article>
+                            `;
+                        }).join('')
+                        : `<div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/50 p-4 text-sm text-gray-400">Registra notas, métricas o acciones para construir la línea de tiempo.</div>`;
+                    const summaryLastMetric = latestMetric
+                        ? `${latestMetric.date} · ${typeof latestMetric.weight === 'number' ? `${latestMetric.weight.toFixed(1)} kg` : 'peso pendiente'}`
+                        : 'Aún sin métricas';
+                    const summaryLastNote = latestNote
+                        ? this.formatRelativeTime(latestNote.createdAt)
+                        : 'Sin notas registradas';
+                    return `
+                        <section class="rounded-3xl border border-white/10 bg-slate-950/70 p-6 backdrop-blur">
+                            <div class="flex flex-col gap-5">
+                                <header class="flex flex-col gap-3">
+                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                        <div>
+                                            <h4 class="flex items-center gap-2 text-lg font-bold text-white"><i data-lucide="radar" class="h-5 w-5 text-emerald-300"></i>Seguimiento 360°</h4>
+                                            <p class="text-sm text-gray-400">Organiza evidencias, métricas y próximos pasos para ${firstName}. Todo sincronizado en tu panel.</p>
+                                        </div>
+                                        <div class="flex flex-wrap gap-2">
+                                            <button data-action="followup-open-note-modal" data-client-id="${client.id}" class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100"><i data-lucide="notebook-pen" class="h-3.5 w-3.5"></i>Nota</button>
+                                            <button data-action="followup-open-metric-modal" data-client-id="${client.id}" class="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-sky-200 transition hover:border-sky-300 hover:text-sky-100"><i data-lucide="activity" class="h-3.5 w-3.5"></i>Métrica</button>
+                                            <button data-action="followup-open-task-modal" data-client-id="${client.id}" class="inline-flex items-center gap-1 rounded-full border border-violet-400/40 bg-violet-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-200 transition hover:border-violet-300 hover:text-violet-100"><i data-lucide="target" class="h-3.5 w-3.5"></i>Acción</button>
+                                        </div>
+                                    </div>
+                                </header>
+                                <div class="grid gap-3 sm:grid-cols-3">
+                                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Notas</p>
+                                        <p class="mt-2 text-2xl font-bold text-white">${notesCount}</p>
+                                        <p class="text-xs text-gray-400">${summaryLastNote ? `Última actualización ${summaryLastNote}` : 'Documenta hallazgos clave.'}</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Métricas</p>
+                                        <p class="mt-2 text-2xl font-bold text-white">${metricsCount}</p>
+                                        <p class="text-xs text-gray-400">${summaryLastMetric}</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Acciones activas</p>
+                                        <p class="mt-2 text-2xl font-bold text-white">${openTasks.length}</p>
+                                        <p class="text-xs text-gray-400">Coordina próximos pasos y compromisos.</p>
+                                    </div>
+                                </div>
+                                <div class="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4">
+                                    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                        <div>
+                                            <p class="text-sm font-semibold text-white">Próximo check-in</p>
+                                            <p class="text-lg font-bold text-white">${nextCheckInLabel}</p>
+                                            <p class="text-xs text-emerald-100/80">${nextCheckInRelative}</p>
+                                        </div>
+                                        <div class="flex flex-wrap gap-2">
+                                            <button data-action="followup-open-checkin-modal" data-client-id="${client.id}" class="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-100 transition hover:border-white/40">Programar</button>
+                                            ${followUp.nextCheckIn ? `<button data-action="followup-clear-checkin" data-client-id="${client.id}" class="inline-flex items-center gap-1 rounded-full border border-rose-400/40 bg-rose-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-rose-200 transition hover:border-rose-300 hover:text-rose-100">Limpiar</button>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <h5 class="text-sm font-semibold text-gray-200 uppercase tracking-[0.35em]">Acciones abiertas</h5>
+                                        ${openTasks.length ? `<span class="text-xs text-gray-400">${openTasks.length} pendientes</span>` : ''}
+                                    </div>
+                                    <div class="space-y-3">
+                                        ${tasksHtml}
+                                    </div>
+                                </div>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <h5 class="text-sm font-semibold text-gray-200 uppercase tracking-[0.35em]">Línea de tiempo</h5>
+                                        ${timelineEntries.length ? `<span class="text-xs text-gray-400">Actualizado ${followUp.lastUpdated ? this.formatRelativeTime(followUp.lastUpdated) : 'hace poco'}</span>` : ''}
+                                    </div>
+                                    <div class="space-y-3">
+                                        ${timelineHtml}
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                    `;
+                },
                 showModal(t,b,f=[]){document.getElementById('custom-modal-title').textContent=t;document.getElementById('custom-modal-body').innerHTML=b;const ft=document.getElementById('custom-modal-footer');ft.innerHTML=f.map(btn=>{const d=Object.entries(btn).filter(([k])=>k!=='text'&&k!=='class').map(([k,v])=>`data-${k}="${v}"`).join(' ');return`<button ${d} class="font-bold py-2 px-4 rounded-lg transition ${btn.class}">${btn.text}</button>`}).join('');document.getElementById('custom-modal').classList.remove('hidden');document.getElementById('custom-modal-panel').classList.remove('modal-fade-out');},
                 hideModal(){const m=document.getElementById('custom-modal'),p=document.getElementById('custom-modal-panel');p.classList.add('modal-fade-out');p.addEventListener('animationend',()=>m.classList.add('hidden'),{once:true});},
                 showToast(m,t='success'){const c=document.getElementById('toast-container'),el=document.createElement('div');el.className=`toast ${t==='success'?'bg-emerald-500':'bg-red-500'} text-white font-bold py-2 px-4 rounded-lg shadow-lg`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.remove(),3000);},
@@ -8128,23 +9434,42 @@
                 if (Number.isNaN(date.getTime())) {
                     return '';
                 }
-                const diffSeconds = Math.floor((Date.now() - date.getTime()) / 1000);
-                if (diffSeconds < 60) {
-                    return 'justo ahora';
+                const now = new Date();
+                const diffMs = date.getTime() - now.getTime();
+                const absMs = Math.abs(diffMs);
+                const rtf = new Intl.RelativeTimeFormat('es-ES', { numeric: 'auto' });
+
+                if (absMs < 60_000) {
+                    return diffMs >= 0 ? 'en instantes' : 'justo ahora';
                 }
-                const diffMinutes = Math.floor(diffSeconds / 60);
-                if (diffMinutes < 60) {
-                    return `hace ${diffMinutes} min`;
+
+                const diffMinutes = Math.round(diffMs / 60_000);
+                if (Math.abs(diffMinutes) < 60) {
+                    return rtf.format(diffMinutes, 'minute');
                 }
-                const diffHours = Math.floor(diffMinutes / 60);
-                if (diffHours < 24) {
-                    return `hace ${diffHours} h`;
+
+                const diffHours = Math.round(diffMs / 3_600_000);
+                if (Math.abs(diffHours) < 24) {
+                    return rtf.format(diffHours, 'hour');
                 }
-                const diffDays = Math.floor(diffHours / 24);
-                if (diffDays < 7) {
-                    return `hace ${diffDays} d`;
+
+                const diffDays = Math.round(diffMs / 86_400_000);
+                if (Math.abs(diffDays) < 7) {
+                    return rtf.format(diffDays, 'day');
                 }
-                return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+
+                const diffWeeks = Math.round(diffDays / 7);
+                if (Math.abs(diffWeeks) < 5) {
+                    return rtf.format(diffWeeks, 'week');
+                }
+
+                const diffMonths = Math.round(diffDays / 30);
+                if (Math.abs(diffMonths) < 12) {
+                    return rtf.format(diffMonths, 'month');
+                }
+
+                const diffYears = Math.round(diffDays / 365);
+                return rtf.format(diffYears, 'year');
             },
             animateCommunityCounters() {
                 const counters = document.querySelectorAll('[data-community-counter][data-animated="false"]');
