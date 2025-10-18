@@ -1312,24 +1312,192 @@
     
     <template id="template-asesorados">
         <section id="asesorados" class="section-content hidden">
-            <div class="space-y-6">
-                <div>
-                    <h2 class="text-2xl font-bold flex items-center gap-2"><i data-lucide="history" class="h-6 w-6 text-emerald-400"></i><span>Gestión de Asesorados</span></h2>
-                    <p class="text-gray-400">Invita y gestiona los planes de tus clientes.</p>
-                </div>
-                
-                <div class="bg-gray-700/50 p-4 rounded-2xl">
-                    <h3 class="font-semibold text-lg mb-3">Invitar a un Nuevo Cliente</h3>
-                    <form id="invite-form" class="flex flex-col gap-3 sm:flex-row">
-                        <input type="email" id="invite-email" placeholder="email@cliente.com" required class="w-full bg-gray-700 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
-                        <button type="submit" class="bg-emerald-500 text-gray-900 font-bold py-2 px-4 rounded-lg hover:bg-emerald-400 transition sm:w-auto">Invitar</button>
-                    </form>
+            <div class="space-y-8 pb-10">
+                <div class="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-gray-950/95 via-gray-900/80 to-gray-900/40 p-6 sm:p-8 shadow-[0_45px_140px_-70px_rgba(16,185,129,0.75)]">
+                    <div class="pointer-events-none absolute inset-0">
+                        <div class="absolute -top-24 -left-16 h-56 w-56 rounded-full bg-emerald-500/20 blur-3xl"></div>
+                        <div class="absolute -bottom-24 right-0 h-72 w-72 rounded-full bg-sky-500/20 blur-3xl"></div>
+                    </div>
+                    <div class="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                        <div class="space-y-4">
+                            <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200"><i data-lucide="users" class="h-4 w-4"></i>Suite de acompañamiento</span>
+                            <div class="space-y-2">
+                                <h2 class="text-3xl font-black leading-tight text-white sm:text-4xl">Gestión integral de asesorados</h2>
+                                <p class="max-w-2xl text-sm text-emerald-50/80 sm:text-base">Centraliza la creación de rutinas personalizadas, la vinculación con tus colecciones existentes, la planificación nutricional semanal y el seguimiento diario con checklists inteligentes.</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-100/80">
+                                <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="sparkles" class="h-3.5 w-3.5 text-emerald-300"></i>Experiencia premium</span>
+                                <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="workflow" class="h-3.5 w-3.5 text-emerald-300"></i>Flujo guiado</span>
+                                <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="lock" class="h-3.5 w-3.5 text-emerald-300"></i>Privacidad asegurada</span>
+                            </div>
+                        </div>
+                        <div class="grid w-full gap-3 text-sm text-emerald-100/80 sm:max-w-xl lg:grid-cols-2">
+                            <div class="header-metric rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/20">
+                                <p class="text-[11px] uppercase tracking-[0.28em] text-emerald-100/70">Clientes activos</p>
+                                <p id="asesorados-active-count" class="mt-2 text-3xl font-bold text-white">--</p>
+                                <p class="text-[11px] text-emerald-100/60">Actualiza tu cartera al instante</p>
+                            </div>
+                            <div class="header-metric rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/20">
+                                <p class="text-[11px] uppercase tracking-[0.28em] text-emerald-100/70">Rutinas asignadas</p>
+                                <p id="asesorados-routines-count" class="mt-2 text-3xl font-bold text-white">--</p>
+                                <p class="text-[11px] text-emerald-100/60">Combina creadas y predefinidas</p>
+                            </div>
+                            <div class="header-metric rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/20">
+                                <p class="text-[11px] uppercase tracking-[0.28em] text-emerald-100/70">Planes de dieta</p>
+                                <p id="asesorados-diets-count" class="mt-2 text-3xl font-bold text-white">--</p>
+                                <p class="text-[11px] text-emerald-100/60">Organiza semana a semana</p>
+                            </div>
+                            <div class="header-metric rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/20">
+                                <p class="text-[11px] uppercase tracking-[0.28em] text-emerald-100/70">Check-ins diarios</p>
+                                <p id="asesorados-checkins-count" class="mt-2 text-3xl font-bold text-white">--</p>
+                                <p class="text-[11px] text-emerald-100/60">Checklist automatizado</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div>
-                    <h3 class="font-semibold text-lg mb-3">Mis Clientes</h3>
-                    <div id="asesorados-list" class="space-y-3">
-                        <p class="text-gray-500 text-center p-4">Aún no tienes clientes.</p>
+                <div class="grid gap-6 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.85fr)]">
+                    <div class="space-y-6">
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-emerald-500/10">
+                            <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white">Invitar a un nuevo asesorado</h3>
+                                    <p class="text-sm text-gray-400">Comparte un acceso personalizado y comienza la construcción de su ecosistema de entrenamiento.</p>
+                                </div>
+                                <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><i data-lucide="mail" class="h-3.5 w-3.5 text-emerald-300"></i>Invitación directa</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><i data-lucide="shield-check" class="h-3.5 w-3.5 text-emerald-300"></i>Acceso seguro</span>
+                                </div>
+                            </div>
+                            <form id="invite-form" class="mt-5 grid gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,220px)]" autocomplete="off">
+                                <input type="email" id="invite-email" placeholder="email@cliente.com" required class="w-full rounded-2xl border border-white/10 bg-gray-900/60 px-4 py-3 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                <button type="submit" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-emerald-500 to-teal-400 px-4 py-3 text-sm font-semibold uppercase tracking-[0.3em] text-gray-900 shadow-[0_20px_45px_-25px_rgba(16,185,129,0.95)] transition hover:from-emerald-300 hover:via-emerald-400 hover:to-teal-300">
+                                    <i data-lucide="send" class="h-4 w-4"></i>
+                                    Invitar
+                                </button>
+                            </form>
+                            <p class="mt-3 text-xs text-gray-500">El asesorado recibirá instrucciones para completar su registro y activar los módulos de rutina, nutrición y seguimiento.</p>
+                        </div>
+
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-emerald-500/10">
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                                <div>
+                                    <h3 class="text-xl font-semibold text-white">Cartera de asesorados</h3>
+                                    <p class="text-sm text-gray-400">Accede al perfil, administra sus planes y revisa sus registros día a día.</p>
+                                </div>
+                                <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><i data-lucide="list-checks" class="h-3.5 w-3.5 text-emerald-300"></i>Check diario</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><i data-lucide="activity" class="h-3.5 w-3.5 text-emerald-300"></i>Progreso continuo</span>
+                                </div>
+                            </div>
+                            <div id="asesorados-list" class="mt-5 space-y-3">
+                                <div class="rounded-2xl border border-dashed border-white/10 bg-gray-900/60 p-6 text-center text-sm text-gray-400">
+                                    Aún no tienes clientes. Envía tu primera invitación para comenzar.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-gray-900/80 to-sky-500/10 p-6 shadow-lg shadow-emerald-500/10">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i data-lucide="dumbbell" class="h-5 w-5 text-emerald-300"></i>Arquitectura de rutinas</h3>
+                            <div class="mt-4 grid gap-3 text-sm text-emerald-50/80">
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <h4 class="text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="wand2" class="h-4 w-4 text-emerald-300"></i>Creador inmersivo</h4>
+                                    <p class="mt-2 text-gray-300">Diseña sesiones personalizadas, gestiona bloques, tempo y progresiones para cada asesorado con visualizaciones en tiempo real.</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <h4 class="text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="library" class="h-4 w-4 text-emerald-300"></i>Vincula múltiples rutinas</h4>
+                                    <p class="mt-2 text-gray-300">Añade planes previamente creados por ti o selecciona colecciones predefinidas para combinar enfoques y periodizar objetivos.</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <h4 class="text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="refresh-cw" class="h-4 w-4 text-emerald-300"></i>Actualizaciones dinámicas</h4>
+                                    <p class="mt-2 text-gray-300">Sincroniza cambios con un clic y mantén un registro histórico de las iteraciones aplicadas en cada perfil.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-emerald-500/10">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i data-lucide="utensils-crossed" class="h-5 w-5 text-emerald-300"></i>Planner nutricional semanal</h3>
+                            <p class="mt-2 text-sm text-gray-300">Configura objetivos diarios, organiza comidas por semana y habilita checklists inteligentes que tu asesorado marcará al completar cada ingesta.</p>
+                            <ul class="mt-4 space-y-3 text-sm text-gray-300">
+                                <li class="flex items-start gap-3"><span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200"><i data-lucide="calendar-range" class="h-3.5 w-3.5"></i></span><span>Planificación semanal con vistas comparativas para medir adherencia.</span></li>
+                                <li class="flex items-start gap-3"><span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200"><i data-lucide="check-square" class="h-3.5 w-3.5"></i></span><span>Checklist diario sincronizado con recordatorios y feedback instantáneo.</span></li>
+                                <li class="flex items-start gap-3"><span class="mt-1 inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200"><i data-lucide="flame" class="h-3.5 w-3.5"></i></span><span>Control de calorías, macros y registros fotográficos de cada comida.</span></li>
+                            </ul>
+                        </div>
+
+                        <div class="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-emerald-500/10">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i data-lucide="user-round" class="h-5 w-5 text-emerald-300"></i>Perfil y seguimiento integral</h3>
+                            <p class="mt-2 text-sm text-gray-300">Accede a métricas de progreso, gráficos, notas de sesiones y checkpoints físicos para evaluar la evolución del asesorado.</p>
+                            <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <h4 class="text-sm font-semibold text-white">Bitácora de progreso</h4>
+                                    <p class="mt-2 text-xs text-gray-400">Registra medidas, PRs, percepción de esfuerzo y objetivos alcanzados.</p>
+                                </div>
+                                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                    <h4 class="text-sm font-semibold text-white">Alertas inteligentes</h4>
+                                    <p class="mt-2 text-xs text-gray-400">Recibe notificaciones cuando se detecten desviaciones en adherencia o cargas.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+                    <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-gray-950/90 via-gray-900/70 to-gray-900/40 p-6 shadow-lg shadow-emerald-500/10">
+                        <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i data-lucide="clipboard-check" class="h-5 w-5 text-emerald-300"></i>Checklists diarios inteligentes</h3>
+                        <p class="mt-2 text-sm text-gray-300">Visualiza el estado de cumplimiento día a día y automatiza recordatorios en función de los hitos marcados.</p>
+                        <div class="mt-5 grid gap-4 text-sm text-gray-300">
+                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold text-white">Entrenamiento</span>
+                                    <span class="rounded-full bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200">100%</span>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-400">Sesiones completadas, movilidad y estiramientos con confirmación del asesorado.</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold text-white">Nutrición</span>
+                                    <span class="rounded-full bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-sky-200">80%</span>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-400">Checklist de comidas, hidratación y suplementos con adjuntos fotográficos.</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-semibold text-white">Hábitos clave</span>
+                                    <span class="rounded-full bg-amber-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-200">En curso</span>
+                                </div>
+                                <p class="mt-2 text-xs text-gray-400">Sueño, pasos y rutinas de bienestar integradas en el tablero diario.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-gray-900/80 to-sky-500/10 p-6 shadow-lg shadow-emerald-500/10">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <h3 class="text-lg font-semibold text-white flex items-center gap-2"><i data-lucide="message-circle" class="h-5 w-5 text-emerald-300"></i>Canal privado de seguimiento</h3>
+                            <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-300"><i data-lucide="image" class="h-3.5 w-3.5 text-emerald-200"></i>Multimedia segura</span>
+                        </div>
+                        <p class="text-sm text-gray-300">Mantén una conversación exclusiva con cada asesorado, comparte feedback y recibe imágenes de progreso, comidas y evaluaciones directamente en el historial.</p>
+                        <div class="mt-5 grid gap-4 md:grid-cols-2">
+                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <h4 class="text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="shield" class="h-4 w-4 text-emerald-300"></i>Privado y encriptado</h4>
+                                <p class="mt-2 text-xs text-gray-400">Solo tú y tu asesorado acceden a este canal. Incluye recibo de lectura y filtros por etiquetas.</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <h4 class="text-sm font-semibold text-white flex items-center gap-2"><i data-lucide="images" class="h-4 w-4 text-emerald-300"></i>Galería de progresos</h4>
+                                <p class="mt-2 text-xs text-gray-400">Recibe fotos, clips o capturas de métricas y vincúlalas al día, rutina o comida correspondiente.</p>
+                            </div>
+                        </div>
+                        <div class="mt-5 rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                            <div class="flex items-start gap-3">
+                                <span class="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200"><i data-lucide="bot" class="h-4 w-4"></i></span>
+                                <div class="space-y-1">
+                                    <p class="text-sm font-semibold text-white">Sugerencias automáticas</p>
+                                    <p class="text-xs text-gray-400">Activa mensajes inteligentes con recomendaciones de ajuste cuando el asesorado marque dificultades o envíe feedback específico.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -4477,7 +4645,7 @@
                             return; 
                         }
                         
-                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate, leaderboard, storagePath, inviteId, inviteLink } = button.dataset;
+                        const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate, leaderboard, storagePath, inviteId, inviteLink, noteId, noteIndex, taskId, taskIndex, entryId, entryIndex } = button.dataset;
                         if (action === 'trigger-profile-photo-upload') {
                             this.triggerProfilePhotoUpload();
                             return;
@@ -4522,10 +4690,19 @@
                             'routine-creator-edit-group-image': (evt) => { evt.stopPropagation(); this.routine_creator_showGroupImageModal(groupTarget); },
                             'routine-creator-upload-group-image': () => this.routine_creator_uploadGroupImage(groupTarget),
                             'manage-client': () => this.showClientManager(clientId),
-                            'edit-client-routine': () => this.editClientRoutine(clientId),
+                            'edit-client-routine': () => this.editClientRoutine(clientId, routineId),
                             'assign-routine-to-client': () => this.assignRoutineToClient(clientId),
+                            'confirm-remove-client-routine': () => this.confirmRemoveClientRoutine(clientId, routineId),
+                            'remove-client-routine': () => this.removeClientRoutine(clientId, routineId),
                             'edit-client-diet': () => this.editClientDiet(clientId),
                             'save-client-diet': () => this.saveClientDiet(clientId),
+                            'coach-save-note': () => this.coachSaveNote(clientId),
+                            'coach-delete-note': () => this.coachDeleteNote(clientId, noteId, noteIndex),
+                            'coach-add-task': () => this.coachAddTask(clientId),
+                            'coach-toggle-task': () => this.coachToggleTask(clientId, taskId, taskIndex),
+                            'coach-delete-task': () => this.coachDeleteTask(clientId, taskId, taskIndex),
+                            'coach-add-timeline-entry': () => this.coachAddTimelineEntry(clientId),
+                            'coach-delete-timeline-entry': () => this.coachDeleteTimelineEntry(clientId, entryId, entryIndex),
                             'toggle-food-completion': () => this.toggleFoodCompletion(parseInt(mealIndex), parseInt(itemIndex)),
                             'client-diet-add-meal': () => this._addMealToClientDietTemp(),
                             'client-diet-remove-meal': () => this._removeMealFromClientDietTemp(parseInt(mealIndex)),
@@ -4788,21 +4965,144 @@
                 async renderAsesoradosSection() {
                     const listContainer = document.getElementById('asesorados-list');
                     if (!listContainer) return;
+
                     await this.fetchAsesorados();
-                    if (this.state.asesorados.length > 0) {
-                        listContainer.innerHTML = this.state.asesorados.map(client => `
-                            <button data-action="manage-client" data-client-id="${client.id}" class="w-full bg-gray-700 rounded-2xl p-4 flex items-center space-x-4 text-left hover:bg-gray-600/80 transition-colors">
-                                <div class="w-10 h-10 rounded-full bg-emerald-500/50 flex items-center justify-center font-bold text-white flex-shrink-0">${client.userName.charAt(0).toUpperCase()}</div>
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-white">${client.userName}</h4>
-                                    <p class="text-sm text-gray-400">${client.email}</p>
-                                </div>
-                                <i data-lucide="chevron-right" class="text-gray-500"></i>
-                            </button>
-                        `).join('');
-                    } else {
-                        listContainer.innerHTML = `<p class="text-gray-500 text-center p-4">Aún no tienes clientes. ¡Invita a alguien!</p>`;
+
+                    const formatCount = (value) => Number.isFinite(value) ? value.toLocaleString('es-ES') : '0';
+
+                    const totalClients = this.state.asesorados.length;
+                    const totalAssignedRoutines = this.state.asesorados.reduce((acc, client) => {
+                        const routines = Array.isArray(client.userRoutines) ? client.userRoutines.length : 0;
+                        return acc + routines;
+                    }, 0);
+                    const totalActiveDiets = this.state.asesorados.reduce((acc, client) => {
+                        const hasDiet = Array.isArray(client.dailyDiet) && client.dailyDiet.length > 0;
+                        return acc + (hasDiet ? 1 : 0);
+                    }, 0);
+                    const totalCheckins = this.state.asesorados.reduce((acc, client) => {
+                        if (Array.isArray(client.dailyChecklist)) {
+                            return acc + client.dailyChecklist.filter(item => item?.completed).length;
+                        }
+                        if (Array.isArray(client.checklist)) {
+                            return acc + client.checklist.filter(item => item?.completed).length;
+                        }
+                        if (Array.isArray(client.checkIns)) {
+                            return acc + client.checkIns.filter(item => item?.completed).length;
+                        }
+                        if (Array.isArray(client.dailyDiet)) {
+                            return acc + client.dailyDiet.reduce((mealSum, meal) => {
+                                if (!Array.isArray(meal?.items)) return mealSum;
+                                return mealSum + meal.items.filter(item => item?.completed).length;
+                            }, 0);
+                        }
+                        const fallback = client?.dailyCheckinsCompleted ?? client?.checkinsCompleted ?? client?.checkins ?? 0;
+                        return acc + (typeof fallback === 'number' ? fallback : 0);
+                    }, 0);
+
+                    const activeCountEl = document.getElementById('asesorados-active-count');
+                    const routinesCountEl = document.getElementById('asesorados-routines-count');
+                    const dietsCountEl = document.getElementById('asesorados-diets-count');
+                    const checkinsCountEl = document.getElementById('asesorados-checkins-count');
+
+                    if (activeCountEl) {
+                        activeCountEl.textContent = formatCount(totalClients);
                     }
+                    if (routinesCountEl) {
+                        routinesCountEl.textContent = formatCount(totalAssignedRoutines);
+                    }
+                    if (dietsCountEl) {
+                        dietsCountEl.textContent = formatCount(totalActiveDiets);
+                    }
+                    if (checkinsCountEl) {
+                        checkinsCountEl.textContent = formatCount(totalCheckins);
+                    }
+
+                    if (totalClients > 0) {
+                        listContainer.innerHTML = this.state.asesorados.map(client => {
+                            const name = client.userName || 'Asesorado';
+                            const email = client.email || 'Sin email';
+                            const initial = (name || email).charAt(0).toUpperCase();
+                            const routines = Array.isArray(client.userRoutines) ? client.userRoutines.length : 0;
+                            const mealsPlanned = Array.isArray(client.dailyDiet)
+                                ? client.dailyDiet.reduce((sum, meal) => sum + (Array.isArray(meal?.items) ? meal.items.length : 0), 0)
+                                : 0;
+                            const dietDays = Array.isArray(client.dailyDiet) ? client.dailyDiet.length : 0;
+                            const goalCalories = typeof client?.userGoals?.calories === 'number' ? client.userGoals.calories : null;
+                            const goalCaloriesLabel = goalCalories !== null ? formatCount(goalCalories) : null;
+                            const checklistCompleted = (() => {
+                                if (Array.isArray(client.dailyChecklist)) {
+                                    return client.dailyChecklist.filter(item => item?.completed).length;
+                                }
+                                if (Array.isArray(client.checklist)) {
+                                    return client.checklist.filter(item => item?.completed).length;
+                                }
+                                if (Array.isArray(client.checkIns)) {
+                                    return client.checkIns.filter(item => item?.completed).length;
+                                }
+                                const fallback = client?.dailyCheckinsCompleted ?? client?.checkinsCompleted ?? client?.checkins ?? 0;
+                                return typeof fallback === 'number' ? fallback : 0;
+                            })();
+                            const routineBadge = routines > 0
+                                ? `${formatCount(routines)} ${routines === 1 ? 'rutina activa' : 'rutinas activas'}`
+                                : 'Crea su primera rutina';
+                            const nutritionBadge = dietDays > 0
+                                ? `${formatCount(dietDays)} ${dietDays === 1 ? 'día planificado' : 'días planificados'}`
+                                : 'Agenda nutricional pendiente';
+                            const checkinsLabel = checklistCompleted === 1 ? 'check-in' : 'check-ins';
+                            const checkinsBadge = checklistCompleted > 0
+                                ? `${formatCount(checklistCompleted)} ${checkinsLabel} completados`
+                                : 'Checklist en configuración';
+
+                            return `
+                                <button data-action="manage-client" data-client-id="${client.id}" class="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-gray-900/60 p-5 text-left transition hover:border-emerald-400/50 hover:shadow-[0_25px_65px_-40px_rgba(16,185,129,0.85)] focus:outline-none focus:ring-2 focus:ring-emerald-400/50">
+                                    <div class="absolute inset-0 opacity-0 transition group-hover:opacity-100">
+                                        <div class="h-full w-full bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_60%)]"></div>
+                                    </div>
+                                    <div class="relative z-[1] flex flex-col gap-4">
+                                        <div class="flex items-start justify-between gap-4">
+                                            <div class="flex items-center gap-3">
+                                                <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/20 text-lg font-bold text-emerald-200">${initial}</div>
+                                                <div>
+                                                    <h4 class="text-lg font-semibold text-white">${name}</h4>
+                                                    <p class="text-sm text-gray-400">${email}</p>
+                                                </div>
+                                            </div>
+                                            <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-300"><i data-lucide="arrow-up-right" class="h-3.5 w-3.5 text-emerald-300"></i>Gestionar</span>
+                                        </div>
+                                        <div class="grid gap-3 md:grid-cols-3 text-sm">
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-3">
+                                                <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Rutinas</p>
+                                                <p class="mt-1 text-base font-semibold text-white">${routineBadge}</p>
+                                                <p class="text-[11px] text-emerald-200/80">Personalizadas y biblioteca</p>
+                                            </div>
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-3">
+                                                <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Nutrición</p>
+                                                <p class="mt-1 text-base font-semibold text-white">${nutritionBadge}</p>
+                                                <p class="text-[11px] text-emerald-200/80">${goalCaloriesLabel ? `${goalCaloriesLabel} kcal objetivo` : 'Define metas calóricas'}</p>
+                                            </div>
+                                            <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-3">
+                                                <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Seguimiento</p>
+                                                <p class="mt-1 text-base font-semibold text-white">${checkinsBadge}</p>
+                                                <p class="text-[11px] text-emerald-200/80">${mealsPlanned > 0 ? `${formatCount(mealsPlanned)} registros planificados` : 'Activa checklist diaria'}</p>
+                                            </div>
+                                        </div>
+                                        <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-emerald-200"><i data-lucide="repeat" class="h-3.5 w-3.5"></i>${routines > 0 ? 'Actualizar rutina' : 'Crear rutina'}</span>
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-sky-400/30 bg-sky-500/10 px-3 py-1 text-sky-200"><i data-lucide="calendar-check-2" class="h-3.5 w-3.5"></i>${dietDays > 0 ? 'Agenda semanal activa' : 'Planifica dieta'}</span>
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1 text-violet-200"><i data-lucide="message-square" class="h-3.5 w-3.5"></i>Chat privado</span>
+                                        </div>
+                                    </div>
+                                </button>
+                            `;
+                        }).join('');
+                    } else {
+                        listContainer.innerHTML = `
+                            <div class="rounded-2xl border border-dashed border-white/10 bg-gray-900/60 p-6 text-center text-sm text-gray-400">
+                                Aún no tienes clientes. Envía tu primera invitación para comenzar.
+                            </div>
+                        `;
+                    }
+
                     lucide.createIcons();
                 },
 
@@ -5158,75 +5458,1094 @@
                         return;
                     }
 
-                    const clientRoutine = client.userRoutines && client.userRoutines.length > 0 ? client.userRoutines[0] : null;
-                    const availableRoutines = Array.isArray(this.state.userRoutines) ? this.state.userRoutines : [];
+                    const clientName = client.userName || client.email || 'Asesorado';
+                    const clientFirstName = clientName.includes('@') ? clientName.split('@')[0] : (clientName.split(' ')[0] || clientName);
+                    const clientEmail = client.email || 'Sin email registrado';
+
+                    const assignedRoutines = Array.isArray(client.userRoutines) ? client.userRoutines : [];
+                    const latestRoutine = assignedRoutines[0] || null;
+                    const availableUserRoutines = Array.isArray(this.state.userRoutines) ? this.state.userRoutines : [];
+                    const predefinedRoutines = this.data?.predefinedRoutines || {};
                     const selectorId = `client-routine-select-${clientId}`;
+                    const formatNumber = (value) => Number.isFinite(value) ? value.toLocaleString('es-ES') : '0';
+
+                    const completedChecklist = (() => {
+                        if (Array.isArray(client.dailyChecklist)) {
+                            return client.dailyChecklist.filter(item => item?.completed).length;
+                        }
+                        if (Array.isArray(client.checklist)) {
+                            return client.checklist.filter(item => item?.completed).length;
+                        }
+                        if (Array.isArray(client.checkIns)) {
+                            return client.checkIns.filter(item => item?.completed).length;
+                        }
+                        const fallback = client?.dailyCheckinsCompleted ?? client?.checkinsCompleted ?? client?.checkins ?? 0;
+                        return typeof fallback === 'number' ? fallback : 0;
+                    })();
+
+                    const routineOptions = [
+                        availableUserRoutines.length
+                            ? `<optgroup label="Rutinas personalizadas">${availableUserRoutines.map(routine => `<option value="${routine.id}" data-source="personal">${routine.name}</option>`).join('')}</optgroup>`
+                            : '',
+                        Object.entries(predefinedRoutines).map(([category, routines]) => {
+                            if (!Array.isArray(routines) || routines.length === 0) return '';
+                            return `<optgroup label="${category}">${routines.map(routine => `<option value="${routine.id}" data-source="predefined" data-category="${category}">${routine.name}</option>`).join('')}</optgroup>`;
+                        }).join('')
+                    ].join('');
+
+                    const assignedRoutinesHTML = assignedRoutines.length
+                        ? `<div class="space-y-3">
+                                ${assignedRoutines.map((routine, index) => {
+                                    const totalDays = Array.isArray(routine.plan) ? routine.plan.length : 0;
+                                    const totalExercises = (routine.plan || []).reduce((acc, day) => acc + (Array.isArray(day.exercises) ? day.exercises.length : 0), 0);
+                                    const assignedAtDate = routine.assignedAt ? new Date(routine.assignedAt) : null;
+                                    const hasValidAssignedDate = assignedAtDate && !Number.isNaN(assignedAtDate.getTime());
+                                    const assignedDateLabel = hasValidAssignedDate ? assignedAtDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Sin registro';
+                                    const assignedTimeLabel = hasValidAssignedDate ? assignedAtDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '';
+                                    const volumeLabel = totalExercises === 1 ? 'ejercicio' : 'ejercicios';
+                                    const daysLabel = totalDays === 1 ? 'día' : 'días';
+                                    const origin = routine.origin === 'predefined' ? 'Predefinida' : 'Personalizada';
+                                    const originStyles = routine.origin === 'predefined'
+                                        ? 'border-sky-400/30 bg-sky-500/10 text-sky-200'
+                                        : 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200';
+                                    const isPrimary = index === 0;
+                                    const routineDescription = routine.summary || routine.goal || routine.focus || routine.description || '';
+
+                                    return `
+                                        <article class="group rounded-2xl border border-white/10 bg-gray-900/60 p-4 transition hover:border-emerald-400/40 hover:shadow-[0_20px_55px_-35px_rgba(16,185,129,0.65)]">
+                                            <div class="flex flex-col gap-4">
+                                                <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                                    <div>
+                                                        <div class="flex flex-wrap items-center gap-2">
+                                                            <h5 class="text-base font-semibold text-white">${routine.name}</h5>
+                                                            ${isPrimary ? '<span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-emerald-200"><i data-lucide="sparkles" class="h-3.5 w-3.5"></i>Principal</span>' : ''}
+                                                        </div>
+                                                        <p class="text-xs text-gray-400">${formatNumber(totalDays)} ${daysLabel} · ${formatNumber(totalExercises)} ${volumeLabel}</p>
+                                                        ${routineDescription ? `<p class="mt-1 text-xs text-gray-400/80">${routineDescription}</p>` : ''}
+                                                    </div>
+                                                    <div class="flex items-center gap-2 self-end sm:self-auto">
+                                                        <span class="inline-flex items-center gap-1 rounded-full border ${originStyles} px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.3em]">${origin}</span>
+                                                        <button data-action="edit-client-routine" data-client-id="${clientId}" data-routine-id="${routine.id}" class="rounded-full border border-emerald-400/30 bg-emerald-500/10 p-2 text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100" title="Abrir en el creador">
+                                                            <i data-lucide="pen-square" class="h-4 w-4"></i>
+                                                        </button>
+                                                        <button data-action="confirm-remove-client-routine" data-client-id="${clientId}" data-routine-id="${routine.id}" class="rounded-full border border-rose-400/20 bg-rose-500/10 p-2 text-rose-200 transition hover:border-rose-300 hover:text-rose-100" title="Desvincular rutina">
+                                                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                                        </button>
+                                                    </div>
+                                                </header>
+                                                <div class="grid gap-3 sm:grid-cols-3 text-sm text-gray-300">
+                                                    <div class="rounded-xl border border-white/5 bg-gray-900/70 p-3">
+                                                        <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Sesiones</p>
+                                                        <p class="mt-1 text-base font-semibold text-white">${formatNumber(totalDays)} ${daysLabel}</p>
+                                                    </div>
+                                                    <div class="rounded-xl border border-white/5 bg-gray-900/70 p-3">
+                                                        <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Volumen</p>
+                                                        <p class="mt-1 text-base font-semibold text-white">${formatNumber(totalExercises)} ${volumeLabel}</p>
+                                                    </div>
+                                                    <div class="rounded-xl border border-white/5 bg-gray-900/70 p-3">
+                                                        <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Asignada</p>
+                                                        <p class="mt-1 text-base font-semibold text-white">${assignedDateLabel}</p>
+                                                        ${assignedTimeLabel ? `<p class="text-xs text-gray-400">a las ${assignedTimeLabel} h</p>` : ''}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </article>
+                                    `;
+                                }).join('')}
+                            </div>`
+                        : `<p class="rounded-xl border border-dashed border-white/10 bg-gray-900/40 p-4 text-sm text-gray-500">Aún no se han vinculado rutinas a este asesorado. Vincula tantas como necesites desde tu librería o crea una personalizada.</p>`;
 
                     const routineHTML = `
-                        <div class="bg-gray-900/50 rounded-xl p-4 space-y-4">
-                            <div>
-                                <h4 class="font-bold text-lg text-emerald-300 mb-2">Plan de Entrenamiento</h4>
-                                ${clientRoutine ? `
-                                    <div class="bg-gray-700/60 border border-emerald-500/20 p-3 rounded-lg">
-                                        <p class="font-semibold text-white">${clientRoutine.name}</p>
-                                        <p class="text-xs text-gray-400 mt-1">${clientRoutine.plan.length} día(s) · ${clientRoutine.plan.reduce((acc, d) => acc + d.exercises.length, 0)} ejercicio(s)</p>
+                        <section class="rounded-3xl border border-white/10 bg-slate-950/70 p-6 backdrop-blur">
+                            <div class="flex flex-col gap-6">
+                                <div class="flex flex-col gap-2">
+                                    <h4 class="text-lg font-bold text-white">Plan de Entrenamiento</h4>
+                                    <p class="text-sm text-gray-400">Gestiona, combina y rota rutinas listas para ${clientFirstName}.</p>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-200"><i data-lucide="layers" class="h-3.5 w-3.5"></i>${assignedRoutines.length === 1 ? '1 rutina activa' : `${formatNumber(assignedRoutines.length)} rutinas activas`}</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-emerald-200"><i data-lucide="refresh-cw" class="h-3.5 w-3.5"></i>Reemplaza cuando quieras</span>
+                                </div>
+                                <div class="grid gap-3">
+                                    ${assignedRoutinesHTML}
+                                </div>
+                                <div class="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
+                                    <div class="space-y-2">
+                                        <label for="${selectorId}" class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Vincular desde la librería</label>
+                                        <div class="relative">
+                                            <i data-lucide="library" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-300"></i>
+                                            <select id="${selectorId}" class="w-full appearance-none rounded-xl border border-white/10 bg-gray-900/80 px-10 py-2.5 text-sm text-white transition focus:border-emerald-400 focus:outline-none">
+                                                <option value="">Selecciona una rutina</option>
+                                                ${routineOptions || ''}
+                                            </select>
+                                            <i data-lucide="chevron-down" class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"></i>
+                                        </div>
                                     </div>
-                                ` : `<p class="text-sm text-gray-500">Aún no se ha asignado una rutina personalizada.</p>`}
-                            </div>
-                            <button data-action="edit-client-routine" data-client-id="${clientId}" class="w-full bg-emerald-600/80 font-bold py-2 rounded-lg hover:bg-emerald-600 transition">
-                                ${clientRoutine ? 'Editar en el Creador' : 'Crear Rutina Personalizada'}
-                            </button>
-                            <div class="border-t border-gray-800 pt-4">
-                                <p class="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
-                                    <i data-lucide="link" class="w-4 h-4 text-emerald-400"></i>
-                                    Vincular rutina desde tu librería
-                                </p>
-                                ${availableRoutines.length ? `
-                                    <div class="flex flex-col sm:flex-row gap-3">
-                                        <select id="${selectorId}" class="flex-1 bg-gray-800/70 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                                            <option value="">Selecciona una rutina</option>
-                                            ${availableRoutines.map(routine => `<option value="${routine.id}">${routine.name}</option>`).join('')}
-                                        </select>
-                                        <button data-action="assign-routine-to-client" data-client-id="${clientId}" class="sm:w-auto w-full bg-emerald-500 text-gray-900 font-bold px-4 py-2 rounded-lg hover:bg-emerald-400 transition">Vincular</button>
+                                    <div class="flex flex-col gap-3 md:items-end">
+                                        <button data-action="assign-routine-to-client" data-client-id="${clientId}" class="w-full rounded-xl bg-emerald-400/90 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 md:w-auto">Vincular rutina</button>
+                                        <button data-action="edit-client-routine" data-client-id="${clientId}" class="w-full rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-5 py-2.5 text-sm font-semibold text-emerald-200 transition hover:border-emerald-400 hover:text-emerald-100 md:w-auto">${latestRoutine ? 'Abrir en el creador' : 'Crear rutina personalizada'}</button>
                                     </div>
-                                ` : `<p class="text-xs text-gray-500">Crea rutinas en tu librería para poder asignarlas rápidamente.</p>`}
+                                </div>
                             </div>
-                        </div>
-                    `;
-                    
-                    const dietHTML = `
-                        <div class="bg-gray-900/50 rounded-xl p-4">
-                           <h4 class="font-bold text-lg text-emerald-300 mb-3">Plan de Alimentación</h4>
-                           <div class="text-sm text-gray-400">Objetivo: <span class="font-bold text-white">${client.userGoals.calories} kcal</span></div>
-                           <button data-action="edit-client-diet" data-client-id="${clientId}" class="w-full bg-emerald-600/80 font-bold py-2 rounded-lg mt-3 hover:bg-emerald-600 transition">
-                                Editar Dieta
-                           </button>
-                        </div>
+                        </section>
                     `;
 
-                    const viewHTML = `<div id="client-manager-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col">
-                        <header class="p-4 flex items-center bg-gray-900/80 backdrop-blur-sm sticky top-0">
-                            <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button>
-                            <div class="flex-grow text-center">
-                                <h3 class="text-lg font-bold truncate">${client.userName}</h3>
-                                <p class="text-xs text-gray-400">${client.email}</p>
+                    const goalCalories = typeof client?.userGoals?.calories === 'number' ? client.userGoals.calories : null;
+                    const dietDays = Array.isArray(client.dailyDiet) ? client.dailyDiet.length : 0;
+
+                    const dietHTML = `
+                        <section class="rounded-3xl border border-white/10 bg-slate-950/70 p-6 backdrop-blur">
+                            <div class="flex flex-col gap-6">
+                                <div class="flex items-center justify-between gap-3">
+                                    <div>
+                                        <h4 class="text-lg font-bold text-white">Plan de Alimentación</h4>
+                                        <p class="text-sm text-gray-400">Organiza la dieta semanal y confirma checklists diarios.</p>
+                                    </div>
+                                    <span class="rounded-full bg-amber-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-300">${dietDays} día(s)</span>
+                                </div>
+                                <div class="rounded-2xl border border-white/5 bg-gradient-to-br from-gray-900 via-gray-900/60 to-gray-800 p-4 text-sm text-gray-300">
+                                    <p class="flex items-center gap-2 text-base font-semibold text-white"><i data-lucide="flame" class="h-5 w-5 text-emerald-300"></i>${goalCalories ? `${goalCalories.toLocaleString('es-ES')} kcal objetivo` : 'Objetivo calórico sin definir'}</p>
+                                    <p class="mt-2 text-xs text-gray-400">Define macronutrientes diarios, comidas y checklist de seguimiento.</p>
+                                </div>
+                                <button data-action="edit-client-diet" data-client-id="${clientId}" class="w-full rounded-xl bg-emerald-500/90 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400">Configurar dieta semanal</button>
                             </div>
-                            <div class="w-9 h-9"></div>
-                        </header>
-                        <div class="flex-grow p-4 overflow-y-auto space-y-4">
-                            ${routineHTML}
-                            ${dietHTML}
+                        </section>
+                    `;
+
+                    const summaryHTML = `
+                        <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Rutinas activas</p>
+                                <p class="mt-2 text-2xl font-bold text-white">${assignedRoutines.length}</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Días planificados</p>
+                                <p class="mt-2 text-2xl font-bold text-white">${dietDays}</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Checklist completado</p>
+                                <p class="mt-2 text-2xl font-bold text-white">${completedChecklist}</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Contacto directo</p>
+                                <p class="mt-2 text-xs text-gray-300">Mantén actualizado el chat interno con notas y evidencias de progreso.</p>
+                            </div>
+                        </section>
+                    `;
+
+                    const trackingSectionId = `client-tracking-panel-${clientId}`;
+                    const trackingContent = this._renderClientTrackingContent(clientId);
+
+                    const viewHTML = `
+                        <div id="client-manager-view" class="fullscreen-view flex h-full w-full flex-col overflow-hidden bg-slate-950/95">
+                            <div class="relative flex-1 overflow-hidden">
+                                <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.25),_transparent_65%)] opacity-70"></div>
+                                <div class="relative z-[1] flex h-full flex-col">
+                                    <header class="sticky top-0 z-[2] border-b border-white/5 bg-slate-950/80 backdrop-blur">
+                                        <div class="flex items-center justify-between gap-3 px-4 py-4">
+                                            <button data-action="routine-close-view" class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-emerald-400 hover:text-emerald-200"><i data-lucide="arrow-left"></i></button>
+                                            <div class="flex flex-1 flex-col items-center gap-1 text-center">
+                                                <h3 class="text-lg font-semibold text-white">${clientName}</h3>
+                                                <p class="text-xs text-gray-400">${clientEmail}</p>
+                                            </div>
+                                            <div class="hidden h-10 w-10 items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 sm:flex"><i data-lucide="message-circle"></i></div>
+                                        </div>
+                                    </header>
+                                    <main class="flex-1 space-y-6 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10">
+                                        ${summaryHTML}
+                                        <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)]">
+                                            <div class="space-y-6">
+                                                ${routineHTML}
+                                                ${dietHTML}
+                                            </div>
+                                            <aside class="space-y-6" id="${trackingSectionId}" data-client-tracking="${clientId}">
+                                                ${trackingContent}
+                                            </aside>
+                                        </div>
+                                    </main>
+                                </div>
+                            </div>
                         </div>
-                    </div>`;
+                    `;
 
                     this.routine_openFullscreenView(viewHTML);
+                    lucide.createIcons();
                 },
+
+
+_renderClientTrackingContent(clientId) {
+    const client = (this.state.asesorados || []).find(c => c.id === clientId);
+    if (!client) {
+        return `
+            <section class="rounded-3xl border border-white/10 bg-slate-950/70 p-6 text-sm text-gray-400">
+                No pudimos cargar el seguimiento 360°. Inténtalo nuevamente.
+            </section>
+        `;
+    }
+
+    const snapshot = this._buildClientTrackingSnapshot(client);
+    const weightLabel = Number.isFinite(snapshot.weight)
+        ? `${snapshot.weight.toFixed(1)} kg`
+        : 'Sin registros';
+    const weightDeltaLabel = Number.isFinite(snapshot.weightDelta)
+        ? `${snapshot.weightDelta > 0 ? '+' : ''}${snapshot.weightDelta.toFixed(1)} kg vs último registro`
+        : 'Actualiza un nuevo peso para comparar.';
+    const weightTrendClass = Number.isFinite(snapshot.weightDelta)
+        ? (snapshot.weightDelta < 0 ? 'text-emerald-300' : snapshot.weightDelta > 0 ? 'text-rose-300' : 'text-gray-300')
+        : 'text-gray-300';
+    const weightDateLabel = snapshot.weightDate
+        ? this._formatCoachDate(snapshot.weightDate)
+        : 'Sin fecha';
+
+    const complianceLabel = Number.isFinite(snapshot.complianceRate)
+        ? `${snapshot.complianceRate}%`
+        : 'Sin datos';
+    const complianceDetails = snapshot.totalCheckins > 0
+        ? `${snapshot.completedCheckins}/${snapshot.totalCheckins} check-ins completados`
+        : 'Registra el primer check-in para medir adherencia.';
+    const complianceWidth = Number.isFinite(snapshot.complianceRate)
+        ? Math.min(100, Math.max(0, snapshot.complianceRate))
+        : 0;
+
+    const nextCheckInLabel = snapshot.nextCheckIn
+        ? this._formatCoachDate(snapshot.nextCheckIn)
+        : 'Sin programación';
+    const nextCheckInHint = snapshot.nextCheckIn
+        ? this._getRelativeDateLabel(snapshot.nextCheckIn)
+        : 'Define la próxima revisión.';
+
+    const streakLabel = snapshot.streak > 0
+        ? `${snapshot.streak} día${snapshot.streak === 1 ? '' : 's'} de racha`
+        : 'Sin racha activa';
+    const lastProgressLabel = snapshot.lastProgressDate
+        ? `${this._getRelativeDateLabel(snapshot.lastProgressDate)} · ${this._formatCoachDate(snapshot.lastProgressDate)}`
+        : 'Aún no hay actividades recientes.';
+
+    const tasksList = this._renderCoachTasksList(snapshot.tasks, clientId);
+    const notesList = this._renderCoachNotesList(snapshot.notes, clientId);
+    const timelineList = this._renderCoachTimelineList(snapshot.timeline, clientId);
+
+    const noteTitleId = `coach-note-title-${clientId}`;
+    const noteBodyId = `coach-note-body-${clientId}`;
+    const noteTagId = `coach-note-tags-${clientId}`;
+    const taskLabelId = `coach-task-title-${clientId}`;
+    const taskDateId = `coach-task-date-${clientId}`;
+    const timelineTypeId = `coach-timeline-type-${clientId}`;
+    const timelineTitleId = `coach-timeline-title-${clientId}`;
+    const timelineDescId = `coach-timeline-desc-${clientId}`;
+    const timelineMetricId = `coach-timeline-metric-${clientId}`;
+
+    return `
+        <section class="rounded-3xl border border-white/10 bg-slate-950/70 p-6 backdrop-blur">
+            <div class="flex flex-col gap-5">
+                <header class="flex flex-col gap-2">
+                    <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200"><i data-lucide="radar" class="h-3.5 w-3.5"></i>Seguimiento 360°</span>
+                    <h4 class="text-lg font-bold text-white">Contexto integral</h4>
+                    <p class="text-sm text-gray-400">Reúne métricas, tareas y notas clave para coordinar el acompañamiento de ${snapshot.clientFirstName}.</p>
+                </header>
+                <div class="grid gap-3">
+                    <article class="rounded-2xl border border-white/10 bg-gray-900/70 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Peso reciente</p>
+                                <p class="mt-2 text-xl font-semibold text-white">${weightLabel}</p>
+                                <p class="text-xs ${weightTrendClass}">${weightDeltaLabel}</p>
+                            </div>
+                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-300">${weightDateLabel}</span>
+                        </div>
+                    </article>
+                    <article class="rounded-2xl border border-white/10 bg-gray-900/70 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex-1">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Adherencia</p>
+                                <p class="mt-2 text-xl font-semibold text-white">${complianceLabel}</p>
+                                <p class="text-xs text-gray-400">${complianceDetails}</p>
+                            </div>
+                            <div class="grid h-16 w-16 place-items-center rounded-full border border-emerald-400/30 bg-emerald-500/10 text-center text-sm font-semibold text-emerald-200">
+                                ${streakLabel}
+                            </div>
+                        </div>
+                        <div class="header-progress-bar mt-4 h-2 bg-white/5">
+                            <span style="width: ${complianceWidth}%;" class="bg-gradient-to-r from-emerald-500/40 via-emerald-400/70 to-emerald-300"></span>
+                        </div>
+                    </article>
+                    <article class="rounded-2xl border border-white/10 bg-gray-900/70 p-4">
+                        <div class="flex flex-col gap-3">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Próximo seguimiento</p>
+                                    <p class="mt-2 text-xl font-semibold text-white">${nextCheckInLabel}</p>
+                                    <p class="text-xs text-gray-400">${nextCheckInHint}</p>
+                                </div>
+                                <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-300">${lastProgressLabel}</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+        <section class="rounded-3xl border border-white/10 bg-slate-950/70 p-6 backdrop-blur">
+            <div class="flex flex-col gap-5">
+                <header class="flex items-start justify-between gap-3">
+                    <div>
+                        <h4 class="text-lg font-bold text-white">Tareas de seguimiento</h4>
+                        <p class="text-sm text-gray-400">Define próximas acciones y marca su cumplimiento para mantener la coordinación del proceso.</p>
+                    </div>
+                </header>
+                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                    <div class="grid gap-3">
+                        <input id="${taskLabelId}" type="text" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-4 py-2 text-sm text-white placeholder:text-gray-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/40" placeholder="Ej. Revisar técnica de sentadilla en la próxima sesión">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <label class="flex-1">
+                                <span class="sr-only">Fecha objetivo</span>
+                                <input id="${taskDateId}" type="date" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-4 py-2 text-sm text-white placeholder:text-gray-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                            </label>
+                            <button type="button" data-action="coach-add-task" data-client-id="${clientId}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500/90 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"><i data-lucide="plus" class="h-4 w-4"></i>Agregar tarea</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    ${tasksList}
+                </div>
+            </div>
+        </section>
+        <section class="rounded-3xl border border-white/10 bg-slate-950/70 p-6 backdrop-blur">
+            <div class="flex flex-col gap-5">
+                <header class="flex items-start justify-between gap-3">
+                    <div>
+                        <h4 class="text-lg font-bold text-white">Notas privadas</h4>
+                        <p class="text-sm text-gray-400">Registra hallazgos, ajustes y acuerdos clave. Solo visibles para ti como entrenador.</p>
+                    </div>
+                </header>
+                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                    <div class="grid gap-3">
+                        <input id="${noteTitleId}" type="text" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-4 py-2 text-sm text-white placeholder:text-gray-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/40" placeholder="Tema o título (opcional)">
+                        <textarea id="${noteBodyId}" rows="3" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-4 py-2 text-sm text-white placeholder:text-gray-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/40" placeholder="Escribe observaciones de la última sesión, sensaciones reportadas o acuerdos concretos"></textarea>
+                        <input id="${noteTagId}" type="text" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-4 py-2 text-sm text-white placeholder:text-gray-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/40" placeholder="Etiquetas separadas por coma (ej. movilidad, descanso)">
+                        <div class="flex justify-end">
+                            <button type="button" data-action="coach-save-note" data-client-id="${clientId}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500/90 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"><i data-lucide="bookmark-check" class="h-4 w-4"></i>Guardar nota</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    ${notesList}
+                </div>
+            </div>
+        </section>
+        <section class="rounded-3xl border border-white/10 bg-slate-950/70 p-6 backdrop-blur">
+            <div class="flex flex-col gap-5">
+                <header class="flex items-start justify-between gap-3">
+                    <div>
+                        <h4 class="text-lg font-bold text-white">Historial 360°</h4>
+                        <p class="text-sm text-gray-400">Consolida hitos físicos, check-ins, cambios de rutina y notas destacadas.</p>
+                    </div>
+                </header>
+                <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                    <div class="grid gap-3">
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <label class="flex flex-col gap-2 text-sm text-gray-300">
+                                Tipo de evento
+                                <select id="${timelineTypeId}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                                    <option value="general">General</option>
+                                    <option value="checkin">Check-in</option>
+                                    <option value="weight">Peso</option>
+                                    <option value="routine">Rutina</option>
+                                    <option value="milestone">Logro</option>
+                                    <option value="nutrition">Nutrición</option>
+                                </select>
+                            </label>
+                            <label class="flex flex-col gap-2 text-sm text-gray-300">
+                                Dato clave (opcional)
+                                <input id="${timelineMetricId}" type="text" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/40" placeholder="Ej. 78.2 kg · RPE 8">
+                            </label>
+                        </div>
+                        <input id="${timelineTitleId}" type="text" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/40" placeholder="Título del evento (ej. Check-in semanal completado)">
+                        <textarea id="${timelineDescId}" rows="3" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:border-emerald-400 focus:outline-none focus:ring-2 focus:ring-emerald-400/40" placeholder="Describe el contexto, conclusiones o próximos pasos"></textarea>
+                        <div class="flex justify-end">
+                            <button type="button" data-action="coach-add-timeline-entry" data-client-id="${clientId}" class="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500/90 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400"><i data-lucide="sparkles" class="h-4 w-4"></i>Registrar evento</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-4">
+                    ${timelineList}
+                </div>
+            </div>
+        </section>
+    `;
+
+_renderCoachTasksList(tasks, clientId) {
+    if (!Array.isArray(tasks) || tasks.length === 0) {
+        return '<p class="rounded-2xl border border-dashed border-white/10 bg-gray-900/40 p-4 text-sm text-gray-400">No hay tareas programadas. Añade una arriba para coordinar la siguiente acción.</p>';
+    }
+    return tasks.map((task, index) => {
+        const safeId = task.id || task.uid || `task-${index}`;
+        const completed = Boolean(task.completed);
+        const dueDate = this._normalizeFirestoreDate(task.dueDate || task.targetDate);
+        const dueLabel = dueDate ? this._formatCoachDate(dueDate) : 'Sin fecha';
+        const dueHint = dueDate ? this._getRelativeDateLabel(dueDate) : '';
+        const completedAt = this._normalizeFirestoreDate(task.completedAt);
+        const completedLabel = completed && completedAt ? ` · ${this._formatCoachDate(completedAt)}` : '';
+        const baseClasses = completed ? 'border-emerald-400/20 bg-emerald-500/10 text-emerald-100' : 'border-white/10 bg-gray-900/60 text-gray-200';
+        const icon = completed ? 'check-circle-2' : 'circle';
+        const description = task.notes || task.context || '';
+        return `
+            <article class="rounded-2xl border ${baseClasses} p-4 transition">
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-start gap-3">
+                        <button type="button" data-action="coach-toggle-task" data-client-id="${clientId}" data-task-id="${safeId}" data-task-index="${index}" class="mt-1 rounded-full border border-white/10 bg-white/5 p-1 text-gray-200 transition hover:border-emerald-400 hover:text-emerald-200">
+                            <i data-lucide="${icon}" class="h-4 w-4"></i>
+                        </button>
+                        <div>
+                            <p class="text-sm font-semibold text-white">${task.title || 'Tarea sin título'}</p>
+                            ${description ? `<p class="text-xs text-gray-300">${description}</p>` : ''}
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 text-xs text-gray-300">
+                        <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-semibold uppercase tracking-[0.3em] text-gray-200">${dueLabel}${dueHint ? ` · ${dueHint}` : ''}</span>
+                        ${completed ? `<span class="text-emerald-200 font-medium">Completado${completedLabel}</span>` : ''}
+                        <button type="button" data-action="coach-delete-task" data-client-id="${clientId}" data-task-id="${safeId}" data-task-index="${index}" class="rounded-full border border-rose-400/40 bg-rose-500/10 p-2 text-rose-200 transition hover:border-rose-300 hover:text-rose-100"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                    </div>
+                </div>
+            </article>
+        `;
+    }).join('');
+},
+
+_renderCoachNotesList(notes, clientId) {
+    if (!Array.isArray(notes) || notes.length === 0) {
+        return '<p class="rounded-2xl border border-dashed border-white/10 bg-gray-900/40 p-4 text-sm text-gray-400">Aún no has registrado notas privadas. Documenta los insights más relevantes tras cada interacción.</p>';
+    }
+    return notes.map((note, index) => {
+        const safeId = note.id || note.uid || `note-${index}`;
+        const createdAt = this._normalizeFirestoreDate(note.createdAt || note.timestamp);
+        const createdLabel = createdAt ? `${this._formatCoachDate(createdAt)} · ${this._formatCoachTime(createdAt)}` : 'Sin fecha';
+        const tags = Array.isArray(note.tags)
+            ? note.tags
+            : (typeof note.tags === 'string' ? note.tags.split(',').map(tag => tag.trim()).filter(Boolean) : []);
+        const tagsHTML = tags.length
+            ? `<div class="mt-3 flex flex-wrap items-center gap-2">${tags.map(tag => `<span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-300">${tag}</span>`).join('')}</div>`
+            : '';
+        return `
+            <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <h5 class="text-sm font-semibold text-white">${note.title || 'Seguimiento'}</h5>
+                        ${note.content || note.body ? `<p class="mt-1 whitespace-pre-wrap text-sm text-gray-300">${note.content || note.body}</p>` : ''}
+                        <p class="mt-3 text-xs text-gray-500">${note.coachName ? `Por ${note.coachName} · ` : ''}${createdLabel}</p>
+                        ${tagsHTML}
+                    </div>
+                    <button type="button" data-action="coach-delete-note" data-client-id="${clientId}" data-note-id="${safeId}" data-note-index="${index}" class="rounded-full border border-rose-400/40 bg-rose-500/10 p-2 text-rose-200 transition hover:border-rose-300 hover:text-rose-100"><i data-lucide="trash-2" class="h-4 w-4"></i></button>
+                </div>
+            </article>
+        `;
+    }).join('');
+},
+
+_renderCoachTimelineList(entries, clientId) {
+    if (!Array.isArray(entries) || entries.length === 0) {
+        return '<p class="rounded-2xl border border-dashed border-white/10 bg-gray-900/40 p-4 text-sm text-gray-400">Sin eventos recientes. Registra un hito o aprovecha las actualizaciones automáticas de rutinas, pesos y check-ins.</p>';
+    }
+    return entries.map((entry, index) => {
+        const safeId = entry.id || entry.uid || `entry-${index}`;
+        const icon = this._getTimelineIcon(entry.type);
+        const timestamp = entry.timestamp instanceof Date ? entry.timestamp : this._normalizeFirestoreDate(entry.timestamp);
+        const dateLabel = timestamp ? this._formatCoachDate(timestamp) : 'Sin fecha';
+        const relativeLabel = timestamp ? this._getRelativeDateLabel(timestamp) : '';
+        const highlight = entry.highlight ? `<span class="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-emerald-200">${entry.highlight}</span>` : '';
+        const allowRemove = entry.source === 'coach';
+        const sourceLabel = entry.source === 'coach' ? 'Manual' : entry.source === 'system' ? 'Automático' : 'Registro';
+        const description = entry.description || entry.note || '';
+        return `
+            <article class="timeline-item rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                <div class="flex items-start gap-3">
+                    <div class="mt-1 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-emerald-200"><i data-lucide="${icon}" class="h-4 w-4"></i></div>
+                    <div class="flex-1 space-y-2">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <h5 class="text-sm font-semibold text-white">${entry.title || 'Actualización'}</h5>
+                            <span class="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-300">${sourceLabel}</span>
+                            ${highlight}
+                        </div>
+                        ${description ? `<p class="text-sm text-gray-300">${description}</p>` : ''}
+                        <p class="text-xs text-gray-500">${dateLabel}${relativeLabel ? ` · ${relativeLabel}` : ''}</p>
+                    </div>
+                    ${allowRemove ? `<button type="button" data-action="coach-delete-timeline-entry" data-client-id="${clientId}" data-entry-id="${safeId}" data-entry-index="${index}" class="rounded-full border border-rose-400/40 bg-rose-500/10 p-2 text-rose-200 transition hover:border-rose-300 hover:text-rose-100"><i data-lucide="trash-2" class="h-4 w-4"></i></button>` : ''}
+                </div>
+            </article>
+        `;
+    }).join('');
+},
+
+
+_buildClientTrackingSnapshot(client) {
+    const name = client.userName || client.email || 'Asesorado';
+    const firstName = name.includes('@') ? name.split('@')[0] : (name.split(' ')[0] || name);
+    const assignedRoutines = Array.isArray(client.userRoutines) ? client.userRoutines : [];
+    const weightEntries = Array.isArray(client.weightLog) ? [...client.weightLog] : [];
+    weightEntries.sort((a, b) => {
+        const dateA = this._normalizeFirestoreDate(a?.date || a?.loggedAt || a?.timestamp);
+        const dateB = this._normalizeFirestoreDate(b?.date || b?.loggedAt || b?.timestamp);
+        return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
+    });
+    const latestWeightEntry = weightEntries[0] || null;
+    const previousWeightEntry = weightEntries[1] || null;
+    const latestWeight = this._extractNumericValue(latestWeightEntry, ['weight', 'value', 'currentWeight']);
+    const previousWeight = this._extractNumericValue(previousWeightEntry, ['weight', 'value', 'currentWeight']);
+    const fallbackWeight = this._extractNumericValue(client?.physicalStats, ['weight']);
+    const weightValue = Number.isFinite(latestWeight) ? latestWeight : fallbackWeight;
+    const weightDelta = (Number.isFinite(latestWeight) && Number.isFinite(previousWeight))
+        ? parseFloat((latestWeight - previousWeight).toFixed(2))
+        : null;
+    const weightDate = latestWeightEntry
+        ? this._normalizeFirestoreDate(latestWeightEntry.date || latestWeightEntry.loggedAt || latestWeightEntry.timestamp)
+        : null;
+
+    const checklistArray = Array.isArray(client.dailyChecklist)
+        ? client.dailyChecklist
+        : Array.isArray(client.checklist)
+            ? client.checklist
+            : Array.isArray(client.checkIns)
+                ? client.checkIns
+                : [];
+    const totalCheckins = checklistArray.length || (typeof client.totalCheckins === 'number' ? client.totalCheckins : 0);
+    const completedCheckins = checklistArray.length
+        ? checklistArray.filter(item => {
+            if (typeof item?.completed === 'boolean') return item.completed;
+            if (typeof item?.status === 'string') {
+                const status = item.status.toLowerCase();
+                return status === 'done' || status === 'completed' || status === 'success';
+            }
+            if (typeof item?.status === 'boolean') return item.status;
+            return Boolean(item?.completedAt);
+        }).length
+        : (typeof client.completedCheckins === 'number'
+            ? client.completedCheckins
+            : (typeof client.checkinsCompleted === 'number' ? client.checkinsCompleted : 0));
+    const complianceRate = totalCheckins > 0
+        ? Math.round((completedCheckins / totalCheckins) * 100)
+        : (typeof client.complianceRate === 'number' ? Math.round(client.complianceRate) : null);
+
+    const streak = client.currentStreak ?? client.streak ?? client.streakDays ?? client.bestStreak ?? 0;
+    const nextCheckInRaw = client.nextCheckIn || client.nextFollowUp || client.nextSessionDate || client.nextReview || client.reviewDate || null;
+    const nextCheckIn = this._normalizeFirestoreDate(nextCheckInRaw);
+
+    const notes = Array.isArray(client.coachNotes) ? [...client.coachNotes] : [];
+    notes.sort((a, b) => {
+        const dateA = this._normalizeFirestoreDate(a?.createdAt || a?.timestamp);
+        const dateB = this._normalizeFirestoreDate(b?.createdAt || b?.timestamp);
+        return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
+    });
+
+    const tasks = Array.isArray(client.coachTasks) ? [...client.coachTasks] : [];
+    tasks.sort((a, b) => {
+        if (Boolean(a.completed) !== Boolean(b.completed)) {
+            return a.completed ? 1 : -1;
+        }
+        const dateA = this._normalizeFirestoreDate(a?.dueDate || a?.targetDate);
+        const dateB = this._normalizeFirestoreDate(b?.dueDate || b?.targetDate);
+        return (dateA?.getTime() || 0) - (dateB?.getTime() || 0);
+    });
+
+    const timeline = this._buildCoachTimeline(client, assignedRoutines, weightEntries);
+    const lastProgressDate = timeline.length > 0 ? timeline[0].timestamp : (weightDate || null);
+
+    return {
+        clientFirstName: firstName,
+        weight: Number.isFinite(weightValue) ? parseFloat(weightValue.toFixed(2)) : null,
+        weightDelta,
+        weightDate,
+        complianceRate,
+        completedCheckins,
+        totalCheckins,
+        streak: Number.isFinite(streak) ? streak : 0,
+        nextCheckIn,
+        notes,
+        tasks,
+        timeline,
+        lastProgressDate
+    };
+},
+
+_extractNumericValue(source, keys) {
+    if (!source || !Array.isArray(keys)) {
+        return null;
+    }
+    for (const key of keys) {
+        if (typeof source?.[key] !== 'undefined') {
+            const value = typeof source[key] === 'number' ? source[key] : parseFloat(source[key]);
+            if (Number.isFinite(value)) {
+                return value;
+            }
+        }
+    }
+    return null;
+},
+
+_buildCoachTimeline(client, assignedRoutines, weightEntries) {
+    const entries = [];
+    const seen = new Set();
+    const pushEntry = (entry) => {
+        if (!entry) return;
+        const id = entry.id || `timeline-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        if (seen.has(id)) return;
+        seen.add(id);
+        entries.push({ ...entry, id });
+    };
+
+    const manualTimeline = Array.isArray(client.coachTimeline) ? client.coachTimeline : [];
+    manualTimeline.forEach(item => {
+        const timestamp = this._normalizeFirestoreDate(item?.timestamp || item?.date || item?.createdAt);
+        pushEntry({
+            id: item.id,
+            type: item.type || item.kind || 'general',
+            title: item.title || item.headline || 'Actualización',
+            description: item.description || item.note || item.details || '',
+            highlight: item.highlight || item.metric || '',
+            timestamp: timestamp || new Date(),
+            coachId: item.coachId || item.authorId || null,
+            source: 'coach'
+        });
+    });
+
+    const progressTimeline = Array.isArray(client.progressTimeline) ? client.progressTimeline : [];
+    progressTimeline.forEach(item => {
+        const timestamp = this._normalizeFirestoreDate(item?.timestamp || item?.date || item?.createdAt);
+        pushEntry({
+            id: item.id,
+            type: item.type || item.kind || 'general',
+            title: item.title || item.event || 'Registro del asesorado',
+            description: item.description || item.note || '',
+            highlight: item.highlight || item.badge || '',
+            timestamp: timestamp || new Date(),
+            coachId: item.coachId || item.authorId || null,
+            source: 'client'
+        });
+    });
+
+    weightEntries.slice(0, 5).forEach(entry => {
+        const timestamp = this._normalizeFirestoreDate(entry?.date || entry?.loggedAt || entry?.timestamp);
+        if (!timestamp) return;
+        const weight = this._extractNumericValue(entry, ['weight', 'value', 'currentWeight']);
+        pushEntry({
+            id: entry.id ? `weight-${entry.id}` : `weight-${timestamp.getTime()}`,
+            type: 'weight',
+            title: 'Registro de peso',
+            description: entry.note || entry.comment || 'Actualización automática desde la bitácora.',
+            highlight: Number.isFinite(weight) ? `${weight.toFixed(1)} kg` : '',
+            timestamp,
+            source: 'system'
+        });
+    });
+
+    const checkins = Array.isArray(client.checkIns) ? [...client.checkIns] : [];
+    checkins.sort((a, b) => {
+        const dateA = this._normalizeFirestoreDate(a?.completedAt || a?.timestamp || a?.date);
+        const dateB = this._normalizeFirestoreDate(b?.completedAt || b?.timestamp || b?.date);
+        return (dateB?.getTime() || 0) - (dateA?.getTime() || 0);
+    }).slice(0, 5).forEach(check => {
+        if (!(check?.completed || check?.status === 'done' || check?.status === 'completed')) return;
+        const timestamp = this._normalizeFirestoreDate(check?.completedAt || check?.timestamp || check?.date);
+        if (!timestamp) return;
+        pushEntry({
+            id: check.id ? `checkin-${check.id}` : `checkin-${timestamp.getTime()}`,
+            type: 'checkin',
+            title: check.title || 'Check-in completado',
+            description: check.note || check.feedback || '',
+            highlight: check.mood ? `Estado: ${check.mood}` : '',
+            timestamp,
+            source: 'system'
+        });
+    });
+
+    assignedRoutines.forEach(routine => {
+        const timestamp = this._normalizeFirestoreDate(routine?.assignedAt);
+        if (!timestamp) return;
+        pushEntry({
+            id: `routine-${routine.id || Math.random().toString(36).slice(2)}-${timestamp.getTime()}`,
+            type: 'routine',
+            title: routine.name ? `Rutina ${routine.name}` : 'Rutina vinculada',
+            description: routine.summary || routine.goal || routine.focus || 'Nueva rutina asignada desde la librería.',
+            highlight: routine.origin === 'predefined' ? 'Predefinida' : 'Personalizada',
+            timestamp,
+            source: 'system'
+        });
+    });
+
+    entries.sort((a, b) => {
+        const timeA = a.timestamp instanceof Date ? a.timestamp.getTime() : this._normalizeFirestoreDate(a.timestamp)?.getTime() || 0;
+        const timeB = b.timestamp instanceof Date ? b.timestamp.getTime() : this._normalizeFirestoreDate(b.timestamp)?.getTime() || 0;
+        return timeB - timeA;
+    });
+
+    return entries.slice(0, 12);
+},
+
+_normalizeFirestoreDate(value) {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    if (typeof value === 'number') {
+        return new Date(value);
+    }
+    if (typeof value === 'string') {
+        const parsed = new Date(value);
+        if (!Number.isNaN(parsed.getTime())) {
+            return parsed;
+        }
+    }
+    if (typeof value === 'object') {
+        if (typeof value.seconds === 'number') {
+            const milliseconds = value.seconds * 1000 + Math.round((value.nanoseconds || 0) / 1e6);
+            return new Date(milliseconds);
+        }
+        if (typeof value.toDate === 'function') {
+            try {
+                return value.toDate();
+            } catch (error) {
+                console.warn('No se pudo convertir la fecha proporcionada:', error);
+            }
+        }
+    }
+    return null;
+},
+
+_formatCoachDate(date) {
+    if (!(date instanceof Date)) return '';
+    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+},
+
+_formatCoachTime(date) {
+    if (!(date instanceof Date)) return '';
+    return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+},
+
+_getRelativeDateLabel(date) {
+    if (!(date instanceof Date)) return '';
+    const now = new Date();
+    const diffMs = date.getTime() - now.getTime();
+    const diffDays = Math.round(diffMs / 86400000);
+    if (diffDays === 0) return 'Hoy';
+    if (diffDays === 1) return 'Mañana';
+    if (diffDays === -1) return 'Ayer';
+    if (diffDays > 1 && diffDays <= 7) return `En ${diffDays} días`;
+    if (diffDays < -1 && diffDays >= -7) return `Hace ${Math.abs(diffDays)} días`;
+    return date.toLocaleDateString('es-ES', { weekday: 'short' });
+},
+
+_getTimelineIcon(type) {
+    const map = {
+        weight: 'activity',
+        routine: 'dumbbell',
+        checkin: 'check-circle-2',
+        milestone: 'trophy',
+        nutrition: 'utensils-crossed',
+        general: 'radar'
+    };
+    return map[type] || 'radar';
+},
+
+_updateClientTrackingSection(clientId) {
+    const container = document.getElementById(`client-tracking-panel-${clientId}`);
+    if (!container) {
+        return;
+    }
+    container.innerHTML = this._renderClientTrackingContent(clientId);
+    lucide.createIcons();
+},
+
+_mutateClientInState(clientId, mutator) {
+    if (!Array.isArray(this.state.asesorados)) {
+        return null;
+    }
+    const index = this.state.asesorados.findIndex(c => c.id === clientId);
+    if (index === -1) {
+        return null;
+    }
+    const client = { ...this.state.asesorados[index] };
+    mutator(client);
+    this.state.asesorados[index] = client;
+    return client;
+},
+
+async _updateClientDocument(clientId, data) {
+    if (!this.db) {
+        throw new Error('Firestore no disponible.');
+    }
+    const clientRef = doc(this.db, 'users', clientId);
+    await updateDoc(clientRef, data);
+},
+
+async coachSaveNote(clientId) {
+    if (!clientId) return;
+    const titleInput = document.getElementById(`coach-note-title-${clientId}`);
+    const bodyInput = document.getElementById(`coach-note-body-${clientId}`);
+    if (!bodyInput) return;
+    const content = bodyInput.value.trim();
+    if (!content) {
+        this.showToast('Escribe una nota antes de guardarla.', 'error');
+        return;
+    }
+    const title = titleInput ? titleInput.value.trim() : '';
+    const tagsInput = document.getElementById(`coach-note-tags-${clientId}`);
+    const tags = tagsInput && tagsInput.value
+        ? tagsInput.value.split(',').map(tag => tag.trim()).filter(Boolean)
+        : [];
+    const note = {
+        id: `note-${Date.now()}`,
+        title: title || 'Seguimiento',
+        content,
+        tags,
+        createdAt: new Date().toISOString(),
+        coachId: this.state.currentUser?.uid || null,
+        coachName: this.state.currentUser?.displayName || this.state.userName || 'Entrenador'
+    };
+
+    const updatedClient = this._mutateClientInState(clientId, client => {
+        const existing = Array.isArray(client.coachNotes) ? [...client.coachNotes] : [];
+        client.coachNotes = [note, ...existing];
+    });
+    if (!updatedClient) {
+        this.showToast('No se pudo actualizar la nota.', 'error');
+        return;
+    }
+    try {
+        await this._updateClientDocument(clientId, { coachNotes: updatedClient.coachNotes });
+        this.showToast('Nota guardada en el seguimiento.', 'success');
+        if (titleInput) titleInput.value = '';
+        bodyInput.value = '';
+        if (tagsInput) tagsInput.value = '';
+    } catch (error) {
+        console.error('Error saving coach note:', error);
+        this.showToast('No se pudo guardar la nota.', 'error');
+        await this.fetchAsesorados();
+    } finally {
+        this._updateClientTrackingSection(clientId);
+    }
+},
+
+async coachDeleteNote(clientId, noteId, noteIndex) {
+    if (!clientId) return;
+    const indexNumber = Number.isInteger(parseInt(noteIndex, 10)) ? parseInt(noteIndex, 10) : -1;
+    const updatedClient = this._mutateClientInState(clientId, client => {
+        const existing = Array.isArray(client.coachNotes) ? [...client.coachNotes] : [];
+        let filtered = noteId ? existing.filter(note => note.id !== noteId) : existing.slice();
+        if (noteId && filtered.length === existing.length && indexNumber >= 0 && indexNumber < existing.length) {
+            filtered.splice(indexNumber, 1);
+        }
+        if (!noteId && indexNumber >= 0 && indexNumber < filtered.length) {
+            filtered.splice(indexNumber, 1);
+        }
+        client.coachNotes = filtered;
+    });
+    if (!updatedClient) {
+        this.showToast('No se pudo eliminar la nota.', 'error');
+        return;
+    }
+    try {
+        await this._updateClientDocument(clientId, { coachNotes: updatedClient.coachNotes });
+        this.showToast('Nota eliminada.', 'success');
+    } catch (error) {
+        console.error('Error deleting coach note:', error);
+        this.showToast('No se pudo eliminar la nota.', 'error');
+        await this.fetchAsesorados();
+    } finally {
+        this._updateClientTrackingSection(clientId);
+    }
+},
+
+async coachAddTask(clientId) {
+    if (!clientId) return;
+    const labelInput = document.getElementById(`coach-task-title-${clientId}`);
+    if (!labelInput) return;
+    const label = labelInput.value.trim();
+    if (!label) {
+        this.showToast('Describe la tarea antes de guardarla.', 'error');
+        return;
+    }
+    const dateInput = document.getElementById(`coach-task-date-${clientId}`);
+    const dueDate = dateInput && dateInput.value ? dateInput.value : null;
+    const task = {
+        id: `task-${Date.now()}`,
+        title: label,
+        dueDate,
+        completed: false,
+        createdAt: new Date().toISOString()
+    };
+    const updatedClient = this._mutateClientInState(clientId, client => {
+        const existing = Array.isArray(client.coachTasks) ? [...client.coachTasks] : [];
+        client.coachTasks = [task, ...existing];
+    });
+    if (!updatedClient) {
+        this.showToast('No se pudo agregar la tarea.', 'error');
+        return;
+    }
+    try {
+        await this._updateClientDocument(clientId, { coachTasks: updatedClient.coachTasks });
+        this.showToast('Tarea registrada.', 'success');
+        labelInput.value = '';
+        if (dateInput) dateInput.value = '';
+    } catch (error) {
+        console.error('Error adding coach task:', error);
+        this.showToast('No se pudo guardar la tarea.', 'error');
+        await this.fetchAsesorados();
+    } finally {
+        this._updateClientTrackingSection(clientId);
+    }
+},
+
+async coachToggleTask(clientId, taskId, taskIndex) {
+    if (!clientId) return;
+    const indexNumber = Number.isInteger(parseInt(taskIndex, 10)) ? parseInt(taskIndex, 10) : -1;
+    const updatedClient = this._mutateClientInState(clientId, client => {
+        const existing = Array.isArray(client.coachTasks) ? [...client.coachTasks] : [];
+        client.coachTasks = existing.map((task, idx) => {
+            const matchesId = task.id && taskId ? task.id === taskId : false;
+            const matchesIndex = !taskId && indexNumber === idx;
+            if (matchesId || matchesIndex || (!task.id && taskId && taskId === `task-${idx}`)) {
+                const completed = !task.completed;
+                return {
+                    ...task,
+                    completed,
+                    completedAt: completed ? new Date().toISOString() : null
+                };
+            }
+            return task;
+        });
+    });
+    if (!updatedClient) {
+        this.showToast('No se pudo actualizar la tarea.', 'error');
+        return;
+    }
+    try {
+        await this._updateClientDocument(clientId, { coachTasks: updatedClient.coachTasks });
+        this.showToast('Tarea actualizada.', 'success');
+    } catch (error) {
+        console.error('Error toggling coach task:', error);
+        this.showToast('No se pudo actualizar la tarea.', 'error');
+        await this.fetchAsesorados();
+    } finally {
+        this._updateClientTrackingSection(clientId);
+    }
+},
+
+async coachDeleteTask(clientId, taskId, taskIndex) {
+    if (!clientId) return;
+    const indexNumber = Number.isInteger(parseInt(taskIndex, 10)) ? parseInt(taskIndex, 10) : -1;
+    const updatedClient = this._mutateClientInState(clientId, client => {
+        const existing = Array.isArray(client.coachTasks) ? [...client.coachTasks] : [];
+        let filtered = taskId ? existing.filter(task => task.id !== taskId) : existing.slice();
+        if (taskId && filtered.length === existing.length && indexNumber >= 0 && indexNumber < existing.length) {
+            filtered.splice(indexNumber, 1);
+        }
+        if (!taskId && indexNumber >= 0 && indexNumber < filtered.length) {
+            filtered.splice(indexNumber, 1);
+        }
+        client.coachTasks = filtered;
+    });
+    if (!updatedClient) {
+        this.showToast('No se pudo eliminar la tarea.', 'error');
+        return;
+    }
+    try {
+        await this._updateClientDocument(clientId, { coachTasks: updatedClient.coachTasks });
+        this.showToast('Tarea eliminada.', 'success');
+    } catch (error) {
+        console.error('Error deleting coach task:', error);
+        this.showToast('No se pudo eliminar la tarea.', 'error');
+        await this.fetchAsesorados();
+    } finally {
+        this._updateClientTrackingSection(clientId);
+    }
+},
+
+async coachAddTimelineEntry(clientId) {
+    if (!clientId) return;
+    const typeSelect = document.getElementById(`coach-timeline-type-${clientId}`);
+    const titleInput = document.getElementById(`coach-timeline-title-${clientId}`);
+    const descInput = document.getElementById(`coach-timeline-desc-${clientId}`);
+    if (!typeSelect || !titleInput || !descInput) return;
+    const title = titleInput.value.trim();
+    const description = descInput.value.trim();
+    if (!title && !description) {
+        this.showToast('Añade un título o una descripción para registrar el evento.', 'error');
+        return;
+    }
+    const metricInput = document.getElementById(`coach-timeline-metric-${clientId}`);
+    const highlight = metricInput && metricInput.value ? metricInput.value.trim() : '';
+    const entry = {
+        id: `entry-${Date.now()}`,
+        type: typeSelect.value || 'general',
+        title: title || 'Actualización de seguimiento',
+        description,
+        highlight,
+        timestamp: new Date().toISOString(),
+        coachId: this.state.currentUser?.uid || null,
+        coachName: this.state.currentUser?.displayName || this.state.userName || 'Entrenador',
+        source: 'coach'
+    };
+    const updatedClient = this._mutateClientInState(clientId, client => {
+        const existing = Array.isArray(client.coachTimeline) ? [...client.coachTimeline] : [];
+        client.coachTimeline = [entry, ...existing];
+    });
+    if (!updatedClient) {
+        this.showToast('No se pudo registrar el evento.', 'error');
+        return;
+    }
+    try {
+        await this._updateClientDocument(clientId, { coachTimeline: updatedClient.coachTimeline });
+        this.showToast('Evento añadido al historial.', 'success');
+        titleInput.value = '';
+        descInput.value = '';
+        if (metricInput) metricInput.value = '';
+    } catch (error) {
+        console.error('Error adding timeline entry:', error);
+        this.showToast('No se pudo guardar el evento.', 'error');
+        await this.fetchAsesorados();
+    } finally {
+        this._updateClientTrackingSection(clientId);
+    }
+},
+
+async coachDeleteTimelineEntry(clientId, entryId, entryIndex) {
+    if (!clientId) return;
+    const indexNumber = Number.isInteger(parseInt(entryIndex, 10)) ? parseInt(entryIndex, 10) : -1;
+    const updatedClient = this._mutateClientInState(clientId, client => {
+        const existing = Array.isArray(client.coachTimeline) ? [...client.coachTimeline] : [];
+        let filtered = entryId ? existing.filter(entry => entry.id !== entryId) : existing.slice();
+        if (entryId && filtered.length === existing.length && indexNumber >= 0 && indexNumber < existing.length) {
+            filtered.splice(indexNumber, 1);
+        }
+        if (!entryId && indexNumber >= 0 && indexNumber < filtered.length) {
+            filtered.splice(indexNumber, 1);
+        }
+        client.coachTimeline = filtered;
+    });
+    if (!updatedClient) {
+        this.showToast('No se pudo eliminar el evento.', 'error');
+        return;
+    }
+    try {
+        await this._updateClientDocument(clientId, { coachTimeline: updatedClient.coachTimeline });
+        this.showToast('Evento eliminado.', 'success');
+    } catch (error) {
+        console.error('Error deleting timeline entry:', error);
+        this.showToast('No se pudo eliminar el evento.', 'error');
+        await this.fetchAsesorados();
+    } finally {
+        this._updateClientTrackingSection(clientId);
+    }
+},
+
+},
                 
-                editClientRoutine(clientId) {
+                editClientRoutine(clientId, routineId) {
                     const client = this.state.asesorados.find(c => c.id === clientId);
                     if (!client) return;
 
-                    const existingRoutine = client.userRoutines && client.userRoutines.length > 0 ? client.userRoutines[0] : null;
+                    let existingRoutine = null;
+                    if (Array.isArray(client.userRoutines) && client.userRoutines.length > 0) {
+                        existingRoutine = routineId
+                            ? client.userRoutines.find(r => r.id === routineId) || client.userRoutines[0]
+                            : client.userRoutines[0];
+                    }
 
                     if (existingRoutine) {
                         this._tempRoutine = JSON.parse(JSON.stringify(existingRoutine));
@@ -5235,9 +6554,11 @@
                             this._tempRoutine.miniWindowCollapsed = false;
                         }
                     } else {
+                        const baseName = (client.userName || client.email || 'asesorado');
+                        const shortName = baseName.split(' ')[0] || baseName;
                         this._tempRoutine = {
                             id: `manual-${Date.now()}`,
-                            name: `Rutina para ${client.userName.split(' ')[0]}`,
+                            name: `Rutina para ${shortName}`,
                             description: '',
                             plan: [{ day: 'Día 1', exercises: [] }],
                             currentDayIndex: 0,
@@ -5263,6 +6584,7 @@
                     if (!selector) return;
 
                     const routineId = selector.value;
+                    const selectedOption = selector.options[selector.selectedIndex];
                     if (!routineId) {
                         this.showToast('Selecciona una rutina para vincular.', 'error');
                         return;
@@ -5273,8 +6595,17 @@
                         this.showToast('Cliente no encontrado.', 'error');
                         return;
                     }
+                    const clientName = client.userName || client.email || 'tu asesorado';
+                    const clientFirstName = clientName.includes('@') ? clientName.split('@')[0] : (clientName.split(' ')[0] || clientName);
 
-                    const routine = (this.state.userRoutines || []).find(r => r.id === routineId);
+                    const source = selectedOption?.dataset?.source || 'personal';
+                    const category = selectedOption?.dataset?.category || null;
+
+                    let routine = (this.state.userRoutines || []).find(r => r.id === routineId);
+                    if (!routine) {
+                        routine = Object.values(this.data?.predefinedRoutines || {}).flat().find(r => r.id === routineId);
+                    }
+
                     if (!routine) {
                         this.showToast('No encontramos esa rutina en tu librería.', 'error');
                         return;
@@ -5282,6 +6613,13 @@
 
                     const routineCopy = JSON.parse(JSON.stringify(routine));
                     routineCopy.assignedClientId = clientId;
+                    routineCopy.assignedAt = new Date().toISOString();
+                    if (source === 'predefined') {
+                        routineCopy.origin = 'predefined';
+                        routineCopy.predefinedCategory = category;
+                    } else if (!routineCopy.origin) {
+                        routineCopy.origin = 'personal';
+                    }
 
                     const existingRoutines = Array.isArray(client.userRoutines) ? [...client.userRoutines] : [];
                     const existingIndex = existingRoutines.findIndex(r => r.id === routineCopy.id);
@@ -5294,13 +6632,82 @@
                     try {
                         const clientRef = doc(this.db, 'users', clientId);
                         await updateDoc(clientRef, { userRoutines: existingRoutines });
-                        this.showToast(`Rutina vinculada a ${client.userName.split(' ')[0]}.`, 'success');
+                        this.showToast(`Rutina vinculada a ${clientFirstName}.`, 'success');
                         selector.value = '';
                         await this.fetchAsesorados();
                         this.showClientManager(clientId);
                     } catch (error) {
                         console.error('Error assigning routine to client:', error);
                         this.showToast('No se pudo vincular la rutina.', 'error');
+                    }
+                },
+
+                confirmRemoveClientRoutine(clientId, routineId) {
+                    if (!clientId || !routineId) {
+                        this.showToast('No se pudo identificar la rutina.', 'error');
+                        return;
+                    }
+
+                    const client = (this.state.asesorados || []).find(c => c.id === clientId);
+                    const routine = Array.isArray(client?.userRoutines) ? client.userRoutines.find(r => r.id === routineId) : null;
+                    const clientName = client?.userName || client?.email || 'tu asesorado';
+                    const firstName = clientName && clientName.includes('@')
+                        ? clientName.split('@')[0]
+                        : (clientName.split(' ')[0] || clientName);
+                    const routineName = routine?.name || 'esta rutina';
+
+                    const body = `
+                        <p class="text-sm text-gray-300">¿Quieres desvincular <strong class="text-white">${routineName}</strong> de ${firstName}?</p>
+                        <p class="mt-3 text-xs text-gray-400">Podrás asignar otra rutina inmediatamente después y el historial del asesorado se mantendrá intacto.</p>
+                    `;
+
+                    const footer = [
+                        { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                        { text: 'Desvincular', class: 'bg-rose-500 text-slate-950 hover:bg-rose-400', action: 'remove-client-routine', 'client-id': clientId, 'routine-id': routineId }
+                    ];
+
+                    this.showModal('Desvincular rutina', body, footer);
+                },
+
+                async removeClientRoutine(clientId, routineId) {
+                    if (!clientId || !routineId) {
+                        this.showToast('No se pudo identificar la rutina a eliminar.', 'error');
+                        return;
+                    }
+
+                    const client = (this.state.asesorados || []).find(c => c.id === clientId);
+                    if (!client) {
+                        this.showToast('Cliente no encontrado.', 'error');
+                        return;
+                    }
+
+                    const existingRoutines = Array.isArray(client.userRoutines) ? [...client.userRoutines] : [];
+                    const updatedRoutines = existingRoutines.filter(routine => routine.id !== routineId);
+
+                    if (updatedRoutines.length === existingRoutines.length) {
+                        this.showToast('No se encontró la rutina seleccionada.', 'error');
+                        return;
+                    }
+
+                    if (!this.db) {
+                        this.showToast('No se pudo conectar a la base de datos.', 'error');
+                        return;
+                    }
+
+                    try {
+                        const clientRef = doc(this.db, 'users', clientId);
+                        await updateDoc(clientRef, { userRoutines: updatedRoutines });
+                        this.hideModal();
+                        const clientName = client.userName || client.email || 'tu asesorado';
+                        const firstName = clientName && clientName.includes('@')
+                            ? clientName.split('@')[0]
+                            : (clientName.split(' ')[0] || clientName);
+                        this.showToast(`Rutina desvinculada de ${firstName}.`, 'success');
+                        await this.fetchAsesorados();
+                        this.showClientManager(clientId);
+                    } catch (error) {
+                        console.error('Error removing routine from client:', error);
+                        this.showToast('No se pudo desvincular la rutina.', 'error');
                     }
                 },
 
