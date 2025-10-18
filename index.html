@@ -1223,13 +1223,22 @@
                             </span>
                             <h2 class="max-w-xl text-4xl font-black leading-tight text-white sm:text-5xl">Diseña tu próxima rutina con un lienzo impecable</h2>
                         </div>
-                        <button id="create-routine-btn" data-action="routine-create" class="group relative inline-flex items-center gap-3 rounded-full border border-emerald-400/40 bg-white px-7 py-4 text-base font-semibold text-gray-900 shadow-[0_25px_55px_-30px_rgba(16,185,129,0.85)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-300/60 hover:bg-emerald-50">
-                            <span class="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-500 text-gray-900 shadow-inner shadow-emerald-500/40 transition group-hover:bg-emerald-400">
-                                <i data-lucide="plus" class="h-5 w-5"></i>
-                            </span>
-                            <span class="pr-1">Crear rutina</span>
-                            <span class="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-emerald-500/20 via-teal-400/10 to-cyan-400/20 opacity-0 blur-lg transition group-hover:opacity-100"></span>
-                        </button>
+                        <div class="flex flex-col gap-3">
+                            <button id="create-routine-btn" data-action="routine-create" class="group relative inline-flex items-center gap-3 rounded-full border border-emerald-400/40 bg-white px-7 py-4 text-base font-semibold text-gray-900 shadow-[0_25px_55px_-30px_rgba(16,185,129,0.85)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-300/60 hover:bg-emerald-50">
+                                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-500 text-gray-900 shadow-inner shadow-emerald-500/40 transition group-hover:bg-emerald-400">
+                                    <i data-lucide="plus" class="h-5 w-5"></i>
+                                </span>
+                                <span class="pr-1">Crear rutina</span>
+                                <span class="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-emerald-500/20 via-teal-400/10 to-cyan-400/20 opacity-0 blur-lg transition group-hover:opacity-100"></span>
+                            </button>
+                            <button data-action="routine-creator-add-exercise" class="group relative inline-flex items-center gap-3 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-7 py-4 text-base font-semibold text-emerald-100 shadow-[0_25px_55px_-40px_rgba(16,185,129,0.75)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-300/60 hover:bg-emerald-500/20">
+                                <span class="flex h-11 w-11 items-center justify-center rounded-full border border-emerald-300/50 bg-gray-950/60 text-emerald-200 shadow-inner shadow-emerald-500/20 transition group-hover:border-transparent group-hover:bg-emerald-400 group-hover:text-gray-900">
+                                    <i data-lucide="dumbbell" class="h-5 w-5"></i>
+                                </span>
+                                <span class="pr-1">Nuevo ejercicio</span>
+                                <span class="absolute inset-0 -z-10 rounded-full bg-gradient-to-r from-emerald-500/10 via-teal-400/10 to-cyan-400/10 opacity-0 blur-lg transition group-hover:opacity-100"></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
