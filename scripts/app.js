@@ -1,0 +1,12558 @@
+// Importaciones de Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+    getAuth,
+    onAuthStateChanged,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { 
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc,
+    collection,
+    query,
+    where,
+    getDocs,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    writeBatch
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+    getStorage,
+    ref,
+    uploadBytesResumable,
+    getDownloadURL,
+    deleteObject
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+// Configuración de Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyASVFAJx1vUN62V3t7VycuTKAehWW8byoM",
+    authDomain: "seb-fit-460c4.firebaseapp.com",
+    projectId: "seb-fit-460c4",
+    storageBucket: "seb-fit-460c4.firebasestorage.app",
+    messagingSenderId: "906669175939",
+    appId: "1:906669175939:web:8fd09b745292c14eb6d7b6"
+};
+
+// Inicializar Firebase
+const firebaseApp = initializeApp(firebaseConfig);
+
+const initHeaderFadeEffect = () => {
+    const header = document.getElementById('main-header');
+    if (!header) {
+        return;
+    }
+
+    const mainScrollContainer = document.getElementById('app-main');
+    const fadeDistance = 240;
+    const minOpacity = 0.25;
+
+    const updateOpacity = () => {
+        const windowScroll = window.scrollY || window.pageYOffset || 0;
+        const containerScroll = mainScrollContainer ? mainScrollContainer.scrollTop : 0;
+        const scrollAmount = Math.max(windowScroll, containerScroll);
+        const nextOpacity = Math.max(minOpacity, 1 - scrollAmount / fadeDistance);
+        header.style.opacity = nextOpacity.toFixed(2);
+    };
+
+    window.addEventListener('scroll', updateOpacity, { passive: true });
+    if (mainScrollContainer) {
+        mainScrollContainer.addEventListener('scroll', updateOpacity, { passive: true });
+    }
+
+    updateOpacity();
+};
+
+const bootstrapApp = () => {
+    if (window.app) {
+        return;
+    }
+
+    const app = {
+        // IMPORTANTE: Reemplaza "" con tu propia clave de API de Google AI Studio.
+        apiKey: "", // Tu clave de API de Google AI Studio aquí
+        adminUID: "oyVFC1vKcLhTLJJsjMQDPRL1z2K2",
+        firebaseApp: firebaseApp,
+        auth: null,
+        db: null,
+        storage: null,
+        pendingGamificationSummary: null,
+        isProcessingGamificationProof: false,
+
+        isAdmin() {
+            return this.state && this.state.role === 'admin';
+        },
+
+        isCoach() {
+            return this.state && this.state.role === 'entrenador';
+        },
+
+        isClient() {
+            return this.state && this.state.role === 'asesorado';
+        },
+
+        isAsesor() {
+            return this.isAdmin() || this.isCoach();
+        },
+
+        getRoleDisplayLabel(role = null) {
+            const value = (role || this.state?.role || 'asesorado').toLowerCase();
+            const labels = {
+                admin: 'Administrador',
+                entrenador: 'Entrenador',
+                asesorado: 'Asesorado'
+            };
+            return labels[value] || 'Asesorado';
+        },
+
+        escapeHtml(value = '') {
+            return `${value}`.replace(/[&<>"']/g, (char) => {
+                const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+                return map[char] || char;
+            });
+        },
+
+        canEditGlobalMedia() {
+            return this.isAdmin();
+        },
+
+        canManageRoutineCover() {
+            return this.isAdmin() || this.isCoach() || this.isClient();
+        },
+
+        getDefaultRewardsConfig() {
+            return [
+                { id: 'reward-100', name: 'Primer desbloqueo', description: 'Sticker exclusivo para compartir en redes.', pointsRequired: 100, icon: 'sparkles', coverImage: '', status: 'locked', unlockedAt: null, claimedAt: null },
+                { id: 'reward-250', name: 'Kit de hábitos', description: 'Plantilla descargable para planificar tus semanas.', pointsRequired: 250, icon: 'milestone', coverImage: '', status: 'locked', unlockedAt: null, claimedAt: null },
+                { id: 'reward-500', name: 'Sesión premium', description: 'Acceso prioritario a una clase o asesoría especial.', pointsRequired: 500, icon: 'trophy', coverImage: '', status: 'locked', unlockedAt: null, claimedAt: null },
+                { id: 'reward-1000', name: 'Caja sorpresa', description: 'Merchandising edición limitada para atletas constantes.', pointsRequired: 1000, icon: 'gift', coverImage: '', status: 'locked', unlockedAt: null, claimedAt: null }
+            ];
+        },
+
+        generateLocalId(prefix = 'id') {
+            const random = Math.random().toString(36).slice(2, 8);
+            const timestamp = Date.now().toString(36);
+            return `${prefix}-${timestamp}${random}`;
+        },
+
+        normalizeGamificationState(source = {}) {
+            const defaults = {
+                points: 0,
+                pointsPerSession: 10,
+                cooldownHours: 8,
+                lastAwardedAt: null,
+                history: [],
+                rewards: this.getDefaultRewardsConfig()
+            };
+
+            const parsedPointsPerSession = Number(source.pointsPerSession);
+            const sanitizedPointsPerSession = Number.isFinite(parsedPointsPerSession) && parsedPointsPerSession > 0
+                ? Math.max(1, Math.round(parsedPointsPerSession))
+                : defaults.pointsPerSession;
+            const parsedCooldown = Number(source.cooldownHours);
+            const sanitizedCooldownHours = Number.isFinite(parsedCooldown) && parsedCooldown >= 0
+                ? Math.max(0, Math.round(parsedCooldown))
+                : defaults.cooldownHours;
+
+            const parsedPoints = Number(source.points);
+            const sanitizedPoints = Number.isFinite(parsedPoints) && parsedPoints >= 0
+                ? Math.round(parsedPoints)
+                : defaults.points;
+
+            const defaultRewards = this.getDefaultRewardsConfig();
+            const rewardsSource = Array.isArray(source.rewards) && source.rewards.length ? source.rewards : defaultRewards;
+            const usedRewardIds = new Set();
+            const normalizedRewards = rewardsSource.map((reward, index) => {
+                if (!reward || typeof reward !== 'object') {
+                    return null;
+                }
+                const base = Array.isArray(source.rewards) && source.rewards.length ? reward : { ...defaultRewards[index] };
+                const fallback = defaultRewards[index % defaultRewards.length] || defaultRewards[0];
+                const rawId = typeof base.id === 'string' && base.id.trim() ? base.id.trim() : this.generateLocalId('reward');
+                const id = usedRewardIds.has(rawId) ? this.generateLocalId('reward') : rawId;
+                usedRewardIds.add(id);
+                const name = typeof base.name === 'string' && base.name.trim() ? base.name.trim() : fallback.name;
+                const description = typeof base.description === 'string' ? base.description.trim() : fallback.description;
+                const parsedPointsRequired = Number(base.pointsRequired);
+                const pointsRequired = Number.isFinite(parsedPointsRequired) && parsedPointsRequired > 0
+                    ? Math.max(1, Math.round(parsedPointsRequired))
+                    : fallback.pointsRequired;
+                const icon = typeof base.icon === 'string' && base.icon.trim() ? base.icon.trim() : (fallback.icon || 'gift');
+                const coverImage = typeof base.coverImage === 'string' ? base.coverImage : '';
+                const existingStatus = typeof base.status === 'string' ? base.status : 'locked';
+                const status = base.claimedAt || existingStatus === 'claimed'
+                    ? 'claimed'
+                    : sanitizedPoints >= pointsRequired || existingStatus === 'unlocked'
+                        ? 'unlocked'
+                        : 'locked';
+                const unlockedAt = status !== 'locked'
+                    ? (base.unlockedAt || base.awardedAt || new Date().toISOString())
+                    : null;
+                const claimedAt = status === 'claimed' && base.claimedAt ? base.claimedAt : null;
+                return {
+                    id,
+                    name,
+                    description,
+                    pointsRequired,
+                    icon,
+                    coverImage,
+                    status,
+                    unlockedAt,
+                    claimedAt
+                };
+            }).filter(Boolean);
+
+            normalizedRewards.sort((a, b) => a.pointsRequired - b.pointsRequired);
+            const rewards = normalizedRewards.length ? normalizedRewards : defaultRewards;
+
+            const history = Array.isArray(source.history) ? source.history.map(entry => {
+                const awardedAt = entry.awardedAt || entry.date || entry.createdAt || new Date().toISOString();
+                const sessionId = entry.sessionId || entry.referenceId || entry.sessionRef || entry.id || null;
+                const routineName = entry.routineName || entry.sessionName || 'Sesión';
+                const dayName = entry.dayName || entry.day || '';
+                const pointsAwarded = typeof entry.pointsAwarded === 'number' ? entry.pointsAwarded : (typeof entry.points === 'number' ? entry.points : sanitizedPointsPerSession);
+                const duration = typeof entry.duration === 'number' ? entry.duration : (typeof entry.totalDuration === 'number' ? entry.totalDuration : 0);
+                const sessionType = entry.sessionType || entry.type || entry.routineType || dayName || routineName;
+                const userId = entry.userId || source.userId || this.state?.currentUser?.uid || this.auth?.currentUser?.uid || null;
+                return {
+                    id: entry.id || `proof-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+                    sessionId,
+                    routineName,
+                    dayName,
+                    sessionType,
+                    userId,
+                    duration,
+                    pointsAwarded,
+                    awardedAt,
+                    photoDataUrl: entry.photoDataUrl || entry.photo || null,
+                    timestampLabel: entry.timestampLabel || entry.timestamp || '',
+                    photoDeletedAt: entry.photoDeletedAt || null
+                };
+            }) : [];
+
+            history.sort((a, b) => new Date(b.awardedAt || 0) - new Date(a.awardedAt || 0));
+
+            const lastAward = source.lastAwardedAt || (history.length ? history[0].awardedAt : null);
+
+            return {
+                ...defaults,
+                ...source,
+                points: sanitizedPoints,
+                pointsPerSession: sanitizedPointsPerSession,
+                cooldownHours: sanitizedCooldownHours,
+                history,
+                rewards,
+                lastAwardedAt: lastAward
+            };
+        },
+
+        getDefaultState() {
+            const now = new Date();
+            return {
+                currentUser: null,
+                userName: '',
+                role: 'asesorado',
+                managedRoles: {
+                    trainers: [],
+                    invitations: []
+                },
+                coachId: null,
+                currentSection: 'inicio', 
+                userGoals: { calories: 2500, protein: 188, carbs: 250, fats: 83 },
+                dailyDiet: [
+                    { id: `meal-${now.getTime()}`, name: 'Desayuno', time: '08:00', items: [] },
+                    { id: `meal-${now.getTime() + 1}`, name: 'Almuerzo', time: '13:00', items: [] },
+                    { id: `meal-${now.getTime() + 2}`, name: 'Cena', time: '20:00', items: [] }
+                ], 
+                userRoutines: [], 
+                workoutHistory: {}, 
+                dietLog: {},
+                physicalStats: { age: 25, weight: 75, height: 180, gender: 'male', activity: 1.55 },
+                targetWeight: 75,
+                weightLog: [],
+                followUp360: {
+                    notes: [],
+                    metrics: [],
+                    tasks: [],
+                    nextCheckIn: null,
+                    lastUpdated: null
+                },
+                asesorados: [],
+                activeWorkout: null,
+                timer: { status: 'idle', timeLeft: 0, intervalId: null, initialRestTime: 0 },
+                dashboardCover: { image: '', storagePath: '', updatedAt: null },
+                routineBanner: { image: '', storagePath: '', updatedAt: null },
+                profilePhoto: { url: '', storagePath: '', updatedAt: null },
+                dietPanelCovers: {
+                    guided: { url: '', storagePath: '', updatedAt: null },
+                    daily: { url: '', storagePath: '', updatedAt: null },
+                    agenda: { url: '', storagePath: '', updatedAt: null },
+                    library: { url: '', storagePath: '', updatedAt: null }
+                },
+                gamification: this.normalizeGamificationState(),
+                isMobileMenuOpen: false,
+                isUserMenuOpen: false,
+                community: {
+                    stats: { totalAthletes: 0, totalVolume: 0, totalSessions: 0 },
+                    leaderboards: { volume: [], sessions: [], progress: [] },
+                    highlights: [],
+                    feed: [],
+                    challenges: [],
+                    podium: [],
+                    spotlight: null,
+                    activeLeaderboard: 'volume',
+                    lastUpdated: null,
+                    isEmpty: true
+                },
+                isCommunityLoading: false
+            };
+        },
+
+        getNextGamificationReward(points = null) {
+            const totalPoints = typeof points === 'number' ? points : (this.state?.gamification?.points || 0);
+            const rewards = this.state?.gamification?.rewards || this.getDefaultRewardsConfig();
+            return rewards.find(reward => reward.status !== 'claimed' && totalPoints < reward.pointsRequired) || null;
+        },
+
+        getGamificationCooldownInfo() {
+            const gamification = this.state?.gamification || this.normalizeGamificationState();
+            const cooldownMs = Math.max(0, Number(gamification.cooldownHours || 0)) * 3600000;
+            if (!cooldownMs) {
+                return { inCooldown: false, nextAvailable: null };
+            }
+            const reference = gamification.lastAwardedAt || (Array.isArray(gamification.history) && gamification.history.length ? gamification.history[0].awardedAt : null);
+            if (!reference) {
+                return { inCooldown: false, nextAvailable: null };
+            }
+            const lastAward = new Date(reference);
+            if (Number.isNaN(lastAward.getTime())) {
+                return { inCooldown: false, nextAvailable: null };
+            }
+            const nextAvailable = new Date(lastAward.getTime() + cooldownMs);
+            return { inCooldown: nextAvailable > new Date(), nextAvailable };
+        },
+
+        formatPoints(value = 0) {
+            return new Intl.NumberFormat('es-ES').format(Math.max(0, Math.round(value)));
+        },
+
+        getDashboardCoverImage() {
+            const globalImage = this.sharedMedia?.dashboardCover?.image || '';
+            const localImage = this.state?.dashboardCover?.image || '';
+            if (this.canEditGlobalMedia()) {
+                return localImage || globalImage;
+            }
+            return globalImage || localImage;
+        },
+
+        getDietPanelCoversForRender() {
+            const globalCovers = this.sharedMedia?.dietPanelCovers || {};
+            const localCovers = this.state?.dietPanelCovers || {};
+            if (this.canEditGlobalMedia()) {
+                return { ...globalCovers, ...localCovers };
+            }
+            return Object.keys(globalCovers).length ? globalCovers : localCovers;
+        },
+
+        async loadDashboardCoverFromFirestore() {
+            if (!this.db) return;
+            const defaults = this.getDefaultState().dashboardCover || { image: '', storagePath: '', updatedAt: null };
+            try {
+                const docRef = doc(this.db, 'app_data', 'dashboard_cover');
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    this.sharedMedia.dashboardCover = { ...defaults, ...(docSnap.data() || {}) };
+                } else {
+                    this.sharedMedia.dashboardCover = { ...defaults };
+                    if (this.canEditGlobalMedia()) {
+                        await setDoc(docRef, this.sharedMedia.dashboardCover);
+                    }
+                }
+                if (this.sharedMedia.dashboardCover.image) {
+                    this.preloadImage(this.sharedMedia.dashboardCover.image, { priority: 'high' });
+                }
+                const shouldSyncState = !this.canEditGlobalMedia()
+                    || !this.state.dashboardCover
+                    || !this.state.dashboardCover.image;
+                if (shouldSyncState) {
+                    this.state.dashboardCover = { ...defaults, ...this.sharedMedia.dashboardCover };
+                }
+            } catch (error) {
+                console.error('Error loading dashboard cover:', error);
+            }
+        },
+
+        async saveDashboardCoverToFirestore() {
+            if (!this.db) return;
+            try {
+                const docRef = doc(this.db, 'app_data', 'dashboard_cover');
+                await setDoc(docRef, this.sharedMedia.dashboardCover || {}, { merge: true });
+            } catch (error) {
+                console.error('Error saving dashboard cover:', error);
+                this.showToast('No se pudo actualizar la portada global.', 'error');
+            }
+        },
+
+        async loadDietPanelCoversFromFirestore() {
+            if (!this.db) return;
+            const defaults = this.getDefaultState().dietPanelCovers || {};
+            try {
+                const docRef = doc(this.db, 'app_data', 'diet_panel_covers');
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    const data = docSnap.data() || {};
+                    this.sharedMedia.dietPanelCovers = Object.keys(defaults).reduce((acc, key) => {
+                        acc[key] = { ...defaults[key], ...(data[key] || {}) };
+                        if (acc[key].url) {
+                            this.preloadImage(acc[key].url, { priority: 'high' });
+                        }
+                        return acc;
+                    }, {});
+                } else {
+                    this.sharedMedia.dietPanelCovers = Object.keys(defaults).reduce((acc, key) => {
+                        acc[key] = { ...defaults[key] };
+                        return acc;
+                    }, {});
+                    if (this.canEditGlobalMedia()) {
+                        await setDoc(docRef, this.sharedMedia.dietPanelCovers);
+                    }
+                }
+                this.state.dietPanelCovers = this.state.dietPanelCovers || {};
+                const shouldForceSync = !this.canEditGlobalMedia();
+                Object.keys(defaults).forEach((key) => {
+                    const localData = this.state.dietPanelCovers[key];
+                    if (shouldForceSync || !localData || !localData.url) {
+                        this.state.dietPanelCovers[key] = { ...defaults[key], ...(this.sharedMedia.dietPanelCovers[key] || {}) };
+                    }
+                });
+            } catch (error) {
+                console.error('Error loading diet panel covers:', error);
+            }
+        },
+
+        async saveDietPanelCoversToFirestore() {
+            if (!this.db) return;
+            try {
+                const docRef = doc(this.db, 'app_data', 'diet_panel_covers');
+                await setDoc(docRef, this.sharedMedia.dietPanelCovers || {}, { merge: true });
+            } catch (error) {
+                console.error('Error saving diet panel covers:', error);
+                this.showToast('No se pudo actualizar la portada de la dieta.', 'error');
+            }
+        },
+
+        state: null,
+        _tempClientData: null, // Estado temporal para el editor de dieta del cliente
+        _isUploadingDashboardCover: false,
+        _dashboardCoverProgressTimeout: null,
+        _isUploadingRoutineBanner: false,
+        _routineBannerProgressTimeout: null,
+
+        sharedMedia: {
+            dashboardCover: { image: '', storagePath: '', updatedAt: null },
+            dietPanelCovers: {
+                guided: { url: '', storagePath: '', updatedAt: null },
+                daily: { url: '', storagePath: '', updatedAt: null },
+                agenda: { url: '', storagePath: '', updatedAt: null },
+                library: { url: '', storagePath: '', updatedAt: null }
+            }
+        },
+
+        data: {
+            predefinedRoutines: {
+                "Clásicos de Hipertrofia": [
+                    { id: 'pre-ppl', name: 'Empuje/Tire/Pierna (PPL)', description: 'División clásica y efectiva para ganar músculo y fuerza.', icon: 'git-merge', plan: [ { day: 'Día 1: Empuje (Pecho, Hombro, Tríceps)', exercises: [{name:'Press de Banca Plano con Barra',sets:4,reps:'8-12', rest:'60s'},{name:'Press Inclinado con Mancuernas',sets:3,reps:'10-12', rest:'60s'},{name:'Elevaciones Laterales con Mancuernas',sets:4,reps:'12-15', rest:'45s'},{name:'Extensiones de Tríceps en Polea',sets:3,reps:'12-15', rest:'45s'}] }, { day: 'Día 2: Tire (Espalda, Bíceps)', exercises: [{name:'Dominadas (Agarre Ancho)',sets:4,reps:'Al fallo', rest:'90s'},{name:'Remo con Barra',sets:4,reps:'8-10', rest:'75s'},{name:'Face Pulls',sets:3,reps:'15-20', rest:'45s'},{name:'Curl con Barra Z',sets:4,reps:'10-12', rest:'60s'}] }, { day: 'Día 3: Pierna', exercises: [{name:'Sentadilla con Barra',sets:4,reps:'8-10', rest:'90s'},{name:'Peso Muerto Rumano con Mancuernas',sets:3,reps:'10-12', rest:'75s'},{name:'Curl Femoral Tumbado',sets:3,reps:'12-15', rest:'60s'},{name:'Elevación de Talones de Pie',sets:4,reps:'15-20', rest:'45s'}] } ] },
+                    { id: 'pre-arnold', name: 'Arnold Split', description: 'Alta frecuencia y volumen para desarrollo muscular máximo.', icon: 'user-check', plan: [ { day: 'Día 1: Pecho y Espalda', exercises: [{name:'Press de Banca Plano con Barra',sets:4,reps:'8-12',rest:'75s'},{name:'Dominadas (Agarre Ancho)',sets:4,reps:'Al fallo',rest:'75s'},{name:'Press Inclinado con Mancuernas',sets:3,reps:'10-12',rest:'60s'},{name:'Remo con Barra',sets:3,reps:'8-12',rest:'60s'}] }, { day: 'Día 2: Hombros y Brazos', exercises: [{name:'Press Militar con Barra',sets:4,reps:'8-12',rest:'75s'},{name:'Elevaciones Laterales con Mancuernas',sets:4,reps:'12-15',rest:'45s'},{name:'Curl con Barra Z',sets:3,reps:'10-12',rest:'60s'},{name:'Press Francés',sets:3,reps:'10-12',rest:'60s'}] }, { day: 'Día 3: Piernas y Abdomen', exercises: [{name:'Sentadilla con Barra',sets:5,reps:'8-10',rest:'90s'},{name:'Peso Muerto Rumano con Barra/Mancuernas',sets:4,reps:'10-12',rest:'75s'},{name:'Elevación de Talones de Pie',sets:4,reps:'15-20',rest:'45s'},{name:'Crunches',sets:3,reps:'Al fallo',rest:'45s'}] } ] }
+                ],
+                "Fuerza y Potencia": [
+                    { id: 'pre-upper-lower', name: 'Torso/Pierna (Upper/Lower)', description: 'Balance perfecto entre fuerza y tamaño, 4 días/semana.', icon: 'move-vertical', plan: [ { day: 'Día 1: Torso Fuerza', exercises: [{name:'Press de Banca Plano con Barra',sets:4,reps:'5-8',rest:'90s'},{name:'Remo con Barra',sets:4,reps:'5-8',rest:'90s'},{name:'Press Militar con Barra',sets:3,reps:'6-10',rest:'75s'},{name:'Dominadas (Agarre Ancho)',sets:3,reps:'Al fallo',rest:'75s'}] }, { day: 'Día 2: Pierna Fuerza', exercises: [{name:'Sentadilla con Barra',sets:4,reps:'5-8',rest:'120s'},{name:'Peso Muerto Rumano con Barra/Mancuernas',sets:3,reps:'8-10',rest:'90s'},{name:'Prensa de Piernas',sets:3,reps:'8-12',rest:'75s'},{name:'Elevación de Talones de Pie',sets:4,reps:'10-15',rest:'60s'}] }, { day: 'Día 3: Torso Hipertrofia', exercises: [{name:'Press Inclinado con Mancuernas',sets:4,reps:'10-12',rest:'60s'},{name:'Jalón al Pecho (Agarre Ancho)',sets:4,reps:'10-12',rest:'60s'},{name:'Elevaciones Laterales con Mancuernas',sets:4,reps:'12-15',rest:'45s'},{name:'Curl con Mancuernas',sets:3,reps:'12-15',rest:'45s'},{name:'Extensiones de Tríceps en Polea',sets:3,reps:'12-15',rest:'45s'}] }, { day: 'Día 4: Pierna Hipertrofia', exercises: [{name:'Sentadilla Frontal',sets:4,reps:'10-12',rest:'75s'},{name:'Curl Femoral Tumbado',sets:4,reps:'12-15',rest:'60s'},{name:'Zancadas',sets:3,reps:'12-15',rest:'60s'},{name:'Elevación de Piernas Colgado/Tumbado',sets:4,reps:'Al fallo',rest:'45s'}] } ] }
+                ],
+                "Enfoque Femenino": [
+                    { id: 'pre-glute-focus', name: 'Glute Gains', description: 'Rutina enfocada en el desarrollo de glúteos y piernas.', icon: 'person-standing', plan: [ { day: 'Día 1: Pierna (Énfasis Glúteo)', exercises: [{name:'Hip Thrust con Barra',sets:4,reps:'8-12',rest:'75s'},{name:'Sentadilla Búlgara',sets:3,reps:'10-12',rest:'60s'},{name:'Peso Muerto Rumano con Mancuernas',sets:3,reps:'12-15',rest:'60s'},{name:'Patada de Glúteo en Polea',sets:3,reps:'15-20',rest:'45s'}] }, { day: 'Día 2: Torso y Core', exercises: [{name:'Jalón al Pecho (Agarre Ancho)',sets:4,reps:'10-15',rest:'60s'},{name:'Press Inclinado con Mancuernas',sets:3,reps:'12-15',rest:'60s'},{name:'Remo con Mancuerna (Serrucho)',sets:3,reps:'12-15',rest:'45s'},{name:'Elevaciones Laterales con Mancuernas',sets:4,reps:'15-20',rest:'45s'},{name:'Plancha Abdominal',sets:3,reps:'Al fallo',rest:'45s'}] }, { day: 'Día 3: Full Body', exercises: [{name:'Sentadilla con Barra',sets:4,reps:'10-12',rest:'75s'},{name:'Press de Banca Plano con Mancuernas',sets:4,reps:'10-12',rest:'60s'},{name:'Remo con Barra',sets:4,reps:'10-12',rest:'60s'},{name:'Hiperextensiones',sets:3,reps:'15-20',rest:'45s'}] } ] },
+                    { id: 'pre-fullbody-tone', name: 'Full Body Toning', description: '3 días a la semana para tonificar todo el cuerpo.', icon: 'heart-pulse', plan: [ { day: 'Día A', exercises: [{name:'Sentadilla con Barra',sets:3,reps:'12-15',rest:'60s'},{name:'Press de Banca Plano con Barra',sets:3,reps:'12-15',rest:'60s'},{name:'Remo con Barra',sets:3,reps:'12-15',rest:'60s'},{name:'Elevaciones Laterales con Mancuernas',sets:3,reps:'15-20',rest:'45s'}] }, { day: 'Día B', exercises: [{name:'Peso Muerto Convencional/Sumo',sets:3,reps:'10-12',rest:'90s'},{name:'Press Militar con Barra',sets:3,reps:'12-15',rest:'60s'},{name:'Jalón al Pecho (Agarre Ancho)',sets:3,reps:'12-15',rest:'60s'},{name:'Elevación de Piernas Colgado/Tumbado',sets:3,reps:'al fallo',rest:'45s'}] } ] }
+                ],
+                "CBUM Signature Series": [
+                    { id: 'pre-cbum-ppl', name: 'Push Pull Legs Élite (CBUM)', description: 'Periodización de seis días inspirada en Chris Bumstead para maximizar volumen y control, con énfasis en tempo y ejecución perfecta.', icon: 'dumbbell', plan: [
+                        { day: 'Día 1: Push Pesado', exercises: [
+                            { name: 'Press de Banca Inclinado con Barra', sets: 4, reps: '6-8', rest: '120s' },
+                            { name: 'Press Militar con Mancuernas', sets: 3, reps: '8-10', rest: '90s' },
+                            { name: 'Press en Máquina Hammer', sets: 3, reps: '10-12', rest: '75s' },
+                            { name: 'Elevaciones Laterales con Mancuernas', sets: 4, reps: '12-15', rest: '60s' },
+                            { name: 'Fondos en Paralelas con Lastre', sets: 3, reps: '8-10', rest: '90s' }
+                        ] },
+                        { day: 'Día 2: Pull Controlado', exercises: [
+                            { name: 'Peso Muerto Rumano', sets: 4, reps: '6-8', rest: '120s' },
+                            { name: 'Remo con Barra en T', sets: 3, reps: '8-10', rest: '90s' },
+                            { name: 'Jalón al Pecho con Agarre Neutro', sets: 4, reps: '10-12', rest: '75s' },
+                            { name: 'Face Pulls con Cuerda', sets: 3, reps: '15-20', rest: '60s' },
+                            { name: 'Curl con Barra Z', sets: 3, reps: '10-12', rest: '60s' }
+                        ] },
+                        { day: 'Día 3: Piernas Dominantes', exercises: [
+                            { name: 'Sentadilla Trasera Controlada (Tempo 3-1-1)', sets: 4, reps: '6-8', rest: '150s' },
+                            { name: 'Prensa de Piernas a una Pierna', sets: 3, reps: '10-12', rest: '90s' },
+                            { name: 'Peso Muerto Búlgaro con Mancuernas', sets: 3, reps: '12-14', rest: '90s' },
+                            { name: 'Curl Femoral en Máquina', sets: 4, reps: '12-15', rest: '75s' },
+                            { name: 'Elevación de Talones Sentado', sets: 4, reps: '15-18', rest: '60s' }
+                        ] },
+                        { day: 'Día 4: Push Metabólico', exercises: [
+                            { name: 'Press de Banca con Mancuernas (Tempo 2-1-2)', sets: 3, reps: '10-12', rest: '75s' },
+                            { name: 'Press Arnold', sets: 3, reps: '12-15', rest: '60s' },
+                            { name: 'Cruce de Poleas Alto-Bajo', sets: 3, reps: '15-20', rest: '60s' },
+                            { name: 'Extensión de Tríceps en Polea con Cuerda', sets: 3, reps: '12-15', rest: '60s' },
+                            { name: 'Fondos entre Bancos con Contracción Isométrica', sets: 3, reps: 'Hasta el fallo', rest: '60s' }
+                        ] },
+                        { day: 'Día 5: Pull Volumen', exercises: [
+                            { name: 'Remo con Mancuernas Apoyado', sets: 4, reps: '10-12', rest: '75s' },
+                            { name: 'Jalón en Polea Alta con Descenso Controlado', sets: 3, reps: '12-15', rest: '75s' },
+                            { name: 'Remo a Pecho en Máquina', sets: 3, reps: '12-15', rest: '75s' },
+                            { name: 'Curl Inclinado con Mancuernas', sets: 3, reps: '12-15', rest: '60s' },
+                            { name: 'Curl Martillo con Cuerda', sets: 3, reps: '12-15', rest: '60s' }
+                        ] },
+                        { day: 'Día 6: Pierna Accesorios', exercises: [
+                            { name: 'Hip Thrust con Pausa', sets: 4, reps: '10-12', rest: '90s' },
+                            { name: 'Zancadas Caminando con Mancuernas', sets: 3, reps: '14-16', rest: '75s' },
+                            { name: 'Extensiones de Cuádriceps', sets: 3, reps: '15-20', rest: '60s' },
+                            { name: 'Curl Femoral Sentado', sets: 3, reps: '12-15', rest: '60s' },
+                            { name: 'Abducción de Cadera en Máquina', sets: 3, reps: '20', rest: '45s' }
+                        ] }
+                    ] },
+                    { id: 'pre-cbum-chest-bis', name: 'Pecho y Bíceps Protocolo CBUM', description: 'Sesiones con énfasis en congestión controlada y progresión doble, ideal para priorizar torso anterior y brazos.', icon: 'activity', plan: [
+                        { day: 'Día 1: Pecho Denso', exercises: [
+                            { name: 'Press de Banca Plano con Barra', sets: 5, reps: '5-8', rest: '150s' },
+                            { name: 'Press Inclinado con Mancuernas', sets: 4, reps: '8-10', rest: '90s' },
+                            { name: 'Press en Máquina Convergente', sets: 3, reps: '10-12', rest: '75s' },
+                            { name: 'Aperturas en Polea con Pausa', sets: 3, reps: '12-15', rest: '60s' },
+                            { name: 'Fondos en Anillas Asistidos', sets: 3, reps: 'Hasta el fallo', rest: '90s' }
+                        ] },
+                        { day: 'Día 2: Bíceps y Estabilidad', exercises: [
+                            { name: 'Curl con Barra Recta (Tempo 3-1-1)', sets: 4, reps: '8-10', rest: '90s' },
+                            { name: 'Curl Alterno en Banco Inclinado', sets: 3, reps: '10-12', rest: '75s' },
+                            { name: 'Curl de Martillo en Polea Baja', sets: 3, reps: '12-15', rest: '60s' },
+                            { name: 'Curl Concentrado en Banco', sets: 3, reps: '12-15', rest: '60s' },
+                            { name: 'Trabajo de Core: Plancha con Arrastre', sets: 3, reps: '45s', rest: '45s' }
+                        ] },
+                        { day: 'Día 3: Pecho + Bíceps Sinergia', exercises: [
+                            { name: 'Press Inclinado con Barra Tempo 3-1-2', sets: 4, reps: '8-10', rest: '90s' },
+                            { name: 'Cruce de Poleas en Descendente', sets: 3, reps: '12-15', rest: '60s' },
+                            { name: 'Pull Over con Mancuernas', sets: 3, reps: '10-12', rest: '75s' },
+                            { name: 'Superserie: Curl en Predicador + Curl Martillo', sets: 3, reps: '10-12 + 12-15', rest: '75s' },
+                            { name: 'Curl Alta Tensión en Cable', sets: 3, reps: '15-20', rest: '60s' }
+                        ] }
+                    ] },
+                    { id: 'pre-cbum-legs-dominant', name: 'Piernas Dominantes CBUM', description: 'Microciclos centrados en densidad femoral y glúteo con énfasis en control excéntrico y trabajo unilateral.', icon: 'footprints', plan: [
+                        { day: 'Día 1: Cuádriceps y Core', exercises: [
+                            { name: 'Sentadilla Frontal con Pausa', sets: 4, reps: '6-8', rest: '150s' },
+                            { name: 'Prensa de Piernas Profunda', sets: 4, reps: '10-12', rest: '90s' },
+                            { name: 'Split Squat Búlgaro con Mancuernas', sets: 3, reps: '12-14', rest: '90s' },
+                            { name: 'Extensiones de Cuádriceps en Pico de Contracción', sets: 3, reps: '15-20', rest: '60s' },
+                            { name: 'Plancha Lateral con Elevación de Pierna', sets: 3, reps: '40s', rest: '45s' }
+                        ] },
+                        { day: 'Día 2: Cadena Posterior', exercises: [
+                            { name: 'Peso Muerto Rumano con Barra', sets: 4, reps: '6-8', rest: '150s' },
+                            { name: 'Hip Thrust en Máquina con Pausa', sets: 4, reps: '8-10', rest: '90s' },
+                            { name: 'Curl Femoral Tumbado Tempo 3-1-2', sets: 3, reps: '12-15', rest: '75s' },
+                            { name: 'Buenos Días con Barra', sets: 3, reps: '10-12', rest: '90s' },
+                            { name: 'Elevaciones de Talón en Prensa', sets: 4, reps: '15-20', rest: '60s' }
+                        ] },
+                        { day: 'Día 3: Aceleración y Estabilidad', exercises: [
+                            { name: 'Sentadilla Hack con Tempo Controlado', sets: 3, reps: '10-12', rest: '90s' },
+                            { name: 'Zancadas en Caminadora Inclinada', sets: 3, reps: '90s', rest: '60s' },
+                            { name: 'Peso Muerto a una Pierna con Mancuernas', sets: 3, reps: '12-15', rest: '75s' },
+                            { name: 'Abducción en Polea de Pie', sets: 3, reps: '15-20', rest: '60s' },
+                            { name: 'Farmer Walk Pesado', sets: 4, reps: '35m', rest: '75s' }
+                        ] }
+                    ] }
+                ],
+                "Alta Intensidad": [
+                    { id: 'pre-mentzer', name: 'Mentzer Heavy Duty', description: 'Máxima intensidad, mínimo volumen. Para avanzados.', icon: 'zap', plan: [ { day: 'Día 1: Pecho y Espalda', exercises: [{name:'Pec Deck (Contractora)',sets:1,reps:'8-12 (al fallo)',rest:'10s'},{name:'Press Inclinado con Mancuernas',sets:1,reps:'6-8 (al fallo)',rest:'120s'},{name:'Pullover en Polea Alta',sets:1,reps:'8-12 (al fallo)',rest:'10s'},{name:'Jalón al Pecho (Agarre Ancho)',sets:1,reps:'6-8 (al fallo)',rest:'120s'}] }, { day: 'Día 2: Piernas', exercises: [{name:'Extensiones de Cuádriceps',sets:1,reps:'10-15 (al fallo)',rest:'10s'},{name:'Prensa de Piernas',sets:1,reps:'8-12 (al fallo)',rest:'120s'},{name:'Curl Femoral Tumbado',sets:1,reps:'8-12 (al fallo)',rest:'90s'},{name:'Elevación de Talones de Pie',sets:1,reps:'12-15 (al fallo)',rest:'60s'}] }, { day: 'Día 3: Hombros y Brazos', exercises: [{name:'Elevaciones Laterales con Mancuernas',sets:1,reps:'8-12 (al fallo)',rest:'10s'},{name:'Press Militar con Barra',sets:1,reps:'6-8 (al fallo)',rest:'120s'},{name:'Curl con Barra Z',sets:1,reps:'6-8 (al fallo)',rest:'90s'},{name:'Extensiones de Tríceps en Polea',sets:1,reps:'8-10 (al fallo)',rest:'60s'}] } ] }
+                ],
+                "Quema de Grasa": [
+                    { id: 'pre-fbb', name: 'Full Body Burn', description: 'Cardio y fuerza para quemar calorías y definir.', icon: 'flame', plan: [ { day: 'Día A', exercises: [{name:'Sentadilla con Barra',sets:3,reps:'15', rest:'45s'},{name:'Fondos en Paralelas',sets:3,reps:'Al fallo', rest:'60s'},{name:'Remo con Mancuerna (Serrucho)',sets:3,reps:'15', rest:'45s'},{name:'Plancha Abdominal',sets:3,reps:'60s', rest:'45s'}] }, { day: 'Día B', exercises: [{name:'Zancadas',sets:3,reps:'15', rest:'45s'},{name:'Jalón al Pecho (Agarre Ancho)',sets:3,reps:'15', rest:'45s'},{name:'Press de Banca Plano con Barra',sets:3,reps:'15', rest:'45s'},{name:'Elevación de Piernas Colgado/Tumbado',sets:3,reps:'20', rest:'45s'}] } ] }
+                ]
+            },
+            exerciseLibrary: {
+                "Pecho":{
+                    "Superior":[
+                        {name:"Press Inclinado con Barra", mediaUrl: "https://gymvisual.com/img/p/1/7/4/4/1/17441.gif"},
+                        {name:"Press Inclinado con Mancuernas", mediaUrl: "https://gymvisual.com/img/p/1/0/2/3/5/10235.gif"},
+                        {name:"Cruce de Poleas (Bajo a Alto)", mediaUrl: null},
+                        {name:"Aperturas Inclinadas", mediaUrl: null}
+                    ],
+                    "Medio":[
+                        {name:"Press de Banca Plano con Barra", mediaUrl: "https://gymvisual.com/img/p/1/7/4/3/8/17438.gif"},
+                        {name:"Press de Banca Plano con Mancuernas", mediaUrl: "https://gymvisual.com/img/p/1/0/2/2/8/10228.gif"},
+                        {name:"Aperturas Planas con Mancuernas", mediaUrl: null},
+                        {name:"Pec Deck (Contractora)", mediaUrl: "https://gymvisual.com/img/p/1/7/3/2/5/17325.gif"},
+                        {name:"Press en Máquina", mediaUrl: null}
+                    ],
+                    "Inferior":[
+                        {name:"Press Declinado con Barra", mediaUrl: "https://gymvisual.com/img/p/1/7/4/3/9/17439.gif"},
+                        {name:"Fondos en Paralelas", mediaUrl: "https://gymvisual.com/img/p/1/7/3/0/1/17301.gif"},
+                        {name:"Cruce de Poleas (Alto a Bajo)", mediaUrl: null}
+                    ]
+                },
+                "Espalda":{
+                    "Dorsales (Amplitud)":[
+                        {name:"Dominadas (Agarre Ancho)", mediaUrl: "https://gymvisual.com/img/p/1/7/2/8/8/17288.gif"},
+                        {name:"Jalón al Pecho (Agarre Ancho)", mediaUrl: "https://gymvisual.com/img/p/1/7/3/4/0/17340.gif"},
+                        {name:"Remo Gironda (Agarre Estrecho)", mediaUrl: null},
+                        {name:"Pullover en Polea Alta", mediaUrl: null}
+                    ],
+                    "Espalda Media (Densidad)":[
+                        {name:"Remo con Barra", mediaUrl: "https://gymvisual.com/img/p/1/7/4/4/5/17445.gif"},
+                        {name:"Remo con Mancuerna (Serrucho)", mediaUrl: "https://gymvisual.com/img/p/1/0/2/5/0/10250.gif"},
+                        {name:"Remo en Punta (T-Bar)", mediaUrl: null},
+                        {name:"Face Pulls", mediaUrl: null}
+                    ],
+                    "Lumbares":[
+                        {name:"Peso Muerto Convencional/Sumo", mediaUrl: "https://gymvisual.com/img/p/1/7/4/5/2/17452.gif"},
+                        {name:"Hiperextensiones", mediaUrl: "https://gymvisual.com/img/p/1/7/3/1/5/17315.gif"},
+                        {name:"Good Mornings", mediaUrl: null}
+                    ]
+                },
+                "Pierna":{
+                    "Cuádriceps":[
+                        {name:"Sentadilla con Barra", mediaUrl: "https://gymvisual.com/img/p/1/7/4/4/9/17449.gif"},
+                        {name:"Sentadilla Frontal", mediaUrl: "https://gymvisual.com/img/p/1/7/4/4/2/17442.gif"},
+                        {name:"Prensa de Piernas", mediaUrl: "https://gymvisual.com/img/p/1/7/3/5/6/17356.gif"},
+                        {name:"Zancadas", mediaUrl: "https://gymvisual.com/img/p/1/0/3/1/6/10316.gif"},
+                        {name:"Sentadilla Búlgara", mediaUrl: "https://gymvisual.com/img/p/1/0/2/0/9/10209.gif"},
+                        {name:"Extensiones de Cuádriceps", mediaUrl: "https://gymvisual.com/img/p/1/7/3/5/4/17354.gif"}
+                    ],
+                    "Femorales":[
+                        {name:"Peso Muerto Rumano con Barra/Mancuernas", mediaUrl: "https://gymvisual.com/img/p/1/0/2/6/2/10262.gif"},
+                        {name:"Curl Femoral Tumbado", mediaUrl: "https://gymvisual.com/img/p/1/7/3/5/5/17355.gif"},
+                        {name:"Curl Femoral Sentado", mediaUrl: null}
+                    ],
+                    "Glúteos":[
+                        {name:"Hip Thrust con Barra", mediaUrl: "https://gymvisual.com/img/p/1/7/4/4/3/17443.gif"},
+                        {name:"Peso Muerto Sumo", mediaUrl: null},
+                        {name:"Patada de Glúteo en Polea", mediaUrl: null},
+                        {name:"Abducción de Cadera en Máquina/Polea", mediaUrl: null}
+                    ],
+                    "Gemelos":[
+                        {name:"Elevación de Talones de Pie", mediaUrl: "https://gymvisual.com/img/p/1/7/2/9/3/17293.gif"},
+                        {name:"Elevación de Talones Sentado (Sóleo)", mediaUrl: null}
+                    ]
+                },
+                "Hombro":{
+                    "Deltoides Anterior":[
+                        {name:"Press Militar con Barra", mediaUrl: "https://gymvisual.com/img/p/1/7/4/4/7/17447.gif"},
+                        {name:"Press Arnold", mediaUrl: null},
+                        {name:"Elevaciones Frontales con Mancuerna/Polea", mediaUrl: null}
+                    ],
+                    "Deltoides Lateral":[
+                        {name:"Elevaciones Laterales con Mancuernas", mediaUrl: "https://gymvisual.com/img/p/1/0/2/4/3/10243.gif"},
+                        {name:"Elevaciones Laterales en Polea", mediaUrl: null},
+                        {name:"Remo al Mentón (Agarre Ancho)", mediaUrl: null}
+                    ],
+                    "Deltoides Posterior":[
+                        {name:"Pájaros (Bent Over Raises)", mediaUrl: "https://gymvisual.com/img/p/1/0/2/1/4/10214.gif"},
+                        {name:"Pec Deck Inverso", mediaUrl: null}
+                    ]
+                },
+                "Brazo":{
+                    "Bíceps":[
+                        {name:"Curl con Barra Z", mediaUrl: "https://gymvisual.com/img/p/1/0/2/0/1/10201.gif"},
+                        {name:"Curl con Mancuernas", mediaUrl: "https://gymvisual.com/img/p/1/0/2/2/5/10225.gif"},
+                        {name:"Curl Martillo", mediaUrl: "https://gymvisual.com/img/p/1/0/2/4/0/10240.gif"},
+                        {name:"Curl de Concentración", mediaUrl: null},
+                        {name:"Curl en Banco Scott", mediaUrl: null}
+                    ],
+                    "Tríceps":[
+                        {name:"Press Francés", mediaUrl: "https://gymvisual.com/img/p/1/7/4/4/6/17446.gif"},
+                        {name:"Extensiones de Tríceps en Polea", mediaUrl: "https://gymvisual.com/img/p/1/7/3/3/0/17330.gif"},
+                        {name:"Press de Banca (Agarre Estrecho)", mediaUrl: null},
+                        {name:"Fondos entre Bancos", mediaUrl: null}
+                    ],
+                    "Antebrazo":[
+                        {name:"Curl de Muñeca (Supino/Prono)", mediaUrl: null},
+                        {name:"Paseo del Granjero", mediaUrl: null}
+                    ]
+                },
+                "Abdomen":{
+                    "Recto Abdominal":[
+                        {name:"Crunches", mediaUrl: "https://gymvisual.com/img/p/1/7/2/9/9/17299.gif"},
+                        {name:"Elevación de Piernas Colgado/Tumbado", mediaUrl: "https://gymvisual.com/img/p/1/7/3/1/4/17314.gif"}
+                    ],
+                    "Oblicuos":[
+                        {name:"Russian Twists", mediaUrl: null},
+                        {name:"Leñador en Polea (Woodchoppers)", mediaUrl: null}
+                    ],
+                    "Core General":[
+                        {name:"Plancha Abdominal", mediaUrl: "https://gymvisual.com/img/p/1/7/3/6/5/17365.gif"},
+                        {name:"Rueda Abdominal (Ab Wheel)", mediaUrl: null}
+                    ]
+                }
+            },
+        exerciseGroupImages: {
+            "Pecho": "https://images.unsplash.com/photo-1517832207067-4db24a2ae47c?auto=format&fit=crop&w=800&q=80",
+            "Espalda": "https://images.unsplash.com/photo-1517430816045-df4b7de1cd0d?auto=format&fit=crop&w=800&q=80",
+            "Pierna": "https://images.unsplash.com/photo-1579758629938-03607ccdbaba?auto=format&fit=crop&w=800&q=80",
+            "Hombro": "https://images.unsplash.com/photo-1599058917212-d750089bc07c?auto=format&fit=crop&w=800&q=80",
+            "Brazo": "https://images.unsplash.com/photo-1526402462925-efba5de1c9f1?auto=format&fit=crop&w=800&q=80",
+            "Abdomen": "https://images.unsplash.com/photo-1506354666786-959d6d497f1a?auto=format&fit=crop&w=800&q=80"
+        },
+        foodDatabase: {"Proteínas":[{"id":1,"name":"Pechuga de Pollo","cals":165,"p":31,"c":0,"f":3.6},{"id":2,"name":"Pechuga de Pavo","cals":135,"p":30,"c":0,"f":1},{"id":3,"name":"Salmón","cals":208,"p":20,"c":0,"f":13},{"id":4,"name":"Atún en lata (agua)","cals":116,"p":26,"c":0,"f":1},{"id":5,"name":"Carne de Res Magra (90%)","cals":198,"p":28,"c":0,"f":9},{"id":6,"name":"Huevo Entero","cals":155,"p":13,"c":1.1,"f":11},{"id":7,"name":"Clara de Huevo","cals":52,"p":11,"c":0.7,"f":0.2},{"id":8,"name":"Lentejas (cocidas)","cals":116,"p":9,"c":20,"f":0.4},{"id":9,"name":"Garbanzos (cocidos)","cals":139,"p":7.6,"c":22,"f":3.8},{"id":10,"name":"Tofu Firme","cals":76,"p":8,"c":1.9,"f":4.8}],"Carbohidratos":[{"id":11,"name":"Arroz Blanco (cocido)","cals":130,"p":2.7,"c":28,"f":0.3},{"id":12,"name":"Arroz Integral (cocido)","cals":111,"p":2.6,"c":23,"f":0.9},{"id":13,"name":"Avena en Hojuelas","cals":389,"p":17,"c":66,"f":7},{"id":14,"name":"Papa/Patata (cocida)","cals":87,"p":2,"c":20,"f":0.1},{"id":15,"name":"Batata/Camote (cocido)","cals":86,"p":1.6,"c":20,"f":0.1},{"id":16,"name":"Pan Integral","cals":265,"p":13,"c":41,"f":4.5},{"id":17,"name":"Pasta Integral (cocida)","cals":124,"p":5,"c":26,"f":0.8},{"id":18,"name":"Quinoa (cocida)","cals":120,"p":4.4,"c":21,"f":1.9},{"id":19,"name":"Maíz/Elote (cocido)","cals":96,"p":3.4,"c":21,"f":1.5}],"Grasas Saludables":[{"id":20,"name":"Aguacate","cals":160,"p":2,"c":9,"f":15},{"id":21,"name":"Aceite de Oliva Extra Virgen","cals":884,"p":0,"c":0,"f":100},{"id":22,"name":"Almendras","cals":579,"p":21,"c":22,"f":49},{"id":23,"name":"Nueces","cals":654,"p":15,"c":14,"f":65},{"id":24,"name":"Semillas de Chía","cals":486,"p":17,"c":42,"f":31},{"id":25,"name":"Mantequilla de Maní Natural","cals":588,"p":25,"c":20,"f":50}],"Frutas y Verduras":[{"id":26,"name":"Brócoli","cals":55,"p":3.7,"c":11,"f":0.6},{"id":27,"name":"Espinaca","cals":23,"p":2.9,"c":3.6,"f":0.4},{"id":28,"name":"Plátano","cals":89,"p":1.1,"c":23,"f":0.3},{"id":29,"name":"Manzana","cals":52,"p":0.3,"c":14,"f":0.2},{"id":30,"name":"Fresa","cals":32,"p":0.7,"c":8,"f":0.3},{"id":31,"name":"Tomate","cals":18,"p":0.9,"c":3.9,"f":0.2},{"id":32,"name":"Zanahoria","cals":41,"p":0.9,"c":10,"f":0.2}],"Lácteos y Derivados":[{"id":33,"name":"Yogur Griego Natural (0%)","cals":59,"p":10,"c":3.6,"f":0.4},{"id":34,"name":"Leche Descremada","cals":34,"p":3.4,"c":5,"f":0.1},{"id":35,"name":"Queso Cottage (bajo en grasa)","cals":72,"p":12,"c":2.7,"f":1},{"id":36,"name":"Queso Mozzarella","cals":280,"p":22,"c":2.2,"f":20}],"Suplementos":[{"id":37,"name":"Proteína Whey (Polvo)","cals":390,"p":75,"c":8,"f":5},{"id":38,"name":"Creatina Monohidratada","cals":0,"p":0,"c":0,"f":0}]},
+            foodOverrides: {},
+            foodLibrary: [], // Se llenará con la base de datos + alimentos personalizados
+        },
+
+        init() {
+            if(typeof lucide === 'undefined'){ setTimeout(() => this.init(), 50); return; }
+            this.state = this.getDefaultState();
+            this.auth = getAuth(this.firebaseApp);
+            this.db = getFirestore(this.firebaseApp);
+            this.storage = getStorage(this.firebaseApp);
+            this._imagePreloadCache = new Map();
+            this.setupAuthListeners();
+            this.setupEventListeners();
+            this.showLaunchScreen();
+            lucide.createIcons();
+        },
+
+        async initAppLogic() {
+            this.audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+            await this.loadExerciseLibraryFromFirestore();
+            await this.loadExerciseGroupImagesFromFirestore();
+            this.preloadExerciseGroupImages();
+            await this.loadDashboardCoverFromFirestore();
+            await this.loadDietPanelCoversFromFirestore();
+            await this.loadAndMergeFoodData(); // Cargar alimentos
+            this.loadTemplates();
+            await this.loadCommunityData();
+            this.populateNutritionForm();
+            this.adjustUIForRole();
+            this.renderAll();
+            this.getDailyTip();
+            this.showSection(this.state.currentSection, false);
+            this.updateUserInfoUI();
+        },
+
+        adjustUIForRole() {
+            const navAsesorados = document.getElementById('nav-asesorados');
+            const navRoles = document.getElementById('nav-roles');
+            const navNutricion = document.getElementById('nav-nutricion');
+            const createRoutineBtn = document.getElementById('create-routine-btn');
+            const predefinedRoutines = document.getElementById('predefined-routines-section');
+            const dietManagementTools = document.getElementById('diet-management-tools');
+            const addFoodSection = document.getElementById('add-food-section');
+            const dietAdminActions = document.getElementById('diet-admin-actions');
+
+            const navRutinasText = document.querySelector('#nav-rutinas .nav-label');
+
+            if (navRoles) {
+                navRoles.style.display = this.isAdmin() ? 'flex' : 'none';
+            }
+
+            if (this.isAdmin()) {
+                if (navAsesorados) navAsesorados.style.display = 'none';
+                if (navNutricion) navNutricion.style.display = 'flex';
+                if (createRoutineBtn) createRoutineBtn.style.display = 'flex';
+                if (predefinedRoutines) predefinedRoutines.style.display = 'block';
+                if (dietManagementTools) dietManagementTools.style.display = 'block';
+                if (addFoodSection) addFoodSection.style.display = 'block';
+                if (dietAdminActions) dietAdminActions.style.display = 'flex';
+                if (navRutinasText) navRutinasText.textContent = 'Rutinas';
+                this.applyRoleBasedCoverVisibility();
+                return;
+            }
+
+            if (this.isCoach()) {
+                if (navAsesorados) navAsesorados.style.display = 'flex';
+                if (navNutricion) navNutricion.style.display = 'flex';
+                if (createRoutineBtn) createRoutineBtn.style.display = 'flex';
+                if (predefinedRoutines) predefinedRoutines.style.display = 'block';
+                if (dietManagementTools) dietManagementTools.style.display = 'block';
+                if (addFoodSection) addFoodSection.style.display = 'block';
+                if (dietAdminActions) dietAdminActions.style.display = this.canEditGlobalMedia() ? 'flex' : 'none';
+                if (navRutinasText) navRutinasText.textContent = 'Rutinas';
+                this.applyRoleBasedCoverVisibility();
+                return;
+            }
+
+            if (navAsesorados) navAsesorados.style.display = 'none';
+            if (navNutricion) navNutricion.style.display = 'none';
+            if (createRoutineBtn) createRoutineBtn.style.display = 'none';
+            if (predefinedRoutines) predefinedRoutines.style.display = 'none';
+            if (dietManagementTools) dietManagementTools.style.display = 'none';
+            if (addFoodSection) addFoodSection.style.display = 'none';
+            if (dietAdminActions) dietAdminActions.style.display = 'none';
+            if (navRutinasText) navRutinasText.textContent = 'Mi Rutina';
+            this.applyRoleBasedCoverVisibility();
+            return;
+        },
+
+        applyRoleBasedCoverVisibility() {
+            const hideCoachInstructions = this.isCoach();
+            const hideGlobalUploads = !this.canEditGlobalMedia();
+
+            document.querySelectorAll('[data-hide-coach-cover]').forEach(element => {
+                element.classList.toggle('hidden', hideCoachInstructions);
+            });
+
+            document.querySelectorAll('[data-coach-cover-note]').forEach(element => {
+                element.classList.toggle('hidden', !hideCoachInstructions);
+            });
+
+            document.querySelectorAll('.diet-panel-cover-upload').forEach(label => {
+                const shouldHide = hideGlobalUploads || hideCoachInstructions;
+                label.classList.toggle('is-hidden', shouldHide);
+            });
+
+            const dashboardActions = document.querySelector('[data-cover-action-group="dashboard"]');
+            if (dashboardActions) {
+                const shouldHide = hideGlobalUploads || hideCoachInstructions;
+                dashboardActions.classList.toggle('hidden', shouldHide);
+            }
+
+            const routineBannerCard = document.getElementById('routine-admin-banner-card');
+            if (routineBannerCard) {
+                const shouldHide = hideGlobalUploads || hideCoachInstructions;
+                routineBannerCard.classList.toggle('hidden', shouldHide);
+            }
+        },
+
+        async saveDataToFirestore() {
+            if (!this.state.currentUser) return false;
+            const dataToSave = { ...this.state };
+            ['currentUser', 'activeWorkout', 'timer', 'currentSection', 'asesorados', 'managedRoles', 'isMobileMenuOpen', 'community', 'isCommunityLoading', 'theme'].forEach(key => delete dataToSave[key]);
+            const userRef = doc(this.db, "users", this.state.currentUser.uid);
+            try {
+                await setDoc(userRef, dataToSave, { merge: true });
+                return true;
+            } catch (error) {
+                console.error("Error saving data to Firestore: ", error);
+                this.showToast("Error al guardar datos.", "error");
+                return false;
+            }
+        },
+
+        async loadDataFromFirestore() {
+            const userRef = doc(this.db, "users", this.state.currentUser.uid);
+            try {
+                const docSnap = await getDoc(userRef);
+                const defaultState = this.getDefaultState();
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    this.state = { ...defaultState, currentUser: this.state.currentUser, ...data };
+                    delete this.state.theme;
+                    this.state.physicalStats = { ...defaultState.physicalStats, ...data.physicalStats };
+                    this.state.userGoals = { ...defaultState.userGoals, ...data.userGoals };
+                    if (data.dashboardCover) {
+                        if (typeof data.dashboardCover === 'string') {
+                            this.state.dashboardCover = { ...defaultState.dashboardCover, image: data.dashboardCover };
+                        } else {
+                            this.state.dashboardCover = { ...defaultState.dashboardCover, ...data.dashboardCover };
+                        }
+                    } else {
+                        this.state.dashboardCover = { ...defaultState.dashboardCover };
+                    }
+                    if (data.routineBanner) {
+                        if (typeof data.routineBanner === 'string') {
+                            this.state.routineBanner = { ...defaultState.routineBanner, image: data.routineBanner };
+                        } else {
+                            this.state.routineBanner = { ...defaultState.routineBanner, ...data.routineBanner };
+                        }
+                    } else {
+                        this.state.routineBanner = { ...defaultState.routineBanner };
+                    }
+                    if (data.profilePhoto) {
+                        if (typeof data.profilePhoto === 'string') {
+                            this.state.profilePhoto = { ...defaultState.profilePhoto, url: data.profilePhoto };
+                        } else {
+                            this.state.profilePhoto = { ...defaultState.profilePhoto, ...data.profilePhoto };
+                        }
+                    } else {
+                        this.state.profilePhoto = { ...defaultState.profilePhoto };
+                    }
+                    if (data.dietPanelCovers && typeof data.dietPanelCovers === 'object') {
+                        const defaultCovers = defaultState.dietPanelCovers || {};
+                        this.state.dietPanelCovers = {};
+                        Object.keys(defaultCovers).forEach((key) => {
+                            const coverData = data.dietPanelCovers[key] || {};
+                            this.state.dietPanelCovers[key] = { ...defaultCovers[key], ...coverData };
+                            if (this.state.dietPanelCovers[key].url) {
+                                this.preloadImage(this.state.dietPanelCovers[key].url, { priority: 'high' });
+                            }
+                        });
+                    } else {
+                        this.state.dietPanelCovers = { ...defaultState.dietPanelCovers };
+                    }
+                    this.state.followUp360 = this._normalizeFollowUpSnapshot(data.followUp360 || data.followUp || this.state.followUp360);
+                    this.state.gamification = this.normalizeGamificationState(data.gamification || {});
+                    if (this.state.profilePhoto?.url) {
+                        this.preloadImage(this.state.profilePhoto.url, { priority: 'high' });
+                    }
+                    if (this.state.routineBanner?.image) {
+                        this.preloadImage(this.state.routineBanner.image, { priority: 'high' });
+                    }
+                    // Compatibilidad hacia atrás para la estructura de dieta
+                    if (data.dailyDiet && !Array.isArray(data.dailyDiet)) {
+                        this.state.dailyDiet = defaultState.dailyDiet;
+                    }
+                    if (data.workoutHistory) {
+                        const normalizedHistory = {};
+                        Object.entries(data.workoutHistory).forEach(([dateKey, value]) => {
+                            if (Array.isArray(value)) {
+                                const normalizedArray = value.map(entry => this._normalizeWorkoutEntry(entry, dateKey));
+                                normalizedHistory[dateKey] = normalizedArray.sort((a, b) => new Date(a.completedAt || 0) - new Date(b.completedAt || 0));
+                            } else if (value && typeof value === 'object') {
+                                normalizedHistory[dateKey] = [this._normalizeWorkoutEntry(value, dateKey)];
+                            }
+                        });
+                        this.state.workoutHistory = normalizedHistory;
+                    }
+                    this.state.community = { ...defaultState.community };
+                    this.state.isCommunityLoading = false;
+                    if (this.state.role === 'asesor') {
+                        this.state.role = this.auth.currentUser.uid === this.adminUID ? 'admin' : 'entrenador';
+                    }
+                } else {
+                    this.state = defaultState;
+                    this.state.currentUser = this.auth.currentUser;
+                    this.state.userName = this.auth.currentUser.displayName || "Nuevo Usuario";
+                    this.state.role = this.auth.currentUser.uid === this.adminUID ? 'admin' : 'asesorado';
+                    await this.saveDataToFirestore();
+                }
+            } catch (error) {
+                console.error("Error loading data from Firestore: ", error);
+                this.showToast("Error al cargar datos.", "error");
+            }
+        },
+
+        async loadAndMergeFoodData() {
+            const baseFoods = Object.entries(this.data.foodDatabase).flatMap(([category, items]) =>
+                items.map(item => ({ ...item, category, source: 'predefined' }))
+            );
+
+            let overrides = {};
+            if (this.db) {
+                try {
+                    const overridesDoc = await getDoc(doc(this.db, 'app_data', 'food_overrides'));
+                    if (overridesDoc.exists()) {
+                        const data = overridesDoc.data() || {};
+                        overrides = data.overrides || data;
+                    }
+                } catch (error) {
+                    console.error('Error fetching food overrides:', error);
+                }
+            }
+
+            this.data.foodOverrides = overrides;
+
+            const mergedPredefined = baseFoods.reduce((acc, item) => {
+                const override = overrides?.[item.id] || overrides?.[String(item.id)];
+                if (override?.hidden) {
+                    return acc;
+                }
+                const merged = { ...item, ...(override || {}) };
+                if (!merged.category && item.category) {
+                    merged.category = item.category;
+                }
+                merged.id = item.id;
+                merged.source = 'predefined';
+                acc.push(merged);
+                return acc;
+            }, []);
+
+            let customFoods = [];
+            if (this.isAsesor()) {
+                try {
+                    const q = query(collection(this.db, 'users', this.state.currentUser.uid, 'customFoods'));
+                    const querySnapshot = await getDocs(q);
+                    customFoods = querySnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data(), source: 'custom', category: 'Mis Alimentos' }));
+                } catch (error) {
+                    console.error('Error fetching custom foods:', error);
+                }
+            }
+
+            this.data.foodLibrary = [...mergedPredefined, ...customFoods];
+        },
+
+        async loadExerciseLibraryFromFirestore() {
+            const docRef = doc(this.db, "app_data", "exercise_library");
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    this.data.exerciseLibrary = docSnap.data();
+                } else {
+                    console.log("No exercise library found in DB, seeding initial data...");
+                    if (this.state.currentUser && this.state.currentUser.uid === this.adminUID) {
+                        await setDoc(docRef, this.data.exerciseLibrary);
+                    }
+                }
+            } catch (error) {
+                console.error("Error loading exercise library: ", error);
+                this.showToast("Error al cargar ejercicios.", "error");
+            }
+        },
+
+        async loadExerciseGroupImagesFromFirestore() {
+            const docRef = doc(this.db, "app_data", "exercise_group_images");
+            try {
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    this.data.exerciseGroupImages = {
+                        ...this.data.exerciseGroupImages,
+                        ...docSnap.data()
+                    };
+                    this.preloadExerciseGroupImages();
+                } else if (this.state.currentUser && this.state.currentUser.uid === this.adminUID) {
+                    await setDoc(docRef, this.data.exerciseGroupImages);
+                }
+            } catch (error) {
+                console.error("Error loading exercise group images: ", error);
+            }
+        },
+
+        async loadCommunityData(showSuccessToast = false) {
+            if (!this.db) {
+                return;
+            }
+
+            const previousActive = this.state?.community?.activeLeaderboard || 'volume';
+            this.state.isCommunityLoading = true;
+            this.renderCommunitySection();
+
+            try {
+                const usersSnapshot = await getDocs(collection(this.db, "users"));
+                const now = new Date();
+                now.setHours(0, 0, 0, 0);
+                const dayMs = 86_400_000;
+                const thirtyDaysAgo = new Date(now.getTime() - 29 * dayMs);
+                const lastSevenStart = new Date(now.getTime() - 6 * dayMs);
+                const previousSevenStart = new Date(now.getTime() - 13 * dayMs);
+
+                const intl = new Intl.NumberFormat('es-ES');
+                const normalizeDateValue = (value, fallbackDate) => {
+                    if (!value) {
+                        return new Date(`${fallbackDate}T00:00:00`);
+                    }
+                    if (value instanceof Date) {
+                        return value;
+                    }
+                    if (typeof value === 'object') {
+                        if (typeof value.toDate === 'function') {
+                            return value.toDate();
+                        }
+                        if (typeof value.seconds === 'number') {
+                            return new Date(value.seconds * 1000);
+                        }
+                    }
+                    const parsed = new Date(value);
+                    return Number.isNaN(parsed.getTime()) ? new Date(`${fallbackDate}T00:00:00`) : parsed;
+                };
+
+                const members = [];
+
+                usersSnapshot.forEach(userDoc => {
+                    const data = userDoc.data() || {};
+                    const name = data.userName || 'Atleta';
+                    const history = data.workoutHistory || {};
+                    const normalizedEntries = [];
+
+                    Object.entries(history).forEach(([dateKey, record]) => {
+                        if (!record) {
+                            return;
+                        }
+                        const pushEntry = (entry) => {
+                            if (!entry) return;
+                            const normalized = this._normalizeWorkoutEntry({
+                                ...entry,
+                                completedAt: entry?.completedAt ? normalizeDateValue(entry.completedAt, dateKey).toISOString() : entry?.completedAt
+                            }, dateKey);
+                            const parsedDate = normalizeDateValue(normalized.completedAt, dateKey);
+                            normalizedEntries.push({ ...normalized, parsedDate });
+                        };
+
+                        if (Array.isArray(record)) {
+                            record.forEach(item => pushEntry(item));
+                        } else if (typeof record === 'object') {
+                            pushEntry(record);
+                        }
+                    });
+
+                    normalizedEntries.sort((a, b) => a.parsedDate - b.parsedDate);
+
+                    const last30Entries = normalizedEntries.filter(entry => entry.parsedDate >= thirtyDaysAgo);
+                    const weeklyEntries = normalizedEntries.filter(entry => entry.parsedDate >= lastSevenStart);
+                    const previousWeeklyEntries = normalizedEntries.filter(entry => entry.parsedDate >= previousSevenStart && entry.parsedDate < lastSevenStart);
+
+                    const toDateKey = (entry) => entry.date || entry.parsedDate.toISOString().split('T')[0];
+                    const trainingDaysSet = new Set(last30Entries.map(toDateKey));
+                    const allDaysSet = new Set(normalizedEntries.map(toDateKey));
+
+                    const entryVolume = (entry) => typeof entry.totalVolume === 'number'
+                        ? entry.totalVolume
+                        : (Array.isArray(entry.exerciseDetails)
+                            ? entry.exerciseDetails.reduce((sum, ex) => sum + (ex.volume || 0), 0)
+                            : 0);
+
+                    const totalVolume30 = last30Entries.reduce((sum, entry) => sum + entryVolume(entry), 0);
+                    const weeklyVolume = weeklyEntries.reduce((sum, entry) => sum + entryVolume(entry), 0);
+                    const previousWeeklyVolume = previousWeeklyEntries.reduce((sum, entry) => sum + entryVolume(entry), 0);
+                    const volumeTrend = weeklyVolume - previousWeeklyVolume;
+
+                    let bestLiftWeight = 0;
+                    let bestLiftName = '';
+                    normalizedEntries.forEach(entry => {
+                        if (!Array.isArray(entry.exerciseDetails)) {
+                            return;
+                        }
+                        entry.exerciseDetails.forEach(detail => {
+                            const weight = typeof detail.bestWeight === 'number' ? detail.bestWeight : 0;
+                            if (weight > bestLiftWeight) {
+                                bestLiftWeight = weight;
+                                bestLiftName = detail.name || '';
+                            }
+                        });
+                    });
+
+                    let latestWorkout = null;
+                    if (normalizedEntries.length > 0) {
+                        const entry = normalizedEntries[normalizedEntries.length - 1];
+                        latestWorkout = {
+                            date: entry.parsedDate,
+                            routineName: entry.routineName,
+                            totalVolume: entryVolume(entry),
+                            totalDuration: entry.totalDuration || 0
+                        };
+                    }
+
+                    const weightLog = Array.isArray(data.weightLog)
+                        ? data.weightLog
+                            .filter(item => item && item.date && typeof item.weight === 'number')
+                            .map(item => ({ ...item, parsedDate: normalizeDateValue(item.date, item.date) }))
+                            .sort((a, b) => a.parsedDate - b.parsedDate)
+                        : [];
+
+                    const weightDelta = weightLog.length > 1
+                        ? weightLog[weightLog.length - 1].weight - weightLog[0].weight
+                        : 0;
+
+                    const weightLabel = weightLog.length > 1
+                        ? `${weightDelta > 0 ? '+' : ''}${weightDelta.toFixed(1)} kg desde ${weightLog[0].parsedDate.toLocaleDateString('es-ES')}`
+                        : 'Registra tu peso para medir cambios';
+
+                    let streak = 0;
+                    if (allDaysSet.size > 0) {
+                        const cursor = new Date(now);
+                        while (cursor >= thirtyDaysAgo) {
+                            const key = cursor.toISOString().split('T')[0];
+                            if (allDaysSet.has(key)) {
+                                streak += 1;
+                                cursor.setDate(cursor.getDate() - 1);
+                            } else {
+                                break;
+                            }
+                        }
+                    }
+
+                    const volumeTrendLabel = (weeklyVolume === 0 && previousWeeklyVolume === 0)
+                        ? 'Sin cargas registradas esta semana'
+                        : (previousWeeklyVolume === 0 && weeklyVolume > 0)
+                            ? 'Nuevo pico semanal'
+                            : `${volumeTrend >= 0 ? '+' : ''}${intl.format(Math.round(volumeTrend))} kg vs semana pasada`;
+
+                    const progressLabelParts = [];
+                    if (weeklyVolume > 0) {
+                        progressLabelParts.push(previousWeeklyVolume > 0
+                            ? `${volumeTrend >= 0 ? '+' : ''}${intl.format(Math.round(volumeTrend))} kg semana a semana`
+                            : 'Primer registro semanal');
+                    }
+                    if (weightLog.length > 1) {
+                        progressLabelParts.push(`${weightDelta > 0 ? '+' : ''}${weightDelta.toFixed(1)} kg totales`);
+                    }
+                    const progressLabel = progressLabelParts.length > 0
+                        ? progressLabelParts.join(' · ')
+                        : 'Suma actividad para ver tu progreso';
+
+                    const progressScore = Math.max(0, previousWeeklyVolume > 0
+                        ? (volumeTrend / previousWeeklyVolume) * 100
+                        : (weeklyVolume > 0 ? 75 : 0))
+                        + (weightDelta < 0
+                            ? Math.min(100, Math.abs(weightDelta) * 15)
+                            : weightDelta > 0
+                                ? Math.min(100, weightDelta * 10)
+                                : 0);
+
+                    const initials = name
+                        .split(/\s+/)
+                        .filter(Boolean)
+                        .map(word => word[0])
+                        .join('')
+                        .slice(0, 2)
+                        .toUpperCase() || name.charAt(0).toUpperCase();
+
+                    members.push({
+                        id: userDoc.id,
+                        name,
+                        initials,
+                        totalVolume30,
+                        weeklyVolume,
+                        previousWeeklyVolume,
+                        volumeTrend,
+                        volumeTrendLabel,
+                        trainingDays30: trainingDaysSet.size,
+                        sessionCount30: last30Entries.length,
+                        streak,
+                        bestLiftWeight,
+                        bestLiftName,
+                        latestWorkout,
+                        weightDelta,
+                        weightLabel,
+                        progressScore,
+                        progressLabel
+                    });
+                });
+
+                const stats = {
+                    totalAthletes: usersSnapshot.size,
+                    totalVolume: members.reduce((sum, member) => sum + member.totalVolume30, 0),
+                    totalSessions: members.reduce((sum, member) => sum + member.sessionCount30, 0)
+                };
+
+                const formatKg = (value) => `${intl.format(Math.round(value))} kg`;
+                const formatDays = (value) => `${value} día${value === 1 ? '' : 's'}`;
+
+                const mapLeaderboardEntry = (member, index, formattedValue, subLabel, trendLabel) => ({
+                    rank: index + 1,
+                    id: member.id,
+                    name: member.name,
+                    initials: member.initials,
+                    formattedValue,
+                    subLabel,
+                    trendLabel,
+                    streak: member.streak,
+                    progressScore: Math.round(member.progressScore),
+                    progressLabel: member.progressLabel,
+                    weightLabel: member.weightLabel,
+                    bestLiftLabel: member.bestLiftWeight > 0 ? `${member.bestLiftWeight.toFixed(0)} kg en ${member.bestLiftName}` : 'Registra tu 1RM'
+                });
+
+                const volumeLeaderboard = members
+                    .filter(member => member.totalVolume30 > 0)
+                    .sort((a, b) => b.totalVolume30 - a.totalVolume30)
+                    .slice(0, 5)
+                    .map((member, index) => mapLeaderboardEntry(
+                        member,
+                        index,
+                        formatKg(member.totalVolume30),
+                        `${formatDays(member.trainingDays30)} activos`,
+                        member.volumeTrendLabel
+                    ));
+
+                const sessionsLeaderboard = members
+                    .filter(member => member.trainingDays30 > 0)
+                    .sort((a, b) => (b.trainingDays30 === a.trainingDays30)
+                        ? b.streak - a.streak
+                        : b.trainingDays30 - a.trainingDays30)
+                    .slice(0, 5)
+                    .map((member, index) => mapLeaderboardEntry(
+                        member,
+                        index,
+                        formatDays(member.trainingDays30),
+                        `${member.sessionCount30} sesiones registradas`,
+                        member.streak > 0 ? `${member.streak} días de racha` : 'Sin racha activa'
+                    ));
+
+                const progressLeaderboard = members
+                    .filter(member => member.progressScore > 0)
+                    .sort((a, b) => b.progressScore - a.progressScore)
+                    .slice(0, 5)
+                    .map((member, index) => mapLeaderboardEntry(
+                        member,
+                        index,
+                        `${Math.round(member.progressScore)} pts`,
+                        member.progressLabel,
+                        member.weightLabel
+                    ));
+
+                const podium = volumeLeaderboard.slice(0, 3);
+
+                const bestLiftChampion = members.reduce((best, current) => {
+                    if (!best || current.bestLiftWeight > best.bestLiftWeight) {
+                        return current;
+                    }
+                    return best;
+                }, null);
+
+                const spotlight = bestLiftChampion && bestLiftChampion.bestLiftWeight > 0
+                    ? {
+                        name: bestLiftChampion.name,
+                        metric: `${bestLiftChampion.bestLiftWeight.toFixed(0)} kg`,
+                        description: bestLiftChampion.bestLiftName ? `Nuevo récord en ${bestLiftChampion.bestLiftName}` : 'Nuevo récord personal',
+                        detail: bestLiftChampion.volumeTrendLabel,
+                        streak: bestLiftChampion.streak
+                    }
+                    : null;
+
+                const highlights = [];
+                if (volumeLeaderboard[0]) {
+                    highlights.push({
+                        id: 'volume',
+                        title: `${volumeLeaderboard[0].name} domina la carga`,
+                        badge: 'Carga total',
+                        metric: volumeLeaderboard[0].formattedValue,
+                        detail: volumeLeaderboard[0].trendLabel
+                    });
+                }
+                if (sessionsLeaderboard[0]) {
+                    highlights.push({
+                        id: 'sessions',
+                        title: `${sessionsLeaderboard[0].name} lidera la constancia`,
+                        badge: 'Días activos',
+                        metric: sessionsLeaderboard[0].formattedValue,
+                        detail: sessionsLeaderboard[0].trendLabel
+                    });
+                }
+                if (progressLeaderboard[0]) {
+                    highlights.push({
+                        id: 'progress',
+                        title: `${progressLeaderboard[0].name} es tendencia`,
+                        badge: 'Progreso',
+                        metric: progressLeaderboard[0].formattedValue,
+                        detail: progressLeaderboard[0].subLabel
+                    });
+                }
+
+                const feed = members
+                    .filter(member => member.latestWorkout)
+                    .sort((a, b) => b.latestWorkout.date - a.latestWorkout.date)
+                    .slice(0, 6)
+                    .map(member => ({
+                        name: member.name,
+                        initials: member.initials,
+                        routineName: member.latestWorkout.routineName || 'Sesión libre',
+                        completedAt: member.latestWorkout.date.toISOString(),
+                        volume: member.latestWorkout.totalVolume,
+                        duration: member.latestWorkout.totalDuration,
+                        highlight: member.volumeTrendLabel
+                    }));
+
+                const streakLeader = sessionsLeaderboard[0];
+                const progressLeader = progressLeaderboard[0];
+
+                const challenges = [
+                    {
+                        id: 'streak',
+                        title: 'Reto 21 días sin excusas',
+                        description: 'Encadena entrenamientos diarios sin romper la racha.',
+                        progress: Math.min(100, streakLeader ? (streakLeader.streak / 21) * 100 : 0),
+                        status: streakLeader ? `${streakLeader.name} lleva ${streakLeader.streak} días seguidos` : 'Aún no hay una racha destacada.',
+                        icon: 'flame'
+                    },
+                    {
+                        id: 'volume',
+                        title: 'Power Team 50K',
+                        description: 'Alcancen 50.000 kg totales registrados en el mes.',
+                        progress: Math.min(100, stats.totalVolume > 0 ? (stats.totalVolume / 50_000) * 100 : 0),
+                        status: `${this.formatNumberCompact(stats.totalVolume)} / 50k kg acumulados`,
+                        icon: 'dumbbell'
+                    },
+                    {
+                        id: 'progress',
+                        title: 'Transformación del mes',
+                        description: 'Reconoce a quien más evoluciona semana a semana.',
+                        progress: Math.min(100, progressLeader ? progressLeader.progressScore : 0),
+                        status: progressLeader ? `${progressLeader.name}: ${progressLeader.subLabel}` : 'Registra tus métricas para entrar al ranking.',
+                        icon: 'sparkles'
+                    }
+                ];
+
+                const leaderboards = { volume: volumeLeaderboard, sessions: sessionsLeaderboard, progress: progressLeaderboard };
+                let resolvedActive = previousActive;
+                if (!leaderboards[resolvedActive] || leaderboards[resolvedActive].length === 0) {
+                    const fallback = Object.entries(leaderboards).find(([, list]) => list.length > 0);
+                    resolvedActive = fallback ? fallback[0] : 'volume';
+                }
+
+                this.state.community = {
+                    ...this.state.community,
+                    stats,
+                    leaderboards,
+                    highlights,
+                    feed,
+                    challenges,
+                    podium,
+                    spotlight,
+                    activeLeaderboard: resolvedActive,
+                    lastUpdated: new Date().toISOString(),
+                    isEmpty: members.length === 0
+                };
+                this.state.isCommunityLoading = false;
+                this.renderCommunitySection();
+
+                if (showSuccessToast) {
+                    this.showToast('Ranking actualizado');
+                }
+            } catch (error) {
+                console.error('Error loading community data: ', error);
+                this.state.isCommunityLoading = false;
+                this.renderCommunitySection();
+                this.showToast('No se pudo cargar el ranking comunitario.', 'error');
+            }
+        },
+
+        switchCommunityLeaderboard(leaderboardId) {
+            if (!leaderboardId || !this.state?.community?.leaderboards) {
+                return;
+            }
+            if (!this.state.community.leaderboards[leaderboardId] || this.state.community.leaderboards[leaderboardId].length === 0) {
+                return;
+            }
+            this.state.community.activeLeaderboard = leaderboardId;
+            this.renderCommunitySection();
+        },
+
+        async refreshCommunityData() {
+            await this.loadCommunityData(true);
+        },
+
+        setupAuthListeners() {
+            onAuthStateChanged(this.auth, async (user) => {
+                if (user) {
+                    this.state.currentUser = user;
+                    await this.loadDataFromFirestore();
+                    this.showAppUI();
+                    await this.initAppLogic();
+                } else {
+                    this.closeUserMenu(true);
+                    this.state = this.getDefaultState();
+                    this.showAuthUI();
+                }
+            });
+
+            document.getElementById('login-form').addEventListener('submit', (e) => this.handleLogin(e));
+            document.getElementById('register-form').addEventListener('submit', (e) => this.handleRegister(e));
+            document.querySelectorAll('[data-action="toggle-auth"]').forEach(btn => {
+                btn.addEventListener('click', (event) => {
+                    const target = event.currentTarget.dataset.authTarget || null;
+                    this.toggleAuthForms(target);
+                });
+            });
+            this.setActiveAuthRole('admin');
+        },
+
+        async handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const button = e.target.querySelector('button[type="submit"]');
+            this.setButtonLoading(button, true);
+            this.showLaunchScreen();
+            try {
+                await signInWithEmailAndPassword(this.auth, email, password);
+            } catch (error) {
+                this.hideLaunchScreen();
+                this.showToast(this.getFirebaseAuthErrorMessage(error), 'error');
+            } finally {
+                this.setButtonLoading(button, false);
+            }
+        },
+
+        async handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value.toLowerCase();
+            const password = document.getElementById('register-password').value;
+            const selectedRole = document.getElementById('register-role')?.value || 'asesorado';
+            const button = e.target.querySelector('button[type=\"submit\"]');
+            this.setButtonLoading(button, true);
+            this.showLaunchScreen();
+
+            try {
+                if (selectedRole === 'admin') {
+                    this.hideLaunchScreen();
+                    this.showToast('El registro de administradores se gestiona internamente.', 'error');
+                    throw new Error('Admin self-registration not allowed');
+                }
+
+                const invitationsRef = collection(this.db, "invitations");
+                let invitationDoc = null;
+
+                if (selectedRole === 'entrenador') {
+                    const coachInvites = await getDocs(query(invitationsRef, where('role', '==', 'entrenador'), where('email', '==', email), where('status', '==', 'pending')));
+                    if (!coachInvites.empty) {
+                        invitationDoc = coachInvites.docs[0];
+                    }
+                } else {
+                    let clientInvites = await getDocs(query(invitationsRef, where('role', '==', 'asesorado'), where('email', '==', email), where('status', '==', 'pending')));
+                    if (clientInvites.empty) {
+                        clientInvites = await getDocs(query(invitationsRef, where('clientEmail', '==', email), where('status', '==', 'pending')));
+                    }
+                    if (!clientInvites.empty) {
+                        invitationDoc = clientInvites.docs[0];
+                    }
+                }
+
+                if (!invitationDoc) {
+                    this.hideLaunchScreen();
+                    this.showToast('Necesitas una invitación válida para registrarte.', 'error');
+                    throw new Error('Missing invitation');
+                }
+
+                const invitationData = invitationDoc.data();
+                const role = invitationData.role || selectedRole;
+                const coachId = role === 'asesorado' ? (invitationData.coachId || null) : null;
+                const invitationDocId = invitationDoc.id;
+
+                const userCredential = await createUserWithEmailAndPassword(this.auth, email, password);
+                const user = userCredential.user;
+
+                const userRef = doc(this.db, "users", user.uid);
+                const initialData = this.getDefaultState();
+                initialData.userName = name;
+                initialData.role = role;
+                initialData.coachId = coachId;
+                initialData.targetWeight = initialData.physicalStats.weight;
+                initialData.email = email;
+                delete initialData.currentUser;
+                delete initialData.asesorados;
+                await setDoc(userRef, initialData);
+
+                const invitationRef = doc(this.db, "invitations", invitationDocId);
+                await updateDoc(invitationRef, { status: 'accepted', acceptedAt: new Date(), clientId: user.uid });
+
+                if (role === 'entrenador') {
+                    this.showToast('Acceso de entrenador activado.', 'success');
+                } else {
+                    this.showToast('¡Bienvenido! Has aceptado una invitación.', 'success');
+                }
+
+            } catch (error) {
+                this.hideLaunchScreen();
+                if (error.message !== 'Missing invitation' && error.message !== 'Admin self-registration not allowed') {
+                    this.showToast(this.getFirebaseAuthErrorMessage(error), 'error');
+                }
+                console.error("Registration error:", error);
+            } finally {
+                this.setButtonLoading(button, false);
+            }
+        },
+
+        async handleSignOut() {
+            if (!this.auth) {
+                return;
+            }
+            this.closeUserMenu(true);
+            this.showLaunchScreen();
+            try {
+                await signOut(this.auth);
+                this.showToast('Sesión cerrada correctamente.', 'success');
+            } catch (error) {
+                console.error('Error signing out:', error);
+                this.showToast('No se pudo cerrar sesión. Inténtalo de nuevo.', 'error');
+                this.hideLaunchScreen();
+            }
+        },
+
+        setActiveAuthRole(role) {
+            const normalizedRole = ['admin', 'entrenador', 'asesorado'].includes(role) ? role : 'asesorado';
+            const loginRoleInput = document.getElementById('login-role');
+            const registerRoleInput = document.getElementById('register-role');
+            if (loginRoleInput) loginRoleInput.value = normalizedRole;
+            if (registerRoleInput) registerRoleInput.value = normalizedRole;
+
+            const tabs = document.querySelectorAll('.auth-role-tab');
+            tabs.forEach(tab => {
+                const isActive = tab.dataset.roleTarget === normalizedRole;
+                if (isActive) {
+                    tab.classList.add('bg-emerald-500/20', 'text-white');
+                    tab.classList.remove('text-gray-300');
+                } else {
+                    tab.classList.remove('bg-emerald-500/20', 'text-white');
+                    tab.classList.add('text-gray-300');
+                }
+            });
+
+            const contentMap = {
+                admin: {
+                    loginTitle: 'Panel Administrador',
+                    loginSubtitle: 'Administra roles, librerías oficiales y activos globales.',
+                    registerTitle: 'Acceso interno',
+                    registerSubtitle: 'Solicita tu usuario al responsable principal de la plataforma.'
+                },
+                entrenador: {
+                    loginTitle: 'Ingreso de entrenador',
+                    loginSubtitle: 'Gestiona clientes, rutinas y planes diarios desde un mismo panel.',
+                    registerTitle: 'Activa tu panel de entrenador',
+                    registerSubtitle: 'Utiliza el enlace enviado por el administrador para completar tu registro.'
+                },
+                asesorado: {
+                    loginTitle: 'Tu progreso personalizado',
+                    loginSubtitle: 'Accede a tus rutinas, seguimiento y checklist diario.',
+                    registerTitle: 'Conéctate con tu entrenador',
+                    registerSubtitle: 'Ingresa con el enlace privado que recibiste para sincronizar tu plan.'
+                }
+            };
+
+            const copy = contentMap[normalizedRole] || contentMap.asesorado;
+            const loginTitleEl = document.getElementById('login-role-title');
+            const loginSubtitleEl = document.getElementById('login-role-subtitle');
+            const registerTitleEl = document.getElementById('register-role-title');
+            const registerSubtitleEl = document.getElementById('register-role-subtitle');
+
+            if (loginTitleEl) loginTitleEl.textContent = copy.loginTitle;
+            if (loginSubtitleEl) loginSubtitleEl.textContent = copy.loginSubtitle;
+            if (registerTitleEl) registerTitleEl.textContent = copy.registerTitle;
+            if (registerSubtitleEl) registerSubtitleEl.textContent = copy.registerSubtitle;
+        },
+
+        showAppUI() {
+            this.hideLaunchScreen();
+            document.getElementById('auth-container').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('hidden');
+        },
+        showAuthUI() {
+            this.hideLaunchScreen();
+            document.getElementById('app-container').classList.add('hidden');
+            document.getElementById('auth-container').classList.remove('hidden');
+            document.getElementById('sections-wrapper').innerHTML = '';
+            const loginContainer = document.getElementById('login-form-container');
+            const registerContainer = document.getElementById('register-form-container');
+            if (loginContainer && registerContainer) {
+                loginContainer.classList.add('form-visible');
+                loginContainer.classList.remove('form-hidden');
+                registerContainer.classList.add('form-hidden');
+                registerContainer.classList.remove('form-visible');
+            }
+            this.updateAuthTabState('login');
+        },
+        showLaunchScreen() {
+            const launch = document.getElementById('launch-screen');
+            const authContainer = document.getElementById('auth-container');
+            const appContainer = document.getElementById('app-container');
+            if (launch) {
+                launch.classList.remove('hidden');
+            }
+            if (authContainer) {
+                authContainer.classList.add('hidden');
+            }
+            if (appContainer) {
+                appContainer.classList.add('hidden');
+            }
+        },
+        hideLaunchScreen() {
+            const launch = document.getElementById('launch-screen');
+            if (launch) {
+                launch.classList.add('hidden');
+            }
+        },
+        toggleAuthForms(target) {
+            const loginContainer = document.getElementById('login-form-container');
+            const registerContainer = document.getElementById('register-form-container');
+
+            if (!loginContainer || !registerContainer) return;
+
+            const isLoginVisible = loginContainer.classList.contains('form-visible');
+            let showLogin;
+
+            if (target === 'login') {
+                showLogin = true;
+            } else if (target === 'register') {
+                showLogin = false;
+            } else {
+                showLogin = !isLoginVisible;
+            }
+
+            if (showLogin) {
+                loginContainer.classList.add('form-visible');
+                loginContainer.classList.remove('form-hidden');
+                registerContainer.classList.add('form-hidden');
+                registerContainer.classList.remove('form-visible');
+            } else {
+                loginContainer.classList.add('form-hidden');
+                loginContainer.classList.remove('form-visible');
+                registerContainer.classList.add('form-visible');
+                registerContainer.classList.remove('form-hidden');
+            }
+
+            this.updateAuthTabState(showLogin ? 'login' : 'register');
+        },
+        updateAuthTabState(activeTarget) {
+            document.querySelectorAll('[data-auth-target]').forEach(tab => {
+                const isActive = tab.dataset.authTarget === activeTarget;
+                tab.classList.toggle('bg-emerald-500/20', isActive);
+                tab.classList.toggle('text-white', isActive);
+                tab.classList.toggle('shadow-[0_12px_25px_-20px_rgba(16,185,129,0.65)]', isActive);
+                tab.classList.toggle('text-gray-300', !isActive);
+            });
+        },
+        setButtonLoading(button, isLoading) { if (isLoading) { button.disabled = true; button.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`; lucide.createIcons(); } else { button.disabled = false; button.innerHTML = `<span>${button.closest('form').id === 'login-form' ? 'Iniciar Sesión' : 'Crear Cuenta'}</span>`; } },
+        updateUserInfoUI() {
+            const name = (this.state.userName || 'Usuario').trim() || 'Usuario';
+            const firstName = name.split(' ')[0] || name;
+            const welcome = document.getElementById('welcome-message');
+            if (welcome) {
+                welcome.textContent = `Hola, ${firstName}`;
+            }
+
+            const avatarContainer = document.getElementById('user-avatar');
+            if (avatarContainer) {
+                this.applyProfilePhotoToAvatar(avatarContainer, { priority: 'high', loading: 'eager' });
+                if (!this.state.profilePhoto?.url) {
+                    const span = avatarContainer.querySelector('span');
+                    if (span) {
+                        span.textContent = firstName.charAt(0).toUpperCase();
+                    }
+                }
+            }
+
+            const menuAvatarContainer = document.getElementById('user-menu-avatar');
+            if (menuAvatarContainer) {
+                this.applyProfilePhotoToAvatar(menuAvatarContainer, { priority: 'auto', loading: 'lazy' });
+                if (!this.state.profilePhoto?.url) {
+                    const span = menuAvatarContainer.querySelector('span');
+                    if (span) {
+                        span.textContent = firstName.charAt(0).toUpperCase();
+                    }
+                }
+            }
+
+            const menuName = document.getElementById('user-menu-name');
+            if (menuName) {
+                menuName.textContent = name;
+            }
+
+            const menuRole = document.getElementById('user-menu-role');
+            if (menuRole) {
+                menuRole.textContent = this.getRoleDisplayLabel();
+            }
+
+            this.updateHeaderInsights();
+        },
+        applyProfilePhotoToAvatar(element, options = {}) {
+            if (!element) return;
+            const photoUrl = this.state?.profilePhoto?.url || '';
+            const span = element.querySelector('span');
+            const img = element.querySelector('img');
+            const initial = (this.state?.userName || 'U').charAt(0).toUpperCase();
+            const currentUrl = element.dataset.currentPhotoUrl || '';
+            const { priority = 'auto', loading = 'lazy' } = options;
+
+            if (photoUrl) {
+                if (currentUrl === photoUrl && element.classList.contains('has-photo')) {
+                    return;
+                }
+
+                element.classList.add('loading-shimmer');
+                this.preloadImage(photoUrl, { priority }).then((success) => {
+                    element.classList.remove('loading-shimmer');
+                    if (success) {
+                        element.dataset.currentPhotoUrl = photoUrl;
+                        element.classList.add('has-photo');
+                        element.style.backgroundImage = '';
+                        if (img) {
+                            try {
+                                if ('fetchPriority' in img) {
+                                    img.fetchPriority = priority;
+                                }
+                            } catch (error) {
+                                /* noop */
+                            }
+                            img.loading = loading;
+                            img.decoding = 'async';
+                            if (img.src !== photoUrl) {
+                                img.src = photoUrl;
+                            }
+                        } else {
+                            element.style.backgroundImage = `url('${photoUrl}')`;
+                        }
+                        if (span) {
+                            span.textContent = '';
+                        }
+                    } else if (!currentUrl) {
+                        element.dataset.currentPhotoUrl = '';
+                        element.classList.remove('has-photo');
+                        element.style.backgroundImage = '';
+                        if (img) {
+                            img.removeAttribute('src');
+                        }
+                        if (span) {
+                            span.textContent = initial;
+                        }
+                    }
+                });
+            } else {
+                element.dataset.currentPhotoUrl = '';
+                element.classList.remove('loading-shimmer');
+                element.classList.remove('has-photo');
+                element.style.backgroundImage = '';
+                if (img) {
+                    img.removeAttribute('src');
+                }
+                if (span) {
+                    span.textContent = initial;
+                }
+            }
+        },
+        openUserMenu() {
+            const menu = document.getElementById('user-menu-card');
+            const trigger = document.getElementById('user-avatar');
+            if (!menu || !trigger) {
+                this.state.isUserMenuOpen = false;
+                return;
+            }
+            menu.setAttribute('data-open', 'true');
+            menu.setAttribute('aria-hidden', 'false');
+            trigger.setAttribute('aria-expanded', 'true');
+            this.state.isUserMenuOpen = true;
+        },
+        closeUserMenu(force = false) {
+            const menu = document.getElementById('user-menu-card');
+            const trigger = document.getElementById('user-avatar');
+            if (!menu || !trigger) {
+                this.state.isUserMenuOpen = false;
+                return;
+            }
+            if (!force && !this.state?.isUserMenuOpen) {
+                return;
+            }
+            menu.setAttribute('data-open', 'false');
+            menu.setAttribute('aria-hidden', 'true');
+            trigger.setAttribute('aria-expanded', 'false');
+            this.state.isUserMenuOpen = false;
+        },
+        toggleUserMenu(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            if (this.state?.isUserMenuOpen) {
+                this.closeUserMenu();
+            } else {
+                this.openUserMenu();
+            }
+        },
+        updateHeaderInsights() {
+            const metrics = this._getWeightProgressMetrics();
+            if (!metrics) {
+                return;
+            }
+            const setText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = value;
+                }
+            };
+
+            const goalLabel = metrics.goalWeightLabel && metrics.goalWeightLabel !== '--'
+                ? `${metrics.goalWeightLabel} kg`
+                : '--';
+            setText('header-goal-label', goalLabel);
+            setText('header-direction-label', metrics.directionLabel || 'Objetivo activo');
+            setText('header-direction-description', metrics.directionDescription || 'Define tu foco actual');
+
+            const progressLabel = `${Math.max(0, Math.round(metrics.progressPercent || 0))}%`;
+            setText('header-progress-label', progressLabel);
+            const progressBar = document.getElementById('header-progress-bar');
+            if (progressBar) {
+                const width = Math.max(0, Math.min(metrics.progressPercent || 0, 110));
+                progressBar.style.width = `${width}%`;
+            }
+
+            const projection = metrics.projection || {};
+            setText('header-projection-summary', projection.summary || 'Añade registros para proyectar tu meta.');
+            setText('header-last-update', metrics.lastWeighInLabel || 'Registra tu peso para comenzar.');
+            setText('header-projection-pace', projection.paceText || 'Registra tu peso para ver el ritmo.');
+        },
+        updateNutritionAnalytics() {
+            const metrics = this._getWeightProgressMetrics();
+            if (!metrics) {
+                return;
+            }
+            const setText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = value;
+                }
+            };
+
+            const currentWeightLabel = metrics.currentWeightLabel && metrics.currentWeightLabel !== '--'
+                ? `${metrics.currentWeightLabel} kg`
+                : '--';
+            setText('calc-current-weight', currentWeightLabel);
+            setText('calc-last-update', metrics.lastWeighInLabel || 'Registra tu primer dato');
+            const goalWeightLabel = metrics.goalWeightLabel && metrics.goalWeightLabel !== '--'
+                ? `${metrics.goalWeightLabel} kg`
+                : '--';
+            setText('calc-goal-weight', goalWeightLabel);
+
+            const goalDiffEl = document.getElementById('calc-goal-diff');
+            if (goalDiffEl) {
+                goalDiffEl.textContent = metrics.goalDiffText || 'Define tu objetivo';
+                goalDiffEl.className = `text-[11px] ${metrics.goalDiffClass || 'text-emerald-100/60'}`;
+            }
+
+            const diffEl = document.getElementById('calc-diff-label');
+            if (diffEl) {
+                diffEl.textContent = metrics.diffLabel || '--';
+                diffEl.className = `text-sm font-semibold ${metrics.diffToneClass || 'text-white'}`;
+            }
+
+            setText('calc-trend-label', metrics.directionLabel || '--');
+            setText('calc-direction-label', metrics.directionDescription || 'Añade registros para ver más detalles.');
+            const trendDescriptionEl = document.getElementById('calc-trend-description');
+            if (trendDescriptionEl) {
+                trendDescriptionEl.textContent = metrics.trendLabel || 'Añade tu primer registro para visualizar la tendencia.';
+                trendDescriptionEl.className = `text-[11px] ${metrics.trendClass || 'text-gray-400'}`;
+            }
+
+            const progressBar = document.getElementById('calc-progress-bar');
+            if (progressBar) {
+                const width = Math.max(0, Math.min(metrics.progressPercent || 0, 110));
+                progressBar.style.width = `${width}%`;
+            }
+            setText('calc-progress-label', `${Math.max(0, Math.round(metrics.progressPercent || 0))}%`);
+
+            const projection = metrics.projection || {};
+            const paceText = projection.paceText || 'Registra más datos para ver el ritmo.';
+            setText('calc-projection-pace', paceText);
+            setText('calc-projection-pace-detail', paceText);
+            setText('calc-projection-summary', projection.summary || 'Añade registros de peso para proyectar tu fecha objetivo.');
+            setText('calc-projection-helper', projection.helperText || 'Define tu objetivo de peso.');
+            setText('calc-projection-date', projection.dateLabel || '--');
+            setText('calc-projection-weeks', projection.weeksLabel || '--');
+
+            const badge = document.getElementById('calc-projection-badge');
+            if (badge) {
+                const base = 'inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em]';
+                badge.className = `${base} ${projection.badgeClasses || 'border-white/10 bg-white/5 text-gray-300'}`;
+                badge.textContent = projection.badgeText || 'Sin datos';
+            }
+        },
+        updateMacroVisuals(results = {}) {
+            const calories = Number(results.calories) || 0;
+            const protein = Number(results.protein) || 0;
+            const carbs = Number(results.carbs) || 0;
+            const fats = Number(results.fats) || 0;
+            const macroCalories = {
+                protein: protein * 4,
+                carbs: carbs * 4,
+                fats: fats * 9
+            };
+            const total = macroCalories.protein + macroCalories.carbs + macroCalories.fats;
+            const getPercent = (value) => {
+                if (!total) return 0;
+                return Math.round((value / total) * 100);
+            };
+            const proteinPct = getPercent(macroCalories.protein);
+            const carbPct = getPercent(macroCalories.carbs);
+            const fatPct = Math.max(0, 100 - proteinPct - carbPct);
+
+            const setPercent = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = `${Math.max(0, value)}%`;
+                }
+            };
+            setPercent('macro-protein-percentage', proteinPct);
+            setPercent('macro-carbs-percentage', carbPct);
+            setPercent('macro-fats-percentage', fatPct);
+
+            const setBar = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const width = Math.max(0, Math.min(value, 100));
+                    el.style.width = `${width}%`;
+                }
+            };
+            setBar('macro-protein-bar', proteinPct);
+            setBar('macro-carbs-bar', carbPct);
+            setBar('macro-fats-bar', fatPct);
+
+            const energyTotal = document.getElementById('macro-energy-total');
+            if (energyTotal) {
+                energyTotal.textContent = calories ? calories.toString() : '0';
+            }
+
+            const pie = document.getElementById('macro-pie');
+            if (pie) {
+                const proteinStop = Math.max(0, Math.min(proteinPct, 100));
+                const carbStop = Math.max(proteinStop, Math.min(proteinStop + carbPct, 100));
+                pie.style.background = `conic-gradient(#38bdf8 0 ${proteinStop}%, #facc15 ${proteinStop}% ${carbStop}%, #f472b6 ${carbStop}% 100%)`;
+            }
+        },
+        updateNutritionResultsUI(results) {
+            const target = results || this._tempResults || this.state.userGoals || {};
+            const container = document.getElementById('nutrition-results');
+            if (!container) {
+                return;
+            }
+            const hasData = target && Number(target.calories);
+            const setText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = value;
+                }
+            };
+
+            if (!hasData) {
+                container.classList.add('hidden');
+                setText('result-calories', '0 kcal');
+                setText('result-protein', '--');
+                setText('result-carbs', '--');
+                setText('result-fats', '--');
+                this.updateMacroVisuals();
+                return;
+            }
+
+            setText('result-calories', `${target.calories} kcal`);
+            setText('result-protein', `${target.protein}g`);
+            setText('result-carbs', `${target.carbs}g`);
+            setText('result-fats', `${target.fats}g`);
+            this.updateMacroVisuals(target);
+            container.classList.remove('hidden');
+        },
+        preloadImage(url, options = {}) {
+            if (!url) return Promise.resolve(false);
+            if (!this._imagePreloadCache) {
+                this._imagePreloadCache = new Map();
+            }
+            if (this._imagePreloadCache.has(url)) {
+                return this._imagePreloadCache.get(url);
+            }
+
+            const { priority = 'auto' } = options;
+            const loadPromise = new Promise((resolve) => {
+                const img = new Image();
+                try {
+                    if (priority && 'fetchPriority' in img) {
+                        img.fetchPriority = priority;
+                    }
+                } catch (error) {
+                    /* fetchPriority no soportado, continuar sin prioridad */
+                }
+                img.decoding = 'async';
+                img.onload = () => resolve(true);
+                img.onerror = () => resolve(false);
+                img.src = url;
+            }).then((success) => {
+                if (!success && this._imagePreloadCache) {
+                    this._imagePreloadCache.delete(url);
+                }
+                return success;
+            });
+
+            this._imagePreloadCache.set(url, loadPromise);
+            return loadPromise;
+        },
+        preloadExerciseGroupImages(activeGroup = '') {
+            const entries = Object.entries(this.data.exerciseGroupImages || {});
+            entries.forEach(([groupName, imageUrl]) => {
+                if (!imageUrl) return;
+                const priority = groupName === activeGroup ? 'high' : 'auto';
+                this.preloadImage(imageUrl, { priority });
+            });
+        },
+        initializeGroupCardImageLoading(root = document) {
+            const scope = root instanceof Element ? root : document;
+            const images = scope.querySelectorAll('.routine-group-image');
+            images.forEach((img) => {
+                if (img.dataset.imageLoaderBound === 'true') return;
+                img.dataset.imageLoaderBound = 'true';
+                const wrapper = img.closest('.group-image-shell');
+                const skeleton = wrapper?.querySelector('.image-loading-placeholder');
+                const fallback = wrapper?.querySelector('.image-fallback');
+
+                const hideSkeleton = () => {
+                    if (skeleton) {
+                        skeleton.classList.add('is-hidden');
+                        setTimeout(() => skeleton?.remove(), 350);
+                    }
+                };
+
+                const showFallback = () => {
+                    if (fallback) {
+                        fallback.classList.remove('hidden');
+                        if (!fallback.classList.contains('flex')) {
+                            fallback.classList.add('flex');
+                        }
+                    }
+                    hideSkeleton();
+                    if (img.parentElement) {
+                        img.remove();
+                    }
+                };
+
+                const revealImage = () => {
+                    hideSkeleton();
+                    if (fallback) {
+                        fallback.classList.add('hidden');
+                        fallback.classList.remove('flex');
+                    }
+                    requestAnimationFrame(() => {
+                        img.classList.remove('opacity-0');
+                        img.classList.add('opacity-100');
+                    });
+                };
+
+                if (img.complete && img.naturalWidth > 0) {
+                    revealImage();
+                    return;
+                }
+
+                this.preloadImage(img.src, { priority: img.getAttribute('fetchpriority') || 'auto' });
+                img.addEventListener('load', revealImage, { once: true });
+                img.addEventListener('error', showFallback, { once: true });
+            });
+        },
+        triggerProfilePhotoUpload() {
+            const input = document.getElementById('profile-photo-input');
+            if (input) {
+                input.click();
+            }
+        },
+        async handleProfilePhotoSelected(file) {
+            if (!file) return;
+            const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            if (!validTypes.includes(file.type)) {
+                this.showToast('Selecciona una imagen JPG o PNG.', 'error');
+                return;
+            }
+            const maxSize = 2 * 1024 * 1024;
+            if (file.size > maxSize) {
+                this.showToast('La imagen debe pesar menos de 2MB.', 'error');
+                return;
+            }
+            try {
+                const previousPath = this.state.profilePhoto?.storagePath || '';
+                const uploadResult = await this.uploadImageToStorage(file, { pathPrefix: 'profile_photos', previousPath });
+                if (!uploadResult.url) {
+                    this.showToast('No se pudo subir la foto de perfil.', 'error');
+                    return;
+                }
+                this.state.profilePhoto = { url: uploadResult.url, storagePath: uploadResult.storagePath, updatedAt: new Date().toISOString() };
+                this.preloadImage(this.state.profilePhoto.url, { priority: 'high' });
+                await this.saveDataToFirestore();
+                this.renderProfileSection();
+                this.updateUserInfoUI();
+                lucide.createIcons();
+                this.showToast('Foto de perfil actualizada.', 'success');
+            } catch (error) {
+                console.error('Error uploading profile photo:', error);
+                this.showToast('No se pudo subir la foto de perfil.', 'error');
+            }
+        },
+        getFirebaseAuthErrorMessage(error) { switch (error.code) { case 'auth/invalid-email': return 'Email no válido.'; case 'auth/user-not-found': return 'Usuario no encontrado.'; case 'auth/wrong-password': return 'Contraseña incorrecta.'; case 'auth/email-already-in-use': return 'Este email ya está registrado.'; case 'auth/weak-password': return 'La contraseña debe tener al menos 6 caracteres.'; case 'auth/invalid-credential': return 'Credenciales inválidas.'; default: return error.message || 'Ha ocurrido un error. Inténtalo de nuevo.'; } },
+        loadTemplates() { const wrapper = document.getElementById('sections-wrapper'); if(wrapper.children.length > 0) return; const templates = document.querySelectorAll('template'); templates.forEach(template => { const content = template.content.cloneNode(true); wrapper.appendChild(content); }); },
+
+        setupEventListeners() {
+            document.body.addEventListener('click', (e) => {
+                const button = e.target.closest('[data-action]');
+                const calcTabBtn = e.target.closest('.calc-tab-btn');
+
+                if(calcTabBtn){
+                    this.switchCalculatorTab(calcTabBtn.dataset.tab);
+                    return;
+                }
+
+                if (!button) { 
+                    const navBtn = e.target.closest('.nav-btn'); 
+                    if (navBtn) this.showSection(navBtn.dataset.section); 
+                    return; 
+                }
+
+                const { action, sectionId, foodId, mealName, itemIndex, routineId, dayIndex, exerciseName, exerciseIndex, group, subgroup, mediaUrl, groupTarget, clientId, mealIndex, historyDate, leaderboard, storagePath, inviteId, inviteLink } = button.dataset;
+                if (action === 'trigger-profile-photo-upload') {
+                    this.triggerProfilePhotoUpload();
+                    return;
+                }
+                if (action === 'refresh-roles') {
+                    this.renderRolesSection();
+                    return;
+                }
+                if (action === 'toggle-role') {
+                    const targetRole = button.dataset.roleTarget || 'asesorado';
+                    this.setActiveAuthRole(targetRole);
+                    return;
+                }
+                if (action === 'copy-invite-link') {
+                    if (inviteLink) {
+                        navigator.clipboard?.writeText(inviteLink).then(() => {
+                            this.showToast('Enlace copiado al portapapeles.');
+                        }).catch(() => {
+                            this.showToast('No se pudo copiar el enlace.', 'error');
+                        });
+                    }
+                    return;
+                }
+                if (action === 'revoke-invite') {
+                    if (inviteId) {
+                        this.revokeInvitation(inviteId);
+                    }
+                    return;
+                }
+                if (action === 'toggle-user-menu') {
+                    this.toggleUserMenu(e);
+                    return;
+                }
+                if (action === 'sign-out') {
+                    this.handleSignOut();
+                    return;
+                }
+                const actionMap = {
+                    'show-section': () => this.showSection(sectionId), 'open-cover-upload': () => this.triggerCoverUpload(), 'remove-cover-image': () => this.removeCoverImage(), 'open-routine-banner-upload': () => this.triggerRoutineBannerUpload(), 'remove-routine-banner-image': () => this.removeRoutineBannerImage(), 'handle-workout-action': () => this.handleWorkoutAction(), 'confirm-cancel-workout': () => this.confirmCancelWorkout(), 'abort-workout': () => this.finishWorkout(false), 'exit-without-saving': () => this.finishWorkout(false), 'exit-and-save': () => this.finishWorkout(true), 'start-workout': () => this.startWorkout(routineId, parseInt(dayIndex)), 'skip-rest': () => this.skipRest(), 'add-rest-time': () => this.addRestTime(), 'save-goals': () => this.saveNutritionGoals(), 'calculate-body-metrics': () => this.calculateBodyMetrics(), 'show-add-food-modal': () => this.showAddFoodModal(foodId), 'add-food-to-meal': () => this.addFoodToMealFromModal(foodId, parseInt(mealIndex)), 'confirm-remove-food': () => this.confirmRemoveFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'remove-food': () => this.removeFoodFromMeal(parseInt(mealIndex), parseInt(itemIndex)), 'generate-plan': () => this.generatePlanWithAI(), 'analyze-food': () => this.analyzeFoodWithAI(), 'get-recipe': () => this.getRecipeForMeal(parseInt(mealIndex)), 'show-exercise-info': () => this.showExerciseInfoModal(exerciseName), 'hide-modal': () => this.hideModal(), 'show-workout-history': () => this.openWorkoutHistoryModal(historyDate), 'routine-create': () => this.routine_enterCreator(), 'routine-show-details': () => this.routine_showDetails(routineId), 'routine-close-view': () => this.routine_closeFullscreenView(), 'routine-creator-next': () => this.routine_handleCreatorNext(), 'routine-creator-add-exercise': () => this.routine_showAddExerciseDrawer(), 'routine-creator-close-drawer': () => this.routine_closeAddExerciseDrawer(), 'routine-creator-select-exercise': () => this.routine_selectExercise(exerciseName), 'routine-creator-save-exercise-details': () => this.routine_saveExerciseDetails(parseInt(exerciseIndex)), 'routine-creator-edit-exercise': (e) => this.routine_editExercise(e.target.closest('[data-exercise-index]').dataset.exerciseIndex), 'routine-creator-remove-exercise': () => this.routine_removeExercise(parseInt(exerciseIndex)), 'routine-creator-save': () => this.routine_save(), 'routine-confirm-delete': () => this.routine_confirmDelete(routineId), 'routine-delete': () => this.routine_delete(routineId), 'routine-creator-suggest-ai': () => this.routine_showAiSuggestionModal(), 'generate-exercises-ai': () => this.routine_generateExercisesWithAi(), 'analyze-workout-performance': (e) => this.analyzeWorkoutPerformance(e), 'edit-profile': () => this.showEditProfileModal(), 'save-profile-changes': () => this.handleUpdateProfile(), 'edit-target-weight': () => this.showEditTargetWeightModal(), 'save-target-weight': () => this.handleUpdateTargetWeight(), 'add-weight-log': () => this.handleAddWeightLog(), 'admin-edit-exercise': () => this.admin_showEditExerciseModal(group, subgroup, exerciseIndex), 'admin-confirm-delete-exercise': () => this.admin_confirmDeleteExercise(group, subgroup, exerciseIndex), 'admin-delete-exercise': () => this.admin_deleteExercise(group, subgroup, exerciseIndex), 'admin-save-exercise': () => this.admin_saveExerciseChanges(group, subgroup, exerciseIndex), 'admin-edit-media': () => this.admin_showEditMediaModal(group, subgroup, exerciseIndex), 'admin-upload-media': () => this.admin_uploadAndSaveMedia(group, subgroup, exerciseIndex), 'routine-creator-switch-day': () => this.routine_switchDay(parseInt(dayIndex)), 'routine-creator-add-day': () => this.routine_addDay(), 'routine-creator-rename-day': () => this.routine_showRenameDayModal(parseInt(dayIndex)), 'routine-creator-confirm-delete-day': () => this.routine_confirmDeleteDay(parseInt(dayIndex)), 'routine-creator-delete-day': () => this.routine_deleteDay(parseInt(dayIndex)), 'routine-creator-back-to-groups': () => this.routine_creator_showGroupList(), 'routine-open-edit-modal': () => this.routine_openExerciseEditModal(parseInt(exerciseIndex)), 'routine-close-edit-modal': () => this.routine_closeExerciseEditModal(), 'routine-save-exercise-modal': () => this.routine_saveExerciseFromModal(), 'routine-open-timeline': () => this.routine_openTimelineView(), 'routine-toggle-mini-window': () => this.routine_toggleMiniWindow(), 'routine-close-timeline': () => this.routine_closeTimelineView(), 'routine-timeline-save': () => this.routine_handleTimelineSave(), 'routine-timeline-confirm-link': () => this.routine_handleTimelineLink(), 'routine-timeline-confirm-start': () => this.routine_handleTimelineStart(),
+                    'show-media-viewer': () => this.showMediaViewer(mediaUrl),
+                    'open-create-exercise-modal': () => this.admin_openCreateExerciseModal(),
+                    'close-create-exercise-modal': () => this.admin_closeCreateExerciseModal(),
+                    'routine-creator-switch-group': () => this.routine_creator_switchGroup(groupTarget),
+                    'routine-creator-edit-group-image': (evt) => { evt.stopPropagation(); this.routine_creator_showGroupImageModal(groupTarget); },
+                    'routine-creator-upload-group-image': () => this.routine_creator_uploadGroupImage(groupTarget),
+                    'manage-client': () => this.showClientManager(clientId),
+                    'edit-client-routine': () => this.editClientRoutine(clientId, routineId),
+                    'assign-routine-to-client': () => this.assignRoutineToClient(clientId),
+                    'confirm-remove-client-routine': () => this.confirmRemoveClientRoutine(clientId, routineId),
+                    'remove-client-routine': () => this.removeClientRoutine(clientId, routineId),
+                    'edit-client-diet': () => this.editClientDiet(clientId),
+                    'save-client-diet': () => this.saveClientDiet(clientId),
+                    'toggle-food-completion': () => this.toggleFoodCompletion(parseInt(mealIndex), parseInt(itemIndex)),
+                    'client-diet-add-meal': () => this._addMealToClientDietTemp(),
+                    'client-diet-remove-meal': () => this._removeMealFromClientDietTemp(parseInt(mealIndex)),
+                    'client-diet-add-food-modal': () => this._showAddFoodToClientModal(foodId),
+                    'client-diet-add-food-to-meal': () => this._addFoodToClientDietTemp(foodId, parseInt(mealIndex)),
+                    'client-diet-remove-food': () => this._handleRemoveFoodFromClientDiet(parseInt(mealIndex), parseInt(itemIndex)),
+                    'client-diet-show-calculator': () => this._showClientCalculatorModal(clientId),
+                    'client-diet-create-food-modal': () => this._showCreateFoodModal(),
+                    'client-diet-save-custom-food': () => this._saveCustomFood(),
+                    'client-diet-edit-food-modal': () => this._showEditFoodModal(foodId),
+                    'client-diet-update-food': () => this._updateFood(),
+                    'client-diet-remove-food-image': () => this._handleRemoveFoodImageFromForm(button),
+                    'confirm-delete-custom-food': () => this._confirmDeleteCustomFood(foodId),
+                    'delete-custom-food': () => this._deleteCustomFood(foodId, storagePath),
+                    'confirm-delete-predefined-food': () => this._confirmDeletePredefinedFood(foodId),
+                    'delete-predefined-food': () => this._deletePredefinedFood(foodId, storagePath),
+                    'community-switch-leaderboard': () => this.switchCommunityLeaderboard(leaderboard),
+                    'community-refresh': () => this.refreshCommunityData(),
+                    'followup-open-note-modal': () => this.openFollowUpNoteModal(clientId),
+                    'followup-save-note': () => this.saveFollowUpNote(clientId),
+                    'followup-open-metric-modal': () => this.openFollowUpMetricModal(clientId),
+                    'followup-save-metric': () => this.saveFollowUpMetric(clientId),
+                    'followup-open-task-modal': () => this.openFollowUpTaskModal(clientId),
+                    'followup-save-task': () => this.saveFollowUpTask(clientId),
+                    'followup-toggle-task': () => this.toggleFollowUpTask(clientId, button.dataset.taskId),
+                    'followup-remove-entry': () => this.removeFollowUpEntry(clientId, button.dataset.entryType, button.dataset.entryId),
+                    'followup-open-checkin-modal': () => this.openFollowUpCheckInModal(clientId),
+                    'followup-save-checkin': () => this.saveFollowUpCheckIn(clientId),
+                    'followup-clear-checkin': () => this.clearFollowUpCheckIn(clientId),
+                    'gamification-open-upload': () => this.openGamificationUpload(button),
+                    'gamification-go-section': () => this.showSection('premios'),
+                    'gamification-remove-photo': () => this.removeGamificationPhoto(button.dataset.recordId),
+                    'gamification-claim-reward': () => this.claimGamificationReward(button.dataset.rewardId),
+                    'gamification-configure': () => this.openGamificationConfigModal(),
+                    'gamification-add-reward': () => this.addGamificationReward(),
+                    'gamification-remove-reward': () => this.removeGamificationReward(button.dataset.rewardId),
+                    'gamification-clear-reward-cover': () => this.clearGamificationRewardCover(button.dataset.rewardId),
+                    'save-gamification-config': () => this.saveGamificationConfig(),
+                };
+
+                // Prevenir que el checkbox dispare el evento del label padre
+                if (action === 'toggle-food-completion') {
+                   e.stopPropagation(); 
+                }
+
+                if (actionMap[action]) {
+                    actionMap[action](e);
+                }
+            });
+            document.body.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (e.target.id === 'nutrition-form') { this.calculateNutrition(); }
+                if (e.target.id === 'weight-log-form') { this.handleAddWeightLog(); }
+                if (e.target.id === '1rm-form') { this.calculate1RM(); }
+                if (e.target.id === 'invite-form') { this.handleInviteClient(e); }
+                if (e.target.id === 'roles-invite-form') { this.handleRoleInvitation(e); }
+                if (e.target.id === 'diet-create-food-form') { this._handleInlineFoodCreate(); }
+            });
+            document.body.addEventListener('input', (e) => { if (e.target.id === 'food-search') { this.renderFoodList(e.target.value); } if (e.target.id === 'exercise-search-input') { this.routine_filterExerciseLibrary(e.target.value); } if (e.target.id === 'client-food-search') { this.renderFoodList(e.target.value, 'client-food-list'); } if (e.target.closest('#client-diet-editor')) { const mealIndex = e.target.dataset.mealIndex; if (mealIndex) { this._updateMealDataFromUI(parseInt(mealIndex)); } } });
+            document.body.addEventListener('change', (e) => {
+                if (e.target.id === 'profile-photo-input') {
+                    const file = e.target.files && e.target.files[0];
+                    this.handleProfilePhotoSelected(file);
+                    e.target.value = '';
+                    return;
+                }
+                if (e.target.matches('[data-gamification-reward-cover]')) {
+                    const file = e.target.files && e.target.files[0];
+                    this.handleGamificationRewardCoverSelection(e.target, file);
+                    e.target.value = '';
+                    return;
+                }
+                if (e.target.matches('[data-gamification-proof-input]')) {
+                    const file = e.target.files && e.target.files[0];
+                    this.handleGamificationProofSelected(file);
+                    e.target.value = '';
+                    return;
+                }
+                if (e.target.id === 'dashboard-cover-input') {
+                    this.handleCoverFileChange(e.target);
+                    return;
+                }
+                if (e.target.id === 'routine-banner-input') {
+                    this.handleRoutineBannerFileChange(e.target);
+                    return;
+                }
+                if (e.target.dataset.panelCoverInput) {
+                    this.handleDietPanelCoverSelected(e.target);
+                    return;
+                }
+                if (e.target.closest('#client-diet-goals-form')) {
+                    this._handleUpdateClientGoalsFromUI();
+                }
+            });
+
+            const sidebar = document.getElementById('app-sidebar');
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const mobileBackdrop = document.getElementById('mobile-menu-backdrop');
+
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', () => this.toggleMobileMenu());
+            }
+            if (mobileBackdrop) {
+                mobileBackdrop.addEventListener('click', () => this.closeMobileMenu(true));
+            }
+            document.addEventListener('keydown', (event) => {
+                if (event.key !== 'Escape') {
+                    return;
+                }
+                let handled = false;
+                if (this.state?.isMobileMenuOpen) {
+                    this.closeMobileMenu(true);
+                    handled = true;
+                }
+                if (this.state?.isUserMenuOpen) {
+                    this.closeUserMenu();
+                    handled = true;
+                }
+                const createExerciseModal = document.getElementById('create-exercise-modal');
+                if (createExerciseModal && createExerciseModal.getAttribute('data-open') === 'true') {
+                    this.admin_closeCreateExerciseModal();
+                    handled = true;
+                }
+                if (handled) {
+                    event.preventDefault();
+                }
+            });
+
+            const userMenuContainer = document.getElementById('user-menu-container');
+            if (userMenuContainer) {
+                document.addEventListener('click', (event) => {
+                    if (!this.state?.isUserMenuOpen) {
+                        return;
+                    }
+                    if (!userMenuContainer.contains(event.target)) {
+                        this.closeUserMenu();
+                    }
+                });
+            }
+
+            if(sidebar){
+                const setSidebarStateForViewport = () => {
+                    if(window.innerWidth >= 1024){
+                        sidebar.setAttribute('data-collapsed','true');
+                        this.closeMobileMenu(true, true);
+                    } else {
+                        sidebar.setAttribute('data-collapsed','false');
+                        if (!this.state.isMobileMenuOpen) {
+                            sidebar.setAttribute('data-mobile-open','false');
+                            sidebar.classList.remove('mobile-overlay');
+                            if (mobileBackdrop) {
+                                mobileBackdrop.classList.remove('is-visible');
+                            }
+                            document.body.classList.remove('mobile-menu-open');
+                        }
+                    }
+                };
+                const expandSidebar = () => {
+                    if(window.innerWidth >= 1024){
+                        sidebar.setAttribute('data-collapsed','false');
+                    }
+                };
+                const collapseSidebar = () => {
+                    if(window.innerWidth >= 1024){
+                        sidebar.setAttribute('data-collapsed','true');
+                    }
+                };
+
+                setSidebarStateForViewport();
+
+                sidebar.addEventListener('mouseenter', expandSidebar);
+                sidebar.addEventListener('mouseleave', collapseSidebar);
+                sidebar.addEventListener('focusin', expandSidebar);
+                sidebar.addEventListener('focusout', () => {
+                    if(window.innerWidth >= 1024){
+                        requestAnimationFrame(() => {
+                            if(!sidebar.contains(document.activeElement)){
+                                sidebar.setAttribute('data-collapsed','true');
+                            }
+                        });
+                    }
+                });
+
+                window.addEventListener('resize', setSidebarStateForViewport);
+            }
+        },
+
+        toggleMobileMenu() {
+            if (window.innerWidth >= 1024) { return; }
+            if (this.state?.isMobileMenuOpen) {
+                this.closeMobileMenu(true);
+            } else {
+                this.openMobileMenu();
+            }
+        },
+
+        openMobileMenu() {
+            if (window.innerWidth >= 1024) { return; }
+            const sidebar = document.getElementById('app-sidebar');
+            const backdrop = document.getElementById('mobile-menu-backdrop');
+            const toggleBtn = document.getElementById('mobile-menu-toggle');
+            if (!sidebar) { return; }
+
+            this.state.isMobileMenuOpen = true;
+            sidebar.classList.add('mobile-overlay');
+            requestAnimationFrame(() => {
+                sidebar.setAttribute('data-mobile-open', 'true');
+            });
+            if (backdrop) {
+                backdrop.classList.add('is-visible');
+            }
+            document.body.classList.add('mobile-menu-open');
+            if (toggleBtn) {
+                toggleBtn.setAttribute('aria-expanded', 'true');
+            }
+        },
+
+        closeMobileMenu(force = false, immediate = false) {
+            if (!force && window.innerWidth >= 1024) { return; }
+            const sidebar = document.getElementById('app-sidebar');
+            const backdrop = document.getElementById('mobile-menu-backdrop');
+            const toggleBtn = document.getElementById('mobile-menu-toggle');
+
+            if (this.state) {
+                this.state.isMobileMenuOpen = false;
+            }
+
+            if (sidebar) {
+                sidebar.setAttribute('data-mobile-open', 'false');
+            }
+
+            if (backdrop) {
+                backdrop.classList.remove('is-visible');
+            }
+
+            document.body.classList.remove('mobile-menu-open');
+
+            if (toggleBtn) {
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            }
+
+            if (sidebar && sidebar.classList.contains('mobile-overlay')) {
+                const cleanup = () => {
+                    if (!this.state.isMobileMenuOpen && window.innerWidth < 1024) {
+                        sidebar.classList.remove('mobile-overlay');
+                    }
+                };
+                if (immediate) {
+                    cleanup();
+                } else {
+                    setTimeout(cleanup, 300);
+                }
+            }
+        },
+
+        renderAll() {
+            this.renderRoutinesSection();
+            this.renderDietPage();
+            this.renderWeeklyProgress();
+            this.renderWorkoutHistorySection();
+            this.renderProfileSection();
+            this.renderNutricionSection();
+            this.renderGamificationSection();
+            this.renderCommunitySection();
+            if (this.isAdmin()) {
+                this.renderRolesSection();
+            } else if (this.isAsesor()) {
+                this.renderAsesoradosSection();
+            }
+            this.updateCoverPreview();
+            this.updateDashboard();
+            this.updateHeaderInsights();
+            lucide.createIcons();
+            this.applyRoleBasedCoverVisibility();
+        },
+        showSection(id, animate=true){
+            this.state.currentSection=id;
+            document.querySelectorAll('.section-content').forEach(s=>s.classList.add('hidden'));
+            const el=document.getElementById(id);
+            if(el){
+                el.classList.remove('hidden');
+                if(animate){
+                    el.classList.add('section-fade-in');
+                    el.addEventListener('animationend',()=>el.classList.remove('section-fade-in'),{once:true});
+                }
+            }
+            document.querySelectorAll('.nav-btn').forEach(b=>{
+                const isActive=b.dataset.section===id;
+                b.classList.toggle('is-active',isActive);
+            });
+            if(window.innerWidth < 1024){
+                this.closeMobileMenu(true);
+            }
+            if(id==='dieta'){this.renderFoodList();}
+            if(id==='comunidad'){this.animateCommunityCounters();}
+        },
+
+        async renderAsesoradosSection() {
+            const listContainer = document.getElementById('asesorados-list');
+            if (!listContainer) return;
+
+            await this.fetchAsesorados();
+
+            const formatCount = (value) => Number.isFinite(value) ? value.toLocaleString('es-ES') : '0';
+
+            const totalClients = this.state.asesorados.length;
+            const totalAssignedRoutines = this.state.asesorados.reduce((acc, client) => {
+                const routines = Array.isArray(client.userRoutines) ? client.userRoutines.length : 0;
+                return acc + routines;
+            }, 0);
+            const totalActiveDiets = this.state.asesorados.reduce((acc, client) => {
+                const hasDiet = Array.isArray(client.dailyDiet) && client.dailyDiet.length > 0;
+                return acc + (hasDiet ? 1 : 0);
+            }, 0);
+            const totalCheckins = this.state.asesorados.reduce((acc, client) => {
+                if (Array.isArray(client.dailyChecklist)) {
+                    return acc + client.dailyChecklist.filter(item => item?.completed).length;
+                }
+                if (Array.isArray(client.checklist)) {
+                    return acc + client.checklist.filter(item => item?.completed).length;
+                }
+                if (Array.isArray(client.checkIns)) {
+                    return acc + client.checkIns.filter(item => item?.completed).length;
+                }
+                if (Array.isArray(client.dailyDiet)) {
+                    return acc + client.dailyDiet.reduce((mealSum, meal) => {
+                        if (!Array.isArray(meal?.items)) return mealSum;
+                        return mealSum + meal.items.filter(item => item?.completed).length;
+                    }, 0);
+                }
+                const fallback = client?.dailyCheckinsCompleted ?? client?.checkinsCompleted ?? client?.checkins ?? 0;
+                return acc + (typeof fallback === 'number' ? fallback : 0);
+            }, 0);
+
+            const activeCountEl = document.getElementById('asesorados-active-count');
+            const routinesCountEl = document.getElementById('asesorados-routines-count');
+            const dietsCountEl = document.getElementById('asesorados-diets-count');
+            const checkinsCountEl = document.getElementById('asesorados-checkins-count');
+
+            if (activeCountEl) {
+                activeCountEl.textContent = formatCount(totalClients);
+            }
+            if (routinesCountEl) {
+                routinesCountEl.textContent = formatCount(totalAssignedRoutines);
+            }
+            if (dietsCountEl) {
+                dietsCountEl.textContent = formatCount(totalActiveDiets);
+            }
+            if (checkinsCountEl) {
+                checkinsCountEl.textContent = formatCount(totalCheckins);
+            }
+
+            if (totalClients > 0) {
+                listContainer.innerHTML = this.state.asesorados.map(client => {
+                    const name = client.userName || 'Asesorado';
+                    const email = client.email || 'Sin email';
+                    const initial = (name || email).charAt(0).toUpperCase();
+                    const routines = Array.isArray(client.userRoutines) ? client.userRoutines.length : 0;
+                    const mealsPlanned = Array.isArray(client.dailyDiet)
+                        ? client.dailyDiet.reduce((sum, meal) => sum + (Array.isArray(meal?.items) ? meal.items.length : 0), 0)
+                        : 0;
+                    const dietDays = Array.isArray(client.dailyDiet) ? client.dailyDiet.length : 0;
+                    const goalCalories = typeof client?.userGoals?.calories === 'number' ? client.userGoals.calories : null;
+                    const goalCaloriesLabel = goalCalories !== null ? formatCount(goalCalories) : null;
+                    const checklistCompleted = (() => {
+                        if (Array.isArray(client.dailyChecklist)) {
+                            return client.dailyChecklist.filter(item => item?.completed).length;
+                        }
+                        if (Array.isArray(client.checklist)) {
+                            return client.checklist.filter(item => item?.completed).length;
+                        }
+                        if (Array.isArray(client.checkIns)) {
+                            return client.checkIns.filter(item => item?.completed).length;
+                        }
+                        const fallback = client?.dailyCheckinsCompleted ?? client?.checkinsCompleted ?? client?.checkins ?? 0;
+                        return typeof fallback === 'number' ? fallback : 0;
+                    })();
+                    const routineBadge = routines > 0
+                        ? `${formatCount(routines)} ${routines === 1 ? 'rutina activa' : 'rutinas activas'}`
+                        : 'Crea su primera rutina';
+                    const nutritionBadge = dietDays > 0
+                        ? `${formatCount(dietDays)} ${dietDays === 1 ? 'día planificado' : 'días planificados'}`
+                        : 'Agenda nutricional pendiente';
+                    const checkinsLabel = checklistCompleted === 1 ? 'check-in' : 'check-ins';
+                    const checkinsBadge = checklistCompleted > 0
+                        ? `${formatCount(checklistCompleted)} ${checkinsLabel} completados`
+                        : 'Checklist en configuración';
+                    const followUp = this.ensureFollowUpStructure(client);
+                    const followUpNotes = followUp.notes.length;
+                    const followUpMetrics = followUp.metrics.length;
+                    const followUpTasksOpen = followUp.tasks.filter(task => task.status !== 'completed').length;
+                    const followUpSummary = (followUpNotes + followUpMetrics) > 0
+                        ? `${formatCount(followUpNotes)} ${followUpNotes === 1 ? 'nota' : 'notas'} · ${formatCount(followUpMetrics)} ${followUpMetrics === 1 ? 'métrica' : 'métricas'}`
+                        : 'Seguimiento por iniciar';
+                    const nextCheckInDate = followUp.nextCheckIn ? this._normalizeDateValue(followUp.nextCheckIn) : null;
+                    const lastUpdateSource = followUp.lastUpdated || followUp.notes[0]?.createdAt || followUp.metrics[0]?.recordedAt || null;
+                    const lastUpdateRelative = lastUpdateSource ? this.formatRelativeTime(lastUpdateSource) : '';
+                    const followUpStatus = nextCheckInDate
+                        ? `${nextCheckInDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} · ${this.formatRelativeTime(nextCheckInDate)}`
+                        : (followUpTasksOpen > 0
+                            ? `${formatCount(followUpTasksOpen)} ${followUpTasksOpen === 1 ? 'acción abierta' : 'acciones abiertas'}`
+                            : (followUpNotes || followUpMetrics
+                                ? (lastUpdateRelative ? `Actualizado ${lastUpdateRelative}` : 'Seguimiento actualizado')
+                                : 'Activa el seguimiento 360°'));
+                    const followUpBadge = nextCheckInDate
+                        ? 'Check-in programado'
+                        : (followUpNotes || followUpMetrics ? 'Seguimiento activo' : 'Seguimiento 360° listo');
+
+                    return `
+                        <button data-action="manage-client" data-client-id="${client.id}" class="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-gray-900/60 p-5 text-left transition hover:border-emerald-400/50 hover:shadow-[0_25px_65px_-40px_rgba(16,185,129,0.85)] focus:outline-none focus:ring-2 focus:ring-emerald-400/50">
+                            <div class="absolute inset-0 opacity-0 transition group-hover:opacity-100">
+                                <div class="h-full w-full bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.18),_transparent_60%)]"></div>
+                            </div>
+                            <div class="relative z-[1] flex flex-col gap-4">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/20 text-lg font-bold text-emerald-200">${initial}</div>
+                                        <div>
+                                            <h4 class="text-lg font-semibold text-white">${name}</h4>
+                                            <p class="text-sm text-gray-400">${email}</p>
+                                        </div>
+                                    </div>
+                                    <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-300"><i data-lucide="arrow-up-right" class="h-3.5 w-3.5 text-emerald-300"></i>Gestionar</span>
+                                </div>
+                                <div class="grid gap-3 md:grid-cols-3 text-sm">
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-3">
+                                        <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Rutinas</p>
+                                        <p class="mt-1 text-base font-semibold text-white">${routineBadge}</p>
+                                        <p class="text-[11px] text-emerald-200/80">Personalizadas y biblioteca</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-3">
+                                        <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Nutrición</p>
+                                        <p class="mt-1 text-base font-semibold text-white">${nutritionBadge}</p>
+                                        <p class="text-[11px] text-emerald-200/80">${goalCaloriesLabel ? `${goalCaloriesLabel} kcal objetivo` : 'Define metas calóricas'}</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-3">
+                                        <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Seguimiento 360°</p>
+                                        <p class="mt-1 text-base font-semibold text-white">${followUpSummary}</p>
+                                        <p class="text-[11px] text-emerald-200/80">${followUpStatus}</p>
+                                        <p class="mt-2 text-[11px] text-gray-400">${checkinsBadge}</p>
+                                    </div>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-emerald-200"><i data-lucide="repeat" class="h-3.5 w-3.5"></i>${routines > 0 ? 'Actualizar rutina' : 'Crear rutina'}</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-sky-400/30 bg-sky-500/10 px-3 py-1 text-sky-200"><i data-lucide="calendar-check-2" class="h-3.5 w-3.5"></i>${dietDays > 0 ? 'Agenda semanal activa' : 'Planifica dieta'}</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-violet-400/30 bg-violet-500/10 px-3 py-1 text-violet-200"><i data-lucide="radar" class="h-3.5 w-3.5"></i>${followUpBadge}</span>
+                                </div>
+                            </div>
+                        </button>
+                    `;
+                }).join('');
+            } else {
+                listContainer.innerHTML = `
+                    <div class="rounded-2xl border border-dashed border-white/10 bg-gray-900/60 p-6 text-center text-sm text-gray-400">
+                        Aún no tienes clientes. Envía tu primera invitación para comenzar.
+                    </div>
+                `;
+            }
+
+            lucide.createIcons();
+        },
+
+        async renderRolesSection() {
+            if (!this.isAdmin()) {
+                return;
+            }
+
+            const trainersList = document.getElementById('roles-trainers-list');
+            const invitationsList = document.getElementById('roles-invitations-list');
+            const coachCountEl = document.getElementById('roles-coach-count');
+            const inviteCountEl = document.getElementById('roles-invite-count');
+            const syncLabel = document.getElementById('roles-coach-sync-label');
+
+            if (!trainersList || !invitationsList) {
+                return;
+            }
+
+            if (!this.db) {
+                trainersList.innerHTML = '<p class="rounded-2xl border border-white/5 bg-gray-900/60 p-4 text-sm text-gray-400">No se pudo conectar a la base de datos.</p>';
+                return;
+            }
+
+            if (syncLabel) {
+                syncLabel.textContent = 'Sincronizando...';
+                syncLabel.classList.add('text-emerald-200');
+            }
+
+            try {
+                const usersRef = collection(this.db, 'users');
+                const invitesRef = collection(this.db, 'invitations');
+                const [trainersSnapshot, invitationsSnapshot] = await Promise.all([
+                    getDocs(query(usersRef, where('role', '==', 'entrenador'))),
+                    getDocs(query(invitesRef, where('role', '==', 'entrenador'), where('status', '==', 'pending')))
+                ]);
+
+                const trainers = trainersSnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+                const invites = invitationsSnapshot.docs.map(docSnap => ({ id: docSnap.id, ...docSnap.data() }));
+
+                this.state.managedRoles = {
+                    trainers,
+                    invitations: invites
+                };
+
+                if (coachCountEl) {
+                    coachCountEl.textContent = trainers.length.toString();
+                }
+                if (inviteCountEl) {
+                    inviteCountEl.textContent = invites.length.toString();
+                }
+                if (syncLabel) {
+                    syncLabel.textContent = 'Actualizado';
+                    syncLabel.classList.remove('text-emerald-200', 'text-rose-300');
+                }
+
+                if (trainers.length === 0) {
+                    trainersList.innerHTML = '<p class="rounded-2xl border border-white/5 bg-gray-900/60 p-4 text-sm text-gray-400">No hay entrenadores registrados aún.</p>';
+                } else {
+                    trainersList.innerHTML = trainers.map(trainer => {
+                        const name = trainer.userName || 'Entrenador';
+                        const email = trainer.email || trainer.contactEmail || 'Sin email';
+                        const joined = trainer.createdAt?.toDate?.() || trainer.createdAt?.seconds ? new Date(trainer.createdAt.seconds * 1000) : (trainer.createdAt ? new Date(trainer.createdAt) : null);
+                        const joinedLabel = joined && !Number.isNaN(joined.getTime()) ? joined.toLocaleDateString('es-ES') : 'Registro inicial';
+                        const clients = Array.isArray(trainer.asesorados) ? trainer.asesorados.length : (trainer.clientsCount || 0);
+                        return `
+                            <article class="rounded-2xl border border-white/10 bg-white/5 p-4 shadow-inner shadow-emerald-500/10">
+                                <header class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <h4 class="text-lg font-semibold text-white">${name}</h4>
+                                        <p class="text-sm text-gray-400">${email}</p>
+                                    </div>
+                                    <span class="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200">Entrenador</span>
+                                </header>
+                                <div class="mt-4 grid gap-3 sm:grid-cols-3 text-sm text-gray-300">
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-3 text-center">
+                                        <p class="text-[11px] uppercase tracking-[0.28em] text-gray-400">Asesorados</p>
+                                        <p class="text-xl font-semibold text-white">${clients}</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-3 text-center">
+                                        <p class="text-[11px] uppercase tracking-[0.28em] text-gray-400">Actividad</p>
+                                        <p class="text-sm font-semibold text-emerald-200">${trainer.lastLogin ? 'Reciente' : 'Sin registro'}</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/60 p-3 text-center">
+                                        <p class="text-[11px] uppercase tracking-[0.28em] text-gray-400">Alta</p>
+                                        <p class="text-sm font-semibold text-white">${joinedLabel}</p>
+                                    </div>
+                                </div>
+                            </article>
+                        `;
+                    }).join('');
+                }
+
+                if (invites.length === 0) {
+                    invitationsList.innerHTML = '<p class="rounded-2xl border border-emerald-400/20 bg-gray-900/60 p-4 text-sm text-emerald-100/80">Sin invitaciones activas.</p>';
+                } else {
+                    const baseUrl = window.location.origin;
+                    invitationsList.innerHTML = invites.map(invite => {
+                        const email = invite.email || invite.clientEmail || 'Sin email';
+                        const note = invite.note || 'Sin nota adicional';
+                        const sentDate = invite.sentAt?.toDate?.() || invite.sentAt?.seconds ? new Date(invite.sentAt.seconds * 1000) : (invite.sentAt ? new Date(invite.sentAt) : null);
+                        const sentLabel = sentDate && !Number.isNaN(sentDate.getTime()) ? sentDate.toLocaleDateString('es-ES') : 'Pendiente';
+                        const inviteUrl = `${baseUrl}?invite=${invite.id}`;
+                        return `
+                            <article class="rounded-2xl border border-emerald-400/30 bg-gray-900/70 p-4">
+                                <div class="flex flex-col gap-2">
+                                    <div class="flex items-center justify-between gap-3">
+                                        <div>
+                                            <p class="text-sm font-semibold text-white">${email}</p>
+                                            <p class="text-xs text-emerald-100/80">Enviada el ${sentLabel}</p>
+                                        </div>
+                                        <button data-action="revoke-invite" data-invite-id="${invite.id}" class="inline-flex items-center gap-2 rounded-full border border-rose-400/30 bg-rose-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-rose-200 hover:border-rose-300 hover:text-rose-100">
+                                            <i data-lucide="x-circle" class="h-4 w-4"></i>
+                                            Revocar
+                                        </button>
+                                    </div>
+                                    <p class="text-xs text-gray-300">${note}</p>
+                                    <div class="flex flex-col gap-2 rounded-xl border border-emerald-400/20 bg-emerald-500/5 p-3">
+                                        <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200">Enlace de invitación</p>
+                                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                            <code class="flex-1 truncate rounded-lg bg-gray-900/70 px-3 py-2 text-xs text-emerald-100/90">${inviteUrl}</code>
+                                            <button data-action="copy-invite-link" data-invite-link="${inviteUrl}" class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-2 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200 hover:border-emerald-300 hover:text-emerald-100">
+                                                <i data-lucide="copy" class="h-4 w-4"></i>
+                                                Copiar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                        `;
+                    }).join('');
+                }
+
+                lucide.createIcons();
+            } catch (error) {
+                console.error('Error rendering roles section:', error);
+                this.showToast('No se pudieron obtener los roles.', 'error');
+                trainersList.innerHTML = '<p class="rounded-2xl border border-white/5 bg-gray-900/60 p-4 text-sm text-gray-400">Intenta actualizar nuevamente.</p>';
+                if (invitationsList) {
+                    invitationsList.innerHTML = '<p class="rounded-2xl border border-emerald-400/20 bg-gray-900/60 p-4 text-sm text-emerald-100/80">No se pudieron cargar las invitaciones.</p>';
+                }
+                if (syncLabel) {
+                    syncLabel.textContent = 'Error';
+                    syncLabel.classList.remove('text-emerald-200');
+                    syncLabel.classList.add('text-rose-300');
+                }
+            }
+        },
+
+        async handleRoleInvitation(e) {
+            if (!this.isAdmin()) {
+                this.showToast('Solo el administrador puede invitar entrenadores.', 'error');
+                return;
+            }
+
+            if (!this.db) {
+                this.showToast('No se pudo conectar a la base de datos.', 'error');
+                return;
+            }
+
+            const form = e.target;
+            const submitButton = e.submitter || form.querySelector('button[type="submit"]');
+            if (submitButton) {
+                submitButton.disabled = true;
+            }
+
+            const emailInput = document.getElementById('roles-invite-email');
+            const noteInput = document.getElementById('roles-invite-note');
+            const email = emailInput?.value?.toLowerCase().trim();
+            const note = noteInput?.value?.trim() || '';
+
+            if (!email || !email.includes('@')) {
+                this.showToast('Ingresa un email válido.', 'error');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                }
+                return;
+            }
+
+            if (this.state?.currentUser?.email?.toLowerCase() === email) {
+                this.showToast('No puedes enviarte una invitación de entrenador.', 'error');
+                if (submitButton) {
+                    submitButton.disabled = false;
+                }
+                return;
+            }
+
+            try {
+                const usersRef = collection(this.db, 'users');
+                let existingUserSnap = await getDocs(query(usersRef, where('emailLower', '==', email)));
+                if (existingUserSnap.empty) {
+                    existingUserSnap = await getDocs(query(usersRef, where('email', '==', email)));
+                }
+
+                if (!existingUserSnap.empty) {
+                    this.showToast('Ya existe un usuario registrado con este email.', 'error');
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                    }
+                    return;
+                }
+
+                const invitationsRef = collection(this.db, 'invitations');
+                const duplicateInviteSnap = await getDocs(query(
+                    invitationsRef,
+                    where('role', '==', 'entrenador'),
+                    where('status', '==', 'pending')
+                ));
+
+                const hasDuplicateInvite = duplicateInviteSnap.docs.some(docSnap => {
+                    const data = docSnap.data();
+                    const inviteEmail = (data.emailLower || data.email || data.clientEmail || '').toLowerCase();
+                    return inviteEmail === email;
+                });
+
+                if (hasDuplicateInvite) {
+                    this.showToast('Ya existe una invitación pendiente para este correo.', 'error');
+                    if (submitButton) {
+                        submitButton.disabled = false;
+                    }
+                    return;
+                }
+
+                const invitePayload = {
+                    role: 'entrenador',
+                    email,
+                    emailLower: email,
+                    note,
+                    status: 'pending',
+                    sentAt: new Date(),
+                    invitedBy: this.state?.currentUser?.uid || null,
+                    invitedByEmail: this.state?.currentUser?.email || null
+                };
+
+                await addDoc(invitationsRef, invitePayload);
+
+                this.showToast(`Invitación enviada a ${email}.`, 'success');
+                if (emailInput) {
+                    emailInput.value = '';
+                }
+                if (noteInput) {
+                    noteInput.value = '';
+                }
+
+                await this.renderRolesSection();
+            } catch (error) {
+                console.error('Error sending coach invitation:', error);
+                this.showToast('No se pudo generar la invitación.', 'error');
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                }
+            }
+        },
+
+        async fetchAsesorados() {
+            if (!this.state.currentUser) return;
+            const usersRef = collection(this.db, "users");
+            const q = query(usersRef, where("coachId", "==", this.state.currentUser.uid));
+            const querySnapshot = await getDocs(q);
+            this.state.asesorados = querySnapshot.docs.map(doc => {
+                const clientData = { id: doc.id, ...doc.data() };
+                this.ensureFollowUpStructure(clientData);
+                return clientData;
+            });
+        },
+        async handleInviteClient(e) {
+            if (!this.isCoach()) {
+                this.showToast('Solo los entrenadores pueden invitar asesorados.', 'error');
+                return;
+            }
+            const form = e.target;
+            const button = e.submitter || form.querySelector('button[type="submit"]');
+            if (button) button.disabled = true;
+
+            const emailInput = document.getElementById('invite-email');
+            const email = emailInput.value.toLowerCase().trim();
+
+            if (!email) {
+                this.showToast("Ingresa un email válido.", "error");
+                if (button) button.disabled = false;
+                return;
+            }
+
+            if (this.state.currentUser?.email?.toLowerCase() === email) {
+                this.showToast("No puedes invitarte a ti mismo.", "error");
+                if (button) button.disabled = false;
+                return;
+            }
+
+            await this.fetchAsesorados();
+            const alreadyClient = (this.state.asesorados || []).some(client => client.email?.toLowerCase() === email);
+            if (alreadyClient) {
+                this.showToast("Este usuario ya es tu cliente.", "error");
+                if (button) button.disabled = false;
+                return;
+            }
+
+            try {
+                const invitationsRef = collection(this.db, "invitations");
+                const q = query(
+                    invitationsRef,
+                    where("coachId", "==", this.state.currentUser.uid),
+                    where("clientEmail", "==", email),
+                    where("status", "==", "pending")
+                );
+                const existingInvite = await getDocs(q);
+                if (!existingInvite.empty) {
+                    this.showToast("Ya existe una invitación pendiente para este email.", "error");
+                    if (button) button.disabled = false;
+                    return;
+                }
+
+                await addDoc(invitationsRef, {
+                    coachId: this.state.currentUser.uid,
+                    clientEmail: email,
+                    email,
+                    emailLower: email,
+                    role: 'asesorado',
+                    status: "pending",
+                    sentAt: new Date()
+                });
+
+                this.showToast(`¡Invitación enviada a ${email}!`, "success");
+                emailInput.value = '';
+            } catch (error) {
+                console.error("Error sending invitation:", error);
+                this.showToast("No se pudo enviar la invitación.", "error");
+            } finally {
+                if (button) button.disabled = false;
+            }
+        },
+
+        async revokeInvitation(inviteId) {
+            if (!this.isAdmin()) {
+                this.showToast('Solo el administrador puede revocar invitaciones.', 'error');
+                return;
+            }
+
+            try {
+                const inviteRef = doc(this.db, 'invitations', inviteId);
+                await updateDoc(inviteRef, {
+                    status: 'revoked',
+                    revokedAt: new Date()
+                });
+                this.showToast('Invitación revocada.');
+                await this.renderRolesSection();
+            } catch (error) {
+                console.error('Error revoking invite:', error);
+                this.showToast('No se pudo revocar la invitación.', 'error');
+            }
+        },
+
+        async showClientManager(clientId) {
+            const client = this.state.asesorados.find(c => c.id === clientId);
+            if (!client) {
+                this.showToast("Cliente no encontrado.", "error");
+                return;
+            }
+
+            const clientName = client.userName || client.email || 'Asesorado';
+            const clientFirstName = clientName.includes('@') ? clientName.split('@')[0] : (clientName.split(' ')[0] || clientName);
+            const clientEmail = client.email || 'Sin email registrado';
+
+            const assignedRoutines = Array.isArray(client.userRoutines) ? client.userRoutines : [];
+            const latestRoutine = assignedRoutines[0] || null;
+            const availableUserRoutines = Array.isArray(this.state.userRoutines) ? this.state.userRoutines : [];
+            const predefinedRoutines = this.data?.predefinedRoutines || {};
+            const selectorId = `client-routine-select-${clientId}`;
+            const formatNumber = (value) => Number.isFinite(value) ? value.toLocaleString('es-ES') : '0';
+
+            const completedChecklist = (() => {
+                if (Array.isArray(client.dailyChecklist)) {
+                    return client.dailyChecklist.filter(item => item?.completed).length;
+                }
+                if (Array.isArray(client.checklist)) {
+                    return client.checklist.filter(item => item?.completed).length;
+                }
+                if (Array.isArray(client.checkIns)) {
+                    return client.checkIns.filter(item => item?.completed).length;
+                }
+                const fallback = client?.dailyCheckinsCompleted ?? client?.checkinsCompleted ?? client?.checkins ?? 0;
+                return typeof fallback === 'number' ? fallback : 0;
+            })();
+
+            const routineOptions = [
+                availableUserRoutines.length
+                    ? `<optgroup label="Rutinas personalizadas">${availableUserRoutines.map(routine => `<option value="${routine.id}" data-source="personal">${routine.name}</option>`).join('')}</optgroup>`
+                    : '',
+                Object.entries(predefinedRoutines).map(([category, routines]) => {
+                    if (!Array.isArray(routines) || routines.length === 0) return '';
+                    return `<optgroup label="${category}">${routines.map(routine => `<option value="${routine.id}" data-source="predefined" data-category="${category}">${routine.name}</option>`).join('')}</optgroup>`;
+                }).join('')
+            ].join('');
+
+            const assignedRoutinesHTML = assignedRoutines.length
+                ? `<div class="space-y-3">
+                        ${assignedRoutines.map((routine, index) => {
+                            const totalDays = Array.isArray(routine.plan) ? routine.plan.length : 0;
+                            const totalExercises = (routine.plan || []).reduce((acc, day) => acc + (Array.isArray(day.exercises) ? day.exercises.length : 0), 0);
+                            const assignedAtDate = routine.assignedAt ? new Date(routine.assignedAt) : null;
+                            const hasValidAssignedDate = assignedAtDate && !Number.isNaN(assignedAtDate.getTime());
+                            const assignedDateLabel = hasValidAssignedDate ? assignedAtDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Sin registro';
+                            const assignedTimeLabel = hasValidAssignedDate ? assignedAtDate.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '';
+                            const volumeLabel = totalExercises === 1 ? 'ejercicio' : 'ejercicios';
+                            const daysLabel = totalDays === 1 ? 'día' : 'días';
+                            const origin = routine.origin === 'predefined' ? 'Predefinida' : 'Personalizada';
+                            const originStyles = routine.origin === 'predefined'
+                                ? 'border-sky-400/30 bg-sky-500/10 text-sky-200'
+                                : 'border-emerald-400/30 bg-emerald-500/10 text-emerald-200';
+                            const isPrimary = index === 0;
+                            const routineDescription = routine.summary || routine.goal || routine.focus || routine.description || '';
+
+                            return `
+                                <article class="group rounded-2xl border border-white/10 bg-gray-900/60 p-4 transition hover:border-emerald-400/40 hover:shadow-[0_20px_55px_-35px_rgba(16,185,129,0.65)]">
+                                    <div class="flex flex-col gap-4">
+                                        <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                            <div>
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <h5 class="text-base font-semibold text-white">${routine.name}</h5>
+                                                    ${isPrimary ? '<span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.3em] text-emerald-200"><i data-lucide="sparkles" class="h-3.5 w-3.5"></i>Principal</span>' : ''}
+                                                </div>
+                                                <p class="text-xs text-gray-400">${formatNumber(totalDays)} ${daysLabel} · ${formatNumber(totalExercises)} ${volumeLabel}</p>
+                                                ${routineDescription ? `<p class="mt-1 text-xs text-gray-400/80">${routineDescription}</p>` : ''}
+                                            </div>
+                                            <div class="flex items-center gap-2 self-end sm:self-auto">
+                                                <span class="inline-flex items-center gap-1 rounded-full border ${originStyles} px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.3em]">${origin}</span>
+                                                <button data-action="edit-client-routine" data-client-id="${clientId}" data-routine-id="${routine.id}" class="rounded-full border border-emerald-400/30 bg-emerald-500/10 p-2 text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100" title="Abrir en el creador">
+                                                    <i data-lucide="pen-square" class="h-4 w-4"></i>
+                                                </button>
+                                                <button data-action="confirm-remove-client-routine" data-client-id="${clientId}" data-routine-id="${routine.id}" class="rounded-full border border-rose-400/20 bg-rose-500/10 p-2 text-rose-200 transition hover:border-rose-300 hover:text-rose-100" title="Desvincular rutina">
+                                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                                </button>
+                                            </div>
+                                        </header>
+                                        <div class="grid gap-3 sm:grid-cols-3 text-sm text-gray-300">
+                                            <div class="rounded-xl border border-white/5 bg-gray-900/70 p-3">
+                                                <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Sesiones</p>
+                                                <p class="mt-1 text-base font-semibold text-white">${formatNumber(totalDays)} ${daysLabel}</p>
+                                            </div>
+                                            <div class="rounded-xl border border-white/5 bg-gray-900/70 p-3">
+                                                <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Volumen</p>
+                                                <p class="mt-1 text-base font-semibold text-white">${formatNumber(totalExercises)} ${volumeLabel}</p>
+                                            </div>
+                                            <div class="rounded-xl border border-white/5 bg-gray-900/70 p-3">
+                                                <p class="text-[11px] uppercase tracking-[0.3em] text-gray-400">Asignada</p>
+                                                <p class="mt-1 text-base font-semibold text-white">${assignedDateLabel}</p>
+                                                ${assignedTimeLabel ? `<p class="text-xs text-gray-400">a las ${assignedTimeLabel} h</p>` : ''}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            `;
+                        }).join('')}
+                    </div>`
+                : `<p class="rounded-xl border border-dashed border-white/10 bg-gray-900/40 p-4 text-sm text-gray-500">Aún no se han vinculado rutinas a este asesorado. Vincula tantas como necesites desde tu librería o crea una personalizada.</p>`;
+
+            const routineHTML = `
+                <section class="rounded-3xl border border-white/10 bg-slate-950/70 p-6 backdrop-blur">
+                    <div class="flex flex-col gap-6">
+                        <div class="flex flex-col gap-2">
+                            <h4 class="text-lg font-bold text-white">Plan de Entrenamiento</h4>
+                            <p class="text-sm text-gray-400">Gestiona, combina y rota rutinas listas para ${clientFirstName}.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-400">
+                            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-200"><i data-lucide="layers" class="h-3.5 w-3.5"></i>${assignedRoutines.length === 1 ? '1 rutina activa' : `${formatNumber(assignedRoutines.length)} rutinas activas`}</span>
+                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-emerald-200"><i data-lucide="refresh-cw" class="h-3.5 w-3.5"></i>Reemplaza cuando quieras</span>
+                        </div>
+                        <div class="grid gap-3">
+                            ${assignedRoutinesHTML}
+                        </div>
+                        <div class="grid gap-3 md:grid-cols-[1fr_auto] md:items-end">
+                            <div class="space-y-2">
+                                <label for="${selectorId}" class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Vincular desde la librería</label>
+                                <div class="relative">
+                                    <i data-lucide="library" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-300"></i>
+                                    <select id="${selectorId}" class="w-full appearance-none rounded-xl border border-white/10 bg-gray-900/80 px-10 py-2.5 text-sm text-white transition focus:border-emerald-400 focus:outline-none">
+                                        <option value="">Selecciona una rutina</option>
+                                        ${routineOptions || ''}
+                                    </select>
+                                    <i data-lucide="chevron-down" class="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"></i>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-3 md:items-end">
+                                <button data-action="assign-routine-to-client" data-client-id="${clientId}" class="w-full rounded-xl bg-emerald-400/90 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 md:w-auto">Vincular rutina</button>
+                                <button data-action="edit-client-routine" data-client-id="${clientId}" class="w-full rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-5 py-2.5 text-sm font-semibold text-emerald-200 transition hover:border-emerald-400 hover:text-emerald-100 md:w-auto">${latestRoutine ? 'Abrir en el creador' : 'Crear rutina personalizada'}</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `;
+
+            const goalCalories = typeof client?.userGoals?.calories === 'number' ? client.userGoals.calories : null;
+            const dietDays = Array.isArray(client.dailyDiet) ? client.dailyDiet.length : 0;
+
+            const dietHTML = `
+                <section class="rounded-3xl border border-white/10 bg-slate-950/70 p-6 backdrop-blur">
+                    <div class="flex flex-col gap-6">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <h4 class="text-lg font-bold text-white">Plan de Alimentación</h4>
+                                <p class="text-sm text-gray-400">Organiza la dieta semanal y confirma checklists diarios.</p>
+                            </div>
+                            <span class="rounded-full bg-amber-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-amber-300">${dietDays} día(s)</span>
+                        </div>
+                        <div class="rounded-2xl border border-white/5 bg-gradient-to-br from-gray-900 via-gray-900/60 to-gray-800 p-4 text-sm text-gray-300">
+                            <p class="flex items-center gap-2 text-base font-semibold text-white"><i data-lucide="flame" class="h-5 w-5 text-emerald-300"></i>${goalCalories ? `${goalCalories.toLocaleString('es-ES')} kcal objetivo` : 'Objetivo calórico sin definir'}</p>
+                            <p class="mt-2 text-xs text-gray-400">Define macronutrientes diarios, comidas y checklist de seguimiento.</p>
+                        </div>
+                        <button data-action="edit-client-diet" data-client-id="${clientId}" class="w-full rounded-xl bg-emerald-500/90 px-5 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-emerald-400">Configurar dieta semanal</button>
+                    </div>
+                </section>
+            `;
+
+            const summaryHTML = `
+                <section class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Rutinas activas</p>
+                        <p class="mt-2 text-2xl font-bold text-white">${assignedRoutines.length}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Días planificados</p>
+                        <p class="mt-2 text-2xl font-bold text-white">${dietDays}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Checklist completado</p>
+                        <p class="mt-2 text-2xl font-bold text-white">${completedChecklist}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-left">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Contacto directo</p>
+                        <p class="mt-2 text-xs text-gray-300">Mantén actualizado el chat interno con notas y evidencias de progreso.</p>
+                    </div>
+                </section>
+            `;
+
+            const viewHTML = `
+                <div id="client-manager-view" class="fullscreen-view flex h-full w-full flex-col overflow-hidden bg-slate-950/95">
+                    <div class="relative flex-1 overflow-hidden">
+                        <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(16,185,129,0.25),_transparent_65%)] opacity-70"></div>
+                        <div class="relative z-[1] flex h-full flex-col">
+                            <header class="sticky top-0 z-[2] border-b border-white/5 bg-slate-950/80 backdrop-blur">
+                                <div class="flex items-center justify-between gap-3 px-4 py-4">
+                                    <button data-action="routine-close-view" class="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-emerald-400 hover:text-emerald-200"><i data-lucide="arrow-left"></i></button>
+                                    <div class="flex flex-1 flex-col items-center gap-1 text-center">
+                                        <h3 class="text-lg font-semibold text-white">${clientName}</h3>
+                                        <p class="text-xs text-gray-400">${clientEmail}</p>
+                                    </div>
+                                    <div class="hidden h-10 w-10 items-center justify-center rounded-full border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 sm:flex"><i data-lucide="message-circle"></i></div>
+                                </div>
+                            </header>
+                            <main class="flex-1 space-y-6 overflow-y-auto px-4 py-6 sm:px-6 lg:px-10">
+                                ${summaryHTML}
+                                <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,340px)]">
+                                    <div class="space-y-6">
+                                        ${routineHTML}
+                                        ${dietHTML}
+                                    </div>
+                                    <aside class="space-y-6">
+                                        ${this.renderClientFollowUpPanel(client)}
+                                    </aside>
+                                </div>
+                            </main>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            this.routine_openFullscreenView(viewHTML);
+        },
+
+        editClientRoutine(clientId, routineId) {
+            const client = this.state.asesorados.find(c => c.id === clientId);
+            if (!client) return;
+
+            let existingRoutine = null;
+            if (Array.isArray(client.userRoutines) && client.userRoutines.length > 0) {
+                existingRoutine = routineId
+                    ? client.userRoutines.find(r => r.id === routineId) || client.userRoutines[0]
+                    : client.userRoutines[0];
+            }
+
+            if (existingRoutine) {
+                this._tempRoutine = JSON.parse(JSON.stringify(existingRoutine));
+                this._tempRoutine.modalEditingIndex = -1;
+                if (typeof this._tempRoutine.miniWindowCollapsed !== 'boolean') {
+                    this._tempRoutine.miniWindowCollapsed = false;
+                }
+            } else {
+                const baseName = (client.userName || client.email || 'asesorado');
+                const shortName = baseName.split(' ')[0] || baseName;
+                this._tempRoutine = {
+                    id: `manual-${Date.now()}`,
+                    name: `Rutina para ${shortName}`,
+                    description: '',
+                    plan: [{ day: 'Día 1', exercises: [] }],
+                    currentDayIndex: 0,
+                    editingIndex: -1,
+                    modalEditingIndex: -1,
+                    activeExerciseGroup: '',
+                    miniWindowCollapsed: false
+                };
+            }
+            if (!this._tempRoutine.activeExerciseGroup) {
+                this._tempRoutine.activeExerciseGroup = '';
+            }
+            if (typeof this._tempRoutine.miniWindowCollapsed !== 'boolean') {
+                this._tempRoutine.miniWindowCollapsed = false;
+            }
+            this._tempRoutine.editingClientId = clientId;
+            this._tempRoutine.assignedClientId = clientId;
+            this.routine_enterCreator(2);
+        },
+
+        async assignRoutineToClient(clientId) {
+            const selector = document.getElementById(`client-routine-select-${clientId}`);
+            if (!selector) return;
+
+            const routineId = selector.value;
+            const selectedOption = selector.options[selector.selectedIndex];
+            if (!routineId) {
+                this.showToast('Selecciona una rutina para vincular.', 'error');
+                return;
+            }
+
+            const client = (this.state.asesorados || []).find(c => c.id === clientId);
+            if (!client) {
+                this.showToast('Cliente no encontrado.', 'error');
+                return;
+            }
+            const clientName = client.userName || client.email || 'tu asesorado';
+            const clientFirstName = clientName.includes('@') ? clientName.split('@')[0] : (clientName.split(' ')[0] || clientName);
+
+            const source = selectedOption?.dataset?.source || 'personal';
+            const category = selectedOption?.dataset?.category || null;
+
+            let routine = (this.state.userRoutines || []).find(r => r.id === routineId);
+            if (!routine) {
+                routine = Object.values(this.data?.predefinedRoutines || {}).flat().find(r => r.id === routineId);
+            }
+
+            if (!routine) {
+                this.showToast('No encontramos esa rutina en tu librería.', 'error');
+                return;
+            }
+
+            const routineCopy = JSON.parse(JSON.stringify(routine));
+            routineCopy.assignedClientId = clientId;
+            routineCopy.assignedAt = new Date().toISOString();
+            if (source === 'predefined') {
+                routineCopy.origin = 'predefined';
+                routineCopy.predefinedCategory = category;
+            } else if (!routineCopy.origin) {
+                routineCopy.origin = 'personal';
+            }
+
+            const existingRoutines = Array.isArray(client.userRoutines) ? [...client.userRoutines] : [];
+            const existingIndex = existingRoutines.findIndex(r => r.id === routineCopy.id);
+            if (existingIndex >= 0) {
+                existingRoutines[existingIndex] = routineCopy;
+            } else {
+                existingRoutines.unshift(routineCopy);
+            }
+
+            try {
+                const clientRef = doc(this.db, 'users', clientId);
+                await updateDoc(clientRef, { userRoutines: existingRoutines });
+                this.showToast(`Rutina vinculada a ${clientFirstName}.`, 'success');
+                selector.value = '';
+                await this.fetchAsesorados();
+                this.showClientManager(clientId);
+            } catch (error) {
+                console.error('Error assigning routine to client:', error);
+                this.showToast('No se pudo vincular la rutina.', 'error');
+            }
+        },
+
+        confirmRemoveClientRoutine(clientId, routineId) {
+            if (!clientId || !routineId) {
+                this.showToast('No se pudo identificar la rutina.', 'error');
+                return;
+            }
+
+            const client = (this.state.asesorados || []).find(c => c.id === clientId);
+            const routine = Array.isArray(client?.userRoutines) ? client.userRoutines.find(r => r.id === routineId) : null;
+            const clientName = client?.userName || client?.email || 'tu asesorado';
+            const firstName = clientName && clientName.includes('@')
+                ? clientName.split('@')[0]
+                : (clientName.split(' ')[0] || clientName);
+            const routineName = routine?.name || 'esta rutina';
+
+            const body = `
+                <p class="text-sm text-gray-300">¿Quieres desvincular <strong class="text-white">${routineName}</strong> de ${firstName}?</p>
+                <p class="mt-3 text-xs text-gray-400">Podrás asignar otra rutina inmediatamente después y el historial del asesorado se mantendrá intacto.</p>
+            `;
+
+            const footer = [
+                { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                { text: 'Desvincular', class: 'bg-rose-500 text-slate-950 hover:bg-rose-400', action: 'remove-client-routine', 'client-id': clientId, 'routine-id': routineId }
+            ];
+
+            this.showModal('Desvincular rutina', body, footer);
+        },
+
+        async removeClientRoutine(clientId, routineId) {
+            if (!clientId || !routineId) {
+                this.showToast('No se pudo identificar la rutina a eliminar.', 'error');
+                return;
+            }
+
+            const client = (this.state.asesorados || []).find(c => c.id === clientId);
+            if (!client) {
+                this.showToast('Cliente no encontrado.', 'error');
+                return;
+            }
+
+            const existingRoutines = Array.isArray(client.userRoutines) ? [...client.userRoutines] : [];
+            const updatedRoutines = existingRoutines.filter(routine => routine.id !== routineId);
+
+            if (updatedRoutines.length === existingRoutines.length) {
+                this.showToast('No se encontró la rutina seleccionada.', 'error');
+                return;
+            }
+
+            if (!this.db) {
+                this.showToast('No se pudo conectar a la base de datos.', 'error');
+                return;
+            }
+
+            try {
+                const clientRef = doc(this.db, 'users', clientId);
+                await updateDoc(clientRef, { userRoutines: updatedRoutines });
+                this.hideModal();
+                const clientName = client.userName || client.email || 'tu asesorado';
+                const firstName = clientName && clientName.includes('@')
+                    ? clientName.split('@')[0]
+                    : (clientName.split(' ')[0] || clientName);
+                this.showToast(`Rutina desvinculada de ${firstName}.`, 'success');
+                await this.fetchAsesorados();
+                this.showClientManager(clientId);
+            } catch (error) {
+                console.error('Error removing routine from client:', error);
+                this.showToast('No se pudo desvincular la rutina.', 'error');
+            }
+        },
+
+        // --- NUEVAS FUNCIONES DE EDICIÓN DE DIETA ---
+
+        async editClientDiet(clientId) {
+            const client = this.state.asesorados.find(c => c.id === clientId);
+            if (!client) return this.showToast("Cliente no encontrado.", "error");
+
+            // Crear una copia profunda para edición temporal, asegurando que los datos por defecto existan.
+            const defaultData = this.getDefaultState();
+            this._tempClientData = JSON.parse(JSON.stringify({
+                id: client.id,
+                userName: client.userName,
+                userGoals: client.userGoals || defaultData.userGoals,
+                physicalStats: client.physicalStats || defaultData.physicalStats,
+                dailyDiet: Array.isArray(client.dailyDiet) && client.dailyDiet.length > 0 ? client.dailyDiet : defaultData.dailyDiet
+            }));
+
+            const editorHTML = this.renderClientDietEditor();
+            this.routine_openFullscreenView(editorHTML);
+            this.renderFoodList('', 'client-food-list');
+        },
+
+        renderClientDietEditor() {
+            const client = this._tempClientData;
+            const goals = client.userGoals;
+
+            return `
+            <div id="client-diet-editor" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col">
+                <header class="p-4 flex items-center justify-between bg-gray-800/80 backdrop-blur-sm shrink-0">
+                    <button data-action="routine-close-view" class="p-2 rounded-full hover:bg-gray-700"><i data-lucide="arrow-left"></i></button>
+                    <div class="text-center">
+                        <h3 class="text-lg font-bold truncate">Dieta de ${client.userName.split(' ')[0]}</h3>
+                    </div>
+                    <button data-action="save-client-diet" data-client-id="${client.id}" class="font-bold text-emerald-400 px-4 py-2 rounded-lg hover:bg-emerald-500/10">Guardar</button>
+                </header>
+
+                <div class="flex-grow p-4 overflow-y-auto space-y-6">
+                    <div class="bg-gray-800 p-4 rounded-xl space-y-3">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-semibold text-lg">Metas Diarias</h3>
+                            <button data-action="client-diet-show-calculator" data-client-id="${client.id}" class="flex items-center gap-1.5 text-sm bg-sky-500/20 text-sky-300 font-semibold py-1 px-3 rounded-lg hover:bg-sky-500/40">
+                                <i data-lucide="calculator" class="w-4 h-4"></i>Calcular Metas
+                            </button>
+                        </div>
+                        <form id="client-diet-goals-form" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div><label class="text-xs text-gray-400">Calorías (kcal)</label><input type="number" id="client-cals-goal" value="${goals.calories}" class="w-full bg-gray-700 p-2 rounded-lg text-center font-bold"></div>
+                            <div><label class="text-xs text-gray-400">Proteína (g)</label><input type="number" id="client-prot-goal" value="${goals.protein}" class="w-full bg-gray-700 p-2 rounded-lg text-center font-bold"></div>
+                            <div><label class="text-xs text-gray-400">Carbs (g)</label><input type="number" id="client-carb-goal" value="${goals.carbs}" class="w-full bg-gray-700 p-2 rounded-lg text-center font-bold"></div>
+                            <div><label class="text-xs text-gray-400">Grasas (g)</label><input type="number" id="client-fat-goal" value="${goals.fats}" class="w-full bg-gray-700 p-2 rounded-lg text-center font-bold"></div>
+                        </form>
+                    </div>
+
+                    <div id="client-meal-sections-editor" class="space-y-4">
+                        ${client.dailyDiet.map((meal, index) => this._renderClientMealSectionEditor(meal, index)).join('')}
+                    </div>
+                    <button data-action="client-diet-add-meal" class="w-full bg-gray-700/80 font-bold py-2.5 rounded-lg hover:bg-gray-700 transition flex items-center justify-center gap-2 text-emerald-400">
+                        <i data-lucide="plus"></i>Añadir Comida
+                    </button>
+
+                    <div class="bg-gray-800 p-4 rounded-xl">
+                        <div class="flex justify-between items-center mb-3">
+                            <h3 class="text-xl font-bold">Librería de Alimentos</h3>
+                            <button data-action="client-diet-create-food-modal" class="flex items-center gap-1.5 text-sm bg-emerald-500/20 text-emerald-300 font-semibold py-1 px-3 rounded-lg hover:bg-emerald-500/40">
+                                <i data-lucide="plus-circle" class="w-4 h-4"></i>Crear Alimento
+                            </button>
+                        </div>
+                        <div class="relative"><input type="text" id="client-food-search" placeholder="Busca un alimento..." class="w-full bg-gray-700 rounded-lg p-3 pl-10"><div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"><i data-lucide="search" class="text-gray-400"></i></div></div>
+                        <div id="client-food-list" class="space-y-2 pr-2 mt-3 max-h-96 overflow-y-auto"></div>
+                    </div>
+                </div>
+            </div>`;
+        },
+
+        _renderClientMealSectionEditor(meal, mealIndex) {
+            const totalCals = meal.items.reduce((sum, item) => sum + item.totalCals, 0);
+            const itemsHTML = meal.items.length > 0
+                ? meal.items.map((item, itemIndex) => `
+                    <div class="bg-gray-900/50 p-2 rounded-md flex justify-between items-center text-sm">
+                        <div>
+                            <p>${item.name} <span class="text-gray-400">(${item.amount || 'N/A'}g)</span></p>
+                            <p class="text-xs text-gray-400">P:${item.totalP}g C:${item.totalC}g G:${item.totalF}g</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="font-semibold text-emerald-400">${item.totalCals} kcal</span>
+                            <button data-action="client-diet-remove-food" data-meal-index="${mealIndex}" data-item-index="${itemIndex}" class="text-red-400 hover:text-red-300 text-xl leading-none p-1">&times;</button>
+                        </div>
+                    </div>`).join('')
+                : `<p class="text-sm text-center text-gray-500 py-2">No hay alimentos en esta comida.</p>`;
+
+            return `
+            <div class="bg-gray-700/50 p-4 rounded-xl" data-meal-id="${meal.id}">
+                <div class="flex justify-between items-start mb-3">
+                    <div class="grid grid-cols-2 gap-x-4 gap-y-2 flex-grow">
+                        <div>
+                            <label class="text-xs text-gray-400">Nombre de la Comida</label>
+                            <input type="text" data-field="name" data-meal-index="${mealIndex}" value="${meal.name}" class="w-full bg-gray-800 p-2 rounded-lg font-bold text-lg">
+                        </div>
+                        <div>
+                            <label class="text-xs text-gray-400">Hora</label>
+                            <input type="time" data-field="time" data-meal-index="${mealIndex}" value="${meal.time}" class="w-full bg-gray-800 p-2 rounded-lg font-bold text-lg">
+                        </div>
+                    </div>
+                    <button data-action="client-diet-remove-meal" data-meal-index="${mealIndex}" class="ml-2 mt-5 p-2 text-red-500 hover:bg-red-500/10 rounded-full"><i data-lucide="trash-2" class="w-5 h-5"></i></button>
+                </div>
+                <div class="space-y-2 mt-4 border-t border-gray-600/50 pt-3">${itemsHTML}</div>
+                <p class="text-right text-sm text-gray-400 mt-2">Total Comida: <span class="font-bold text-white">${Math.round(totalCals)} kcal</span></p>
+            </div>`;
+        },
+
+        _rerenderClientMealEditor() {
+            const container = document.getElementById('client-meal-sections-editor');
+            if (container) {
+                container.innerHTML = this._tempClientData.dailyDiet.map((meal, index) => this._renderClientMealSectionEditor(meal, index)).join('');
+                lucide.createIcons();
+            }
+        },
+        _addMealToClientDietTemp() {
+            const newMeal = {
+                id: `meal-${Date.now()}`,
+                name: `Comida ${this._tempClientData.dailyDiet.length + 1}`,
+                time: '17:00',
+                items: []
+            };
+            this._tempClientData.dailyDiet.push(newMeal);
+            this._rerenderClientMealEditor();
+        },
+        _removeMealFromClientDietTemp(mealIndex) {
+            this._tempClientData.dailyDiet.splice(mealIndex, 1);
+            this._rerenderClientMealEditor();
+        },
+        _updateMealDataFromUI(mealIndex) {
+            const mealDiv = document.querySelector(`#client-diet-editor [data-meal-index="${mealIndex}"]`).closest('[data-meal-id]');
+            const nameInput = mealDiv.querySelector('input[data-field="name"]');
+            const timeInput = mealDiv.querySelector('input[data-field="time"]');
+            this._tempClientData.dailyDiet[mealIndex].name = nameInput.value;
+            this._tempClientData.dailyDiet[mealIndex].time = timeInput.value;
+        },
+        _showAddFoodToClientModal(foodId) {
+            const food = this.getFoodById(foodId);
+            if (!food) return;
+
+            const mealOptions = this._tempClientData.dailyDiet.map((meal, index) => 
+                `<button data-action="client-diet-add-food-to-meal" data-food-id="${food.id}" data-meal-index="${index}" class="bg-gray-600 p-2 rounded-lg hover:bg-gray-500">${meal.name}</button>`
+            ).join('');
+
+            const body = `
+                <p class="mb-4">Añadir <strong>${food.name}</strong> a una comida.</p>
+                <div><label for="food-amount-client" class="block text-sm font-medium text-gray-300 mb-1">Cantidad (g)</label><input type="number" id="food-amount-client" value="100" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div>
+                <div class="mt-4"><label class="block text-sm font-medium text-gray-300 mb-2">Selecciona la comida</label><div class="grid grid-cols-2 gap-2">${mealOptions}</div></div>`;
+            this.showModal(`Añadir a Dieta de ${this._tempClientData.userName.split(' ')[0]}`, body, [{ text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' }]);
+        },
+        _addFoodToClientDietTemp(foodId, mealIndex) {
+            const amount = parseInt(document.getElementById('food-amount-client').value);
+            if (isNaN(amount) || amount <= 0) { this.showToast("Cantidad inválida.", "error"); return; }
+            const food = this.getFoodById(foodId);
+            if (!food) { this.showToast("Alimento no encontrado.", "error"); return; }
+
+            const factor = amount / 100;
+            this._tempClientData.dailyDiet[mealIndex].items.push({
+                ...food, amount: amount,
+                totalCals: Math.round((food.cals || 0) * factor),
+                totalP: Math.round((food.p || 0) * factor),
+                totalC: Math.round((food.c || 0) * factor),
+                totalF: Math.round((food.f || 0) * factor)
+            });
+
+            this._rerenderClientMealEditor();
+            this.hideModal();
+            this.showToast(`${food.name} añadido a ${this._tempClientData.dailyDiet[mealIndex].name}.`);
+        },
+        _handleRemoveFoodFromClientDiet(mealIndex, itemIndex) {
+            this._tempClientData.dailyDiet[mealIndex].items.splice(itemIndex, 1);
+            this._rerenderClientMealEditor();
+            this.showToast('Alimento eliminado.', 'error');
+        },
+        _handleUpdateClientGoalsFromUI() {
+            this._tempClientData.userGoals.calories = parseInt(document.getElementById('client-cals-goal').value) || 0;
+            this._tempClientData.userGoals.protein = parseInt(document.getElementById('client-prot-goal').value) || 0;
+            this._tempClientData.userGoals.carbs = parseInt(document.getElementById('client-carb-goal').value) || 0;
+            this._tempClientData.userGoals.fats = parseInt(document.getElementById('client-fat-goal').value) || 0;
+        },
+        _showClientCalculatorModal(clientId) {
+            const client = this._tempClientData;
+            const stats = client.physicalStats || this.getDefaultState().physicalStats;
+            const body = `
+                <p class="text-sm text-gray-400 mb-4">Calcula las metas basadas en los datos de ${client.userName}.</p>
+                <form id="client-calc-form" class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4"><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="gender" value="male" class="sr-only" ${stats.gender === 'male' ? 'checked' : ''}> Hombre</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="gender" value="female" class="sr-only" ${stats.gender === 'female' ? 'checked' : ''}> Mujer</label></div>
+                    <div class="grid grid-cols-3 gap-3"><div><label class="text-xs">Edad</label><input type="number" name="age" value="${stats.age}" class="w-full bg-gray-700 rounded p-2 text-center"></div><div><label class="text-xs">Peso (kg)</label><input type="number" step="0.1" name="weight" value="${stats.weight}" class="w-full bg-gray-700 rounded p-2 text-center"></div><div><label class="text-xs">Altura (cm)</label><input type="number" name="height" value="${stats.height}" class="w-full bg-gray-700 rounded p-2 text-center"></div></div>
+                    <div><label class="text-xs">Nivel de Actividad</label><select name="activity" class="w-full bg-gray-700 rounded p-2 mt-1"><option value="1.2" ${stats.activity == 1.2 ? 'selected' : ''}>Sedentario</option><option value="1.375" ${stats.activity == 1.375 ? 'selected' : ''}>Ligero</option><option value="1.55" ${stats.activity == 1.55 ? 'selected' : ''}>Moderado</option><option value="1.725" ${stats.activity == 1.725 ? 'selected' : ''}>Activo</option><option value="1.9" ${stats.activity == 1.9 ? 'selected' : ''}>Muy Activo</option></select></div>
+                    <div class="grid grid-cols-3 gap-2"><label class="bg-gray-700 p-2 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="goal" value="lose" class="sr-only"> Perder</label><label class="bg-gray-700 p-2 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="goal" value="maintain" class="sr-only" checked> Mantener</label><label class="bg-gray-700 p-2 rounded-lg text-center cursor-pointer text-sm has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="goal" value="gain" class="sr-only"> Ganar</label></div>
+                </form>
+            `;
+            const footer = [{ text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' }, { text: 'Calcular y Aplicar', class: 'bg-emerald-600 text-gray-900', action: 'none' }];
+            this.showModal('Calcular Metas', body, footer);
+
+            document.querySelector('#custom-modal-footer button[data-action="none"]').onclick = () => {
+                const form = document.getElementById('client-calc-form');
+                const results = this.calculateNutrition(form, false);
+                if (results) {
+                    document.getElementById('client-cals-goal').value = results.calories;
+                    document.getElementById('client-prot-goal').value = results.protein;
+                    document.getElementById('client-carb-goal').value = results.carbs;
+                    document.getElementById('client-fat-goal').value = results.fats;
+                    this._handleUpdateClientGoalsFromUI();
+                    this.hideModal();
+                }
+            };
+        },
+        _hydrateDietFoodCreator() {
+            const card = document.getElementById('diet-create-food-card');
+            if (!card) {
+                return;
+            }
+
+            const shouldShow = this.isAsesor();
+            card.classList.toggle('hidden', !shouldShow);
+            if (!shouldShow) {
+                return;
+            }
+
+            const preview = document.getElementById('diet-create-food-preview');
+            if (preview) {
+                if (!preview.dataset.initialized) {
+                    this.renderFoodImagePlaceholder(preview);
+                    preview.dataset.initialized = 'true';
+                } else if (!preview.innerHTML.trim()) {
+                    this.renderFoodImagePlaceholder(preview);
+                }
+            }
+
+            const removeBtn = document.getElementById('diet-create-remove-btn');
+            if (removeBtn && !removeBtn.dataset.originalInnerHTML) {
+                removeBtn.dataset.originalInnerHTML = removeBtn.innerHTML;
+            }
+
+            const removeInput = document.getElementById('diet-create-remove-image');
+            if (removeInput && removeInput.value !== 'false' && !document.getElementById('diet-create-food-image')?.files?.length) {
+                removeInput.value = 'false';
+            }
+
+            this.setupFoodImagePreview('diet-create-food-image', 'diet-create-food-preview', 'diet-create-remove-image', 'diet-create-remove-btn');
+        },
+        _showCreateFoodModal() {
+            const body = `
+                <p class="text-sm text-gray-300 mb-4">Añade un nuevo alimento a tu librería personal con valores por cada 100&nbsp;g para mantener tus cálculos precisos.</p>
+                <form id="create-food-form" class="space-y-5">
+                    <div>
+                        <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Nombre del alimento</label>
+                        <input type="text" name="name" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                    </div>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <div>
+                            <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Calorías (kcal)</label>
+                            <input type="number" name="cals" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Proteína (g)</label>
+                            <input type="number" name="p" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Carbohidratos (g)</label>
+                            <input type="number" name="c" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Grasas (g)</label>
+                            <input type="number" name="f" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                        </div>
+                    </div>
+                    <div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/60 p-4">
+                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Imagen opcional</p>
+                        <div id="custom-food-image-preview" class="mt-3 rounded-xl border border-dashed border-white/10 bg-gray-900/50 p-4"></div>
+                        <div class="mt-3 flex flex-wrap items-center gap-3">
+                            <label class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400 hover:text-white">
+                                <i data-lucide="upload-cloud" class="h-3.5 w-3.5"></i>
+                                Subir imagen
+                                <input type="file" id="custom-food-image-input" accept="image/*" class="hidden">
+                            </label>
+                            <button type="button" id="remove-food-image-btn" data-action="client-diet-remove-food-image" class="inline-flex items-center gap-2 rounded-full border border-rose-400/40 bg-rose-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-rose-200 opacity-60 transition hover:border-rose-300 hover:bg-rose-500/20 disabled:cursor-not-allowed" disabled>
+                                <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                Quitar imagen
+                            </button>
+                        </div>
+                        <input type="hidden" id="custom-food-remove-image" value="false">
+                    </div>
+                </form>
+            `;
+            const footer = [{ text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' }, { text: 'Crear Alimento', class: 'bg-emerald-600 text-gray-900', action: 'client-diet-save-custom-food' }];
+            this.showModal('Crear Nuevo Alimento', body, footer);
+            const preview = document.getElementById('custom-food-image-preview');
+            this.renderFoodImagePlaceholder(preview);
+            this.setupFoodImagePreview('custom-food-image-input', 'custom-food-image-preview', 'custom-food-remove-image', 'remove-food-image-btn');
+            const removeBtn = document.getElementById('remove-food-image-btn');
+            if (removeBtn) {
+                removeBtn.dataset.originalInnerHTML = removeBtn.innerHTML;
+            }
+            lucide.createIcons();
+        },
+        _collectFoodFormValues(form) {
+            if (!form) {
+                this.showToast('No se encontró el formulario del alimento.', 'error');
+                return null;
+            }
+            const name = form.name?.value?.trim() || '';
+            const cals = parseFloat(form.cals?.value);
+            const p = parseFloat(form.p?.value);
+            const c = parseFloat(form.c?.value);
+            const f = parseFloat(form.f?.value);
+            if (!name || [cals, p, c, f].some(value => Number.isNaN(value))) {
+                this.showToast('Todos los campos son obligatorios y deben ser números.', 'error');
+                return null;
+            }
+            return { name, cals, p, c, f };
+        },
+        async _saveCustomFood() {
+            const form = document.getElementById('create-food-form');
+            const newFood = this._collectFoodFormValues(form);
+            if (!newFood) {
+                return;
+            }
+            this.setModalButtonLoading('client-diet-save-custom-food', true);
+
+            try {
+                const fileInput = document.getElementById('custom-food-image-input');
+                if (fileInput && fileInput.files && fileInput.files[0]) {
+                    const { url, storagePath } = await this.uploadImageToStorage(fileInput.files[0], { pathPrefix: 'foods' });
+                    if (url) {
+                        newFood.imageUrl = url;
+                        newFood.storagePath = storagePath;
+                    }
+                }
+
+                const customFoodsRef = collection(this.db, 'users', this.state.currentUser.uid, 'customFoods');
+                await addDoc(customFoodsRef, newFood);
+                this.showToast('Alimento creado y guardado en tu librería.', 'success');
+                await this.loadAndMergeFoodData();
+                const clientSearch = document.getElementById('client-food-search');
+                if (clientSearch) {
+                    this.renderFoodList(clientSearch.value, 'client-food-list');
+                }
+                const mainSearch = document.getElementById('food-search');
+                this.renderFoodList(mainSearch ? mainSearch.value : '');
+                this.hideModal();
+            } catch (error) {
+                console.error('Error creating custom food:', error);
+                this.showToast('No se pudo guardar el alimento.', 'error');
+            } finally {
+                this.setModalButtonLoading('client-diet-save-custom-food', false, 'Crear alimento');
+            }
+        },
+        async _handleInlineFoodCreate() {
+            if (!this.isAsesor()) {
+                this.showToast('Solo el entrenador puede crear alimentos personalizados.', 'error');
+                return;
+            }
+
+            const form = document.getElementById('diet-create-food-form');
+            const submitBtn = form ? form.querySelector('button[type="submit"]') : null;
+            const newFood = this._collectFoodFormValues(form);
+            if (!newFood) {
+                return;
+            }
+
+            this.setElementLoading(submitBtn, true, 'Guardar alimento');
+
+            try {
+                const imageInput = document.getElementById('diet-create-food-image');
+                if (imageInput && imageInput.files && imageInput.files[0]) {
+                    const { url, storagePath } = await this.uploadImageToStorage(imageInput.files[0], { pathPrefix: 'foods' });
+                    if (url) {
+                        newFood.imageUrl = url;
+                        newFood.storagePath = storagePath;
+                    }
+                }
+
+                const customFoodsRef = collection(this.db, 'users', this.state.currentUser.uid, 'customFoods');
+                await addDoc(customFoodsRef, newFood);
+                this.showToast('Alimento creado y guardado en tu librería.', 'success');
+
+                if (form) {
+                    form.reset();
+                }
+                const preview = document.getElementById('diet-create-food-preview');
+                if (preview) {
+                    preview.innerHTML = '';
+                    this.renderFoodImagePlaceholder(preview);
+                }
+                const removeBtn = document.getElementById('diet-create-remove-btn');
+                if (removeBtn) {
+                    removeBtn.disabled = true;
+                    removeBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                    if (removeBtn.dataset.originalInnerHTML) {
+                        removeBtn.innerHTML = removeBtn.dataset.originalInnerHTML;
+                    }
+                }
+                const removeInput = document.getElementById('diet-create-remove-image');
+                if (removeInput) {
+                    removeInput.value = 'false';
+                }
+
+                await this.loadAndMergeFoodData();
+                const mainSearch = document.getElementById('food-search');
+                this.renderFoodList(mainSearch ? mainSearch.value : '');
+                const clientSearch = document.getElementById('client-food-search');
+                if (clientSearch) {
+                    this.renderFoodList(clientSearch.value, 'client-food-list');
+                }
+            } catch (error) {
+                console.error('Error creating custom food:', error);
+                this.showToast('No se pudo guardar el alimento.', 'error');
+            } finally {
+                this.setElementLoading(submitBtn, false, 'Guardar alimento');
+            }
+        },
+        _showEditFoodModal(foodId) {
+            const food = this.getFoodById(foodId);
+            if (!food) {
+                this.showToast('Alimento no encontrado.', 'error');
+                return;
+            }
+
+            const source = food.source || (typeof food.id === 'string' ? 'custom' : 'predefined');
+            const storagePath = food.storagePath || '';
+            const category = food.category || '';
+            const hasImage = Boolean(food.imageUrl);
+            const originIcon = source === 'custom' ? 'star' : 'apple';
+            const originLabel = source === 'custom' ? 'Alimento personalizado' : 'Alimento base FitTrack';
+
+            const body = `
+                <p class="text-sm text-gray-400 mb-4">Actualiza los valores por cada 100&nbsp;g para mantener tus registros precisos.</p>
+                <form id="edit-food-form" class="space-y-4" data-food-id="${foodId}" data-storage-path="${storagePath}" data-image-url="${food.imageUrl || ''}" data-source="${source}" data-category="${category}">
+                    <div class="flex flex-wrap items-center gap-2 text-[11px] text-gray-400">
+                        <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 font-semibold uppercase tracking-[0.35em] text-gray-200">
+                            <i data-lucide="${originIcon}" class="h-3.5 w-3.5"></i>
+                            ${originLabel}
+                        </span>
+                        ${category ? `<span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2.5 py-1 font-semibold uppercase tracking-[0.35em] text-emerald-100">${category}</span>` : ''}
+                    </div>
+                    <div>
+                        <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Nombre del alimento</label>
+                        <input type="text" name="name" value="${food.name}" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Calorías (kcal)</label>
+                            <input type="number" name="cals" value="${food.cals}" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Proteína (g)</label>
+                            <input type="number" name="p" value="${food.p}" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Carbohidratos (g)</label>
+                            <input type="number" name="c" value="${food.c}" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                        </div>
+                        <div>
+                            <label class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Grasas (g)</label>
+                            <input type="number" name="f" value="${food.f}" required class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Imagen</p>
+                        <div class="mt-2 flex flex-col gap-3">
+                            <div id="custom-food-image-preview" class="rounded-xl border border-dashed border-white/10 bg-gray-900/40 p-4"></div>
+                            <div class="flex flex-wrap items-center gap-3">
+                                <label class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400 hover:text-white">
+                                    <i data-lucide="upload-cloud" class="h-4 w-4"></i>
+                                    Subir nueva imagen
+                                    <input type="file" id="custom-food-image-input" accept="image/*" class="hidden">
+                                </label>
+                                <button type="button" id="remove-food-image-btn" data-action="client-diet-remove-food-image" class="inline-flex items-center gap-2 rounded-full border border-rose-400/40 bg-rose-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-rose-200 transition hover:border-rose-300 hover:bg-rose-500/20 ${hasImage ? '' : 'opacity-60 cursor-not-allowed'}" ${hasImage ? '' : 'disabled'}>
+                                    <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                    Quitar imagen
+                                </button>
+                            </div>
+                            <input type="hidden" id="custom-food-remove-image" value="false">
+                        </div>
+                    </div>
+                </form>
+            `;
+            const footer = [
+                { text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' },
+                { text: 'Guardar cambios', class: 'bg-emerald-600 text-gray-900', action: 'client-diet-update-food' }
+            ];
+            this.showModal(`Editar Alimento`, body, footer);
+
+            const preview = document.getElementById('custom-food-image-preview');
+            if (hasImage) {
+                preview.innerHTML = `<img src="${food.imageUrl}" alt="${food.name}" class="h-24 w-full rounded-xl border border-white/10 object-cover">`;
+            } else {
+                this.renderFoodImagePlaceholder(preview);
+            }
+            const removeBtn = document.getElementById('remove-food-image-btn');
+            if (removeBtn) {
+                removeBtn.dataset.originalInnerHTML = removeBtn.innerHTML;
+                if (hasImage) {
+                    removeBtn.disabled = false;
+                    removeBtn.classList.remove('opacity-60', 'cursor-not-allowed');
+                } else {
+                    removeBtn.disabled = true;
+                    removeBtn.classList.add('opacity-60', 'cursor-not-allowed');
+                }
+            }
+            this.setupFoodImagePreview('custom-food-image-input', 'custom-food-image-preview', 'custom-food-remove-image', 'remove-food-image-btn');
+            lucide.createIcons();
+        },
+        async _updateFood() {
+            const form = document.getElementById('edit-food-form');
+            if (!form) {
+                return;
+            }
+
+            const foodId = form.dataset.foodId;
+            if (!foodId) {
+                this.showToast('No se pudo identificar el alimento.', 'error');
+                return;
+            }
+
+            const updates = this._collectFoodFormValues(form);
+            if (!updates) {
+                return;
+            }
+
+            const source = form.dataset.source || (isNaN(parseInt(foodId, 10)) ? 'custom' : 'predefined');
+            const category = form.dataset.category || '';
+            if (source === 'predefined' && category && !updates.category) {
+                updates.category = category;
+            }
+
+            const removeImage = document.getElementById('custom-food-remove-image')?.value === 'true';
+            this.setModalButtonLoading('client-diet-update-food', true, 'Guardar cambios');
+
+            const fileInput = document.getElementById('custom-food-image-input');
+            const previousPath = form.dataset.storagePath || '';
+
+            try {
+                if (fileInput && fileInput.files && fileInput.files[0]) {
+                    const { url, storagePath } = await this.uploadImageToStorage(fileInput.files[0], { pathPrefix: 'foods', previousPath });
+                    updates.imageUrl = url;
+                    updates.storagePath = storagePath;
+                } else if (removeImage) {
+                    if (previousPath) {
+                        await this.deleteStorageAsset(previousPath);
+                    }
+                    updates.imageUrl = '';
+                    updates.storagePath = '';
+                }
+
+                if (source === 'custom') {
+                    const foodRef = doc(this.db, 'users', this.state.currentUser.uid, 'customFoods', foodId);
+                    await updateDoc(foodRef, updates);
+                } else {
+                    await this._savePredefinedFoodOverride(foodId, updates);
+                }
+
+                this.showToast('Alimento actualizado.', 'success');
+                this.hideModal();
+                await this.loadAndMergeFoodData();
+                const clientSearch = document.getElementById('client-food-search');
+                if (clientSearch) {
+                    this.renderFoodList(clientSearch.value, 'client-food-list');
+                }
+                const mainSearch = document.getElementById('food-search');
+                this.renderFoodList(mainSearch ? mainSearch.value : '');
+            } catch (error) {
+                console.error('Error updating food:', error);
+                this.showToast('No se pudo actualizar el alimento.', 'error');
+            } finally {
+                this.setModalButtonLoading('client-diet-update-food', false, 'Guardar cambios');
+            }
+        },
+        _handleRemoveFoodImageFromForm(button) {
+            const preview = document.getElementById('custom-food-image-preview');
+            const removeInput = document.getElementById('custom-food-remove-image');
+            const fileInput = document.getElementById('custom-food-image-input');
+            if (removeInput) {
+                removeInput.value = 'true';
+            }
+            if (fileInput) {
+                fileInput.value = '';
+            }
+            this.renderFoodImagePlaceholder(preview);
+            if (button) {
+                if (!button.dataset.originalInnerHTML) {
+                    button.dataset.originalInnerHTML = button.innerHTML;
+                }
+                button.disabled = true;
+                button.classList.add('opacity-60', 'cursor-not-allowed');
+                button.innerHTML = `<i data-lucide="check" class="h-4 w-4"></i> Eliminada`;
+                lucide.createIcons();
+            }
+        },
+        _confirmDeleteCustomFood(foodId) {
+            const food = this.getFoodById(foodId);
+            if (!food) return this.showToast('Alimento no encontrado', 'error');
+            const body = `¿Estás seguro de que quieres eliminar permanentemente el alimento "<strong>${food.name}</strong>"? Esta acción no se puede deshacer.`;
+            const footer = [
+                { text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' },
+                { text: 'Eliminar', class: 'bg-red-600', action: 'delete-custom-food', 'food-id': foodId, 'storage-path': food.storagePath || '' }
+            ];
+            this.showModal('Confirmar Eliminación', body, footer);
+        },
+        async _deleteCustomFood(foodId, storagePath = '') {
+            try {
+                const foodRef = doc(this.db, "users", this.state.currentUser.uid, "customFoods", foodId);
+                await deleteDoc(foodRef);
+                if (storagePath) {
+                    await this.deleteStorageAsset(storagePath);
+                }
+                this.showToast('Alimento eliminado con éxito.', 'success');
+                this.hideModal();
+                await this.loadAndMergeFoodData();
+                const clientSearchInput = document.getElementById('client-food-search');
+                if (clientSearchInput) {
+                    this.renderFoodList(clientSearchInput.value, 'client-food-list');
+                }
+                const mainSearch = document.getElementById('food-search');
+                this.renderFoodList(mainSearch ? mainSearch.value : '');
+            } catch (error) {
+                console.error("Error deleting custom food:", error);
+                this.showToast('No se pudo eliminar el alimento.', 'error');
+            }
+        },
+        async _savePredefinedFoodOverride(foodId, updates) {
+            const key = String(foodId);
+            const currentOverrides = { ...(this.data.foodOverrides || {}) };
+            const existing = currentOverrides[key] || {};
+            const nextOverride = { ...existing, ...updates };
+            if (nextOverride.hidden === false) {
+                delete nextOverride.hidden;
+            }
+            currentOverrides[key] = nextOverride;
+            try {
+                const docRef = doc(this.db, 'app_data', 'food_overrides');
+                await setDoc(docRef, { overrides: currentOverrides }, { merge: true });
+                this.data.foodOverrides = currentOverrides;
+            } catch (error) {
+                console.error('Error guardando overrides de alimentos:', error);
+                throw error;
+            }
+        },
+        _confirmDeletePredefinedFood(foodId) {
+            const food = this.getFoodById(foodId);
+            if (!food) {
+                this.showToast('Alimento no encontrado', 'error');
+                return;
+            }
+            const body = `Ocultarás <strong>${food.name}</strong> de la biblioteca base. Podrás restaurarlo editando los alimentos base nuevamente.`;
+            const footer = [
+                { text: 'Cancelar', class: 'bg-gray-600', action: 'hide-modal' },
+                { text: 'Ocultar', class: 'bg-red-600', action: 'delete-predefined-food', 'food-id': foodId, 'storage-path': food.storagePath || '' }
+            ];
+            this.showModal('Ocultar alimento base', body, footer);
+        },
+        async _deletePredefinedFood(foodId, storagePath = '') {
+            try {
+                const key = String(foodId);
+                const overrides = { ...(this.data.foodOverrides || {}) };
+                const existing = overrides[key] || {};
+                const nextOverride = { ...existing, hidden: true };
+                if (storagePath) {
+                    await this.deleteStorageAsset(storagePath);
+                    nextOverride.storagePath = '';
+                    nextOverride.imageUrl = '';
+                }
+                overrides[key] = nextOverride;
+                const docRef = doc(this.db, 'app_data', 'food_overrides');
+                await setDoc(docRef, { overrides }, { merge: true });
+                this.data.foodOverrides = overrides;
+                this.showToast('Alimento ocultado de la biblioteca.', 'success');
+                this.hideModal();
+                await this.loadAndMergeFoodData();
+                const clientSearchInput = document.getElementById('client-food-search');
+                if (clientSearchInput) {
+                    this.renderFoodList(clientSearchInput.value, 'client-food-list');
+                }
+                const mainSearch = document.getElementById('food-search');
+                this.renderFoodList(mainSearch ? mainSearch.value : '');
+            } catch (error) {
+                console.error('Error ocultando alimento base:', error);
+                this.showToast('No se pudo ocultar el alimento.', 'error');
+            }
+        },
+        async saveClientDiet(clientId) {
+            this._handleUpdateClientGoalsFromUI();
+            const clientRef = doc(this.db, "users", clientId);
+            try {
+                await updateDoc(clientRef, {
+                    userGoals: this._tempClientData.userGoals,
+                    dailyDiet: this._tempClientData.dailyDiet
+                });
+                this.showToast(`Dieta de ${this._tempClientData.userName.split(' ')[0]} guardada.`, "success");
+                this.routine_closeFullscreenView();
+                await this.fetchAsesorados();
+                this.renderAsesoradosSection();
+                this._tempClientData = null;
+            } catch (error) {
+                console.error("Error saving client diet:", error);
+                this.showToast("Error al guardar la dieta.", "error");
+            }
+        },
+
+        // --- FIN DE NUEVAS FUNCIONES ---
+
+        updateDietSummary() {
+            const setText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el !== null) {
+                    el.textContent = value;
+                }
+            };
+            const toNumber = (value) => {
+                const parsed = Number(value);
+                return Number.isFinite(parsed) ? parsed : 0;
+            };
+
+            const goals = this.state.userGoals || { calories: 0, protein: 0, carbs: 0, fats: 0 };
+
+            const weightMetrics = this._getWeightProgressMetrics();
+            this._applyWeightMetrics(weightMetrics);
+
+            const consumedTotals = { cals: 0, p: 0, c: 0, f: 0 };
+            const plannedTotals = { cals: 0, p: 0, c: 0, f: 0 };
+            const mealStats = { totalMeals: 0, completedMeals: 0, plannedItems: 0, completedItems: 0 };
+            let nextMealLabel = '';
+
+            const today = new Date().toISOString().split('T')[0];
+            const todayLog = this.state.dietLog ? (this.state.dietLog[today] || {}) : {};
+            const isCoach = this.isAsesor();
+
+            if (Array.isArray(this.state.dailyDiet)) {
+                this.state.dailyDiet.forEach((meal) => {
+                    const items = Array.isArray(meal.items) ? meal.items : [];
+                    if (items.length > 0) {
+                        mealStats.totalMeals += 1;
+                    }
+                    const mealLog = todayLog[meal.id] || [];
+                    let mealCompleted = items.length > 0;
+
+                    items.forEach((item, index) => {
+                        const totals = {
+                            cals: toNumber(item.totalCals),
+                            p: toNumber(item.totalP),
+                            c: toNumber(item.totalC),
+                            f: toNumber(item.totalF)
+                        };
+
+                        plannedTotals.cals += totals.cals;
+                        plannedTotals.p += totals.p;
+                        plannedTotals.c += totals.c;
+                        plannedTotals.f += totals.f;
+
+                        mealStats.plannedItems += 1;
+
+                        const isConsumed = isCoach || mealLog[index] === true;
+                        if (isConsumed) {
+                            consumedTotals.cals += totals.cals;
+                            consumedTotals.p += totals.p;
+                            consumedTotals.c += totals.c;
+                            consumedTotals.f += totals.f;
+                            mealStats.completedItems += 1;
+                        } else {
+                            mealCompleted = false;
+                        }
+                    });
+
+                    if (items.length > 0) {
+                        if (mealCompleted) {
+                            mealStats.completedMeals += 1;
+                        } else if (!nextMealLabel) {
+                            const time = meal.time ? ` · ${meal.time}` : '';
+                            nextMealLabel = `${meal.name}${time}`;
+                        }
+                    }
+                });
+            }
+
+            const caloriesGoal = toNumber(goals.calories);
+            const consumedCalories = Math.round(consumedTotals.cals);
+            const consumedPercentRaw = caloriesGoal > 0 ? (consumedTotals.cals / caloriesGoal) * 100 : 0;
+            const consumedPercent = Math.round(Math.max(0, Math.min(consumedPercentRaw, 150)));
+            const planCalories = Math.round(plannedTotals.cals);
+            const planCoveragePercent = caloriesGoal > 0 ? Math.round(Math.max(0, Math.min((plannedTotals.cals / caloriesGoal) * 100, 200))) : 0;
+            const planDiff = planCalories - caloriesGoal;
+            const calorieDelta = caloriesGoal - consumedTotals.cals;
+
+            let statusLabel = 'Sin registros';
+            let statusClass = 'text-gray-400';
+            if (consumedPercent >= 100 && caloriesGoal > 0) {
+                statusLabel = 'Meta cubierta';
+                statusClass = 'text-emerald-200/90';
+            } else if (consumedPercent >= 75) {
+                statusLabel = 'Cierre final';
+                statusClass = 'text-amber-200/80';
+            } else if (consumedPercent > 0) {
+                statusLabel = 'En curso';
+                statusClass = 'text-emerald-200/80';
+            }
+
+            let deltaText = 'Planifica tu primera comida para comenzar.';
+            let deltaClass = 'text-emerald-100/70';
+            if (caloriesGoal <= 0) {
+                deltaText = 'Configura tu objetivo calórico desde la pestaña de nutrición.';
+                deltaClass = 'text-gray-400';
+            } else if (consumedTotals.cals === 0) {
+                deltaText = 'Registra tu primera comida para iniciar el seguimiento.';
+            } else if (Math.abs(calorieDelta) < 25) {
+                deltaText = 'Estás alineado con tu objetivo diario.';
+                deltaClass = 'text-emerald-200/80';
+            } else if (calorieDelta > 0) {
+                deltaText = `Restan ${Math.round(calorieDelta)} kcal para cerrar el día.`;
+                deltaClass = 'text-emerald-200/80';
+            } else if (calorieDelta < 0) {
+                deltaText = `Te excediste ${Math.abs(Math.round(calorieDelta))} kcal. Ajusta el resto del día.`;
+                deltaClass = 'text-amber-200/80';
+            }
+
+            const planCoverageText = planCalories > 0
+                ? `${planCalories} kcal planificadas${caloriesGoal > 0 ? ` (${planCoveragePercent}% del objetivo)` : ''}`
+                : 'Añade comidas para proyectar tu día.';
+            let planDiffText = '';
+            let planDiffClass = 'text-gray-500';
+            if (planCalories > 0 && caloriesGoal > 0) {
+                if (Math.abs(planDiff) < 25) {
+                    planDiffText = 'Plan alineado con el objetivo.';
+                    planDiffClass = 'text-emerald-200/80';
+                } else if (planDiff > 0) {
+                    planDiffText = `+${Math.round(planDiff)} kcal sobre el objetivo.`;
+                    planDiffClass = 'text-amber-200/80';
+                } else {
+                    planDiffText = `${Math.round(planDiff)} kcal por debajo del objetivo.`;
+                    planDiffClass = 'text-sky-200/80';
+                }
+            } else if (caloriesGoal > 0) {
+                planDiffText = 'Define el detalle de tus comidas para validar el plan.';
+            } else {
+                planDiffText = 'Configura tu objetivo calórico para validar el plan.';
+            }
+
+            const mealProgressText = mealStats.totalMeals > 0
+                ? `${mealStats.completedMeals} de ${mealStats.totalMeals} comidas completadas`
+                : 'Planifica tus comidas para iniciar el seguimiento.';
+            const checkinsPercent = mealStats.plannedItems > 0
+                ? Math.round((mealStats.completedItems / mealStats.plannedItems) * 100)
+                : 0;
+            const checkinsText = mealStats.plannedItems > 0
+                ? `${checkinsPercent}% de tus platos confirmados`
+                : 'Sin registros hoy';
+            let checkinsClass = 'text-gray-500';
+            if (mealStats.plannedItems > 0) {
+                if (checkinsPercent >= 80) {
+                    checkinsClass = 'text-emerald-200/80';
+                } else if (checkinsPercent > 0) {
+                    checkinsClass = 'text-emerald-100/70';
+                }
+            }
+
+            let nextMealText;
+            let nextMealClass = 'text-emerald-200/80';
+            if (mealStats.totalMeals === 0) {
+                nextMealText = 'Añade comidas para activar recordatorios.';
+                nextMealClass = 'text-gray-400';
+            } else if (!nextMealLabel) {
+                nextMealText = 'Todo listo. Celebra tu disciplina.';
+            } else {
+                nextMealText = `Próximo: ${nextMealLabel}`;
+            }
+
+            const macroContainer = document.getElementById('diet-today-macro-badges');
+            if (macroContainer && macroContainer.childElementCount === 0) {
+                const macroTemplate = [
+                    { key: 'protein', label: 'Proteína', icon: 'shield-half', accent: 'text-blue-200', badge: 'bg-blue-500/20 text-blue-100', gradient: 'from-blue-500/10 via-blue-500/5 to-gray-900/60', meter: 'bg-blue-500/20', bar: 'from-blue-400 via-sky-400 to-emerald-300' },
+                    { key: 'carbs', label: 'Carbohidratos', icon: 'wheat', accent: 'text-yellow-200', badge: 'bg-yellow-500/20 text-yellow-100', gradient: 'from-yellow-500/10 via-amber-500/5 to-gray-900/60', meter: 'bg-yellow-500/20', bar: 'from-yellow-300 via-amber-300 to-orange-300' },
+                    { key: 'fats', label: 'Grasas saludables', icon: 'droplets', accent: 'text-rose-200', badge: 'bg-rose-500/20 text-rose-100', gradient: 'from-rose-500/10 via-pink-500/5 to-gray-900/60', meter: 'bg-rose-500/20', bar: 'from-rose-300 via-pink-300 to-purple-300' }
+                ].map(macro => `
+                    <div class="space-y-3 rounded-2xl border border-white/10 bg-gradient-to-br ${macro.gradient} p-4 shadow-inner">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2 text-sm font-semibold ${macro.accent}">
+                                <span class="inline-flex h-9 w-9 items-center justify-center rounded-xl ${macro.badge}">
+                                    <i data-lucide="${macro.icon}" class="h-4 w-4"></i>
+                                </span>
+                                ${macro.label}
+                            </div>
+                            <span class="text-xs uppercase tracking-[0.3em] text-gray-300">Macro</span>
+                        </div>
+                        <p class="text-3xl font-bold text-white">
+                            <span id="diet-total-${macro.key}">0</span><span class="text-base font-semibold text-gray-400"> g</span>
+                        </p>
+                        <p class="text-xs text-gray-400">Objetivo <span id="diet-goal-${macro.key}">0</span> g</p>
+                        <div class="h-2.5 w-full overflow-hidden rounded-full ${macro.meter}">
+                            <div id="diet-${macro.key}-bar" class="h-full rounded-full bg-gradient-to-r ${macro.bar}" style="width: 0%;"></div>
+                        </div>
+                        <p id="diet-${macro.key}-remaining" class="text-xs text-gray-400">Añade comida para calcularlo.</p>
+                    </div>
+                `).join('');
+                macroContainer.innerHTML = macroTemplate;
+            }
+
+            setText('diet-goal-calories', Math.round(caloriesGoal));
+            setText('diet-total-calories', consumedCalories);
+
+            const progressLabel = document.getElementById('diet-today-progress-label');
+            if (progressLabel) {
+                progressLabel.textContent = caloriesGoal > 0 ? `${consumedPercent}% del objetivo` : 'Define tu objetivo calórico';
+            }
+            const progressValue = Math.max(0, Math.min(consumedPercent, 110));
+            const progressBar = document.getElementById('diet-progress-bar');
+            if (progressBar) progressBar.style.width = `${progressValue}%`;
+            const progressTextEl = document.getElementById('diet-total-calories-progress');
+            if (progressTextEl) progressTextEl.textContent = consumedPercent;
+
+            const statusEl = document.getElementById('diet-today-status');
+            if (statusEl) {
+                statusEl.className = `text-xs font-semibold uppercase tracking-[0.3em] ${statusClass}`;
+                statusEl.textContent = statusLabel;
+            }
+
+            const deltaEl = document.getElementById('diet-today-delta');
+            if (deltaEl) {
+                deltaEl.className = `mt-2 text-sm ${deltaClass}`;
+                deltaEl.textContent = deltaText;
+            }
+
+            const planCoverageEl = document.getElementById('diet-plan-coverage');
+            if (planCoverageEl) planCoverageEl.textContent = planCoverageText;
+            const planDiffEl = document.getElementById('diet-plan-diff');
+            if (planDiffEl) {
+                planDiffEl.className = `font-semibold ${planDiffClass}`;
+                planDiffEl.textContent = planDiffText;
+            }
+
+            const mealProgressEl = document.getElementById('diet-today-meal-progress');
+            if (mealProgressEl) mealProgressEl.textContent = mealProgressText;
+            const checkinsEl = document.getElementById('diet-today-checkins');
+            if (checkinsEl) {
+                checkinsEl.className = `text-xs ${checkinsClass}`;
+                checkinsEl.textContent = checkinsText;
+            }
+            const nextMealEl = document.getElementById('diet-today-next-meal');
+            if (nextMealEl) {
+                nextMealEl.className = `text-sm ${nextMealClass}`;
+                nextMealEl.textContent = nextMealText;
+            }
+
+            const macrosData = [
+                { key: 'protein', consumed: consumedTotals.p, goal: goals.protein },
+                { key: 'carbs', consumed: consumedTotals.c, goal: goals.carbs },
+                { key: 'fats', consumed: consumedTotals.f, goal: goals.fats }
+            ];
+            macrosData.forEach(({ key, consumed, goal }) => {
+                const consumedValue = Math.round(consumed);
+                const goalValue = Math.round(toNumber(goal));
+                setText(`diet-total-${key}`, consumedValue);
+                setText(`diet-goal-${key}`, goalValue);
+
+                const percent = goalValue > 0 ? Math.round(Math.max(0, Math.min((consumed / goalValue) * 100, 150))) : 0;
+                const bar = document.getElementById(`diet-${key}-bar`);
+                if (bar) bar.style.width = `${Math.max(0, Math.min(percent, 110))}%`;
+
+                const remaining = goalValue - consumed;
+                const roundedRemaining = Math.round(remaining);
+                let remainingText = goalValue > 0 ? 'Meta cubierta por hoy.' : 'Define tu objetivo para calcularlo.';
+                let remainingClass = goalValue > 0 ? 'text-emerald-200/80' : 'text-gray-400';
+                if (goalValue > 0) {
+                    if (Math.abs(roundedRemaining) < 1) {
+                        remainingText = 'Meta cubierta por hoy.';
+                        remainingClass = 'text-emerald-200/80';
+                    } else if (roundedRemaining > 0) {
+                        remainingText = `Restan ${roundedRemaining} g`;
+                        remainingClass = 'text-emerald-200/80';
+                    } else {
+                        remainingText = `+${Math.abs(roundedRemaining)} g`;
+                        remainingClass = 'text-amber-200/80';
+                    }
+                }
+                const remainingEl = document.getElementById(`diet-${key}-remaining`);
+                if (remainingEl) {
+                    remainingEl.className = `text-xs ${remainingClass}`;
+                    remainingEl.textContent = remainingText;
+                }
+            });
+
+            setText('dashboard-goal-protein', `${Math.round(toNumber(goals.protein))} g`);
+            setText('dashboard-goal-carbs', `${Math.round(toNumber(goals.carbs))} g`);
+            setText('dashboard-goal-fats', `${Math.round(toNumber(goals.fats))} g`);
+            setText('dashboard-consumed-protein', Math.round(consumedTotals.p));
+            setText('dashboard-consumed-carbs', Math.round(consumedTotals.c));
+            setText('dashboard-consumed-fats', Math.round(consumedTotals.f));
+
+            const dashboardCalories = document.getElementById('dashboard-consumed-calories');
+            if (dashboardCalories) dashboardCalories.textContent = `${consumedCalories} Kcal`;
+            const dashboardProgressBar = document.getElementById('dashboard-progress-bar');
+            if (dashboardProgressBar) dashboardProgressBar.style.width = `${progressValue}%`;
+            const dashboardProgressText = document.getElementById('dashboard-progress-text');
+            if (dashboardProgressText) dashboardProgressText.textContent = consumedPercent;
+
+            if (typeof lucide !== 'undefined' && typeof lucide.createIcons === 'function') {
+                lucide.createIcons();
+            }
+        },
+
+        renderFoodList(searchTerm = '', containerId = 'food-list') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const isClientEditor = containerId === 'client-food-list';
+            const action = isClientEditor ? 'client-diet-add-food-modal' : 'show-add-food-modal';
+            const foodSource = this.data.foodLibrary || [];
+            const term = searchTerm.toLowerCase().trim();
+
+            const overridesMap = this.data.foodOverrides || {};
+            const renderFoodCard = (item) => {
+                const isCustom = item.source === 'custom';
+                const isPredefined = item.source === 'predefined';
+                const overrideEntry = isPredefined ? (overridesMap[item.id] || overridesMap[String(item.id)] || {}) : {};
+                const hasOverride = isPredefined && Object.keys(overrideEntry).length > 0;
+                const image = item.imageUrl
+                    ? `<img src="${item.imageUrl}" alt="${item.name}" class="h-full w-full object-cover">`
+                    : `<div class="flex h-full w-full items-center justify-center bg-gray-900/60 text-gray-500"><i data-lucide="image-off" class="h-5 w-5"></i></div>`;
+                const macros = `<div class="grid gap-2 text-[11px] text-gray-300 sm:grid-cols-3">
+                        <div class="flex items-center justify-between rounded-xl border border-white/10 bg-gray-900/60 px-3 py-2 text-blue-200">
+                            <span class="flex items-center gap-1"><i data-lucide="shield-half" class="h-3.5 w-3.5"></i>Proteína</span>
+                            <strong>${Math.round(item.p || 0)}g</strong>
+                        </div>
+                        <div class="flex items-center justify-between rounded-xl border border-white/10 bg-gray-900/60 px-3 py-2 text-yellow-200">
+                            <span class="flex items-center gap-1"><i data-lucide="wheat" class="h-3.5 w-3.5"></i>Carbs</span>
+                            <strong>${Math.round(item.c || 0)}g</strong>
+                        </div>
+                        <div class="flex items-center justify-between rounded-xl border border-white/10 bg-gray-900/60 px-3 py-2 text-rose-200">
+                            <span class="flex items-center gap-1"><i data-lucide="droplets" class="h-3.5 w-3.5"></i>Grasas</span>
+                            <strong>${Math.round(item.f || 0)}g</strong>
+                        </div>
+                    </div>`;
+                const badges = [];
+                if (isPredefined && item.category) {
+                    badges.push(`<span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-semibold uppercase tracking-[0.35em] text-[10px] text-gray-200">${item.category}</span>`);
+                }
+                if (isCustom) {
+                    badges.push(`<span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-2 py-0.5 font-semibold uppercase tracking-[0.35em] text-[10px] text-emerald-200"><i data-lucide="star" class="h-3 w-3"></i>Personal</span>`);
+                }
+                if (hasOverride) {
+                    badges.push(`<span class="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-500/10 px-2 py-0.5 font-semibold uppercase tracking-[0.35em] text-[10px] text-amber-200"><i data-lucide="sparkles" class="h-3 w-3"></i>Editado</span>`);
+                }
+                const badgesMarkup = badges.length ? `<div class="flex flex-wrap items-center gap-2 text-[10px] text-gray-300">${badges.join('')}</div>` : '';
+                const addButton = `<button data-action="${action}" data-food-id="${item.id}" class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 text-gray-900 shadow-lg shadow-emerald-400/30 transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                <i data-lucide="plus" class="h-4 w-4"></i>
+                            </button>`;
+                const isAdmin = this.isAsesor();
+                let adminControls = '';
+                if (isAdmin) {
+                    const editBtn = `<button data-action="client-diet-edit-food-modal" data-food-id="${item.id}" class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-400/40 bg-amber-500/10 text-amber-200 transition hover:border-amber-300 hover:bg-amber-500/20">
+                            <i data-lucide="pencil" class="h-4 w-4"></i>
+                        </button>`;
+                    const deleteAction = isCustom ? 'confirm-delete-custom-food' : 'confirm-delete-predefined-food';
+                    const deleteBtn = `<button data-action="${deleteAction}" data-food-id="${item.id}" data-storage-path="${item.storagePath || ''}" class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-rose-400/40 bg-rose-500/10 text-rose-200 transition hover:border-rose-300 hover:bg-rose-500/20">
+                            <i data-lucide="trash-2" class="h-4 w-4"></i>
+                        </button>`;
+                    adminControls = `<div class="flex items-center gap-2">${editBtn}${deleteBtn}</div>`;
+                }
+                const actionsStack = isAdmin
+                    ? `<div class="flex flex-col items-end gap-2">${adminControls}${addButton}</div>`
+                    : `<div class="flex items-center justify-end">${addButton}</div>`;
+
+                return `<div class="group flex gap-4 rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:border-emerald-400/40">
+                        <div class="h-16 w-16 overflow-hidden rounded-xl border border-white/10 bg-gray-900/60 flex-shrink-0">${image}</div>
+                        <div class="min-w-0 flex-1 space-y-3">
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                <div class="min-w-0 space-y-1">
+                                    <p class="truncate text-sm font-semibold text-white">${item.name}</p>
+                                    <p class="text-xs text-gray-400">${Math.round(item.cals || 0)} kcal · por 100g</p>
+                                    ${badgesMarkup}
+                                </div>
+                                ${actionsStack}
+                            </div>
+                            ${macros}
+                        </div>
+                    </div>`;
+            };
+
+            const sortByName = (arr) => arr.slice().sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
+
+            if (term) {
+                const results = foodSource.filter(item => item.name.toLowerCase().includes(term));
+                container.innerHTML = results.length > 0
+                    ? results.sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' })).map(renderFoodCard).join('')
+                    : `<div class="rounded-2xl border border-dashed border-white/15 bg-white/5 p-6 text-center text-sm text-gray-400">No se encontraron alimentos que coincidan con tu búsqueda.</div>`;
+                lucide.createIcons();
+                return;
+            }
+
+            const grouped = foodSource.reduce((acc, item) => {
+                const categoryKey = item.source === 'custom' ? 'Mis Alimentos' : (item.category || 'Otros');
+                if (!acc[categoryKey]) {
+                    acc[categoryKey] = [];
+                }
+                acc[categoryKey].push(item);
+                return acc;
+            }, {});
+
+            const categoryOrder = ['Mis Alimentos', ...Object.keys(this.data.foodDatabase), ...Object.keys(grouped)];
+            const seenCategories = new Set();
+            const sections = categoryOrder
+                .filter(category => {
+                    if (seenCategories.has(category)) {
+                        return false;
+                    }
+                    const items = grouped[category];
+                    if (!items || items.length === 0) {
+                        return false;
+                    }
+                    seenCategories.add(category);
+                    return true;
+                })
+                .map(category => {
+                    const items = sortByName(grouped[category] || []);
+                    return `<details class="group overflow-hidden rounded-2xl border border-white/10 bg-white/5 transition" ${category === 'Mis Alimentos' ? 'open' : ''}>
+                            <summary class="flex cursor-pointer items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-white">
+                                <span>${category}</span>
+                                <i data-lucide="chevron-down" class="h-4 w-4 transition-transform group-open:rotate-180"></i>
+                            </summary>
+                            <div class="space-y-3 border-t border-white/10 bg-gray-900/40 px-4 py-3">
+                                ${items.map(renderFoodCard).join('')}
+                            </div>
+                        </details>`;
+                })
+                .join('');
+
+            container.innerHTML = sections || `<div class="rounded-2xl border border-dashed border-white/15 bg-white/5 p-6 text-center text-sm text-gray-400">Aún no hay alimentos en la biblioteca.</div>`;
+            lucide.createIcons();
+        },
+
+        renderWeeklyProgress() {
+            const container = document.getElementById('weekly-progress-card');
+            if (!container) return;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const startOfWeek = new Date(today);
+            const weekday = today.getDay();
+            startOfWeek.setDate(today.getDate() - (weekday === 0 ? 6 : weekday - 1));
+
+            const dayLetters = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+            let weekHTML = '';
+            let completedCount = 0;
+
+            for (let i = 0; i < 7; i++) {
+                const currentDate = new Date(startOfWeek);
+                currentDate.setDate(startOfWeek.getDate() + i);
+                const dateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+                const dayEntries = Array.isArray(this.state.workoutHistory?.[dateString]) ? this.state.workoutHistory[dateString] : [];
+                const isCompleted = dayEntries.length > 0;
+                const isToday = currentDate.getTime() === today.getTime();
+                if (isCompleted) completedCount++;
+                const dayNumber = currentDate.getDate();
+                const circleClass = isCompleted ? 'bg-emerald-400 text-gray-900 shadow-lg shadow-emerald-500/40' : 'bg-gray-800 text-gray-200';
+                const ringClass = isToday ? 'ring-2 ring-emerald-300/80 ring-offset-2 ring-offset-gray-900' : '';
+                const statusContent = isCompleted ? '<i data-lucide="check" class="h-4 w-4"></i>' : `<span class="text-sm font-semibold">${dayNumber}</span>`;
+                weekHTML += `
+                    <div class="flex flex-col items-center gap-1">
+                        <span class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-400">${dayLetters[i]}</span>
+                        <span class="flex h-10 w-10 items-center justify-center rounded-full ${circleClass} ${ringClass}">${statusContent}</span>
+                    </div>
+                `;
+            }
+
+            const historyEntries = this.getWorkoutHistoryEntries();
+            let statsHtml = '';
+            if (historyEntries.length > 0) {
+                const lastWorkout = historyEntries[0];
+                const formattedDate = new Date(lastWorkout.completedAt || `${lastWorkout.date}T00:00:00`).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
+                const intlFormatter = new Intl.NumberFormat('es-ES');
+                statsHtml = `
+                    <div class="rounded-3xl border border-white/10 bg-white/5 p-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Último entrenamiento</p>
+                                <p class="mt-1 text-sm font-semibold text-white">${lastWorkout.routineName}</p>
+                                <p class="text-xs text-gray-400 capitalize">${formattedDate}</p>
+                            </div>
+                            <div class="text-right text-sm text-gray-200">
+                                <p class="font-semibold">${this.formatTime(lastWorkout.totalDuration)}</p>
+                                <p class="text-xs text-gray-400">${intlFormatter.format(Math.round(lastWorkout.totalVolume || 0))} kg·reps</p>
+                            </div>
+                        </div>
+                        <button data-action="show-workout-history" class="mt-4 inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300 transition hover:text-emerald-200">
+                            Ver historial
+                            <i data-lucide="arrow-up-right" class="h-4 w-4"></i>
+                        </button>
+                    </div>
+                `;
+            } else {
+                statsHtml = `
+                    <div class="rounded-3xl border border-dashed border-white/15 bg-white/5 p-4 text-center text-sm text-gray-400">
+                        <p>Completa tu primer entrenamiento para ver estadísticas detalladas aquí.</p>
+                        <button data-action="show-section" data-section-id="rutinas" class="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-900 transition hover:bg-emerald-400">
+                            <i data-lucide="play" class="h-4 w-4"></i>
+                            Ir a rutinas
+                        </button>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="flex flex-col gap-5">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Actividad semanal</p>
+                            <h3 class="text-xl font-bold text-white">Seguimiento de entrenamientos</h3>
+                        </div>
+                        <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-200">
+                            <i data-lucide="calendar-check" class="h-4 w-4"></i>
+                            ${completedCount} / 7 días
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-7 gap-2">${weekHTML}</div>
+                    ${statsHtml}
+                </div>
+            `;
+            lucide.createIcons();
+        },
+        refreshDashboardCoverControls() {
+            const hasImage = Boolean(this.state.dashboardCover?.image || this.sharedMedia?.dashboardCover?.image);
+            const uploadBtn = document.querySelector('button[data-action="open-cover-upload"]');
+            if (uploadBtn) {
+                uploadBtn.disabled = this._isUploadingDashboardCover;
+                uploadBtn.setAttribute('aria-disabled', this._isUploadingDashboardCover ? 'true' : 'false');
+                uploadBtn.classList.toggle('opacity-50', this._isUploadingDashboardCover);
+                uploadBtn.classList.toggle('cursor-not-allowed', this._isUploadingDashboardCover);
+            }
+
+            const removeBtn = document.querySelector('button[data-action="remove-cover-image"]');
+            if (removeBtn) {
+                const shouldDisableRemove = this._isUploadingDashboardCover || !hasImage;
+                removeBtn.disabled = shouldDisableRemove;
+                removeBtn.setAttribute('aria-disabled', shouldDisableRemove ? 'true' : 'false');
+                removeBtn.classList.toggle('opacity-40', !hasImage);
+                removeBtn.classList.toggle('cursor-not-allowed', shouldDisableRemove);
+            }
+
+            const input = document.getElementById('dashboard-cover-input');
+            if (input) {
+                input.disabled = this._isUploadingDashboardCover;
+            }
+        },
+        updateCoverPreview() {
+            const preview = document.getElementById('dashboard-cover-preview');
+            const placeholder = document.getElementById('dashboard-cover-placeholder');
+            if (!preview || !placeholder) return;
+
+            const imageData = this.getDashboardCoverImage();
+
+            if (imageData) {
+                preview.src = imageData;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                preview.src = '';
+                preview.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+
+            this.refreshDashboardCoverControls();
+        },
+        refreshRoutineBannerControls() {
+            const card = document.getElementById('routine-admin-banner-card');
+            const canManage = this.canEditGlobalMedia();
+            if (card) {
+                card.classList.toggle('hidden', !canManage);
+            }
+            if (!canManage) {
+                return;
+            }
+
+            const hasImage = Boolean(this.state.routineBanner?.image);
+            const uploadBtn = card?.querySelector('button[data-action="open-routine-banner-upload"]');
+            if (uploadBtn) {
+                uploadBtn.disabled = this._isUploadingRoutineBanner;
+                uploadBtn.setAttribute('aria-disabled', this._isUploadingRoutineBanner ? 'true' : 'false');
+                uploadBtn.classList.toggle('opacity-50', this._isUploadingRoutineBanner);
+                uploadBtn.classList.toggle('cursor-not-allowed', this._isUploadingRoutineBanner);
+            }
+
+            const removeBtn = card?.querySelector('button[data-action="remove-routine-banner-image"]');
+            if (removeBtn) {
+                const shouldDisableRemove = this._isUploadingRoutineBanner || !hasImage;
+                removeBtn.disabled = shouldDisableRemove;
+                removeBtn.setAttribute('aria-disabled', shouldDisableRemove ? 'true' : 'false');
+                removeBtn.classList.toggle('opacity-40', !hasImage);
+                removeBtn.classList.toggle('cursor-not-allowed', shouldDisableRemove);
+            }
+
+            const input = document.getElementById('routine-banner-input');
+            if (input) {
+                input.disabled = this._isUploadingRoutineBanner;
+            }
+        },
+        updateRoutineBannerPreview() {
+            const card = document.getElementById('routine-admin-banner-card');
+            const canManage = this.canEditGlobalMedia();
+            if (card) {
+                card.classList.toggle('hidden', !canManage);
+            }
+            if (!canManage) return;
+
+            const preview = document.getElementById('routine-admin-banner-preview');
+            const skeleton = document.getElementById('routine-admin-banner-skeleton');
+            const fallback = document.getElementById('routine-admin-banner-fallback');
+            if (!preview || !skeleton || !fallback) {
+                this.refreshRoutineBannerControls();
+                return;
+            }
+
+            const imageData = this.state.routineBanner?.image;
+            if (imageData) {
+                fallback.classList.add('hidden');
+                fallback.classList.remove('flex');
+                skeleton.classList.remove('is-hidden');
+                preview.dataset.pendingSrc = imageData;
+                this.preloadImage(imageData, { priority: 'high' }).then((success) => {
+                    if (!preview || preview.dataset.pendingSrc !== imageData) return;
+                    if (success) {
+                        preview.src = imageData;
+                        preview.classList.remove('hidden');
+                        requestAnimationFrame(() => {
+                            preview.classList.remove('opacity-0');
+                            preview.classList.add('opacity-100');
+                        });
+                        skeleton.classList.add('is-hidden');
+                    } else {
+                        preview.src = '';
+                        preview.classList.add('hidden');
+                        preview.classList.add('opacity-0');
+                        preview.classList.remove('opacity-100');
+                        fallback.classList.remove('hidden');
+                        if (!fallback.classList.contains('flex')) {
+                            fallback.classList.add('flex');
+                        }
+                        skeleton.classList.add('is-hidden');
+                    }
+                });
+            } else {
+                preview.dataset.pendingSrc = '';
+                preview.src = '';
+                preview.classList.add('hidden');
+                preview.classList.add('opacity-0');
+                preview.classList.remove('opacity-100');
+                fallback.classList.remove('hidden');
+                if (!fallback.classList.contains('flex')) {
+                    fallback.classList.add('flex');
+                }
+                skeleton.classList.add('is-hidden');
+            }
+
+            this.refreshRoutineBannerControls();
+        },
+        triggerRoutineBannerUpload() {
+            if (!this.canEditGlobalMedia()) {
+                this.showToast('Solo el administrador puede actualizar el banner de rutinas.', 'error');
+                return;
+            }
+            if (this._isUploadingRoutineBanner) {
+                this.showToast('Espera a que termine la subida en curso.', 'error');
+                return;
+            }
+            const input = document.getElementById('routine-banner-input');
+            if (input) {
+                input.click();
+            }
+        },
+        async deleteRoutineBannerFromStorage() {
+            const storagePath = this.state.routineBanner?.storagePath;
+            if (!storagePath) return;
+            try {
+                const fileRef = ref(this.storage, storagePath);
+                await deleteObject(fileRef);
+            } catch (error) {
+                console.warn('No se pudo eliminar el banner anterior del almacenamiento:', error);
+            }
+        },
+        async handleRoutineBannerFileChange(input) {
+            if (!this.canEditGlobalMedia()) {
+                this.showToast('Solo el administrador puede actualizar el banner de rutinas.', 'error');
+                if (input) input.value = '';
+                return;
+            }
+            if (!input || !input.files || input.files.length === 0) return;
+            if (this._isUploadingRoutineBanner) {
+                this.showToast('Ya hay una subida en curso.', 'error');
+                input.value = '';
+                return;
+            }
+
+            const file = input.files[0];
+            if (!file.type.startsWith('image/')) {
+                this.showToast('Selecciona una imagen válida.', 'error');
+                input.value = '';
+                return;
+            }
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                this.showToast('La imagen debe pesar menos de 5MB.', 'error');
+                input.value = '';
+                return;
+            }
+
+            const progressContainer = document.getElementById('routine-banner-progress');
+            const progressBar = document.getElementById('routine-banner-progress-bar');
+            const progressText = document.getElementById('routine-banner-progress-text');
+
+            const clearProgressTimeout = () => {
+                if (this._routineBannerProgressTimeout) {
+                    clearTimeout(this._routineBannerProgressTimeout);
+                    this._routineBannerProgressTimeout = null;
+                }
+            };
+
+            clearProgressTimeout();
+
+            if (progressContainer) {
+                progressContainer.classList.remove('hidden');
+                progressContainer.classList.add('flex');
+            }
+            if (progressBar) {
+                progressBar.style.width = '0%';
+            }
+            if (progressText) {
+                progressText.textContent = 'Iniciando subida...';
+            }
+
+            this.state.routineBanner = this.state.routineBanner || { image: '', storagePath: '', updatedAt: null };
+
+            this._isUploadingRoutineBanner = true;
+            this.refreshRoutineBannerControls();
+
+            const sanitizedName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+            const filePath = `routine_banners/${this.state.currentUser?.uid || 'coach'}/${Date.now()}-${sanitizedName}`;
+            const storageRef = ref(this.storage, filePath);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            if (progressText) {
+                progressText.textContent = 'Subiendo... 0%';
+            }
+
+            const hideProgress = (delay = 0) => {
+                if (!progressContainer) return;
+                clearProgressTimeout();
+                this._routineBannerProgressTimeout = setTimeout(() => {
+                    progressContainer.classList.add('hidden');
+                    progressContainer.classList.remove('flex');
+                    if (progressBar) {
+                        progressBar.style.width = '0%';
+                    }
+                    if (progressText) {
+                        progressText.textContent = 'Preparando...';
+                    }
+                    this._routineBannerProgressTimeout = null;
+                }, delay);
+            };
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = snapshot.totalBytes ? (snapshot.bytesTransferred / snapshot.totalBytes) * 100 : 0;
+                    if (progressBar) {
+                        progressBar.style.width = `${progress}%`;
+                    }
+                    if (progressText) {
+                        progressText.textContent = `Subiendo... ${Math.round(progress)}%`;
+                    }
+                },
+                (error) => {
+                    console.error('Error al subir el banner:', error);
+                    this.showToast('No se pudo subir el banner.', 'error');
+                    if (progressText) {
+                        progressText.textContent = 'Error al subir';
+                    }
+                    hideProgress(2000);
+                    this._isUploadingRoutineBanner = false;
+                    this.refreshRoutineBannerControls();
+                    input.value = '';
+                },
+                async () => {
+                    try {
+                        await this.deleteRoutineBannerFromStorage();
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        this.state.routineBanner = {
+                            image: downloadURL,
+                            storagePath: filePath,
+                            updatedAt: Date.now()
+                        };
+                        this.updateRoutineBannerPreview();
+                        if (progressBar) {
+                            progressBar.style.width = '100%';
+                        }
+                        if (progressText) {
+                            progressText.textContent = 'Subida completa 100%';
+                        }
+                        await this.saveDataToFirestore();
+                        this.showToast('Banner actualizado.');
+                        hideProgress(1500);
+                    } catch (error) {
+                        console.error('Error al finalizar la subida del banner:', error);
+                        this.showToast('No se pudo procesar el banner.', 'error');
+                        if (progressText) {
+                            progressText.textContent = 'Error al finalizar';
+                        }
+                        hideProgress(2000);
+                    } finally {
+                        this._isUploadingRoutineBanner = false;
+                        this.refreshRoutineBannerControls();
+                        input.value = '';
+                    }
+                }
+            );
+        },
+        async removeRoutineBannerImage() {
+            if (!this.canEditGlobalMedia()) {
+                this.showToast('Solo el administrador puede modificar el banner.', 'error');
+                return;
+            }
+            if (!this.state.routineBanner || !this.state.routineBanner.image) {
+                return;
+            }
+            if (this._isUploadingRoutineBanner) {
+                this.showToast('Espera a que termine la subida antes de eliminar.', 'error');
+                return;
+            }
+            await this.deleteRoutineBannerFromStorage();
+            this.state.routineBanner.image = '';
+            this.state.routineBanner.storagePath = '';
+            this.state.routineBanner.updatedAt = null;
+            this.updateRoutineBannerPreview();
+            const input = document.getElementById('routine-banner-input');
+            if (input) input.value = '';
+            await this.saveDataToFirestore();
+            this.showToast('Banner eliminado.');
+        },
+        triggerCoverUpload() {
+            if (!this.canEditGlobalMedia()) {
+                this.showToast('Solo el administrador puede actualizar la portada del panel.', 'error');
+                return;
+            }
+            const input = document.getElementById('dashboard-cover-input');
+            if (this._isUploadingDashboardCover) {
+                this.showToast('Espera a que termine la subida en curso.', 'error');
+                return;
+            }
+            if (input) {
+                input.click();
+            }
+        },
+        async deleteDashboardCoverFromStorage() {
+            const storagePath = this.state?.dashboardCover?.storagePath || this.sharedMedia?.dashboardCover?.storagePath;
+            if (!storagePath) return;
+            try {
+                const fileRef = ref(this.storage, storagePath);
+                await deleteObject(fileRef);
+            } catch (error) {
+                console.warn('No se pudo eliminar la portada anterior del almacenamiento:', error);
+            }
+        },
+        async handleCoverFileChange(input) {
+            if (!this.canEditGlobalMedia()) {
+                this.showToast('Solo el administrador puede actualizar la portada del panel.', 'error');
+                if (input) input.value = '';
+                return;
+            }
+            if (!input || !input.files || input.files.length === 0) return;
+            if (this._isUploadingDashboardCover) {
+                this.showToast('Ya hay una subida en curso.', 'error');
+                input.value = '';
+                return;
+            }
+            const file = input.files[0];
+            if (!file.type.startsWith('image/')) {
+                this.showToast('Por favor selecciona una imagen válida.', 'error');
+                input.value = '';
+                return;
+            }
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                this.showToast('La imagen debe pesar menos de 5MB.', 'error');
+                input.value = '';
+                return;
+            }
+
+            const progressContainer = document.getElementById('dashboard-cover-progress');
+            const progressBar = document.getElementById('dashboard-cover-progress-bar');
+            const progressText = document.getElementById('dashboard-cover-progress-text');
+
+            const clearProgressTimeout = () => {
+                if (this._dashboardCoverProgressTimeout) {
+                    clearTimeout(this._dashboardCoverProgressTimeout);
+                    this._dashboardCoverProgressTimeout = null;
+                }
+            };
+
+            clearProgressTimeout();
+
+            if (progressContainer) {
+                progressContainer.classList.remove('hidden');
+                progressContainer.classList.add('flex');
+            }
+            if (progressBar) {
+                progressBar.style.width = '0%';
+            }
+            if (progressText) {
+                progressText.textContent = 'Iniciando subida...';
+            }
+
+            this.state.dashboardCover = this.state.dashboardCover || { image: '', storagePath: '', updatedAt: null };
+
+            this._isUploadingDashboardCover = true;
+            this.refreshDashboardCoverControls();
+
+            const sanitizedName = file.name.replace(/[^a-zA-Z0-9_.-]/g, '_');
+            const filePath = `dashboard_covers/${this.state.currentUser?.uid || 'anonimo'}/${Date.now()}-${sanitizedName}`;
+            const storageRef = ref(this.storage, filePath);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            if (progressText) {
+                progressText.textContent = 'Subiendo... 0%';
+            }
+
+            const hideProgress = (delay = 0) => {
+                if (!progressContainer) return;
+                clearProgressTimeout();
+                this._dashboardCoverProgressTimeout = setTimeout(() => {
+                    progressContainer.classList.add('hidden');
+                    progressContainer.classList.remove('flex');
+                    if (progressBar) {
+                        progressBar.style.width = '0%';
+                    }
+                    if (progressText) {
+                        progressText.textContent = 'Preparando...';
+                    }
+                    this._dashboardCoverProgressTimeout = null;
+                }, delay);
+            };
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = snapshot.totalBytes ? (snapshot.bytesTransferred / snapshot.totalBytes) * 100 : 0;
+                    if (progressBar) {
+                        progressBar.style.width = `${progress}%`;
+                    }
+                    if (progressText) {
+                        progressText.textContent = `Subiendo... ${Math.round(progress)}%`;
+                    }
+                },
+                (error) => {
+                    console.error('Error al subir la portada:', error);
+                    this.showToast('No se pudo subir la portada.', 'error');
+                    if (progressText) {
+                        progressText.textContent = 'Error al subir';
+                    }
+                    hideProgress(2000);
+                    this._isUploadingDashboardCover = false;
+                    this.refreshDashboardCoverControls();
+                    input.value = '';
+                },
+                async () => {
+                    try {
+                        await this.deleteDashboardCoverFromStorage();
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        this.state.dashboardCover = {
+                            image: downloadURL,
+                            storagePath: filePath,
+                            updatedAt: Date.now()
+                        };
+                        this.sharedMedia.dashboardCover = { ...this.state.dashboardCover };
+                        this.updateCoverPreview();
+                        if (progressBar) {
+                            progressBar.style.width = '100%';
+                        }
+                        if (progressText) {
+                            progressText.textContent = 'Subida completa 100%';
+                        }
+                        await this.saveDashboardCoverToFirestore();
+                        await this.saveDataToFirestore();
+                        this.showToast('Portada actualizada.');
+                        hideProgress(1500);
+                    } catch (error) {
+                        console.error('Error al finalizar la subida:', error);
+                        this.showToast('No se pudo procesar la portada subida.', 'error');
+                        if (progressText) {
+                            progressText.textContent = 'Error al finalizar';
+                        }
+                        hideProgress(2000);
+                    } finally {
+                        this._isUploadingDashboardCover = false;
+                        this.refreshDashboardCoverControls();
+                        input.value = '';
+                    }
+                }
+            );
+        },
+        async removeCoverImage() {
+            if (!this.state.dashboardCover || !this.state.dashboardCover.image) {
+                return;
+            }
+            if (this._isUploadingDashboardCover) {
+                this.showToast('Espera a que termine la subida antes de eliminar.', 'error');
+                return;
+            }
+            await this.deleteDashboardCoverFromStorage();
+            const defaults = this.getDefaultState().dashboardCover || { image: '', storagePath: '', updatedAt: null };
+            this.state.dashboardCover = { ...defaults };
+            this.sharedMedia.dashboardCover = { ...defaults };
+            this.updateCoverPreview();
+            const input = document.getElementById('dashboard-cover-input');
+            if (input) input.value = '';
+            await this.saveDashboardCoverToFirestore();
+            await this.saveDataToFirestore();
+            this.showToast('Portada eliminada.');
+        },
+        renderWorkoutHistorySection() {
+            const overviewContainer = document.getElementById('history-overview');
+            const cardsContainer = document.getElementById('history-cards');
+            const section = document.getElementById('historial');
+            if (!overviewContainer || !cardsContainer || !section) return;
+
+            const entries = this.getWorkoutHistoryEntries();
+            const intlFormatter = new Intl.NumberFormat('es-ES');
+
+            if (entries.length === 0) {
+                overviewContainer.innerHTML = `
+                    <div class="rounded-3xl border border-dashed border-white/15 bg-white/5 p-6 text-center text-gray-400">
+                        <i data-lucide="activity" class="mx-auto mb-3 h-8 w-8 text-emerald-300/80"></i>
+                        <p class="font-semibold">Aún no hay entrenamientos registrados.</p>
+                        <p class="mt-1 text-xs text-gray-500">Inicia una rutina para comenzar a construir tu historial.</p>
+                    </div>
+                `;
+                cardsContainer.innerHTML = `
+                    <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-6 text-center text-sm text-gray-400">
+                        <p>Cuando completes tus sesiones verás aquí tarjetas con tus métricas, pesos y progresos por fecha.</p>
+                        <button data-action="show-section" data-section-id="rutinas" class="mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-900 transition hover:bg-emerald-400">
+                            <i data-lucide="play" class="h-4 w-4"></i>
+                            Comenzar una rutina
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            const totalSessions = entries.length;
+            const totalActiveSeconds = entries.reduce((sum, entry) => sum + (entry.totalActive || 0), 0);
+            const totalVolume = entries.reduce((sum, entry) => sum + (entry.totalVolume || 0), 0);
+            const bestOneRepMax = entries.reduce((max, entry) => {
+                const entryPeak = entry.peakOneRepMax || (entry.exerciseDetails || []).reduce((peak, ex) => Math.max(peak, ex.estimated1RM || 0), 0);
+                return Math.max(max, entryPeak || 0);
+            }, 0);
+            const latestWeightEntry = (this.state.weightLog || []).slice().sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null;
+
+            overviewContainer.innerHTML = `
+                <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200"><i data-lucide="trophy" class="h-5 w-5"></i></span>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Sesiones totales</p>
+                            <p class="text-2xl font-bold text-white">${intlFormatter.format(totalSessions)}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-sky-500/20 text-sky-200"><i data-lucide="timer" class="h-5 w-5"></i></span>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Tiempo activo</p>
+                            <p class="text-2xl font-bold text-white">${this.formatTime(totalActiveSeconds)}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/20 text-amber-200"><i data-lucide="bar-chart" class="h-5 w-5"></i></span>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Volumen total</p>
+                            <p class="text-2xl font-bold text-white">${intlFormatter.format(Math.round(totalVolume))} kg·reps</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/20 text-purple-200"><i data-lucide="line-chart" class="h-5 w-5"></i></span>
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">1RM más alto</p>
+                            <p class="text-2xl font-bold text-white">${bestOneRepMax ? `${bestOneRepMax.toFixed(1)} kg` : '—'}</p>
+                            <p class="text-[10px] text-gray-400">Peso actual: ${latestWeightEntry ? `${parseFloat(latestWeightEntry.weight).toFixed(1)} kg` : 'registra tu peso'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            const groupedByDate = entries.reduce((acc, entry) => {
+                const dateKey = entry.date || (entry.completedAt ? entry.completedAt.split('T')[0] : '');
+                if (!dateKey) return acc;
+                if (!acc[dateKey]) acc[dateKey] = [];
+                acc[dateKey].push(entry);
+                return acc;
+            }, {});
+
+            const sortedDates = Object.keys(groupedByDate).sort((a, b) => new Date(b) - new Date(a));
+            const weightLogMap = (this.state.weightLog || []).reduce((map, entry) => {
+                if (entry && entry.date) {
+                    map[entry.date] = parseFloat(entry.weight);
+                }
+                return map;
+            }, {});
+
+            const cardsHtml = sortedDates.map(dateKey => {
+                const sessions = groupedByDate[dateKey].slice().sort((a, b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0));
+                const dateLabel = new Date(`${dateKey}T00:00:00`).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+                const weightLabel = weightLogMap[dateKey] ? `${weightLogMap[dateKey].toFixed(1)} kg` : '—';
+                const dayDuration = sessions.reduce((sum, session) => sum + (session.totalDuration || 0), 0);
+                const dayActive = sessions.reduce((sum, session) => sum + (session.totalActive || 0), 0);
+                const dayRest = sessions.reduce((sum, session) => sum + (session.totalRest || Math.max(0, (session.totalDuration || 0) - (session.totalActive || 0))), 0);
+                const dayVolume = sessions.reduce((sum, session) => sum + (session.totalVolume || 0), 0);
+                const dayPeakOneRm = sessions.reduce((max, session) => {
+                    const sessionPeak = session.peakOneRepMax || (session.exerciseDetails || []).reduce((peak, ex) => Math.max(peak, ex.estimated1RM || 0), 0);
+                    return Math.max(max, sessionPeak || 0);
+                }, 0);
+
+                const sessionItems = sessions.map(session => {
+                    const timeLabel = session.completedAt ? new Date(session.completedAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : '';
+                    const highlightExercise = (session.exerciseDetails || []).reduce((best, ex) => {
+                        const current = ex.estimated1RM || 0;
+                        return current > ((best?.estimated1RM) || 0) ? ex : best;
+                    }, null);
+                    const highlightName = highlightExercise ? highlightExercise.name : null;
+                    const highlightWeight = highlightExercise?.bestWeight;
+                    const highlightOneRM = highlightExercise?.estimated1RM;
+
+                    return `
+                        <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm font-semibold text-white">${session.routineName}</p>
+                                    <p class="text-xs text-gray-400">${session.dayName || 'Sesión'}${timeLabel ? ` · ${timeLabel}` : ''}</p>
+                                </div>
+                                <div class="flex flex-wrap gap-2 text-xs text-gray-300">
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5"><i data-lucide="timer" class="h-3.5 w-3.5"></i>${this.formatTime(session.totalDuration || 0)}</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-0.5 text-emerald-100"><i data-lucide="flame" class="h-3.5 w-3.5"></i>${this.formatTime(session.totalActive || 0)}</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/10 px-2.5 py-0.5 text-sky-100"><i data-lucide="bar-chart" class="h-3.5 w-3.5"></i>${intlFormatter.format(Math.round(session.totalVolume || 0))} kg·reps</span>
+                                </div>
+                            </div>
+                            <div class="mt-3 flex flex-wrap gap-2 text-xs text-gray-300">
+                                ${highlightName ? `<span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5">Foco: ${highlightName}</span>` : '<span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-gray-400">Registra pesos para ver 1RM estimados</span>'}
+                                ${highlightWeight ? `<span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-0.5 text-emerald-100"><i data-lucide="dumbbell" class="h-3.5 w-3.5"></i>${highlightWeight} kg</span>` : ''}
+                                ${highlightOneRM ? `<span class="inline-flex items-center gap-1 rounded-full border border-purple-400/40 bg-purple-500/10 px-2.5 py-0.5 text-purple-100"><i data-lucide="line-chart" class="h-3.5 w-3.5"></i>${highlightOneRM.toFixed(1)} kg</span>` : ''}
+                            </div>
+                        </article>
+                    `;
+                }).join('');
+
+                return `
+                    <article class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                                <p class="text-lg font-semibold text-white capitalize">${dateLabel}</p>
+                                <p class="text-xs text-gray-400">${sessions.length} ${sessions.length === 1 ? 'sesión' : 'sesiones'} · Peso corporal: ${weightLabel}</p>
+                            </div>
+                            <div class="flex flex-wrap gap-2 text-xs text-gray-300">
+                                <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5"><i data-lucide="clock" class="h-3.5 w-3.5"></i>${this.formatTime(dayDuration)}</span>
+                                <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-0.5 text-emerald-100"><i data-lucide="flame" class="h-3.5 w-3.5"></i>${this.formatTime(dayActive)}</span>
+                                <span class="inline-flex items-center gap-1 rounded-full border border-indigo-400/40 bg-indigo-500/10 px-2.5 py-0.5 text-indigo-100"><i data-lucide="moon" class="h-3.5 w-3.5"></i>${this.formatTime(dayRest)}</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 space-y-3">
+                            ${sessionItems}
+                        </div>
+                        <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="flex flex-wrap gap-2 text-xs text-gray-300">
+                                <span class="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-500/10 px-2.5 py-0.5 text-amber-100"><i data-lucide="bar-chart-3" class="h-3.5 w-3.5"></i>${intlFormatter.format(Math.round(dayVolume))} kg·reps</span>
+                                <span class="inline-flex items-center gap-1 rounded-full border border-purple-400/40 bg-purple-500/10 px-2.5 py-0.5 text-purple-100"><i data-lucide="line-chart" class="h-3.5 w-3.5"></i>${dayPeakOneRm ? `${dayPeakOneRm.toFixed(1)} kg 1RM` : '1RM pendiente'}</span>
+                                <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-gray-300"><i data-lucide="scale" class="h-3.5 w-3.5"></i>Peso: ${weightLabel}</span>
+                            </div>
+                            <button data-action="show-workout-history" data-history-date="${dateKey}" class="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-emerald-400/60 hover:text-white">
+                                Ver detalle
+                                <i data-lucide="chevron-right" class="h-4 w-4"></i>
+                            </button>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            cardsContainer.innerHTML = cardsHtml;
+            lucide.createIcons();
+        },
+        renderProfileSection() {
+            if (!this.state.currentUser) return;
+            const { userName, currentUser, physicalStats, targetWeight } = this.state;
+            const avatar = document.getElementById('profile-avatar');
+            if (avatar) {
+                this.applyProfilePhotoToAvatar(avatar);
+            }
+            const nameEl = document.getElementById('profile-name');
+            if (nameEl) nameEl.textContent = userName || 'Usuario';
+            const emailEl = document.getElementById('profile-email');
+            if (emailEl) emailEl.textContent = currentUser.email;
+
+            const historyEntries = this.getWorkoutHistoryEntries();
+            const totalWorkouts = historyEntries.length;
+            const totalDurationSeconds = historyEntries.reduce((acc, entry) => acc + (entry.totalDuration || 0), 0);
+            const totalHours = (totalDurationSeconds / 3600);
+
+            const workoutsEl = document.getElementById('profile-stat-workouts');
+            if (workoutsEl) workoutsEl.textContent = totalWorkouts;
+            const hoursEl = document.getElementById('profile-stat-hours');
+            if (hoursEl) hoursEl.textContent = totalHours.toFixed(1);
+            const streakEl = document.getElementById('profile-stat-streak');
+            if (streakEl) streakEl.textContent = this.calculateWorkoutStreak();
+
+            const weightLog = Array.isArray(this.state.weightLog) ? [...this.state.weightLog] : [];
+            weightLog.sort((a, b) => new Date(a.date) - new Date(b.date));
+            const lastEntry = weightLog.length ? weightLog[weightLog.length - 1] : null;
+            const firstEntry = weightLog.length ? weightLog[0] : null;
+
+            const formatDate = (dateStr, options = { day: 'numeric', month: 'short', year: 'numeric' }) => {
+                if (!dateStr) return '';
+                const dateObj = new Date(`${dateStr}T00:00:00`);
+                return dateObj.toLocaleDateString('es-ES', options);
+            };
+
+            const profileUpdateEl = document.getElementById('profile-last-update');
+            if (profileUpdateEl) {
+                profileUpdateEl.textContent = lastEntry
+                    ? `Último registro: ${formatDate(lastEntry.date, { day: 'numeric', month: 'long', year: 'numeric' })}`
+                    : 'Aún no has registrado tu peso. ¡Empieza hoy para seguir tu evolución!';
+            }
+            const weightLastEntryEl = document.getElementById('weight-last-entry');
+            if (weightLastEntryEl) {
+                weightLastEntryEl.textContent = lastEntry
+                    ? `Último: ${formatDate(lastEntry.date)}`
+                    : 'Sin registros previos';
+            }
+
+            const weightValue = typeof physicalStats.weight === 'number' ? physicalStats.weight : parseFloat(physicalStats.weight) || 0;
+            const goalWeight = typeof targetWeight === 'number' ? targetWeight : weightValue;
+            const diffValue = goalWeight && weightValue
+                ? (goalWeight - weightValue)
+                : 0;
+
+            const ageEl = document.getElementById('profile-info-age');
+            if (ageEl) ageEl.textContent = physicalStats.age ? `${physicalStats.age} años` : '--';
+            const heightEl = document.getElementById('profile-info-height');
+            if (heightEl) heightEl.textContent = physicalStats.height ? `${physicalStats.height} cm` : '--';
+            const weightInfoEl = document.getElementById('profile-info-weight');
+            if (weightInfoEl) weightInfoEl.textContent = weightValue ? `${weightValue.toFixed(1)} kg` : '--';
+            const activityEl = document.getElementById('profile-info-activity');
+            if (activityEl) {
+                const activityMap = {
+                    '1.2': 'Sedentario',
+                    '1.375': 'Ligero',
+                    '1.55': 'Moderado',
+                    '1.725': 'Activo',
+                    '1.9': 'Muy activo'
+                };
+                const activityKey = physicalStats.activity ? physicalStats.activity.toString() : '';
+                const activityLabel = activityMap[activityKey] ? `${activityMap[activityKey]} · x${physicalStats.activity}` : (physicalStats.activity ? `x${physicalStats.activity}` : 'Sin definir');
+                activityEl.textContent = activityLabel;
+            }
+            const genderEl = document.getElementById('profile-info-gender');
+            if (genderEl) {
+                const genderLabel = physicalStats.gender === 'male'
+                    ? 'Masculino'
+                    : physicalStats.gender === 'female'
+                        ? 'Femenino'
+                        : 'Sin especificar';
+                genderEl.textContent = genderLabel;
+            }
+
+            const currentWeightEl = document.getElementById('current-weight-display');
+            if (currentWeightEl) currentWeightEl.textContent = weightValue ? weightValue.toFixed(1) : '--';
+            const targetWeightEl = document.getElementById('target-weight-display');
+            if (targetWeightEl) targetWeightEl.textContent = goalWeight ? goalWeight.toFixed(1) : '--';
+            const diffEl = document.getElementById('weight-diff-display');
+            if (diffEl) diffEl.textContent = `${diffValue > 0 ? '+' : ''}${diffValue.toFixed(1)}`;
+
+            let progressPercent = 0;
+            if (firstEntry && goalWeight && goalWeight !== firstEntry.weight) {
+                const goalDelta = goalWeight - firstEntry.weight;
+                if (goalDelta !== 0) {
+                    progressPercent = ((weightValue - firstEntry.weight) / goalDelta) * 100;
+                    progressPercent = Math.min(100, Math.max(0, progressPercent));
+                }
+            }
+            const progressBar = document.getElementById('weight-progress-bar');
+            if (progressBar) progressBar.style.width = `${Math.max(0, Math.min(100, progressPercent))}%`;
+            const progressLabel = document.getElementById('weight-progress-label');
+            if (progressLabel) progressLabel.textContent = `${Math.round(Math.max(0, Math.min(100, progressPercent)))}%`;
+
+            const trendEl = document.getElementById('weight-trend-label');
+            if (trendEl) {
+                if (firstEntry && lastEntry) {
+                    const totalChange = lastEntry.weight - firstEntry.weight;
+                    const dayDiff = Math.max(1, Math.round((new Date(`${lastEntry.date}T00:00:00`) - new Date(`${firstEntry.date}T00:00:00`)) / (1000 * 60 * 60 * 24)));
+                    if (Math.abs(totalChange) < 0.05) {
+                        trendEl.textContent = `Peso estable desde ${formatDate(firstEntry.date, { day: 'numeric', month: 'long' })}.`;
+                    } else {
+                        const direction = totalChange > 0 ? 'ganado' : 'perdido';
+                        trendEl.textContent = `Has ${direction} ${Math.abs(totalChange).toFixed(1)} kg en ${dayDiff} día(s).`;
+                    }
+                } else {
+                    trendEl.textContent = 'Añade tu primer registro para visualizar la tendencia.';
+                }
+            }
+
+            const timelineContainer = document.getElementById('weight-log-list');
+            if (timelineContainer) {
+                if (weightLog.length) {
+                    const recentEntries = [...weightLog].reverse().slice(0, 5);
+                    timelineContainer.innerHTML = recentEntries.map((entry, index) => {
+                        const previous = index < recentEntries.length - 1 ? recentEntries[index + 1] : null;
+                        const delta = previous ? entry.weight - previous.weight : 0;
+                        let deltaLabel = '—';
+                        let deltaClass = 'text-gray-400';
+                        if (previous) {
+                            deltaLabel = `${delta > 0 ? '+' : ''}${delta.toFixed(1)} kg`;
+                            if (delta > 0.05) deltaClass = 'text-amber-200';
+                            else if (delta < -0.05) deltaClass = 'text-emerald-200';
+                        }
+                        const isLatest = index === 0;
+                        return `
+                            <div class="flex items-center justify-between rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                <div>
+                                    <p class="text-sm font-semibold text-white">${formatDate(entry.date)}</p>
+                                    <p class="text-xs ${isLatest ? 'text-emerald-200/90' : 'text-gray-500'}">${isLatest ? 'Registro más reciente' : 'Seguimiento registrado'}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-lg font-bold text-white">${entry.weight.toFixed(1)}<span class="ml-1 text-sm text-emerald-100/80">kg</span></p>
+                                    <p class="text-xs ${deltaClass}">${deltaLabel}</p>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    timelineContainer.innerHTML = `<div class="rounded-2xl border border-dashed border-white/15 bg-white/5 px-4 py-6 text-center text-sm text-gray-400">Sin registros todavía. ¡Agrega tu primer peso para comenzar a visualizar la evolución!</div>`;
+                }
+            }
+
+            const chartContainer = document.getElementById('profile-activity-chart');
+            if (chartContainer) {
+                const weeklyData = this.getWeeklyActivityData();
+                const maxWorkouts = Math.max(...weeklyData.map(w => w.count), 1);
+                chartContainer.innerHTML = weeklyData.map(week => {
+                    const barHeight = (week.count / maxWorkouts) * 100;
+                    return `<div class="flex h-full w-1/4 flex-col items-center justify-end"><div class="flex h-full w-3/5 items-end"><div class="chart-bar w-full rounded-t-md bg-gradient-to-t from-emerald-500 via-teal-400 to-cyan-300" style="height: ${barHeight}%;"></div></div><p class="mt-2 text-sm font-bold text-white">${week.count}</p><p class="text-xs text-gray-400">${week.label}</p></div>`;
+                }).join('');
+            }
+
+            const bmiValueEl = document.getElementById('profile-bmi-value');
+            const bmiLabelEl = document.getElementById('profile-bmi-label');
+            const hydrationEl = document.getElementById('profile-hydration');
+            const idealWeightEl = document.getElementById('profile-ideal-weight');
+
+            if (physicalStats.height && weightValue) {
+                const heightInMeters = physicalStats.height / 100;
+                const bmi = weightValue / (heightInMeters * heightInMeters);
+                let bmiLabel = '';
+                if (bmi < 18.5) bmiLabel = 'Bajo peso';
+                else if (bmi < 25) bmiLabel = 'Saludable';
+                else if (bmi < 30) bmiLabel = 'Sobrepeso';
+                else bmiLabel = 'Obesidad';
+                if (bmiValueEl) bmiValueEl.textContent = bmi.toFixed(1);
+                if (bmiLabelEl) bmiLabelEl.textContent = bmiLabel;
+                if (hydrationEl) {
+                    const waterLiters = (weightValue * 35) / 1000;
+                    hydrationEl.textContent = `${waterLiters.toFixed(1)} L`; 
+                }
+                if (idealWeightEl) {
+                    const idealMin = 18.5 * (heightInMeters * heightInMeters);
+                    const idealMax = 24.9 * (heightInMeters * heightInMeters);
+                    idealWeightEl.textContent = `${idealMin.toFixed(1)} - ${idealMax.toFixed(1)} kg`;
+                }
+            } else {
+                if (bmiValueEl) bmiValueEl.textContent = '--';
+                if (bmiLabelEl) bmiLabelEl.textContent = '';
+                if (hydrationEl) hydrationEl.textContent = '--';
+                if (idealWeightEl) idealWeightEl.textContent = '--';
+            }
+
+            const followUp = this._normalizeFollowUpSnapshot(this.state.followUp360);
+            const relativeFormatter = (typeof Intl !== 'undefined' && typeof Intl.RelativeTimeFormat === 'function')
+                ? new Intl.RelativeTimeFormat('es', { numeric: 'auto' })
+                : null;
+            const formatFollowUpDate = (iso, { includeTime = true, fallback = 'Sin registro' } = {}) => {
+                if (!iso) return fallback;
+                const date = new Date(iso);
+                if (Number.isNaN(date.getTime())) return fallback;
+                const now = new Date();
+                const includeYear = date.getFullYear() !== now.getFullYear();
+                const dateOptions = includeYear
+                    ? { day: 'numeric', month: 'long', year: 'numeric' }
+                    : { day: 'numeric', month: 'long' };
+                const dateLabel = date.toLocaleDateString('es-ES', dateOptions);
+                if (!includeTime) {
+                    return dateLabel;
+                }
+                const timeLabel = date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                return `${dateLabel} · ${timeLabel} h`;
+            };
+            const formatFollowUpRelative = (iso) => {
+                if (!iso) return '';
+                const date = new Date(iso);
+                if (Number.isNaN(date.getTime())) return '';
+                const diffMs = date.getTime() - Date.now();
+                const absoluteDiff = Math.abs(diffMs);
+                const units = [
+                    { max: 60 * 1000, value: 1000, unit: 'second' },
+                    { max: 60 * 60 * 1000, value: 60 * 1000, unit: 'minute' },
+                    { max: 24 * 60 * 60 * 1000, value: 60 * 60 * 1000, unit: 'hour' },
+                    { max: 7 * 24 * 60 * 60 * 1000, value: 24 * 60 * 60 * 1000, unit: 'day' },
+                    { max: 30 * 24 * 60 * 60 * 1000, value: 7 * 24 * 60 * 60 * 1000, unit: 'week' },
+                    { max: 365 * 24 * 60 * 60 * 1000, value: 30 * 24 * 60 * 60 * 1000, unit: 'month' },
+                    { max: Infinity, value: 365 * 24 * 60 * 60 * 1000, unit: 'year' },
+                ];
+                for (const { max, value, unit } of units) {
+                    if (absoluteDiff < max) {
+                        const amount = Math.round(diffMs / value);
+                        if (relativeFormatter) {
+                            return relativeFormatter.format(amount, unit);
+                        }
+                        const absAmount = Math.abs(amount);
+                        const prefix = amount >= 0 ? 'en' : 'hace';
+                        const unitLabelMap = {
+                            second: 'segundo',
+                            minute: 'minuto',
+                            hour: 'hora',
+                            day: 'día',
+                            week: 'semana',
+                            month: 'mes',
+                            year: 'año'
+                        };
+                        const unitLabel = unitLabelMap[unit] || unit;
+                        return `${prefix} ${absAmount} ${unitLabel}${absAmount === 1 ? '' : 's'}`;
+                    }
+                }
+                return '';
+            };
+            const escapeHtml = (value = '') => `${value}`
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+            const truncateText = (value = '', max = 140) => {
+                const stringValue = `${value}`;
+                return stringValue.length > max ? `${stringValue.slice(0, max - 1)}…` : stringValue;
+            };
+
+            const nextCheckInEl = document.getElementById('followup-next-checkin');
+            if (nextCheckInEl) {
+                nextCheckInEl.textContent = followUp.nextCheckIn
+                    ? formatFollowUpDate(followUp.nextCheckIn)
+                    : 'Sin programar';
+            }
+            const nextCheckInHintEl = document.getElementById('followup-next-checkin-remaining');
+            if (nextCheckInHintEl) {
+                nextCheckInHintEl.textContent = followUp.nextCheckIn
+                    ? (formatFollowUpRelative(followUp.nextCheckIn) || 'Próximo contacto programado.')
+                    : 'Define junto a tu entrenador tu próximo punto de contacto.';
+            }
+            const lastUpdateEl = document.getElementById('followup-last-update');
+            if (lastUpdateEl) {
+                lastUpdateEl.textContent = followUp.lastUpdated
+                    ? formatFollowUpDate(followUp.lastUpdated)
+                    : 'Sin registros';
+            }
+            const lastUpdateDetailEl = document.getElementById('followup-last-update-detail');
+            if (lastUpdateDetailEl) {
+                lastUpdateDetailEl.textContent = followUp.lastUpdated
+                    ? `Actualizado ${formatFollowUpRelative(followUp.lastUpdated) || 'recientemente.'}`
+                    : 'Tu entrenador añadirá información cuando corresponda.';
+            }
+            const totalNotesEl = document.getElementById('followup-total-notes');
+            if (totalNotesEl) totalNotesEl.textContent = followUp.notes.length;
+            const totalMetricsEl = document.getElementById('followup-total-metrics');
+            if (totalMetricsEl) totalMetricsEl.textContent = followUp.metrics.length;
+            const totalTasksEl = document.getElementById('followup-total-tasks');
+            if (totalTasksEl) totalTasksEl.textContent = followUp.tasks.length;
+            const openTasksCount = followUp.tasks.filter(task => task.status !== 'completed').length;
+            const openTasksHintEl = document.getElementById('followup-open-tasks-hint');
+            if (openTasksHintEl) {
+                if (!followUp.tasks.length) {
+                    openTasksHintEl.textContent = 'Sin acciones asignadas.';
+                } else if (openTasksCount === 0) {
+                    openTasksHintEl.textContent = 'Todas las acciones están completas.';
+                } else {
+                    openTasksHintEl.textContent = `${openTasksCount} ${openTasksCount === 1 ? 'acción pendiente' : 'acciones pendientes'}.`;
+                }
+            }
+
+            const buildTags = (tags = []) => {
+                if (!Array.isArray(tags) || !tags.length) {
+                    return '';
+                }
+                return `<div class="mt-3 flex flex-wrap gap-1.5">${tags.slice(0, 4).map(tag => `<span class="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-2 py-0.5 text-[11px] uppercase tracking-[0.25em] text-gray-300">#${escapeHtml(tag)}</span>`).join('')}</div>`;
+            };
+
+            const notesListEl = document.getElementById('followup-notes-list');
+            if (notesListEl) {
+                if (followUp.notes.length) {
+                    const noteItems = followUp.notes.slice(0, 4).map(note => {
+                        const metaParts = [];
+                        const dateLabel = formatFollowUpDate(note.createdAt, { includeTime: false, fallback: '' });
+                        if (dateLabel) metaParts.push(dateLabel);
+                        const relativeLabel = formatFollowUpRelative(note.createdAt);
+                        if (relativeLabel) metaParts.push(relativeLabel);
+                        if (note.authorName) metaParts.push(`Por ${escapeHtml(note.authorName)}`);
+                        const meta = metaParts.join(' · ');
+                        const content = note.content
+                            ? escapeHtml(truncateText(note.content, 180))
+                            : 'Sin detalles adicionales.';
+                        return `
+                            <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">${escapeHtml(note.title || 'Nota')}</p>
+                                        <p class="text-xs text-gray-400">${meta}</p>
+                                    </div>
+                                    <span class="inline-flex h-9 w-9 items-center justify-center rounded-2xl border border-emerald-400/30 bg-emerald-500/10 text-emerald-200">
+                                        <i data-lucide="file-text" class="h-4 w-4"></i>
+                                    </span>
+                                </div>
+                                <p class="mt-3 text-sm text-gray-300">${content}</p>
+                                ${buildTags(note.tags)}
+                            </article>
+                        `;
+                    }).join('');
+                    notesListEl.innerHTML = noteItems;
+                } else {
+                    notesListEl.innerHTML = `<div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/40 p-4 text-sm text-gray-400">Tu entrenador aún no ha registrado notas. Recibirás aquí los comentarios importantes.</div>`;
+                }
+            }
+
+            const metricsListEl = document.getElementById('followup-metrics-list');
+            if (metricsListEl) {
+                if (followUp.metrics.length) {
+                    const metricItems = followUp.metrics.slice(0, 4).map(metric => {
+                        const recordedAt = metric.recordedAt || metric.date;
+                        const dateLabel = formatFollowUpDate(recordedAt, { includeTime: false, fallback: 'Sin registro' });
+                        const relativeLabel = formatFollowUpRelative(recordedAt);
+                        const moodBadge = metric.mood
+                            ? `<span class="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-sky-200"><i data-lucide="smile" class="h-3.5 w-3.5"></i>${escapeHtml(metric.mood)}</span>`
+                            : '';
+                        const weightLabel = typeof metric.weight === 'number' ? `${metric.weight.toFixed(1)} kg` : '—';
+                        const bodyFatLabel = typeof metric.bodyFat === 'number' ? `${metric.bodyFat.toFixed(1)} %` : '—';
+                        const energyLabel = typeof metric.energy === 'number' ? `${Math.round(metric.energy)}/10` : '—';
+                        const sleepLabel = typeof metric.sleep === 'number' ? `${metric.sleep.toFixed(1)} h` : '—';
+                        const hydrationLabel = typeof metric.hydration === 'number' ? `${metric.hydration.toFixed(1)} L` : '—';
+                        const comment = metric.notes ? escapeHtml(truncateText(metric.notes, 150)) : '';
+                        const authorLabel = metric.authorName ? ` · ${escapeHtml(metric.authorName)}` : '';
+                        return `
+                            <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <div class="flex flex-wrap items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">${dateLabel}${authorLabel}</p>
+                                        <p class="text-xs text-gray-400">${relativeLabel || ''}</p>
+                                    </div>
+                                    ${moodBadge}
+                                </div>
+                                <div class="mt-4 grid grid-cols-2 gap-2 text-xs text-gray-300">
+                                    <div class="rounded-xl border border-white/10 bg-gray-900/70 p-2">
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-500">Peso</p>
+                                        <p class="mt-1 text-sm font-semibold text-white">${weightLabel}</p>
+                                    </div>
+                                    <div class="rounded-xl border border-white/10 bg-gray-900/70 p-2">
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-500">Grasa</p>
+                                        <p class="mt-1 text-sm font-semibold text-white">${bodyFatLabel}</p>
+                                    </div>
+                                    <div class="rounded-xl border border-white/10 bg-gray-900/70 p-2">
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-500">Energía</p>
+                                        <p class="mt-1 text-sm font-semibold text-white">${energyLabel}</p>
+                                    </div>
+                                    <div class="rounded-xl border border-white/10 bg-gray-900/70 p-2">
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-500">Sueño</p>
+                                        <p class="mt-1 text-sm font-semibold text-white">${sleepLabel}</p>
+                                    </div>
+                                    <div class="rounded-xl border border-white/10 bg-gray-900/70 p-2 col-span-2">
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-500">Hidratación</p>
+                                        <p class="mt-1 text-sm font-semibold text-white">${hydrationLabel}</p>
+                                    </div>
+                                </div>
+                                ${comment ? `<p class="mt-3 text-sm text-gray-300">${comment}</p>` : ''}
+                            </article>
+                        `;
+                    }).join('');
+                    metricsListEl.innerHTML = metricItems;
+                } else {
+                    metricsListEl.innerHTML = `<div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/40 p-4 text-sm text-gray-400">Aquí verás las métricas que registre tu entrenador: peso, descanso, energía y más.</div>`;
+                }
+            }
+
+            const tasksListEl = document.getElementById('followup-tasks-list');
+            if (tasksListEl) {
+                if (followUp.tasks.length) {
+                    const sortedTasks = [...followUp.tasks].sort((a, b) => {
+                        if (a.status !== b.status) {
+                            return a.status === 'open' ? -1 : 1;
+                        }
+                        const dateA = new Date(a.dueDate || a.createdAt || 0);
+                        const dateB = new Date(b.dueDate || b.createdAt || 0);
+                        return dateA - dateB;
+                    });
+                    const taskItems = sortedTasks.slice(0, 4).map(task => {
+                        const isCompleted = task.status === 'completed';
+                        const containerClasses = isCompleted
+                            ? 'rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-4'
+                            : 'rounded-2xl border border-white/10 bg-gray-900/60 p-4';
+                        const statusBadge = isCompleted
+                            ? '<span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200"><i data-lucide="check-circle-2" class="h-3.5 w-3.5"></i>Completada</span>'
+                            : '<span class="inline-flex items-center gap-1 rounded-full border border-yellow-400/30 bg-yellow-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-yellow-200"><i data-lucide="clock" class="h-3.5 w-3.5"></i>Pendiente</span>';
+                        const infoParts = [];
+                        if (task.dueDate) {
+                            infoParts.push(formatFollowUpDate(task.dueDate));
+                            const dueRelative = formatFollowUpRelative(task.dueDate);
+                            if (dueRelative) infoParts.push(dueRelative);
+                        } else if (!isCompleted) {
+                            infoParts.push('Sin fecha objetivo definida');
+                        }
+                        if (isCompleted && task.completedAt) {
+                            const completedRelative = formatFollowUpRelative(task.completedAt);
+                            infoParts.push(`Finalizada ${completedRelative || ''}`.trim());
+                        }
+                        const info = infoParts.filter(Boolean).join(' · ');
+                        const description = task.description
+                            ? escapeHtml(truncateText(task.description, 160))
+                            : 'Tu entrenador añadirá detalles al completar esta acción.';
+                        return `
+                            <article class="${containerClasses}">
+                                <div class="flex flex-wrap items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">${escapeHtml(task.title || 'Acción de seguimiento')}</p>
+                                        <p class="text-xs text-gray-400">${info}</p>
+                                    </div>
+                                    ${statusBadge}
+                                </div>
+                                <p class="mt-3 text-sm text-gray-300">${description}</p>
+                            </article>
+                        `;
+                    }).join('');
+                    tasksListEl.innerHTML = taskItems;
+                } else {
+                    tasksListEl.innerHTML = `<div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/40 p-4 text-sm text-gray-400">Cuando haya acciones concretas, tu entrenador las listará aquí con las instrucciones a seguir.</div>`;
+                }
+            }
+
+            lucide.createIcons();
+            this.updateDietWeightInfo();
+        },
+        calculateWorkoutStreak() {
+            const dates = this.state.workoutHistory
+                ? Object.keys(this.state.workoutHistory)
+                    .filter(dateKey => Array.isArray(this.state.workoutHistory[dateKey]) && this.state.workoutHistory[dateKey].length > 0)
+                    .sort((a, b) => new Date(b) - new Date(a))
+                : [];
+            if (dates.length === 0) return 0;
+
+            let streak = 0;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const firstDateInLog = new Date(dates[0] + 'T00:00:00');
+            const diffTime = today - firstDateInLog;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays > 1) return 0;
+
+            streak = 1;
+            for (let i = 0; i < dates.length - 1; i++) {
+                const currentDate = new Date(dates[i] + 'T00:00:00');
+                const previousDate = new Date(dates[i + 1] + 'T00:00:00');
+                const dayDifference = (currentDate - previousDate) / (1000 * 60 * 60 * 24);
+                if (dayDifference === 1) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            return streak;
+        },
+        getWeeklyActivityData() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const weeks = [
+                { label: 'Hace 3sem', count: 0, start: new Date(today), end: new Date(today) },
+                { label: 'Hace 2sem', count: 0, start: new Date(today), end: new Date(today) },
+                { label: 'Sem Pasada', count: 0, start: new Date(today), end: new Date(today) },
+                { label: 'Esta Sem', count: 0, start: new Date(today), end: new Date(today) },
+            ];
+            for (let i = 0; i < 4; i++) {
+                const weekIndex = 3 - i;
+                const firstDayOfWeek = new Date(today);
+                const dayOfWeek = today.getDay() === 0 ? 6 : today.getDay() - 1;
+                firstDayOfWeek.setDate(today.getDate() - dayOfWeek - (i * 7));
+                weeks[weekIndex].start = new Date(firstDayOfWeek);
+                weeks[weekIndex].end = new Date(firstDayOfWeek);
+                weeks[weekIndex].end.setDate(firstDayOfWeek.getDate() + 6);
+            }
+            if (this.state.workoutHistory) {
+                Object.entries(this.state.workoutHistory).forEach(([dateStr, entries]) => {
+                    if (!Array.isArray(entries) || entries.length === 0) return;
+                    const workoutDate = new Date(dateStr + 'T00:00:00');
+                    for (const week of weeks) {
+                        if (workoutDate >= week.start && workoutDate <= week.end) {
+                            week.count += entries.length;
+                            break;
+                        }
+                    }
+                });
+            }
+            return weeks;
+        },
+        showEditProfileModal() { const { userName, physicalStats } = this.state; const body = `<form id="edit-profile-form" class="space-y-4"><div><label for="profile-edit-name" class="block text-sm font-medium text-gray-300 mb-1">Nombre</label><input type="text" id="profile-edit-name" value="${userName}" required class="w-full bg-gray-700 rounded-lg p-3 border border-gray-600 focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></div><div class="grid grid-cols-3 gap-3"><div><label for="profile-edit-age" class="block text-sm font-medium text-gray-300 mb-1">Edad</label><input type="number" id="profile-edit-age" value="${physicalStats.age}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="profile-edit-weight" class="block text-sm font-medium text-gray-300 mb-1">Peso (kg)</label><input type="number" step="0.1" id="profile-edit-weight" value="${physicalStats.weight}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div><div><label for="profile-edit-height" class="block text-sm font-medium text-gray-300 mb-1">Altura (cm)</label><input type="number" id="profile-edit-height" value="${physicalStats.height}" class="w-full bg-gray-700 rounded-lg p-2 text-center"></div></div><div class="mt-4"><p class="block text-sm font-medium text-gray-300 mb-2">Género</p><div class="grid grid-cols-2 gap-4"><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="profile-edit-gender" value="male" class="sr-only" ${physicalStats.gender === 'male' ? 'checked' : ''}> Hombre</label><label class="bg-gray-700 p-3 rounded-lg text-center cursor-pointer has-[:checked]:bg-emerald-500 has-[:checked]:text-gray-900 transition"><input type="radio" name="profile-edit-gender" value="female" class="sr-only" ${physicalStats.gender === 'female' ? 'checked' : ''}> Mujer</label></div></div></form>`; const footer = [{ text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },{ text: 'Guardar Cambios', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'save-profile-changes' }]; this.showModal('Editar Perfil', body, footer); },
+        async handleUpdateProfile() { const name = document.getElementById('profile-edit-name').value.trim(); const age = parseInt(document.getElementById('profile-edit-age').value); const weight = parseFloat(document.getElementById('profile-edit-weight').value); const height = parseInt(document.getElementById('profile-edit-height').value); const gender = document.querySelector('input[name="profile-edit-gender"]:checked').value; if (!name || isNaN(age) || isNaN(weight) || isNaN(height)) { this.showToast("Por favor, rellena todos los campos correctamente.", "error"); return; } this.state.userName = name; this.state.physicalStats = { ...this.state.physicalStats, age, weight, height, gender }; await this.saveDataToFirestore(); this.renderAll(); this.updateUserInfoUI(); this.populateNutritionForm(); this.hideModal(); this.showToast("¡Perfil actualizado con éxito!"); },
+        updateDashboard() { document.getElementById('dashboard-calories').textContent=`${this.state.userGoals.calories} kcal`; this.updateDietSummary(); },
+        async uploadImageToStorage(file, { pathPrefix = 'uploads', previousPath = '' } = {}) {
+            if (!file || !this.storage) {
+                return { url: '', storagePath: '' };
+            }
+
+            const sanitizedName = file.name.toLowerCase().replace(/[^a-z0-9.]+/g, '-');
+            const ownerId = this.state.currentUser?.uid || 'public';
+            const storagePath = `${pathPrefix}/${ownerId}/${Date.now()}-${sanitizedName}`;
+            const storageRefInstance = ref(this.storage, storagePath);
+            const uploadTask = uploadBytesResumable(storageRefInstance, file);
+
+            await new Promise((resolve, reject) => {
+                uploadTask.on('state_changed', null, reject, () => resolve());
+            });
+
+            const downloadURL = await getDownloadURL(storageRefInstance);
+
+            if (previousPath && previousPath !== storagePath) {
+                await this.deleteStorageAsset(previousPath);
+            }
+
+            return { url: downloadURL, storagePath };
+        },
+        async deleteStorageAsset(storagePath) {
+            if (!storagePath || !this.storage) {
+                return;
+            }
+            try {
+                await deleteObject(ref(this.storage, storagePath));
+            } catch (error) {
+                console.warn('No se pudo eliminar el archivo de Storage:', error);
+            }
+        },
+        renderFoodImagePlaceholder(previewEl) {
+            if (!previewEl) return;
+            previewEl.innerHTML = `<div class="flex h-24 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-white/10 bg-gray-900/60 text-xs text-gray-400"><i data-lucide="image-off" class="h-4 w-4"></i><span>Sin imagen</span></div>`;
+            lucide.createIcons();
+        },
+        setupFoodImagePreview(inputId, previewId, removeInputId = null, removeButtonId = null) {
+            const fileInput = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            const removeInput = removeInputId ? document.getElementById(removeInputId) : null;
+            const removeButton = removeButtonId ? document.getElementById(removeButtonId) : null;
+
+            if (!fileInput || !preview) {
+                return;
+            }
+
+            if (!preview.innerHTML.trim()) {
+                this.renderFoodImagePlaceholder(preview);
+            }
+
+            if (removeButton && !removeButton.dataset.originalInnerHTML) {
+                removeButton.dataset.originalInnerHTML = removeButton.innerHTML;
+            }
+
+            if (fileInput.dataset.previewListenerAttached === 'true') {
+                return;
+            }
+            fileInput.dataset.previewListenerAttached = 'true';
+
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files && fileInput.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        preview.innerHTML = `<img src="${event.target.result}" alt="Vista previa del alimento" class="h-24 w-full rounded-xl border border-white/10 object-cover">`;
+                    };
+                    reader.readAsDataURL(fileInput.files[0]);
+                    if (removeInput) {
+                        removeInput.value = 'false';
+                    }
+                    if (removeButton) {
+                        removeButton.disabled = false;
+                        removeButton.classList.remove('opacity-60', 'cursor-not-allowed');
+                        if (removeButton.dataset.originalInnerHTML) {
+                            removeButton.innerHTML = removeButton.dataset.originalInnerHTML;
+                        }
+                        lucide.createIcons();
+                    }
+                } else {
+                    this.renderFoodImagePlaceholder(preview);
+                    if (removeButton) {
+                        removeButton.disabled = true;
+                        removeButton.classList.add('opacity-60', 'cursor-not-allowed');
+                        lucide.createIcons();
+                    }
+                }
+            });
+        },
+        setModalButtonLoading(action, isLoading, fallbackText = 'Guardar') {
+            const button = document.querySelector(`#custom-modal-footer button[data-action="${action}"]`);
+            if (!button) return;
+
+            if (isLoading) {
+                button.dataset.originalText = button.textContent;
+                button.disabled = true;
+                button.innerHTML = `<i data-lucide="loader-2" class="h-4 w-4 animate-spin"></i>`;
+                lucide.createIcons();
+            } else {
+                button.disabled = false;
+                const text = button.dataset.originalText || fallbackText;
+                button.textContent = text;
+            }
+        },
+        setElementLoading(button, isLoading, fallbackText = 'Guardar') {
+            if (!button) {
+                return;
+            }
+            if (isLoading) {
+                button.dataset.originalInnerHTML = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = `<i data-lucide="loader-2" class="h-4 w-4 animate-spin"></i>`;
+                lucide.createIcons();
+            } else {
+                button.disabled = false;
+                const html = button.dataset.originalInnerHTML || fallbackText;
+                button.innerHTML = html;
+            }
+        },
+        createId(prefix = 'id') {
+            const random = Math.floor(Math.random() * 1_000_000);
+            return `${prefix}-${Date.now()}-${random}`;
+        },
+        _normalizeDateValue(value, fallback = null) {
+            if (!value && !fallback) {
+                return new Date();
+            }
+            if (value instanceof Date) {
+                return value;
+            }
+            if (value && typeof value === 'object') {
+                if (typeof value.toDate === 'function') {
+                    return value.toDate();
+                }
+                if (typeof value.seconds === 'number') {
+                    return new Date(value.seconds * 1000);
+                }
+            }
+            if (typeof value === 'number') {
+                const fromNumber = new Date(value);
+                if (!Number.isNaN(fromNumber.getTime())) {
+                    return fromNumber;
+                }
+            }
+            if (typeof value === 'string') {
+                const parsed = new Date(value);
+                if (!Number.isNaN(parsed.getTime())) {
+                    return parsed;
+                }
+                const isoCandidate = new Date(`${value}`);
+                if (!Number.isNaN(isoCandidate.getTime())) {
+                    return isoCandidate;
+                }
+            }
+            if (fallback) {
+                if (fallback instanceof Date) {
+                    return fallback;
+                }
+                if (typeof fallback === 'string' || typeof fallback === 'number') {
+                    const fallbackDate = new Date(fallback);
+                    if (!Number.isNaN(fallbackDate.getTime())) {
+                        return fallbackDate;
+                    }
+                }
+            }
+            return new Date();
+        },
+        getFollowUpDefaults() {
+            return {
+                notes: [],
+                metrics: [],
+                tasks: [],
+                nextCheckIn: null,
+                lastUpdated: null
+            };
+        },
+        _normalizeFollowUpSnapshot(snapshot) {
+            const defaults = this.getFollowUpDefaults();
+            const followUp = { ...defaults, ...(snapshot || {}) };
+            const ensureArray = (value) => Array.isArray(value) ? value : [];
+            followUp.notes = ensureArray(followUp.notes).map(note => {
+                if (!note) return null;
+                const createdAt = this._normalizeDateValue(note.createdAt || note.date || note.recordedAt || new Date());
+                const tags = Array.isArray(note.tags)
+                    ? note.tags.map(tag => `${tag}`.trim()).filter(Boolean).slice(0, 5)
+                    : [];
+                const title = (note.title || '').trim();
+                const content = (note.content || note.text || '').trim();
+                return {
+                    id: note.id || this.createId('note'),
+                    title: title || (content ? content.split('\n')[0].slice(0, 120) : 'Nota'),
+                    content,
+                    tags,
+                    createdAt: createdAt.toISOString(),
+                    createdBy: note.createdBy || note.authorId || '',
+                    authorName: note.authorName || note.author || ''
+                };
+            }).filter(Boolean);
+            followUp.metrics = ensureArray(followUp.metrics).map(metric => {
+                if (!metric) return null;
+                const recorded = this._normalizeDateValue(metric.recordedAt || metric.date || metric.createdAt || new Date());
+                const createdAt = this._normalizeDateValue(metric.createdAt || recorded);
+                const parseNumber = (value) => {
+                    if (value === '' || value === null || typeof value === 'undefined') return null;
+                    const parsed = Number(value);
+                    return Number.isFinite(parsed) ? parsed : null;
+                };
+                return {
+                    id: metric.id || this.createId('metric'),
+                    date: recorded.toISOString().split('T')[0],
+                    recordedAt: recorded.toISOString(),
+                    weight: parseNumber(metric.weight ?? metric.bodyWeight),
+                    bodyFat: parseNumber(metric.bodyFat ?? metric.bodyfat),
+                    energy: parseNumber(metric.energy ?? metric.energyLevel),
+                    sleep: parseNumber(metric.sleep ?? metric.sleepHours),
+                    hydration: parseNumber(metric.hydration ?? metric.water),
+                    mood: (metric.mood || metric.moodLabel || '').toString(),
+                    notes: (metric.notes || metric.comment || '').trim(),
+                    createdAt: createdAt.toISOString(),
+                    createdBy: metric.createdBy || metric.authorId || '',
+                    authorName: metric.authorName || metric.author || ''
+                };
+            }).filter(Boolean);
+            followUp.tasks = ensureArray(followUp.tasks).map(task => {
+                if (!task) return null;
+                const createdAt = this._normalizeDateValue(task.createdAt || task.date || new Date());
+                const dueDate = task.dueDate ? this._normalizeDateValue(task.dueDate, createdAt) : null;
+                const completedAt = task.completedAt ? this._normalizeDateValue(task.completedAt, dueDate || createdAt) : null;
+                const status = task.status === 'completed' ? 'completed' : 'open';
+                const priority = (task.priority || 'medium').toLowerCase();
+                return {
+                    id: task.id || this.createId('task'),
+                    title: (task.title || '').trim() || 'Acción de seguimiento',
+                    description: (task.description || '').trim(),
+                    dueDate: dueDate ? dueDate.toISOString() : null,
+                    status,
+                    priority: ['low', 'medium', 'high'].includes(priority) ? priority : 'medium',
+                    createdAt: createdAt.toISOString(),
+                    completedAt: completedAt ? completedAt.toISOString() : null,
+                    createdBy: task.createdBy || task.authorId || '',
+                    authorName: task.authorName || task.author || ''
+                };
+            }).filter(Boolean);
+            followUp.nextCheckIn = followUp.nextCheckIn ? this._normalizeDateValue(followUp.nextCheckIn).toISOString() : null;
+            followUp.lastUpdated = followUp.lastUpdated ? this._normalizeDateValue(followUp.lastUpdated).toISOString() : null;
+            followUp.notes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            followUp.metrics.sort((a, b) => new Date(b.recordedAt || b.createdAt) - new Date(a.recordedAt || a.createdAt));
+            followUp.tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            return followUp;
+        },
+        ensureFollowUpStructure(entity) {
+            if (!entity) {
+                return this.getFollowUpDefaults();
+            }
+            const normalized = this._normalizeFollowUpSnapshot(entity.followUp360 || entity.followUp);
+            entity.followUp360 = normalized;
+            return normalized;
+        },
+        _sanitizeFollowUpForSave(followUp) {
+            const normalized = this._normalizeFollowUpSnapshot(followUp);
+            return {
+                notes: normalized.notes.map(note => ({
+                    id: note.id || this.createId('note'),
+                    title: note.title || '',
+                    content: note.content || '',
+                    tags: Array.isArray(note.tags) ? note.tags.filter(tag => typeof tag === 'string' && tag.trim()).map(tag => tag.trim()).slice(0, 5) : [],
+                    createdAt: this._normalizeDateValue(note.createdAt).toISOString(),
+                    createdBy: note.createdBy || '',
+                    authorName: note.authorName || ''
+                })),
+                metrics: normalized.metrics.map(metric => ({
+                    id: metric.id || this.createId('metric'),
+                    date: metric.date || (metric.recordedAt ? this._normalizeDateValue(metric.recordedAt).toISOString().split('T')[0] : null),
+                    recordedAt: metric.recordedAt ? this._normalizeDateValue(metric.recordedAt).toISOString() : null,
+                    weight: typeof metric.weight === 'number' ? metric.weight : null,
+                    bodyFat: typeof metric.bodyFat === 'number' ? metric.bodyFat : null,
+                    energy: typeof metric.energy === 'number' ? metric.energy : null,
+                    sleep: typeof metric.sleep === 'number' ? metric.sleep : null,
+                    hydration: typeof metric.hydration === 'number' ? metric.hydration : null,
+                    mood: metric.mood || '',
+                    notes: metric.notes || '',
+                    createdAt: this._normalizeDateValue(metric.createdAt || metric.recordedAt || metric.date).toISOString(),
+                    createdBy: metric.createdBy || '',
+                    authorName: metric.authorName || ''
+                })),
+                tasks: normalized.tasks.map(task => ({
+                    id: task.id || this.createId('task'),
+                    title: task.title || '',
+                    description: task.description || '',
+                    dueDate: task.dueDate ? this._normalizeDateValue(task.dueDate).toISOString() : null,
+                    status: task.status === 'completed' ? 'completed' : 'open',
+                    priority: task.priority || 'medium',
+                    createdAt: this._normalizeDateValue(task.createdAt).toISOString(),
+                    completedAt: task.completedAt ? this._normalizeDateValue(task.completedAt).toISOString() : null,
+                    createdBy: task.createdBy || '',
+                    authorName: task.authorName || ''
+                })),
+                nextCheckIn: normalized.nextCheckIn ? this._normalizeDateValue(normalized.nextCheckIn).toISOString() : null,
+                lastUpdated: normalized.lastUpdated ? this._normalizeDateValue(normalized.lastUpdated).toISOString() : null
+            };
+        },
+        getClientFollowUp(clientId) {
+            if (!clientId) {
+                return null;
+            }
+            const client = (this.state.asesorados || []).find(c => c.id === clientId);
+            if (!client) {
+                return null;
+            }
+            const normalized = this.ensureFollowUpStructure(client);
+            return JSON.parse(JSON.stringify(normalized));
+        },
+        async persistClientFollowUp(clientId, followUp, options = {}) {
+            if (!clientId) {
+                this.showToast('Cliente no identificado.', 'error');
+                return false;
+            }
+            if (!this.db) {
+                this.showToast('No se pudo conectar a la base de datos.', 'error');
+                return false;
+            }
+            const { refresh = true, successMessage = null } = options;
+            const payload = this._sanitizeFollowUpForSave(followUp);
+            payload.lastUpdated = new Date().toISOString();
+            try {
+                const clientRef = doc(this.db, 'users', clientId);
+                await updateDoc(clientRef, { followUp360: payload });
+                if (refresh) {
+                    await this.fetchAsesorados();
+                }
+                if (successMessage) {
+                    this.showToast(successMessage, 'success');
+                }
+                return true;
+            } catch (error) {
+                console.error('Error updating follow up:', error);
+                this.showToast('No se pudo guardar el seguimiento.', 'error');
+                return false;
+            }
+        },
+        openFollowUpNoteModal(clientId) {
+            const client = (this.state.asesorados || []).find(c => c.id === clientId);
+            if (!client) {
+                this.showToast('Cliente no encontrado.', 'error');
+                return;
+            }
+            const baseName = client.userName || client.email || 'tu asesorado';
+            const firstName = baseName.includes(' ') ? baseName.split(' ')[0] : (baseName.split('@')[0] || baseName);
+            const body = `
+                <form id="followup-note-form" class="space-y-4">
+                    <div>
+                        <label for="followup-note-title" class="block text-sm font-semibold text-gray-200 mb-1">Título de la nota</label>
+                        <input id="followup-note-title" type="text" maxlength="120" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="Resumen breve de la sesión">
+                    </div>
+                    <div>
+                        <label for="followup-note-content" class="block text-sm font-semibold text-gray-200 mb-1">Detalle</label>
+                        <textarea id="followup-note-content" rows="5" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none resize-none" placeholder="Observaciones relevantes, respuesta al entrenamiento, próximos pasos..."></textarea>
+                    </div>
+                    <div>
+                        <label for="followup-note-tags" class="block text-sm font-semibold text-gray-200 mb-1">Etiquetas</label>
+                        <input id="followup-note-tags" type="text" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="separar por comas (ej. movilidad, nutrición)">
+                        <p class="mt-1 text-xs text-gray-500">Hasta 5 etiquetas para clasificar tus notas.</p>
+                    </div>
+                </form>
+            `;
+            const footer = [
+                { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                { text: 'Guardar nota', class: 'bg-emerald-500 text-slate-950 hover:bg-emerald-400', action: 'followup-save-note', 'client-id': clientId }
+            ];
+            this.showModal(`Nueva nota para ${firstName}`, body, footer);
+            lucide.createIcons();
+            setTimeout(() => {
+                const input = document.getElementById('followup-note-title');
+                if (input) input.focus();
+            }, 50);
+        },
+        async saveFollowUpNote(clientId) {
+            const form = document.getElementById('followup-note-form');
+            if (!form) {
+                this.showToast('No se encontró el formulario.', 'error');
+                return;
+            }
+            const titleInput = document.getElementById('followup-note-title');
+            const contentInput = document.getElementById('followup-note-content');
+            const tagsInput = document.getElementById('followup-note-tags');
+            const title = titleInput?.value.trim() || '';
+            const content = contentInput?.value.trim() || '';
+            if (!title && !content) {
+                this.showToast('Agrega al menos un título o contenido.', 'error');
+                return;
+            }
+            const tags = tagsInput?.value
+                ? tagsInput.value.split(',').map(tag => tag.trim()).filter(Boolean).slice(0, 5)
+                : [];
+            const followUp = this.getClientFollowUp(clientId);
+            if (!followUp) {
+                this.showToast('No se pudo cargar el seguimiento.', 'error');
+                return;
+            }
+            const note = {
+                id: this.createId('note'),
+                title: title || 'Nota',
+                content,
+                tags,
+                createdAt: new Date().toISOString(),
+                createdBy: this.state.currentUser?.uid || '',
+                authorName: this.state.userName || this.state.currentUser?.email || ''
+            };
+            followUp.notes.unshift(note);
+            this.setModalButtonLoading('followup-save-note', true, 'Guardar nota');
+            try {
+                const success = await this.persistClientFollowUp(clientId, followUp);
+                if (success) {
+                    this.hideModal();
+                    this.showToast('Nota guardada en el seguimiento.', 'success');
+                    await this.showClientManager(clientId);
+                }
+            } finally {
+                this.setModalButtonLoading('followup-save-note', false, 'Guardar nota');
+            }
+        },
+        openFollowUpMetricModal(clientId) {
+            const followUp = this.getClientFollowUp(clientId) || this.getFollowUpDefaults();
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            const time = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const lastMetric = followUp.metrics && followUp.metrics.length ? followUp.metrics[0] : null;
+            const body = `
+                <form id="followup-metric-form" class="space-y-4">
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <div>
+                            <label for="followup-metric-date" class="block text-sm font-semibold text-gray-200 mb-1">Fecha</label>
+                            <input type="date" id="followup-metric-date" value="${today}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                        </div>
+                        <div>
+                            <label for="followup-metric-time" class="block text-sm font-semibold text-gray-200 mb-1">Hora</label>
+                            <input type="time" id="followup-metric-time" value="${time}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                        </div>
+                    </div>
+                    <div class="grid gap-3 sm:grid-cols-3">
+                        <div>
+                            <label for="followup-metric-weight" class="block text-sm font-semibold text-gray-200 mb-1">Peso (kg)</label>
+                            <input type="number" step="0.1" id="followup-metric-weight" value="${lastMetric?.weight ?? ''}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="Ej. 72.4">
+                        </div>
+                        <div>
+                            <label for="followup-metric-bodyfat" class="block text-sm font-semibold text-gray-200 mb-1">Grasa (%)</label>
+                            <input type="number" step="0.1" id="followup-metric-bodyfat" value="${lastMetric?.bodyFat ?? ''}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="Ej. 14.2">
+                        </div>
+                        <div>
+                            <label for="followup-metric-energy" class="block text-sm font-semibold text-gray-200 mb-1">Energía (1-10)</label>
+                            <input type="number" min="1" max="10" id="followup-metric-energy" value="${lastMetric?.energy ?? ''}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="8">
+                        </div>
+                    </div>
+                    <div class="grid gap-3 sm:grid-cols-3">
+                        <div>
+                            <label for="followup-metric-sleep" class="block text-sm font-semibold text-gray-200 mb-1">Sueño (h)</label>
+                            <input type="number" step="0.1" id="followup-metric-sleep" value="${lastMetric?.sleep ?? ''}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="7.5">
+                        </div>
+                        <div>
+                            <label for="followup-metric-hydration" class="block text-sm font-semibold text-gray-200 mb-1">Agua (L)</label>
+                            <input type="number" step="0.1" id="followup-metric-hydration" value="${lastMetric?.hydration ?? ''}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="2.5">
+                        </div>
+                        <div>
+                            <label for="followup-metric-mood" class="block text-sm font-semibold text-gray-200 mb-1">Estado de ánimo</label>
+                            <select id="followup-metric-mood" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                                <option value="">Selecciona</option>
+                                <option value="excelente">Excelente</option>
+                                <option value="positivo">Positivo</option>
+                                <option value="neutral">Neutral</option>
+                                <option value="fatigado">Fatigado</option>
+                                <option value="estresado">Estresado</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="followup-metric-notes" class="block text-sm font-semibold text-gray-200 mb-1">Comentario</label>
+                        <textarea id="followup-metric-notes" rows="3" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none resize-none" placeholder="Contexto de la medición, señales destacadas..."></textarea>
+                    </div>
+                </form>
+            `;
+            const footer = [
+                { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                { text: 'Registrar métrica', class: 'bg-emerald-500 text-slate-950 hover:bg-emerald-400', action: 'followup-save-metric', 'client-id': clientId }
+            ];
+            this.showModal('Registrar métrica', body, footer);
+            if (lastMetric?.mood) {
+                const moodSelect = document.getElementById('followup-metric-mood');
+                if (moodSelect) {
+                    moodSelect.value = lastMetric.mood;
+                }
+            }
+            lucide.createIcons();
+        },
+        async saveFollowUpMetric(clientId) {
+            const form = document.getElementById('followup-metric-form');
+            if (!form) {
+                this.showToast('No se encontró el formulario de métricas.', 'error');
+                return;
+            }
+            const dateInput = document.getElementById('followup-metric-date');
+            const timeInput = document.getElementById('followup-metric-time');
+            const dateValue = dateInput?.value;
+            if (!dateValue) {
+                this.showToast('Selecciona la fecha del registro.', 'error');
+                return;
+            }
+            const parseDecimal = (elementId) => {
+                const el = document.getElementById(elementId);
+                if (!el) return null;
+                const raw = el.value;
+                if (raw === '' || raw === null || typeof raw === 'undefined') return null;
+                const parsed = parseFloat(raw);
+                return Number.isFinite(parsed) ? parsed : null;
+            };
+            const parseInteger = (elementId) => {
+                const el = document.getElementById(elementId);
+                if (!el) return null;
+                const raw = el.value;
+                if (raw === '' || raw === null || typeof raw === 'undefined') return null;
+                const parsed = parseInt(raw, 10);
+                return Number.isFinite(parsed) ? parsed : null;
+            };
+            const weight = parseDecimal('followup-metric-weight');
+            const bodyFat = parseDecimal('followup-metric-bodyfat');
+            const energy = parseInteger('followup-metric-energy');
+            const sleep = parseDecimal('followup-metric-sleep');
+            const hydration = parseDecimal('followup-metric-hydration');
+            const moodSelect = document.getElementById('followup-metric-mood');
+            const notesInput = document.getElementById('followup-metric-notes');
+            const notes = notesInput?.value.trim() || '';
+            if (weight === null && bodyFat === null && energy === null && sleep === null && hydration === null && !notes) {
+                this.showToast('Registra al menos una métrica o añade una nota.', 'error');
+                return;
+            }
+            const recordDate = this._normalizeDateValue(`${dateValue}T${timeInput?.value || '09:00'}`);
+            const followUp = this.getClientFollowUp(clientId);
+            if (!followUp) {
+                this.showToast('No se pudo cargar el seguimiento.', 'error');
+                return;
+            }
+            const metric = {
+                id: this.createId('metric'),
+                date: recordDate.toISOString().split('T')[0],
+                recordedAt: recordDate.toISOString(),
+                weight,
+                bodyFat,
+                energy,
+                sleep,
+                hydration,
+                mood: moodSelect?.value || '',
+                notes,
+                createdAt: new Date().toISOString(),
+                createdBy: this.state.currentUser?.uid || '',
+                authorName: this.state.userName || this.state.currentUser?.email || ''
+            };
+            followUp.metrics.unshift(metric);
+            this.setModalButtonLoading('followup-save-metric', true, 'Registrar métrica');
+            try {
+                const success = await this.persistClientFollowUp(clientId, followUp);
+                if (success) {
+                    this.hideModal();
+                    this.showToast('Métrica registrada correctamente.', 'success');
+                    await this.showClientManager(clientId);
+                }
+            } finally {
+                this.setModalButtonLoading('followup-save-metric', false, 'Registrar métrica');
+            }
+        },
+        openFollowUpTaskModal(clientId) {
+            const followUp = this.getClientFollowUp(clientId) || this.getFollowUpDefaults();
+            const baseDate = followUp.nextCheckIn ? this._normalizeDateValue(followUp.nextCheckIn) : new Date();
+            const dateValue = baseDate.toISOString().split('T')[0];
+            const body = `
+                <form id="followup-task-form" class="space-y-4">
+                    <div>
+                        <label for="followup-task-title" class="block text-sm font-semibold text-gray-200 mb-1">Acción / Recordatorio</label>
+                        <input id="followup-task-title" type="text" maxlength="120" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none" placeholder="Ej. Reforzar movilidad de cadera">
+                    </div>
+                    <div>
+                        <label for="followup-task-description" class="block text-sm font-semibold text-gray-200 mb-1">Detalles</label>
+                        <textarea id="followup-task-description" rows="3" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none resize-none" placeholder="Instrucciones claras, materiales necesarios, criterios de éxito..."></textarea>
+                    </div>
+                    <div class="grid gap-3 sm:grid-cols-3">
+                        <div>
+                            <label for="followup-task-date" class="block text-sm font-semibold text-gray-200 mb-1">Fecha objetivo</label>
+                            <input type="date" id="followup-task-date" value="${dateValue}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                        </div>
+                        <div>
+                            <label for="followup-task-time" class="block text-sm font-semibold text-gray-200 mb-1">Hora</label>
+                            <input type="time" id="followup-task-time" value="09:00" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                        </div>
+                        <div>
+                            <label for="followup-task-priority" class="block text-sm font-semibold text-gray-200 mb-1">Prioridad</label>
+                            <select id="followup-task-priority" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                                <option value="medium">Media</option>
+                                <option value="high">Alta</option>
+                                <option value="low">Baja</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            `;
+            const footer = [
+                { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                { text: 'Guardar acción', class: 'bg-emerald-500 text-slate-950 hover:bg-emerald-400', action: 'followup-save-task', 'client-id': clientId }
+            ];
+            this.showModal('Nueva acción de seguimiento', body, footer);
+            lucide.createIcons();
+            setTimeout(() => {
+                const input = document.getElementById('followup-task-title');
+                if (input) input.focus();
+            }, 50);
+        },
+        async saveFollowUpTask(clientId) {
+            const form = document.getElementById('followup-task-form');
+            if (!form) {
+                this.showToast('No se encontró el formulario de acciones.', 'error');
+                return;
+            }
+            const titleInput = document.getElementById('followup-task-title');
+            const descriptionInput = document.getElementById('followup-task-description');
+            const dateInput = document.getElementById('followup-task-date');
+            const timeInput = document.getElementById('followup-task-time');
+            const prioritySelect = document.getElementById('followup-task-priority');
+            const title = titleInput?.value.trim();
+            if (!title) {
+                this.showToast('Define un título para la acción.', 'error');
+                return;
+            }
+            const followUp = this.getClientFollowUp(clientId);
+            if (!followUp) {
+                this.showToast('No se pudo cargar el seguimiento.', 'error');
+                return;
+            }
+            let dueDateIso = null;
+            if (dateInput?.value) {
+                const dueDate = this._normalizeDateValue(`${dateInput.value}T${timeInput?.value || '09:00'}`);
+                dueDateIso = dueDate.toISOString();
+            }
+            const task = {
+                id: this.createId('task'),
+                title,
+                description: descriptionInput?.value.trim() || '',
+                dueDate: dueDateIso,
+                status: 'open',
+                priority: prioritySelect?.value || 'medium',
+                createdAt: new Date().toISOString(),
+                createdBy: this.state.currentUser?.uid || '',
+                authorName: this.state.userName || this.state.currentUser?.email || ''
+            };
+            followUp.tasks.unshift(task);
+            this.setModalButtonLoading('followup-save-task', true, 'Guardar acción');
+            try {
+                const success = await this.persistClientFollowUp(clientId, followUp);
+                if (success) {
+                    this.hideModal();
+                    this.showToast('Acción registrada.', 'success');
+                    await this.showClientManager(clientId);
+                }
+            } finally {
+                this.setModalButtonLoading('followup-save-task', false, 'Guardar acción');
+            }
+        },
+        async toggleFollowUpTask(clientId, taskId) {
+            if (!clientId || !taskId) {
+                return;
+            }
+            const followUp = this.getClientFollowUp(clientId);
+            if (!followUp) {
+                this.showToast('Seguimiento no disponible.', 'error');
+                return;
+            }
+            const task = followUp.tasks.find(item => item.id === taskId);
+            if (!task) {
+                this.showToast('Tarea no encontrada.', 'error');
+                return;
+            }
+            if (task.status === 'completed') {
+                task.status = 'open';
+                task.completedAt = null;
+            } else {
+                task.status = 'completed';
+                task.completedAt = new Date().toISOString();
+            }
+            const success = await this.persistClientFollowUp(clientId, followUp);
+            if (success) {
+                this.showToast(task.status === 'completed' ? 'Tarea completada.' : 'Tarea reactivada.', 'success');
+                await this.showClientManager(clientId);
+            }
+        },
+        async removeFollowUpEntry(clientId, entryType, entryId) {
+            if (!clientId || !entryType || !entryId) {
+                return;
+            }
+            const followUp = this.getClientFollowUp(clientId);
+            if (!followUp) {
+                this.showToast('Seguimiento no disponible.', 'error');
+                return;
+            }
+            const key = entryType === 'note' ? 'notes' : entryType === 'metric' ? 'metrics' : 'tasks';
+            if (!Array.isArray(followUp[key])) {
+                this.showToast('Elemento no encontrado.', 'error');
+                return;
+            }
+            const initialLength = followUp[key].length;
+            followUp[key] = followUp[key].filter(item => item.id !== entryId);
+            if (followUp[key].length === initialLength) {
+                this.showToast('Elemento no encontrado.', 'error');
+                return;
+            }
+            const success = await this.persistClientFollowUp(clientId, followUp);
+            if (success) {
+                this.showToast('Elemento eliminado del seguimiento.', 'success');
+                await this.showClientManager(clientId);
+            }
+        },
+        openFollowUpCheckInModal(clientId) {
+            const followUp = this.getClientFollowUp(clientId) || this.getFollowUpDefaults();
+            const baseDate = followUp.nextCheckIn ? this._normalizeDateValue(followUp.nextCheckIn) : new Date();
+            const dateValue = baseDate.toISOString().split('T')[0];
+            const timeValue = `${String(baseDate.getHours()).padStart(2, '0')}:${String(baseDate.getMinutes()).padStart(2, '0')}`;
+            const body = `
+                <form id="followup-checkin-form" class="space-y-4">
+                    <p class="text-sm text-gray-300">Programa el próximo punto de contacto para mantener el seguimiento constante.</p>
+                    <div class="grid gap-3 sm:grid-cols-2">
+                        <div>
+                            <label for="followup-checkin-date" class="block text-sm font-semibold text-gray-200 mb-1">Fecha</label>
+                            <input type="date" id="followup-checkin-date" value="${dateValue}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                        </div>
+                        <div>
+                            <label for="followup-checkin-time" class="block text-sm font-semibold text-gray-200 mb-1">Hora</label>
+                            <input type="time" id="followup-checkin-time" value="${timeValue}" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-sm text-white focus:border-emerald-400 focus:outline-none">
+                        </div>
+                    </div>
+                </form>
+            `;
+            const footer = [
+                { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                { text: 'Guardar check-in', class: 'bg-emerald-500 text-slate-950 hover:bg-emerald-400', action: 'followup-save-checkin', 'client-id': clientId }
+            ];
+            this.showModal('Programar próximo check-in', body, footer);
+            lucide.createIcons();
+        },
+        async saveFollowUpCheckIn(clientId) {
+            const form = document.getElementById('followup-checkin-form');
+            if (!form) {
+                this.showToast('No se encontró el formulario.', 'error');
+                return;
+            }
+            const dateInput = document.getElementById('followup-checkin-date');
+            const timeInput = document.getElementById('followup-checkin-time');
+            const dateValue = dateInput?.value;
+            if (!dateValue) {
+                this.showToast('Selecciona la fecha del check-in.', 'error');
+                return;
+            }
+            const checkinDate = this._normalizeDateValue(`${dateValue}T${timeInput?.value || '09:00'}`);
+            const followUp = this.getClientFollowUp(clientId);
+            if (!followUp) {
+                this.showToast('No se pudo cargar el seguimiento.', 'error');
+                return;
+            }
+            followUp.nextCheckIn = checkinDate.toISOString();
+            this.setModalButtonLoading('followup-save-checkin', true, 'Guardar check-in');
+            try {
+                const success = await this.persistClientFollowUp(clientId, followUp);
+                if (success) {
+                    this.hideModal();
+                    this.showToast('Check-in programado.', 'success');
+                    await this.showClientManager(clientId);
+                }
+            } finally {
+                this.setModalButtonLoading('followup-save-checkin', false, 'Guardar check-in');
+            }
+        },
+        async clearFollowUpCheckIn(clientId) {
+            const followUp = this.getClientFollowUp(clientId);
+            if (!followUp) {
+                this.showToast('Seguimiento no disponible.', 'error');
+                return;
+            }
+            followUp.nextCheckIn = null;
+            const success = await this.persistClientFollowUp(clientId, followUp);
+            if (success) {
+                this.showToast('Check-in eliminado.', 'success');
+                await this.showClientManager(clientId);
+            }
+        },
+        buildFollowUpTimeline(followUp) {
+            const normalized = this._normalizeFollowUpSnapshot(followUp);
+            const entries = [];
+            normalized.notes.forEach(note => {
+                entries.push({
+                    type: 'note',
+                    id: note.id,
+                    title: note.title,
+                    content: note.content,
+                    tags: note.tags,
+                    createdAt: note.createdAt,
+                    authorName: note.authorName
+                });
+            });
+            normalized.metrics.forEach(metric => {
+                entries.push({
+                    type: 'metric',
+                    id: metric.id,
+                    weight: metric.weight,
+                    bodyFat: metric.bodyFat,
+                    notes: metric.notes,
+                    createdAt: metric.recordedAt || metric.createdAt,
+                    date: metric.date
+                });
+            });
+            normalized.tasks.filter(task => task.status === 'completed').forEach(task => {
+                entries.push({
+                    type: 'task',
+                    id: task.id,
+                    title: task.title,
+                    description: task.description,
+                    createdAt: task.completedAt || task.createdAt
+                });
+            });
+            entries.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+            return entries.slice(0, 6);
+        },
+        renderClientFollowUpPanel(client) {
+            const followUp = this.ensureFollowUpStructure(client);
+            const baseName = client.userName || client.email || 'tu asesorado';
+            const firstName = baseName.includes(' ') ? baseName.split(' ')[0] : (baseName.split('@')[0] || baseName);
+            const notesCount = followUp.notes.length;
+            const metricsCount = followUp.metrics.length;
+            const openTasks = followUp.tasks.filter(task => task.status !== 'completed');
+            const latestMetric = followUp.metrics.length ? followUp.metrics[0] : null;
+            const latestNote = followUp.notes.length ? followUp.notes[0] : null;
+            const nextCheckInDate = followUp.nextCheckIn ? this._normalizeDateValue(followUp.nextCheckIn) : null;
+            const nextCheckInLabel = nextCheckInDate
+                ? nextCheckInDate.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'long' })
+                : 'Sin programar';
+            const nextCheckInRelative = nextCheckInDate ? this.formatRelativeTime(nextCheckInDate) : 'Define una próxima revisión';
+            const tasksHtml = openTasks.length
+                ? openTasks.map(task => {
+                    const dueDateLabel = task.dueDate
+                        ? this._normalizeDateValue(task.dueDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })
+                        : 'Sin fecha';
+                    const relative = task.dueDate ? this.formatRelativeTime(task.dueDate) : 'Cuando lo definas';
+                    const priorityLabel = task.priority === 'high' ? 'Alta' : task.priority === 'low' ? 'Baja' : 'Media';
+                    const priorityColor = task.priority === 'high'
+                        ? 'text-rose-200 border-rose-400/40 bg-rose-500/10'
+                        : task.priority === 'low'
+                            ? 'text-sky-200 border-sky-400/40 bg-sky-500/10'
+                            : 'text-emerald-200 border-emerald-400/40 bg-emerald-500/10';
+                    return `
+                        <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="space-y-2">
+                                    <p class="text-sm font-semibold text-white">${task.title}</p>
+                                    ${task.description ? `<p class="text-xs text-gray-400 leading-relaxed">${task.description}</p>` : ''}
+                                    <div class="flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.3em]">
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-300">${dueDateLabel}</span>
+                                        <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-400">${relative}</span>
+                                        <span class="inline-flex items-center gap-1 rounded-full border ${priorityColor} px-3 py-1">${priorityLabel}</span>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-2">
+                                    <button data-action="followup-toggle-task" data-client-id="${client.id}" data-task-id="${task.id}" class="inline-flex items-center justify-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100"><i data-lucide="check" class="h-3.5 w-3.5"></i>Completar</button>
+                                    <button data-action="followup-remove-entry" data-client-id="${client.id}" data-entry-type="task" data-entry-id="${task.id}" class="inline-flex items-center justify-center rounded-full border border-rose-400/40 bg-rose-500/10 p-1.5 text-rose-200 transition hover:border-rose-300 hover:text-rose-100" title="Eliminar">
+                                        <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </article>
+                    `;
+                }).join('')
+                : `<div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/50 p-4 text-sm text-gray-400">No hay acciones activas. Asigna próximos pasos para ${firstName}.</div>`;
+            const timelineEntries = this.buildFollowUpTimeline(followUp);
+            const timelineHtml = timelineEntries.length
+                ? timelineEntries.map(entry => {
+                    const createdAt = entry.createdAt ? this._normalizeDateValue(entry.createdAt) : new Date();
+                    const absolute = createdAt.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+                    const relative = this.formatRelativeTime(createdAt);
+                    if (entry.type === 'note') {
+                        const tags = entry.tags && entry.tags.length
+                            ? `<div class="mt-2 flex flex-wrap gap-1 text-[10px] uppercase tracking-[0.35em] text-emerald-200/80">${entry.tags.map(tag => `<span class="rounded-full border border-emerald-400/30 bg-emerald-500/10 px-2 py-0.5">${tag}</span>`).join('')}</div>`
+                            : '';
+                        return `
+                            <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="flex items-center gap-2 text-sm font-semibold text-white"><i data-lucide="notebook-pen" class="h-4 w-4 text-emerald-300"></i>Nota de progreso</p>
+                                        <p class="text-xs text-gray-400">${absolute} · ${relative}</p>
+                                        <p class="mt-2 text-sm text-gray-300 leading-relaxed">${entry.content || entry.title}</p>
+                                        ${tags}
+                                    </div>
+                                    <button data-action="followup-remove-entry" data-client-id="${client.id}" data-entry-type="note" data-entry-id="${entry.id}" class="inline-flex items-center justify-center rounded-full border border-rose-400/40 bg-rose-500/10 p-1.5 text-rose-200 transition hover:border-rose-300 hover:text-rose-100" title="Eliminar nota">
+                                        <i data-lucide="x" class="h-4 w-4"></i>
+                                    </button>
+                                </div>
+                            </article>
+                        `;
+                    }
+                    if (entry.type === 'metric') {
+                        const weight = typeof entry.weight === 'number' ? `${entry.weight.toFixed(1)} kg` : '—';
+                        const bodyFat = typeof entry.bodyFat === 'number' ? `${entry.bodyFat.toFixed(1)} %` : '—';
+                        return `
+                            <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="flex items-center gap-2 text-sm font-semibold text-white"><i data-lucide="activity" class="h-4 w-4 text-sky-300"></i>Registro biométrico</p>
+                                        <p class="text-xs text-gray-400">${absolute} · ${relative}</p>
+                                        <div class="mt-3 flex flex-wrap gap-2 text-xs text-gray-300">
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="scale" class="h-3.5 w-3.5"></i>${weight}</span>
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="percent" class="h-3.5 w-3.5"></i>${bodyFat}</span>
+                                            ${entry.notes ? `<span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-gray-300">${entry.notes}</span>` : ''}
+                                        </div>
+                                    </div>
+                                    <button data-action="followup-remove-entry" data-client-id="${client.id}" data-entry-type="metric" data-entry-id="${entry.id}" class="inline-flex items-center justify-center rounded-full border border-rose-400/40 bg-rose-500/10 p-1.5 text-rose-200 transition hover:border-rose-300 hover:text-rose-100" title="Eliminar métrica">
+                                        <i data-lucide="x" class="h-4 w-4"></i>
+                                    </button>
+                                </div>
+                            </article>
+                        `;
+                    }
+                    return `
+                        <article class="rounded-2xl border border-white/10 bg-gray-900/60 p-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="flex items-center gap-2 text-sm font-semibold text-white"><i data-lucide="check-circle" class="h-4 w-4 text-emerald-300"></i>Acción completada</p>
+                                    <p class="text-xs text-gray-400">${absolute} · ${relative}</p>
+                                    <p class="mt-2 text-sm text-gray-300 leading-relaxed">${entry.title}</p>
+                                    ${entry.description ? `<p class="text-xs text-gray-400 mt-1">${entry.description}</p>` : ''}
+                                </div>
+                                <button data-action="followup-toggle-task" data-client-id="${client.id}" data-task-id="${entry.id}" class="inline-flex items-center justify-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100">Reabrir</button>
+                            </div>
+                        </article>
+                    `;
+                }).join('')
+                : `<div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/50 p-4 text-sm text-gray-400">Registra notas, métricas o acciones para construir la línea de tiempo.</div>`;
+            const summaryLastMetric = latestMetric
+                ? `${latestMetric.date} · ${typeof latestMetric.weight === 'number' ? `${latestMetric.weight.toFixed(1)} kg` : 'peso pendiente'}`
+                : 'Aún sin métricas';
+            const summaryLastNote = latestNote
+                ? this.formatRelativeTime(latestNote.createdAt)
+                : 'Sin notas registradas';
+            return `
+                <section class="rounded-3xl border border-white/10 bg-slate-950/70 p-6 backdrop-blur">
+                    <div class="flex flex-col gap-5">
+                        <header class="flex flex-col gap-3">
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                                <div>
+                                    <h4 class="flex items-center gap-2 text-lg font-bold text-white"><i data-lucide="radar" class="h-5 w-5 text-emerald-300"></i>Seguimiento 360°</h4>
+                                    <p class="text-sm text-gray-400">Organiza evidencias, métricas y próximos pasos para ${firstName}. Todo sincronizado en tu panel.</p>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <button data-action="followup-open-note-modal" data-client-id="${client.id}" class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100"><i data-lucide="notebook-pen" class="h-3.5 w-3.5"></i>Nota</button>
+                                    <button data-action="followup-open-metric-modal" data-client-id="${client.id}" class="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-sky-200 transition hover:border-sky-300 hover:text-sky-100"><i data-lucide="activity" class="h-3.5 w-3.5"></i>Métrica</button>
+                                    <button data-action="followup-open-task-modal" data-client-id="${client.id}" class="inline-flex items-center gap-1 rounded-full border border-violet-400/40 bg-violet-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-violet-200 transition hover:border-violet-300 hover:text-violet-100"><i data-lucide="target" class="h-3.5 w-3.5"></i>Acción</button>
+                                </div>
+                            </div>
+                        </header>
+                        <div class="grid gap-3 sm:grid-cols-3">
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Notas</p>
+                                <p class="mt-2 text-2xl font-bold text-white">${notesCount}</p>
+                                <p class="text-xs text-gray-400">${summaryLastNote ? `Última actualización ${summaryLastNote}` : 'Documenta hallazgos clave.'}</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Métricas</p>
+                                <p class="mt-2 text-2xl font-bold text-white">${metricsCount}</p>
+                                <p class="text-xs text-gray-400">${summaryLastMetric}</p>
+                            </div>
+                            <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Acciones activas</p>
+                                <p class="mt-2 text-2xl font-bold text-white">${openTasks.length}</p>
+                                <p class="text-xs text-gray-400">Coordina próximos pasos y compromisos.</p>
+                            </div>
+                        </div>
+                        <div class="rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4">
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm font-semibold text-white">Próximo check-in</p>
+                                    <p class="text-lg font-bold text-white">${nextCheckInLabel}</p>
+                                    <p class="text-xs text-emerald-100/80">${nextCheckInRelative}</p>
+                                </div>
+                                <div class="flex flex-wrap gap-2">
+                                    <button data-action="followup-open-checkin-modal" data-client-id="${client.id}" class="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-100 transition hover:border-white/40">Programar</button>
+                                    ${followUp.nextCheckIn ? `<button data-action="followup-clear-checkin" data-client-id="${client.id}" class="inline-flex items-center gap-1 rounded-full border border-rose-400/40 bg-rose-500/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-rose-200 transition hover:border-rose-300 hover:text-rose-100">Limpiar</button>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h5 class="text-sm font-semibold text-gray-200 uppercase tracking-[0.35em]">Acciones abiertas</h5>
+                                ${openTasks.length ? `<span class="text-xs text-gray-400">${openTasks.length} pendientes</span>` : ''}
+                            </div>
+                            <div class="space-y-3">
+                                ${tasksHtml}
+                            </div>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h5 class="text-sm font-semibold text-gray-200 uppercase tracking-[0.35em]">Línea de tiempo</h5>
+                                ${timelineEntries.length ? `<span class="text-xs text-gray-400">Actualizado ${followUp.lastUpdated ? this.formatRelativeTime(followUp.lastUpdated) : 'hace poco'}</span>` : ''}
+                            </div>
+                            <div class="space-y-3">
+                                ${timelineHtml}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            `;
+        },
+        showModal(t,b,f=[]){document.getElementById('custom-modal-title').textContent=t;document.getElementById('custom-modal-body').innerHTML=b;const ft=document.getElementById('custom-modal-footer');ft.innerHTML=f.map(btn=>{const d=Object.entries(btn).filter(([k])=>k!=='text'&&k!=='class').map(([k,v])=>`data-${k}="${v}"`).join(' ');return`<button ${d} class="font-bold py-2 px-4 rounded-lg transition ${btn.class}">${btn.text}</button>`}).join('');document.getElementById('custom-modal').classList.remove('hidden');document.getElementById('custom-modal-panel').classList.remove('modal-fade-out');},
+        hideModal(){const m=document.getElementById('custom-modal'),p=document.getElementById('custom-modal-panel');p.classList.add('modal-fade-out');p.addEventListener('animationend',()=>m.classList.add('hidden'),{once:true});},
+        showToast(m,t='success'){const c=document.getElementById('toast-container'),el=document.createElement('div');el.className=`toast ${t==='success'?'bg-emerald-500':'bg-red-500'} text-white font-bold py-2 px-4 rounded-lg shadow-lg`;el.textContent=m;c.appendChild(el);setTimeout(()=>el.remove(),3000);},
+    formatTime(seconds) { const m = Math.floor(seconds / 60); const s = seconds % 60; return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`; },
+    formatNumberCompact(value) {
+        const numeric = typeof value === 'number' ? value : parseFloat(value);
+        if (!numeric || Number.isNaN(numeric)) {
+            return '0';
+        }
+        return new Intl.NumberFormat('es-ES', { notation: 'compact', maximumFractionDigits: 1 }).format(numeric);
+    },
+    formatRelativeTime(dateInput) {
+        if (!dateInput) {
+            return '';
+        }
+        const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+        if (Number.isNaN(date.getTime())) {
+            return '';
+        }
+        const now = new Date();
+        const diffMs = date.getTime() - now.getTime();
+        const absMs = Math.abs(diffMs);
+        const rtf = new Intl.RelativeTimeFormat('es-ES', { numeric: 'auto' });
+
+        if (absMs < 60_000) {
+            return diffMs >= 0 ? 'en instantes' : 'justo ahora';
+        }
+
+        const diffMinutes = Math.round(diffMs / 60_000);
+        if (Math.abs(diffMinutes) < 60) {
+            return rtf.format(diffMinutes, 'minute');
+        }
+
+        const diffHours = Math.round(diffMs / 3_600_000);
+        if (Math.abs(diffHours) < 24) {
+            return rtf.format(diffHours, 'hour');
+        }
+
+        const diffDays = Math.round(diffMs / 86_400_000);
+        if (Math.abs(diffDays) < 7) {
+            return rtf.format(diffDays, 'day');
+        }
+
+        const diffWeeks = Math.round(diffDays / 7);
+        if (Math.abs(diffWeeks) < 5) {
+            return rtf.format(diffWeeks, 'week');
+        }
+
+        const diffMonths = Math.round(diffDays / 30);
+        if (Math.abs(diffMonths) < 12) {
+            return rtf.format(diffMonths, 'month');
+        }
+
+        const diffYears = Math.round(diffDays / 365);
+        return rtf.format(diffYears, 'year');
+    },
+    animateCommunityCounters() {
+        const counters = document.querySelectorAll('[data-community-counter][data-animated="false"]');
+        counters.forEach(counter => {
+            const target = parseFloat(counter.dataset.counterValue || '0');
+            if (!target) {
+                counter.textContent = '0';
+                counter.dataset.animated = 'true';
+                return;
+            }
+            const duration = 1000;
+            const startTime = performance.now();
+            const animate = (now) => {
+                const elapsed = now - startTime;
+                const progress = Math.min(1, elapsed / duration);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                const currentValue = target * eased;
+                counter.textContent = this.formatNumberCompact(currentValue);
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    counter.textContent = this.formatNumberCompact(target);
+                    counter.dataset.animated = 'true';
+                }
+            };
+            requestAnimationFrame(animate);
+        });
+    },
+    parseRepsValue(reps) {
+        if (typeof reps === 'number' && !Number.isNaN(reps)) {
+            return reps;
+        }
+        if (typeof reps === 'string') {
+            const match = reps.match(/\d+/);
+            if (match) {
+                return parseInt(match[0], 10);
+            }
+        }
+        return 1;
+    },
+    estimateOneRepMax(weight, reps) {
+        const numericWeight = typeof weight === 'number' ? weight : parseFloat(weight);
+        const repsValue = this.parseRepsValue(reps);
+        if (!numericWeight || Number.isNaN(numericWeight) || numericWeight <= 0 || !repsValue) {
+            return 0;
+        }
+        const estimate = numericWeight * (1 + repsValue / 30);
+        return Math.round(estimate * 10) / 10;
+    },
+        playSound(type) { if(!this.audioCtx) return; const o=this.audioCtx.createOscillator(),g=this.audioCtx.createGain();o.connect(g);g.connect(this.audioCtx.destination);g.gain.setValueAtTime(0,this.audioCtx.currentTime);g.gain.linearRampToValueAtTime(0.3,this.audioCtx.currentTime+0.01);o.frequency.value=type==='start'?440:880;o.type='sine';o.start(this.audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.00001,this.audioCtx.currentTime+0.5);o.stop(this.audioCtx.currentTime+0.5); },
+        switchCalculatorTab(tabId) { document.querySelectorAll('.calc-tab-content').forEach(el => el.classList.add('hidden')); document.getElementById(`tab-content-${tabId}`).classList.remove('hidden'); document.querySelectorAll('.calc-tab-btn').forEach(btn => { if (btn.dataset.tab === tabId) { btn.classList.add('bg-emerald-500', 'text-gray-900'); btn.classList.remove('text-gray-300'); } else { btn.classList.remove('bg-emerald-500', 'text-gray-900'); btn.classList.add('text-gray-300'); } }); },
+        populateNutritionForm() { const { age, weight, height, gender } = this.state.physicalStats; document.getElementById('age').value = age; document.getElementById('weight').value = weight; document.getElementById('height').value = height; const genderRadio = document.querySelector(`#nutrition-form input[name="gender"][value="${gender}"]`); if (genderRadio) genderRadio.checked = true; },
+        renderNutricionSection() {
+            const { weight, height } = this.state.physicalStats || {};
+            this.renderBmiCard(weight || 0, height || 0);
+            const setDefault = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.textContent = value;
+                }
+            };
+            setDefault('bodyfat-value', '--');
+            setDefault('ideal-weight-value', '--');
+            setDefault('water-intake-value', '-- L');
+            this.updateNutritionResultsUI();
+            this.updateNutritionAnalytics();
+        },
+        calculateNutrition(formElement, showUI) {
+            const targetForm = formElement || document.getElementById('nutrition-form');
+            const shouldUpdateUI = typeof showUI === 'undefined' ? true : Boolean(showUI);
+
+            const gender = targetForm.querySelector('input[name="gender"]:checked').value;
+            const age = parseInt(targetForm.age.value);
+            const weight = parseFloat(targetForm.weight.value);
+            const height = parseInt(targetForm.height.value);
+            const activity = parseFloat(targetForm.activity.value);
+            const goal = targetForm.querySelector('input[name="goal"]:checked').value;
+
+            if (!age || !weight || !height) {
+                this.showToast("Rellena todos los campos.", "error");
+                return null;
+            }
+
+            this.state.physicalStats = { ...this.state.physicalStats, age, weight, height, gender, activity };
+            this.saveDataToFirestore();
+
+            const bmr = (gender === 'male')
+                ? (10 * weight + 6.25 * height - 5 * age + 5)
+                : (10 * weight + 6.25 * height - 5 * age - 161);
+            const tdee = bmr * activity;
+
+            let calories;
+            if (goal === 'lose') calories = tdee - 500;
+            else if (goal === 'gain') calories = tdee + 500;
+            else calories = tdee;
+
+            const results = {
+                calories: Math.round(calories),
+                protein: Math.round((calories * 0.3) / 4),
+                carbs: Math.round((calories * 0.4) / 4),
+                fats: Math.round((calories * 0.3) / 9)
+            };
+
+            this._tempResults = results;
+            if (shouldUpdateUI) {
+                this.updateNutritionResultsUI(results);
+                this.updateNutritionAnalytics();
+                this.updateHeaderInsights();
+                this.showToast("Cálculos de nutrición actualizados", "success");
+            }
+
+            return results;
+        },
+        calculateBodyMetrics() { const { weight, height, age, gender } = this.state.physicalStats; if (!weight || !height || !age) { this.showToast("Completa tus datos en el perfil o en la pestaña de nutrición primero.", "error"); return; } const bmi = this.renderBmiCard(weight, height); const genderFactor = (gender === 'male') ? 1 : 0; const bodyFat = (1.20 * bmi) + (0.23 * age) - (10.8 * genderFactor) - 5.4; document.getElementById('bodyfat-value').textContent = bodyFat.toFixed(1); const heightInM = height / 100; const idealMin = 18.5 * (heightInM * heightInM); const idealMax = 24.9 * (heightInM * heightInM); document.getElementById('ideal-weight-value').textContent = `${idealMin.toFixed(1)} - ${idealMax.toFixed(1)} kg`; const waterLiters = (weight * 35) / 1000; document.getElementById('water-intake-value').textContent = waterLiters.toFixed(1); this.showToast("Métricas corporales calculadas."); },
+        renderBmiCard(weight, height) { if(!weight || !height) { document.getElementById('bmi-value').textContent = '--'; document.getElementById('bmi-category').textContent = 'Sin calcular'; document.getElementById('bmi-category').className = 'font-semibold text-gray-400'; document.getElementById('bmi-marker').style.left = '0%'; return 0; } const heightInMeters = height / 100; const bmi = (weight / (heightInMeters * heightInMeters)); let category = '', colorClass = '', markerPosition = 0; if (bmi < 18.5) { category = 'Bajo Peso'; colorClass = 'text-sky-400'; markerPosition = (bmi / 18.5) * 25; } else if (bmi >= 18.5 && bmi < 25) { category = 'Normal'; colorClass = 'text-emerald-400'; markerPosition = 25 + ((bmi - 18.5) / (25 - 18.5)) * 30; } else if (bmi >= 25 && bmi < 30) { category = 'Sobrepeso'; colorClass = 'text-yellow-400'; markerPosition = 55 + ((bmi - 25) / (30 - 25)) * 25; } else { category = 'Obesidad'; colorClass = 'text-red-400'; markerPosition = 80 + ((bmi - 30) / (40 - 30)) * 20; } markerPosition = Math.max(2, Math.min(98, markerPosition)); document.getElementById('bmi-value').textContent = bmi.toFixed(1); const categoryEl = document.getElementById('bmi-category'); categoryEl.textContent = category; categoryEl.className = `font-semibold ${colorClass}`; document.getElementById('bmi-marker').style.left = `${markerPosition}%`; return bmi; },
+        calculate1RM() { const weight = parseFloat(document.getElementById('1rm-weight').value); const reps = parseInt(document.getElementById('1rm-reps').value); if(!weight || !reps || weight <= 0 || reps <= 0) { this.showToast("Ingresa un peso y repeticiones válidos.", "error"); return; } if (reps > 12) { this.showToast("El cálculo es menos preciso con más de 12 reps.", "error"); } const oneRepMax = weight / (1.0278 - 0.0278 * reps); document.getElementById('1rm-result-value').textContent = `${oneRepMax.toFixed(1)} kg`; const projectionsContainer = document.getElementById('1rm-projections'); const repRanges = [3, 5, 8, 10, 12, 15]; projectionsContainer.innerHTML = repRanges.map(r => { const projectedWeight = oneRepMax * (1.0278 - 0.0278 * r); return `<div class="bg-gray-800/70 p-2 rounded-lg"><p class="font-bold text-lg text-purple-200">${projectedWeight.toFixed(1)}<span class="text-xs text-gray-400"> kg</span></p><p class="text-xs text-gray-400">${r} RM</p></div>`; }).join(''); document.getElementById('1rm-results').classList.remove('hidden'); },
+        showEditTargetWeightModal() { const body = `<p class="text-gray-300 mb-4">Define el peso que quieres alcanzar.</p><input type="number" step="0.1" id="target-weight-input" value="${this.state.targetWeight}" class="w-full bg-gray-700 rounded-lg p-3 text-center text-xl">`; const footer = [ { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }, { text: 'Guardar', class: 'bg-emerald-600 text-gray-900', action: 'save-target-weight' } ]; this.showModal('Editar Peso Objetivo', body, footer); },
+        async handleUpdateTargetWeight() { const input = document.getElementById('target-weight-input'); const newTarget = parseFloat(input.value); if (isNaN(newTarget) || newTarget <= 0) { this.showToast('Por favor, introduce un peso válido.', 'error'); return; } this.state.targetWeight = newTarget; await this.saveDataToFirestore(); this.renderProfileSection(); this.renderDietPage(); this.hideModal(); this.showToast('Objetivo de peso actualizado.'); },
+        async handleAddWeightLog() { const input = document.getElementById('new-weight-input'); const newWeight = parseFloat(input.value); if (isNaN(newWeight) || newWeight <= 0) { this.showToast('Por favor, introduce un peso válido.', 'error'); return; } const today = new Date().toISOString().split('T')[0]; if(!this.state.weightLog) this.state.weightLog = []; const existingIndex = this.state.weightLog.findIndex(entry => entry.date === today); if (existingIndex > -1) { this.state.weightLog[existingIndex].weight = newWeight; } else { this.state.weightLog.push({ date: today, weight: newWeight }); } this.state.physicalStats.weight = newWeight; input.value = ''; await this.saveDataToFirestore(); this.renderAll(); this.showToast('Nuevo peso registrado.'); },
+        async saveNutritionGoals(){if(this._tempResults){this.state.userGoals={...this._tempResults};await this.saveDataToFirestore();this.renderAll();this.showToast("¡Meta guardada!");this.showSection('dieta');}},
+        _getWeightProgressMetrics() {
+            const parseWeight = (value) => {
+                if (typeof value === 'number' && Number.isFinite(value)) {
+                    return value;
+                }
+                const parsed = parseFloat(value);
+                return Number.isFinite(parsed) ? parsed : 0;
+            };
+            const formatDate = (dateStr, options = { day: 'numeric', month: 'short', year: 'numeric' }) => {
+                if (!dateStr) return null;
+                const date = new Date(`${dateStr}T00:00:00`);
+                if (Number.isNaN(date.getTime())) return null;
+                return date.toLocaleDateString('es-ES', options);
+            };
+            const formatDateFromObject = (date, options) => {
+                if (!(date instanceof Date) || Number.isNaN(date.getTime())) return null;
+                return date.toLocaleDateString('es-ES', options);
+            };
+
+            const weightValue = parseWeight(this.state?.physicalStats?.weight);
+            const targetValue = parseWeight(this.state?.targetWeight);
+            const goalWeight = targetValue > 0 ? targetValue : weightValue;
+
+            const weightLog = Array.isArray(this.state.weightLog) ? [...this.state.weightLog] : [];
+            weightLog.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            const firstEntry = weightLog.length ? weightLog[0] : null;
+            const lastEntry = weightLog.length ? weightLog[weightLog.length - 1] : null;
+            const startWeight = firstEntry ? parseWeight(firstEntry.weight) : (weightValue || goalWeight);
+            const currentWeight = lastEntry ? parseWeight(lastEntry.weight) : (weightValue || startWeight);
+
+            const lastWeighInLabel = lastEntry && formatDate(lastEntry.date)
+                ? `Actualizado el ${formatDate(lastEntry.date)}`
+                : 'Registra tu peso para comenzar.';
+
+            const totalDiff = goalWeight - startWeight;
+            let progressPercent = 0;
+            if (Math.abs(totalDiff) < 0.001) {
+                progressPercent = goalWeight > 0 && currentWeight > 0 ? 100 : 0;
+            } else {
+                const rawProgress = ((currentWeight - startWeight) / totalDiff) * 100;
+                progressPercent = Math.max(0, Math.min(rawProgress, 150));
+            }
+            const progressPercentClamped = Math.max(0, Math.min(progressPercent, 100));
+
+            const diffToGoal = goalWeight - currentWeight;
+            const diffLabel = (goalWeight > 0 && Number.isFinite(diffToGoal))
+                ? `${diffToGoal > 0 ? '+' : ''}${diffToGoal.toFixed(1)} kg`
+                : '-- kg';
+            let diffToneClass = 'text-gray-300';
+            if (goalWeight > 0 && Number.isFinite(diffToGoal)) {
+                if (Math.abs(diffToGoal) < 0.1) {
+                    diffToneClass = 'text-emerald-200';
+                } else if (diffToGoal > 0) {
+                    diffToneClass = 'text-emerald-200';
+                } else {
+                    diffToneClass = 'text-amber-200';
+                }
+            }
+
+            const deltaNeeded = goalWeight - startWeight;
+            let directionLabel = 'Define un objetivo';
+            let directionDescription = 'Conecta tu meta de peso para personalizar el plan.';
+            if (goalWeight > 0) {
+                if (Math.abs(deltaNeeded) < 0.1) {
+                    directionLabel = 'Mantenimiento inteligente';
+                    directionDescription = 'Mantén consistencia registrando tus pesajes.';
+                } else if (deltaNeeded > 0) {
+                    directionLabel = 'Ganancia controlada';
+                    directionDescription = `Buscas sumar ${Math.abs(deltaNeeded).toFixed(1)} kg respecto a tu inicio.`;
+                } else if (deltaNeeded < 0) {
+                    directionLabel = 'Definición guiada';
+                    directionDescription = `Buscas recortar ${Math.abs(deltaNeeded).toFixed(1)} kg respecto a tu inicio.`;
+                }
+            }
+
+            let goalDiffText = 'Registra tus pesajes para medir el avance.';
+            let goalDiffClass = 'text-gray-400';
+            if (goalWeight > 0 && Number.isFinite(diffToGoal)) {
+                if (Math.abs(diffToGoal) < 0.1) {
+                    goalDiffText = 'Meta alcanzada, mantén la consistencia.';
+                    goalDiffClass = 'text-emerald-200';
+                } else if (diffToGoal > 0) {
+                    goalDiffText = `Faltan ${diffToGoal.toFixed(1)} kg para la meta.`;
+                    goalDiffClass = 'text-emerald-200/80';
+                } else {
+                    goalDiffText = `Has superado la meta por ${Math.abs(diffToGoal).toFixed(1)} kg.`;
+                    goalDiffClass = 'text-amber-200/80';
+                }
+            }
+
+            let totalChange = 0;
+            let totalDays = 0;
+            const parseDate = (dateStr) => {
+                if (!dateStr) return null;
+                const d = new Date(`${dateStr}T00:00:00`);
+                return Number.isNaN(d.getTime()) ? null : d;
+            };
+            for (let i = 1; i < weightLog.length; i++) {
+                const prev = weightLog[i - 1];
+                const curr = weightLog[i];
+                const prevDate = parseDate(prev.date);
+                const currDate = parseDate(curr.date);
+                if (!prevDate || !currDate) continue;
+                const diffMs = currDate - prevDate;
+                const days = diffMs / 86400000;
+                if (days <= 0) continue;
+                const change = parseWeight(curr.weight) - parseWeight(prev.weight);
+                totalChange += change;
+                totalDays += days;
+            }
+            const dailyRate = totalDays > 0 ? totalChange / totalDays : 0;
+            const weeklyRate = dailyRate * 7;
+            let trendLabel = 'Sin tendencia aún';
+            let trendClass = 'text-gray-400';
+            if (Math.abs(weeklyRate) > 0.01) {
+                trendLabel = `${weeklyRate > 0 ? '+' : ''}${weeklyRate.toFixed(1)} kg/sem`;
+                const sameDirection = Math.abs(diffToGoal) < 0.1 || Math.sign(weeklyRate) === Math.sign(diffToGoal);
+                trendClass = sameDirection ? 'text-emerald-200' : 'text-amber-200';
+            }
+
+            let projectionBadgeText = 'Sin datos';
+            let projectionBadgeClasses = 'border-white/10 bg-white/5 text-gray-300';
+            let projectionSummary = 'Añade registros de peso para proyectar tu fecha objetivo.';
+            let projectionDateLabel = '--';
+            let projectionWeeksLabel = '--';
+            let projectionHelper = goalWeight > 0 && Number.isFinite(diffToGoal)
+                ? `${diffToGoal > 0 ? 'Faltan' : 'Exceso'} ${Math.abs(diffToGoal).toFixed(1)} kg`
+                : 'Define tu objetivo de peso.';
+            let projectionPaceText = Math.abs(weeklyRate) > 0.01
+                ? `Ritmo actual: ${weeklyRate > 0 ? '+' : ''}${weeklyRate.toFixed(1)} kg/sem`
+                : 'Registra al menos dos pesajes recientes para estimar el ritmo.';
+
+            if (goalWeight > 0 && Math.abs(diffToGoal) < 0.1) {
+                projectionBadgeText = 'Completado';
+                projectionBadgeClasses = 'border-emerald-400/40 bg-emerald-500/10 text-emerald-100';
+                projectionSummary = 'Tu objetivo actual está completado.';
+                projectionDateLabel = lastEntry && formatDate(lastEntry.date, { day: 'numeric', month: 'short' }) ? formatDate(lastEntry.date, { day: 'numeric', month: 'short' }) : 'Hoy';
+                projectionWeeksLabel = '0';
+                projectionHelper = 'Diferencia 0.0 kg';
+                projectionPaceText = Math.abs(weeklyRate) > 0.01
+                    ? `Mantén un ritmo de ${weeklyRate > 0 ? '+' : ''}${weeklyRate.toFixed(1)} kg/sem`
+                    : 'Registra nuevos pesajes para mantener la métrica.';
+            } else if (goalWeight > 0 && Math.abs(weeklyRate) > 0.01) {
+                if (Math.sign(weeklyRate) !== Math.sign(diffToGoal) && Math.abs(diffToGoal) >= 0.1) {
+                    projectionBadgeText = 'Desviación';
+                    projectionBadgeClasses = 'border-amber-400/40 bg-amber-500/10 text-amber-100';
+                    projectionSummary = diffToGoal > 0
+                        ? 'Tu tendencia actual se aleja del objetivo, ajusta tu estrategia.'
+                        : 'Tu tendencia actual supera la meta, considera estabilizarte.';
+                    projectionPaceText = `Tendencia actual: ${weeklyRate > 0 ? '+' : ''}${weeklyRate.toFixed(1)} kg/sem`;
+                } else if (diffToGoal !== 0 && dailyRate !== 0) {
+                    const estimatedDays = Math.ceil(Math.abs(diffToGoal / dailyRate));
+                    const lastDate = lastEntry && parseDate(lastEntry.date) ? parseDate(lastEntry.date) : new Date();
+                    const estimatedDate = new Date(lastDate.getTime() + estimatedDays * 86400000);
+                    projectionBadgeText = 'En curso';
+                    projectionBadgeClasses = 'border-emerald-400/40 bg-emerald-500/10 text-emerald-100';
+                    const summaryDateLabel = formatDateFromObject(estimatedDate, { day: 'numeric', month: 'long' });
+                    projectionSummary = summaryDateLabel
+                        ? `A ritmo actual alcanzarías la meta el ${summaryDateLabel}.`
+                        : 'Mantén tus registros para proyectar la fecha objetivo.';
+                    projectionDateLabel = formatDateFromObject(estimatedDate, { day: 'numeric', month: 'short' }) || '--';
+                    projectionWeeksLabel = `${(estimatedDays / 7).toFixed(1)} sem`;
+                    projectionHelper = `${diffToGoal > 0 ? 'Faltan' : 'Exceso'} ${Math.abs(diffToGoal).toFixed(1)} kg`;
+                    projectionPaceText = `Ritmo actual: ${weeklyRate > 0 ? '+' : ''}${weeklyRate.toFixed(1)} kg/sem`;
+                }
+            }
+
+            const formatWeight = (value) => (Number.isFinite(value) && value > 0 ? value.toFixed(1) : '--');
+
+            return {
+                currentWeight,
+                goalWeight,
+                startWeight,
+                currentWeightLabel: formatWeight(currentWeight),
+                goalWeightLabel: formatWeight(goalWeight),
+                startWeightLabel: `${formatWeight(startWeight)} kg`,
+                diffToGoal,
+                diffLabel,
+                diffToneClass,
+                goalDiffText,
+                goalDiffClass,
+                directionLabel,
+                directionDescription,
+                progressPercent: Math.round(progressPercentClamped),
+                lastWeighInLabel,
+                trendLabel,
+                trendClass,
+                projection: {
+                    badgeText: projectionBadgeText,
+                    badgeClasses: projectionBadgeClasses,
+                    summary: projectionSummary,
+                    dateLabel: projectionDateLabel,
+                    weeksLabel: projectionWeeksLabel,
+                    helperText: projectionHelper,
+                    paceText: projectionPaceText
+                }
+            };
+        },
+        _applyWeightMetrics(metrics) {
+            if (!metrics) return;
+            const setText = (id, value) => {
+                const el = document.getElementById(id);
+                if (el !== null) {
+                    el.textContent = value;
+                }
+            };
+
+            setText('diet-current-weight', metrics.currentWeightLabel);
+            setText('diet-target-weight', metrics.goalWeightLabel);
+            setText('diet-last-weigh-in', metrics.lastWeighInLabel);
+            setText('diet-goal-label', metrics.directionLabel);
+            const directionEl = document.getElementById('diet-goal-direction');
+            if (directionEl) directionEl.textContent = metrics.directionDescription;
+
+            const diffEl = document.getElementById('diet-weight-diff');
+            if (diffEl) {
+                diffEl.className = `text-lg font-semibold ${metrics.diffToneClass}`;
+                diffEl.textContent = metrics.diffLabel;
+            }
+
+            const goalDiffEl = document.getElementById('diet-goal-diff');
+            if (goalDiffEl) {
+                goalDiffEl.className = `text-xs ${metrics.goalDiffClass}`;
+                goalDiffEl.textContent = metrics.goalDiffText;
+            }
+
+            const progressBar = document.getElementById('diet-weight-progress');
+            if (progressBar) {
+                const width = Math.max(0, Math.min(metrics.progressPercent, 110));
+                progressBar.style.width = `${width}%`;
+            }
+            const progressLabel = document.getElementById('diet-weight-progress-label');
+            if (progressLabel) progressLabel.textContent = `${metrics.progressPercent}%`;
+
+            setText('diet-goal-start', metrics.startWeightLabel);
+
+            const trendEl = document.getElementById('diet-goal-trend');
+            if (trendEl) {
+                trendEl.className = `text-sm font-semibold ${metrics.trendClass}`;
+                trendEl.textContent = metrics.trendLabel;
+            }
+
+            const projectionBadge = document.getElementById('diet-projection-badge');
+            if (projectionBadge) {
+                projectionBadge.className = `inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em] ${metrics.projection.badgeClasses}`;
+                projectionBadge.textContent = metrics.projection.badgeText;
+            }
+            setText('diet-projection-summary', metrics.projection.summary);
+            setText('diet-projection-date', metrics.projection.dateLabel);
+            setText('diet-projection-weeks', metrics.projection.weeksLabel);
+            setText('diet-projection-helper', metrics.projection.helperText);
+            const projectionPace = document.getElementById('diet-projection-pace');
+            if (projectionPace) projectionPace.textContent = metrics.projection.paceText;
+        },
+        updateDietWeightInfo() {
+            const metrics = this._getWeightProgressMetrics();
+            this._applyWeightMetrics(metrics);
+        },
+        async handleDietPanelCoverSelected(input) {
+            if (!this.canEditGlobalMedia()) {
+                this.showToast('Solo el administrador puede actualizar estas portadas.', 'error');
+                if (input) input.value = '';
+                return;
+            }
+            if (!input) return;
+
+            const panelKey = input.dataset.panelCoverInput;
+            const file = input.files && input.files[0];
+            input.value = '';
+
+            if (!panelKey || !file) {
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                this.showToast('Selecciona una imagen válida.', 'error');
+                return;
+            }
+
+            const maxSize = 12 * 1024 * 1024;
+            if (file.size > maxSize) {
+                this.showToast('La imagen supera el límite de 12MB.', 'error');
+                return;
+            }
+
+            if (!this.state.dietPanelCovers) {
+                const defaults = this.getDefaultState().dietPanelCovers || {};
+                this.state.dietPanelCovers = Object.keys(defaults).reduce((acc, key) => {
+                    acc[key] = { ...defaults[key] };
+                    return acc;
+                }, {});
+            }
+
+            const trigger = document.querySelector(`[data-panel-cover-trigger="${panelKey}"]`);
+            const wrapper = document.querySelector(`.diet-panel-cover[data-panel-key="${panelKey}"]`);
+
+            const setUploadingState = (isUploading) => {
+                if (trigger) {
+                    trigger.classList.toggle('is-uploading', isUploading);
+                }
+                if (wrapper) {
+                    wrapper.classList.toggle('opacity-70', isUploading);
+                    wrapper.classList.toggle('pointer-events-none', isUploading);
+                }
+            };
+
+            try {
+                setUploadingState(true);
+                const previousPath = this.state.dietPanelCovers?.[panelKey]?.storagePath
+                    || this.sharedMedia?.dietPanelCovers?.[panelKey]?.storagePath
+                    || '';
+                const uploadResult = await this.uploadImageToStorage(file, {
+                    pathPrefix: `diet_panel_covers/${panelKey}`,
+                    previousPath
+                });
+
+                if (!uploadResult.url) {
+                    this.showToast('No se pudo subir la imagen.', 'error');
+                    return;
+                }
+
+                this.state.dietPanelCovers[panelKey] = {
+                    url: uploadResult.url,
+                    storagePath: uploadResult.storagePath,
+                    updatedAt: new Date().toISOString()
+                };
+                if (!this.sharedMedia.dietPanelCovers) {
+                    this.sharedMedia.dietPanelCovers = {};
+                }
+                this.sharedMedia.dietPanelCovers[panelKey] = { ...this.state.dietPanelCovers[panelKey] };
+
+                this.preloadImage(uploadResult.url, { priority: 'high' });
+                this.renderDietPanelCovers();
+                await this.saveDietPanelCoversToFirestore();
+                await this.saveDataToFirestore();
+                this.showToast('Portada actualizada.', 'success');
+            } catch (error) {
+                console.error('Error uploading diet panel cover:', error);
+                this.showToast('No se pudo subir la imagen.', 'error');
+            } finally {
+                setUploadingState(false);
+            }
+        },
+        renderDietPanelCovers() {
+            const covers = this.getDietPanelCoversForRender() || {};
+            const canManageCovers = this.canEditGlobalMedia();
+            const keys = ['guided', 'daily', 'agenda', 'library'];
+
+            keys.forEach((key) => {
+                const wrapper = document.querySelector(`.diet-panel-cover[data-panel-key="${key}"]`);
+                const preview = document.querySelector(`[data-panel-cover-preview="${key}"]`);
+                const trigger = document.querySelector(`[data-panel-cover-trigger="${key}"]`);
+                const input = document.querySelector(`[data-panel-cover-input="${key}"]`);
+                if (!wrapper || !preview) {
+                    return;
+                }
+
+                const coverData = covers[key] || {};
+                const hasCustomCover = Boolean(coverData.url);
+
+                if (hasCustomCover) {
+                    preview.style.backgroundImage = `url('${coverData.url}')`;
+                } else {
+                    preview.style.backgroundImage = '';
+                }
+
+                wrapper.dataset.customCover = hasCustomCover ? 'true' : 'false';
+
+                if (trigger) {
+                    trigger.classList.toggle('is-hidden', !canManageCovers);
+                    if (!canManageCovers) {
+                        trigger.setAttribute('aria-hidden', 'true');
+                    } else {
+                        trigger.removeAttribute('aria-hidden');
+                    }
+                }
+
+                if (input) {
+                    input.disabled = !canManageCovers;
+                }
+            });
+
+            lucide.createIcons();
+        },
+        renderDietPage(){
+            this.renderDietPanelCovers();
+            this.updateDietWeightInfo();
+            if(!this.state.userGoals) return;
+            const { calories, protein, carbs, fats } = this.state.userGoals;
+            const goalCaloriesEl = document.getElementById('diet-goal-calories');
+            if (goalCaloriesEl) goalCaloriesEl.textContent = calories;
+            const goalProteinEl = document.getElementById('diet-goal-protein');
+            if (goalProteinEl) goalProteinEl.textContent = protein;
+            const goalCarbsEl = document.getElementById('diet-goal-carbs');
+            if (goalCarbsEl) goalCarbsEl.textContent = carbs;
+            const goalFatsEl = document.getElementById('diet-goal-fats');
+            if (goalFatsEl) goalFatsEl.textContent = fats;
+            this.renderMealSections();
+            this._hydrateDietFoodCreator();
+            this.updateDietSummary();
+        },
+        getFoodById(foodId) { return this.data.foodLibrary.find(item => item.id == foodId) || null; },
+
+        renderMealSections(){
+            const container = document.getElementById('meal-sections');
+            const today = new Date().toISOString().split('T')[0];
+            const todayLog = this.state.dietLog ? (this.state.dietLog[today] || {}) : {};
+
+            if (!Array.isArray(this.state.dailyDiet)) {
+                container.innerHTML = `<div class="rounded-3xl border border-dashed border-white/15 bg-white/5 p-6 text-center text-sm text-gray-400">Formato de dieta no válido.</div>`;
+                return;
+            }
+
+            container.innerHTML = this.state.dailyDiet.map((meal, mealIndex) => {
+                const totalCals = meal.items.reduce((sum, item) => sum + (item.totalCals || 0), 0);
+                const mealLog = todayLog[meal.id] || [];
+                const normalizedName = (meal.name || '').toLowerCase();
+                let icon = 'chef-hat';
+                if (normalizedName.includes('desay')) icon = 'sunrise';
+                else if (normalizedName.includes('almuerzo') || normalizedName.includes('comida')) icon = 'utensils';
+                else if (normalizedName.includes('cena')) icon = 'moon-star';
+                else if (normalizedName.includes('snack') || normalizedName.includes('colac')) icon = 'coffee';
+
+                const itemsHTML = meal.items.length > 0
+                    ? meal.items.map((item, itemIndex) => {
+                        const isCompleted = mealLog[itemIndex] === true;
+                        const nameClasses = (!this.isAsesor() && isCompleted) ? 'text-gray-400 line-through' : 'text-white';
+                        const rowClasses = ['flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-3 transition'];
+                        if (!this.isAsesor()) {
+                            rowClasses.push('hover:border-emerald-400/40');
+                            if (isCompleted) {
+                                rowClasses.push('opacity-60');
+                            }
+                        }
+
+                        const imageContent = item.imageUrl
+                            ? `<img src="${item.imageUrl}" alt="${item.name}" class="h-full w-full object-cover">`
+                            : `<div class="flex h-full w-full items-center justify-center bg-gray-900/60 text-gray-500"><i data-lucide="image-off" class="h-5 w-5"></i></div>`;
+
+                        const macrosRow = `<div class="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                                <span class="flex items-center gap-1 text-blue-200">P <strong>${item.totalP || 0}g</strong></span>
+                                <span class="flex items-center gap-1 text-yellow-200">C <strong>${item.totalC || 0}g</strong></span>
+                                <span class="flex items-center gap-1 text-rose-200">G <strong>${item.totalF || 0}g</strong></span>
+                            </div>`;
+                        const amountLabel = item.amount && item.amount !== 'N/A' ? ` (${item.amount}g)` : '';
+
+                        const adminActions = `<div class="flex items-center gap-2">
+                                <span class="text-sm font-semibold text-emerald-300">${item.totalCals || 0} kcal</span>
+                                <button data-action="confirm-remove-food" data-meal-index="${mealIndex}" data-item-index="${itemIndex}" class="inline-flex h-8 w-8 items-center justify-center rounded-full border border-rose-500/40 bg-rose-500/10 text-rose-300 transition hover:border-rose-400 hover:bg-rose-500/20">
+                                    <i data-lucide="trash-2" class="h-4 w-4"></i>
+                                </button>
+                            </div>`;
+
+                        const userActions = `<div class="flex items-center gap-3">
+                                <span class="text-sm font-semibold text-emerald-300">${item.totalCals || 0} kcal</span>
+                                <label class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-semibold text-gray-200">
+                                    <input type="checkbox" data-action="toggle-food-completion" data-meal-index="${mealIndex}" data-item-index="${itemIndex}" class="h-4 w-4 rounded border-gray-600 bg-gray-800 text-emerald-400 focus:ring-emerald-400/50" ${isCompleted ? 'checked' : ''}>
+                                    <span>Hecho</span>
+                                </label>
+                            </div>`;
+
+                        return `<div class="${rowClasses.join(' ')}">
+                                <div class="relative h-16 w-16 overflow-hidden rounded-xl border border-white/10 bg-gray-900/60 flex-shrink-0">${imageContent}</div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-sm font-semibold ${nameClasses}">${item.name}${amountLabel ? `<span class="text-gray-400">${amountLabel}</span>` : ''}</p>
+                                    ${macrosRow}
+                                </div>
+                                ${this.isAsesor() ? adminActions : userActions}
+                            </div>`;
+                    }).join('')
+                    : `<div class="rounded-2xl border border-dashed border-white/15 bg-gray-900/40 p-4 text-center text-sm text-gray-400">${this.isAsesor() ? 'Añade alimentos a esta comida.' : 'No hay alimentos asignados.'}</div>`;
+
+                const recipeButton = meal.items.length > 0 && this.isAsesor()
+                    ? `<button data-action="get-recipe" data-meal-index="${mealIndex}" class="inline-flex items-center gap-1 rounded-full border border-purple-400/40 bg-purple-500/10 px-3 py-1 text-xs font-semibold text-purple-200 transition hover:border-purple-300 hover:bg-purple-500/20">
+                            <i data-lucide="sparkles" class="h-3.5 w-3.5"></i>
+                            Receta
+                        </button>`
+                    : '';
+
+                return `<article class="rounded-3xl border border-white/10 bg-white/5 p-5 shadow-[0_35px_90px_-60px_rgba(16,185,129,0.45)]">
+                        <header class="flex flex-wrap items-center justify-between gap-4">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/10 text-emerald-200">
+                                    <i data-lucide="${icon}" class="h-6 w-6"></i>
+                                </span>
+                                <div>
+                                    <p class="text-lg font-semibold text-white">${meal.name}</p>
+                                    <p class="flex items-center gap-1 text-xs text-gray-400">
+                                        <i data-lucide="clock" class="h-3.5 w-3.5"></i>
+                                        ${meal.time}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-3">
+                                ${recipeButton}
+                                <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200">${Math.round(totalCals)} kcal</span>
+                            </div>
+                        </header>
+                        <div class="mt-4 space-y-3">${itemsHTML}</div>
+                    </article>`;
+            }).join('');
+
+            lucide.createIcons();
+        },
+
+        async toggleFoodCompletion(mealIndex, itemIndex) {
+            const meal = this.state.dailyDiet[mealIndex];
+            if (!meal) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            if (!this.state.dietLog) { this.state.dietLog = {}; }
+            if (!this.state.dietLog[today]) { this.state.dietLog[today] = {}; }
+
+            if (!this.state.dietLog[today][meal.id]) {
+                this.state.dietLog[today][meal.id] = meal.items.map(() => false);
+            }
+
+            const currentStatus = this.state.dietLog[today][meal.id][itemIndex];
+            this.state.dietLog[today][meal.id][itemIndex] = !currentStatus;
+
+            await this.saveDataToFirestore();
+            this.renderMealSections();
+            this.updateDietSummary();
+        },
+
+        showAddFoodModal(foodId) {
+            const food = this.getFoodById(foodId);
+            if (!food) return;
+
+            const image = food.imageUrl
+                ? `<img src="${food.imageUrl}" alt="${food.name}" class="h-16 w-16 rounded-xl border border-white/10 object-cover">`
+                : `<div class="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-white/10 bg-gray-900/60 text-gray-500"><i data-lucide="image-off" class="h-5 w-5"></i></div>`;
+
+            const macros = `<div class="grid grid-cols-3 gap-3 text-xs text-gray-400">
+                    <div class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center">
+                        <p class="text-[10px] uppercase tracking-[0.35em] text-blue-200">Proteína</p>
+                        <p class="text-sm font-semibold text-white">${Math.round(food.p || 0)} g</p>
+                    </div>
+                    <div class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center">
+                        <p class="text-[10px] uppercase tracking-[0.35em] text-yellow-200">Carbs</p>
+                        <p class="text-sm font-semibold text-white">${Math.round(food.c || 0)} g</p>
+                    </div>
+                    <div class="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center">
+                        <p class="text-[10px] uppercase tracking-[0.35em] text-rose-200">Grasas</p>
+                        <p class="text-sm font-semibold text-white">${Math.round(food.f || 0)} g</p>
+                    </div>
+                </div>`;
+
+            const mealButtons = this.state.dailyDiet.map((meal, index) => `
+                <button data-action="add-food-to-meal" data-food-id="${food.id}" data-meal-index="${index}" class="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-sm font-semibold text-gray-200 transition hover:border-emerald-400 hover:text-white">
+                    ${meal.name}
+                </button>
+            `).join('');
+
+            const body = `
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4">
+                        ${image}
+                        <div>
+                            <h3 class="text-lg font-semibold text-white">${food.name}</h3>
+                            <p class="text-sm text-gray-400">${Math.round(food.cals || 0)} kcal · valores por 100 g</p>
+                        </div>
+                    </div>
+                    ${macros}
+                    <div>
+                        <label for="food-amount" class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">Cantidad a añadir (g)</label>
+                        <input type="number" id="food-amount" value="100" class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-center text-sm text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                    </div>
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-300 mb-2">Elige la comida</p>
+                        <div class="grid grid-cols-2 gap-2">${mealButtons}</div>
+                    </div>
+                </div>
+            `;
+
+            this.showModal('Añadir Alimento', body, [{ text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }]);
+            lucide.createIcons();
+        },
+        async addFoodToMealFromModal(foodId,mealIndex){const a=parseInt(document.getElementById('food-amount').value);if(isNaN(a)||a<=0){this.showToast("Cantidad inválida.","error");return;}const f = this.getFoodById(foodId);if (!f) { this.showToast("Alimento no encontrado.", "error"); return; }const fac=a/100;this.state.dailyDiet[mealIndex].items.push({...f,amount:a,totalCals:Math.round((f.cals || 0)*fac),totalP:Math.round((f.p || 0)*fac),totalC:Math.round((f.c || 0)*fac),totalF:Math.round((f.f || 0)*fac)});await this.saveDataToFirestore();this.renderAll();this.hideModal();this.showToast(`${f.name} añadido a ${this.state.dailyDiet[mealIndex].name}.`);},
+        confirmRemoveFoodFromMeal(mealIndex,itemIndex){this.showModal('Confirmar Eliminación','¿Seguro que quieres eliminar este alimento?',[{text:'Cancelar',class:'bg-gray-600 hover:bg-gray-500',action:'hide-modal'},{text:'Eliminar',class:'bg-red-600 hover:bg-red-500',action:'remove-food','meal-index':mealIndex,'item-index':itemIndex}]);},
+        async removeFoodFromMeal(mealIndex,itemIndex){this.state.dailyDiet[mealIndex].items.splice(itemIndex,1);await this.saveDataToFirestore();this.renderAll();this.hideModal();this.showToast('Alimento eliminado.','error');},
+        async callGeminiAPI(prompt, button = null) {if (!this.apiKey) { this.showToast("API Key de Gemini no configurada.", "error"); throw new Error("API Key is missing."); }let originalButtonHTML;if(button) { originalButtonHTML = button.innerHTML; button.disabled = true; button.innerHTML = `<i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i>`; lucide.createIcons(); }try {const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${this.apiKey}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }) });if (!response.ok) throw new Error('Error en la respuesta de la API.');const result = await response.json();if (!result.candidates || result.candidates.length === 0) throw new Error('Respuesta inválida de la API.');return result.candidates[0].content.parts[0].text;} catch (error) { console.error("Error en llamada a Gemini:", error); this.showToast(error.message || "Error al contactar la IA.", "error"); throw error;} finally { if (button) { button.disabled = false; button.innerHTML = originalButtonHTML; lucide.createIcons(); } }},
+        async getDailyTip() {const tipCard = document.getElementById('ai-daily-tip-card');const tipTextEl = document.getElementById('ai-daily-tip-text');if (!tipCard || !tipTextEl) return;tipCard.classList.remove('hidden');const today = new Date().toISOString().split('T')[0];const storedTip = localStorage.getItem('fitTrackDailyTip');if (storedTip) { const tipData = JSON.parse(storedTip); if (tipData.date === today) { tipTextEl.textContent = tipData.tip; lucide.createIcons(); return; } }try {const prompt = "Dame un consejo de fitness corto, motivador e inspirador (menos de 25 palabras) para hoy. Debe ser en español.";const tip = await this.callGeminiAPI(prompt);const newTipData = { date: today, tip: tip.trim() };localStorage.setItem('fitTrackDailyTip', JSON.stringify(newTipData));tipTextEl.textContent = tip.trim();} catch (error) { tipTextEl.textContent = "El esfuerzo de hoy es el éxito de mañana. ¡No te rindas!"; } finally { lucide.createIcons(); }},
+        async analyzeFoodWithAI() {const input = document.getElementById('food-analysis-input');const foodDescription = input.value.trim();if (!foodDescription) { this.showToast("Describe una comida para analizar.", "error"); return; }const button = document.querySelector('button[data-action="analyze-food"]');const prompt = `Estima las calorías y los macronutrientes (proteínas, carbohidratos, grasas) para la siguiente comida: "${foodDescription}". Responde únicamente con un objeto JSON válido con el formato: {"name": "Nombre descriptivo", "cals": numero, "p": numero, "c": numero, "f": numero}. No incluyas unidades (como "g" o "kcal"), comentarios ni explicaciones adicionales, solo el JSON.`;try {const textResponse = await this.callGeminiAPI(prompt, button);const cleanJsonString = textResponse.replace(/```json|```/g, '').trim();const foodData = JSON.parse(cleanJsonString);const targetMealIndex = this.state.dailyDiet.length - 1; if (targetMealIndex >= 0) {this.state.dailyDiet[targetMealIndex].items.push({ id: `ai-${Date.now()}`, name: foodData.name || foodDescription, amount: 'N/A', totalCals: foodData.cals, totalP: foodData.p, totalC: foodData.c, totalF: foodData.f, });this.showToast(`${foodData.name || 'Comida'} añadida a la dieta.`);input.value = '';await this.saveDataToFirestore(); this.renderAll();} else { this.showToast("No hay comidas para añadir el alimento.", "error"); }} catch (error) {}},
+        async getRecipeForMeal(mealIndex) {const meal = this.state.dailyDiet[mealIndex];if (!meal || meal.items.length === 0) { this.showToast("Añade alimentos a la comida primero.", "error"); return; }const ingredientsList = meal.items.map(item => `${item.name.split('(')[0].trim()} (${item.amount}g)`).join(', ');this.showModal('Generando Receta ✨', '<div class="flex justify-center items-center p-8"><i data-lucide="loader-2" class="w-10 h-10 animate-spin text-purple-400"></i></div>', []);lucide.createIcons();const prompt = `Eres un chef experto en comida saludable. Crea una receta simple y deliciosa usando los siguientes ingredientes: ${ingredientsList}. El objetivo es una comida saludable. Proporciona un nombre creativo para el plato, una lista de ingredientes y las instrucciones paso a paso. Formatea tu respuesta como HTML simple, usando <h2> para el nombre del plato, <h3> para los encabezados (Ingredientes, Instrucciones), y <ul> o <ol> para las listas.`;try {const recipeHtml = await this.callGeminiAPI(prompt);const body = `<div class="text-left prose prose-invert prose-sm max-w-none">${recipeHtml}</div>`;this.showModal(`Receta para ${meal.name} ✨`, body, [{ text: 'Cerrar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }]);} catch (error) { this.hideModal(); }},
+        async showExerciseInfoModal(exerciseName) { const exercise = this.getExerciseByName(exerciseName); let mediaHtml = ''; if (exercise && exercise.mediaUrl) { const isVideo = exercise.mediaUrl.includes('.mp4') || exercise.mediaUrl.includes('video'); if (isVideo) { mediaHtml = `<div class="mb-4 rounded-lg overflow-hidden bg-gray-900"><video src="${exercise.mediaUrl}" autoplay loop muted playsinline class="w-full h-auto object-cover"></video></div>`; } else { mediaHtml = `<div class="mb-4 rounded-lg overflow-hidden bg-gray-900"><img src="${exercise.mediaUrl}" alt="Demostración de ${exercise.name}" class="w-full h-auto object-cover"></div>`; } } else { mediaHtml = `<div class="mb-4 p-4 text-center bg-gray-700/50 rounded-lg text-sm text-gray-400">No hay video/GIF disponible para este ejercicio.</div>`; } this.showModal(`Info: ${exerciseName}`, `${mediaHtml}<div id="ai-instructions-container"><div class="flex justify-center items-center p-4"><i data-lucide="loader-2" class="w-8 h-8 animate-spin text-sky-400"></i></div></div>`, [{ text: 'Entendido', class: 'bg-emerald-600 text-gray-900', action: 'hide-modal' }]); lucide.createIcons(); const prompt = `Eres un entrenador personal certificado. Proporciona instrucciones claras y concisas sobre cómo realizar el ejercicio "${exerciseName}". Incluye una sección de "Músculos Principales" y una sección de "Errores Comunes" a evitar. Formatea la respuesta como HTML simple, usando <h3> para los encabezados y <ul> para las listas.`; try { const instructionsHtml = await this.callGeminiAPI(prompt); document.getElementById('ai-instructions-container').innerHTML = `<div class="text-left prose prose-invert prose-sm max-w-none">${instructionsHtml}</div>`; } catch (error) { document.getElementById('ai-instructions-container').innerHTML = `<p class="text-sm text-red-400">No se pudieron cargar las instrucciones.</p>`; } },
+        async generatePlanWithAI() {const button = document.querySelector('button[data-action="generate-plan"]');const { calories, protein, carbs, fats } = this.state.userGoals;const prompt = `Crea un plan de comidas de ejemplo para un día completo que cumpla con los siguientes objetivos nutricionales: ${calories} kcal, ${protein}g de proteína, ${carbs}g de carbohidratos y ${fats}g de grasas. El plan debe dividirse en 3 comidas: Desayuno, Almuerzo y Cena. Para cada comida, lista los alimentos y sus cantidades aproximadas en gramos. Responde únicamente con un objeto JSON válido con el formato: {"Desayuno": [{"name": "nombre_alimento", "amount": cantidad_gramos}], "Almuerzo": [...], "Cena": [...]}. No incluyas comentarios ni explicaciones adicionales, solo el JSON.`;try {const textResponse = await this.callGeminiAPI(prompt, button);const cleanJsonString = textResponse.replace(/```json|```/g, '').trim();const mealPlan = JSON.parse(cleanJsonString); this.state.dailyDiet = []; const mealNames = Object.keys(mealPlan);const timeMap = {'Desayuno': '08:00', 'Almuerzo': '13:00', 'Cena': '20:00'}; mealNames.forEach((mealName, index) => {const mealData = {id: `meal-${Date.now() + index}`, name: mealName, time: timeMap[mealName] || '12:00', items: []}; mealPlan[mealName].forEach(food => {const searchTerm = food.name.toLowerCase().split('(')[0].trim().replace(/de|en|con/g, '').trim().split(' ')[0];let dbFood = this.data.foodLibrary.find(f => f.name.toLowerCase().includes(searchTerm)); let foodEntry; if (dbFood) { const factor = food.amount / 100; foodEntry = { ...dbFood, name: `${food.name}`, amount: food.amount, totalCals: Math.round((dbFood.cals||0) * factor), totalP: Math.round((dbFood.p||0) * factor), totalC: Math.round((dbFood.c||0) * factor), totalF: Math.round((dbFood.f||0) * factor) }; } else { foodEntry = { name: food.name, amount: food.amount, totalCals: 150, totalP: 10, totalC: 15, totalF: 5 }; } mealData.items.push(foodEntry);}); this.state.dailyDiet.push(mealData); });this.showToast("¡Plan de dieta generado!");await this.saveDataToFirestore(); this.renderAll();} catch (error) {}},
+        async routine_generateExercisesWithAi() {
+            const goalInput = document.getElementById('ai-goal-input');
+            const goal = goalInput.value.trim();
+            if (!goal) {
+                this.showToast("Describe tu objetivo.", "error");
+                return;
+            }
+
+            const button = document.querySelector('button[data-action="generate-exercises-ai"]');
+            const prompt = `Basado en el siguiente objetivo de entrenamiento: "${goal}", sugiere entre 5 y 7 ejercicios. Responde ÚNICAMENTE con un array JSON de strings, como: ["nombre_ejercicio_1", "nombre_ejercicio_2", ...]. No incluyas texto adicional ni formato markdown. Asegúrate de que los nombres de los ejercicios sean comunes en el gimnasio.`;
+
+            try {
+                const textResponse = await this.callGeminiAPI(prompt, button);
+                const cleanJsonString = textResponse.replace(/```json|```/g, '').trim();
+                const exercises = JSON.parse(cleanJsonString);
+                const currentDayIndex = this._tempRoutine.currentDayIndex;
+
+                if (Array.isArray(exercises)) {
+                    exercises.forEach(exName => {
+                        this._tempRoutine.plan[currentDayIndex].exercises.push({
+                            name: exName,
+                            sets: 4,
+                            reps: '10',
+                            weight: '0 kg',
+                            rest: '60 s'
+                        });
+                    });
+                    this.hideModal();
+                    this.routine_refreshExerciseList();
+                    this.showToast('¡Ejercicios sugeridos por IA añadidos!');
+                } else {
+                    throw new Error('El formato de respuesta de la IA no es válido.');
+                }
+            } catch (error) {
+                this.showToast("No se pudo procesar la sugerencia de la IA. Inténtalo de nuevo.", "error");
+            }
+        },
+        async analyzeWorkoutPerformance(e) {const button = e.target.closest('[data-action="analyze-workout-performance"]');const logDataString = button.dataset.logData;const log = JSON.parse(decodeURIComponent(logDataString));const goal = document.querySelector('#nutrition-form input[name="goal"]:checked')?.value || 'maintain';const goalMap = { lose: 'perder peso', maintain: 'mantenimiento', gain: 'ganar músculo' };const userGoalText = goalMap[goal];const prompt = `Eres un entrenador de fitness positivo y motivador. Mi objetivo principal es ${userGoalText}. Este es mi registro de entrenamiento de hoy: ${JSON.stringify(log)}. Proporciona un análisis breve (menos de 75 palabras), en español, sobre mi rendimiento. Destaca un aspecto positivo y sugiere una mejora simple y específica para mi próxima sesión. Envuelve el aspecto positivo en etiquetas <strong> y la sugerencia en etiquetas <em>.`;try {const analysisText = await this.callGeminiAPI(prompt, button);const container = document.getElementById('ai-analysis-container');if (container) { container.innerHTML = `<div class="mt-4 pt-4 border-t border-gray-700 text-left"><h4 class="font-bold text-gray-200 flex items-center gap-2"><i data-lucide="sparkles" class="w-5 h-5 text-purple-400"></i>Análisis del Coach IA</h4><p class="text-sm text-gray-300 mt-2 bg-gray-900/50 p-3 rounded-lg">${analysisText}</p></div>`; lucide.createIcons(); button.style.display = 'none'; }} catch (error) {}},
+        routine_showAiSuggestionModal() { const body = `<p class="text-gray-300 mb-4">Describe el objetivo para este día de entrenamiento y la IA te sugerirá ejercicios.</p><div><label for="ai-goal-input" class="block text-sm font-medium text-gray-400 mb-1">Objetivo del día</label><input type="text" id="ai-goal-input" class="w-full bg-gray-700 rounded-lg p-2 mt-1 border border-gray-600" placeholder="Ej: Hipertrofia para pecho y hombro"></div>`; const footer = [ {text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal'}, {text: '✨ Generar', class: 'bg-emerald-600 hover:bg-emerald-500 text-gray-900', action: 'generate-exercises-ai'} ]; this.showModal('Sugerencias de la IA', body, footer); setTimeout(() => document.getElementById('ai-goal-input').focus(), 100); },
+        getExerciseByName(name) { for (const group in this.data.exerciseLibrary) { for (const subGroup in this.data.exerciseLibrary[group]) { const exercise = this.data.exerciseLibrary[group][subGroup].find(ex => ex.name === name); if (exercise) return exercise; } } return null; },
+        renderRoutinesSection() {
+            const userRoutinesContainer = document.getElementById('user-routines-container');
+            const predefinedRoutinesContainer = document.getElementById('predefined-routines-container');
+            if (!userRoutinesContainer || !predefinedRoutinesContainer) return;
+
+            this.updateRoutineBannerPreview();
+
+            if (this.state.userRoutines && this.state.userRoutines.length > 0) {
+                userRoutinesContainer.innerHTML = this.state.userRoutines.map(r => this.routine_createUserCardHTML(r)).join('');
+            } else {
+                userRoutinesContainer.innerHTML = `<div class="flex flex-col items-center justify-center w-64 h-40 text-center p-4 bg-gray-700/50 rounded-2xl border-2 border-dashed border-gray-600"><i data-lucide="folder-plus" class="w-8 h-8 text-gray-500 mb-2"></i><p class="text-gray-400 text-sm">${this.isAsesor() ? 'Crea tu primera rutina' : 'No tienes una rutina asignada.'}</p></div>`;
+            }
+
+            const defaultTheme = {
+                emoji: '✨',
+                badgeLabel: 'Colección signature',
+                title: '',
+                tagline: 'Rituales inmersivos listos para ejecutar en tu calendario.',
+                heroGradient: 'from-emerald-500/20 via-cyan-500/10 to-gray-900/90',
+                chipClasses: 'bg-emerald-500/15 text-emerald-200',
+                glow: 'shadow-[0_45px_120px_-65px_rgba(16,185,129,0.65)]',
+                cardGradient: 'from-emerald-500/15 via-gray-900 to-gray-900',
+                cardIconWrap: 'bg-emerald-500/15 text-emerald-200',
+                cardOverlay: 'from-emerald-400/25 via-transparent to-transparent',
+                cardStatAccent: 'text-emerald-200'
+            };
+
+                const categoryThemes = {
+                    'Clásicos de Hipertrofia': {
+                        emoji: '🏆',
+                        badgeLabel: 'Legado Pro',
+                        title: 'Clásicos de Hipertrofia',
+                    tagline: 'Divisiones legendarias reeditadas con seguimiento moderno para volumen sostenido.',
+                    heroGradient: 'from-amber-500/25 via-emerald-500/10 to-gray-950/80',
+                    chipClasses: 'bg-amber-500/20 text-amber-200',
+                    glow: 'shadow-[0_55px_140px_-70px_rgba(245,158,11,0.6)]',
+                    cardGradient: 'from-amber-500/15 via-slate-900/80 to-gray-950',
+                    cardIconWrap: 'bg-amber-500/15 text-amber-200',
+                    cardOverlay: 'from-amber-400/20 via-transparent to-transparent',
+                    cardStatAccent: 'text-amber-200'
+                },
+                'Fuerza y Potencia': {
+                    emoji: '⚡',
+                    badgeLabel: 'Output Máximo',
+                    title: 'Fuerza y Potencia',
+                    tagline: 'Periodizaciones explosivas con foco neural y métricas de potencia listas para registrar.',
+                    heroGradient: 'from-sky-500/30 via-cyan-500/15 to-gray-950/85',
+                    chipClasses: 'bg-sky-500/20 text-sky-200',
+                    glow: 'shadow-[0_55px_140px_-70px_rgba(56,189,248,0.55)]',
+                    cardGradient: 'from-sky-500/20 via-slate-900/80 to-gray-950',
+                    cardIconWrap: 'bg-sky-500/20 text-sky-200',
+                    cardOverlay: 'from-sky-400/20 via-transparent to-transparent',
+                    cardStatAccent: 'text-sky-200'
+                },
+                    'Enfoque Femenino': {
+                        emoji: '🌸',
+                        badgeLabel: 'Flow Curves',
+                        title: 'Enfoque Femenino',
+                        tagline: 'Secuencias estilizadas para esculpir, equilibrar y potenciar energía femenina.',
+                        heroGradient: 'from-rose-400/30 via-fuchsia-500/15 to-gray-950/85',
+                        chipClasses: 'bg-rose-500/20 text-rose-200',
+                        glow: 'shadow-[0_55px_140px_-70px_rgba(244,114,182,0.55)]',
+                        cardGradient: 'from-rose-400/20 via-slate-900/80 to-gray-950',
+                        cardIconWrap: 'bg-rose-500/20 text-rose-200',
+                        cardOverlay: 'from-rose-400/25 via-transparent to-transparent',
+                        cardStatAccent: 'text-rose-200'
+                    },
+                    'CBUM Signature Series': {
+                        emoji: '🏋️‍♂️',
+                        badgeLabel: 'Olympia Blueprint',
+                        title: 'CBUM Signature Series',
+                        tagline: 'Blueprint oficial inspirado en Chris Bumstead con tempos controlados y dominancia estética.',
+                        heroGradient: 'from-purple-500/25 via-emerald-500/15 to-gray-950/85',
+                        chipClasses: 'bg-purple-500/20 text-purple-200',
+                        glow: 'shadow-[0_55px_140px_-70px_rgba(168,85,247,0.55)]',
+                        cardGradient: 'from-purple-500/20 via-slate-900/80 to-gray-950',
+                        cardIconWrap: 'bg-purple-500/20 text-purple-200',
+                        cardOverlay: 'from-purple-400/25 via-transparent to-transparent',
+                        cardStatAccent: 'text-purple-200'
+                    },
+                    'Alta Intensidad': {
+                        emoji: '🔥',
+                        badgeLabel: 'Impact Chamber',
+                        title: 'Alta Intensidad',
+                    tagline: 'Microciclos concentrados para atletas avanzados con descansos calculados al segundo.',
+                    heroGradient: 'from-orange-500/25 via-red-500/15 to-gray-950/85',
+                    chipClasses: 'bg-orange-500/20 text-orange-200',
+                    glow: 'shadow-[0_55px_140px_-70px_rgba(249,115,22,0.55)]',
+                    cardGradient: 'from-orange-500/20 via-slate-900/80 to-gray-950',
+                    cardIconWrap: 'bg-orange-500/20 text-orange-200',
+                    cardOverlay: 'from-orange-500/25 via-transparent to-transparent',
+                    cardStatAccent: 'text-orange-200'
+                },
+                'Quema de Grasa': {
+                    emoji: '💧',
+                    badgeLabel: 'Metabolic Wave',
+                    title: 'Quema de Grasa',
+                    tagline: 'Protocolos híbridos que combinan fuerza funcional y cardio para maximizar el gasto energético.',
+                    heroGradient: 'from-lime-400/25 via-emerald-500/15 to-gray-950/85',
+                    chipClasses: 'bg-lime-500/20 text-lime-200',
+                    glow: 'shadow-[0_55px_140px_-70px_rgba(163,230,53,0.55)]',
+                    cardGradient: 'from-lime-400/20 via-slate-900/80 to-gray-950',
+                    cardIconWrap: 'bg-lime-500/20 text-lime-200',
+                    cardOverlay: 'from-lime-400/25 via-transparent to-transparent',
+                    cardStatAccent: 'text-lime-200'
+                }
+            };
+
+            let predefinedHtml = '';
+
+            for (const [category, routinesInCategory] of Object.entries(this.data.predefinedRoutines)) {
+                const theme = { ...defaultTheme, ...(categoryThemes[category] || {}) };
+                const routinesCount = routinesInCategory.length;
+                const totalSessions = routinesInCategory.reduce((sum, routine) => sum + ((routine.plan || []).length), 0);
+                const totalExercises = routinesInCategory.reduce((sum, routine) => sum + (routine.plan || []).reduce((acc, day) => acc + ((day.exercises || []).length), 0), 0);
+                const totalSets = routinesInCategory.reduce((sum, routine) => sum + (routine.plan || []).reduce((acc, day) => acc + (day.exercises || []).reduce((setSum, exercise) => setSum + (Number(exercise.sets) || 0), 0), 0), 0);
+                const avgExercisesPerSession = totalSessions ? Math.round(totalExercises / totalSessions) : 0;
+                const avgSetsPerSession = totalSessions ? Math.round(totalSets / totalSessions) : 0;
+
+                predefinedHtml += `
+                    <section class="relative overflow-hidden rounded-3xl border border-white/8 bg-gray-900/60 p-6 lg:p-8 ${theme.glow}">
+                        <div class="pointer-events-none absolute inset-0 opacity-90 bg-gradient-to-br ${theme.heroGradient}"></div>
+                        <div class="relative z-10 space-y-6">
+                            <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                                <div class="space-y-4 max-w-3xl">
+                                    <div class="flex flex-wrap items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                        <span class="rounded-full px-3 py-1 ${theme.chipClasses}">${theme.badgeLabel}</span>
+                                        <span class="rounded-full px-3 py-1 bg-white/5 text-gray-200/80">${theme.emoji} ${category}</span>
+                                    </div>
+                                    <h4 class="text-2xl font-bold text-white">${theme.title || category}</h4>
+                                    <p class="text-sm text-gray-200/90">${theme.tagline}</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3 text-center text-xs uppercase tracking-[0.25em] text-gray-300 sm:grid-cols-4 lg:max-w-md">
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                        <p class="text-lg font-semibold text-white">${routinesCount}</p>
+                                        <p class="mt-1 text-[11px] text-gray-400">Rutinas</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                        <p class="text-lg font-semibold text-white">${totalSessions}</p>
+                                        <p class="mt-1 text-[11px] text-gray-400">Sesiones</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3">
+                                        <p class="text-lg font-semibold text-white">${avgExercisesPerSession}</p>
+                                        <p class="mt-1 text-[11px] text-gray-400">Ejerc./sesión</p>
+                                    </div>
+                                    <div class="rounded-2xl border border-white/10 bg-gray-900/70 px-4 py-3 hidden sm:block">
+                                        <p class="text-lg font-semibold text-white">${avgSetsPerSession}</p>
+                                        <p class="mt-1 text-[11px] text-gray-400">Sets/sesión</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="rounded-3xl border border-white/10 bg-gray-950/40 p-4 lg:p-6">
+                                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                    ${routinesInCategory.map(r => this.routine_createPredefinedCardHTML(r, theme)).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                `;
+            }
+
+            predefinedRoutinesContainer.innerHTML = predefinedHtml;
+            lucide.createIcons();
+        },
+        routine_createUserCardHTML(routine) {
+    const days = routine.plan.length;
+    const totalExercises = routine.plan.reduce((acc, day) => acc + day.exercises.length, 0);
+
+    const hasCover = routine.coverImageUrl;
+    const backgroundStyle = hasCover 
+? `style="background-image: url('${routine.coverImageUrl}');"`
+: '';
+    const backgroundClasses = hasCover
+? 'bg-cover bg-center'
+: 'bg-gradient-to-br from-gray-700 to-gray-800';
+
+    const overlayHTML = hasCover ? '<div class="absolute inset-0 bg-black/60 rounded-2xl"></div>' : '';
+
+    return `
+<button data-action="routine-show-details" data-routine-id="${routine.id}" 
+        class="relative flex-shrink-0 w-64 h-40 ${backgroundClasses} rounded-2xl p-4 flex flex-col justify-between text-left hover:ring-2 hover:ring-emerald-400 transition-all shadow-lg overflow-hidden" 
+        ${backgroundStyle}>
+    ${overlayHTML}
+    <div class="relative z-10">
+        <h4 class="font-bold text-lg text-white truncate">${routine.name}</h4>
+        <p class="text-sm text-gray-300 mt-1 line-clamp-2">${routine.description || 'Sin descripción'}</p>
+    </div>
+    <div class="relative z-10 flex items-center gap-4 text-xs text-gray-300 font-medium">
+        <div class="flex items-center gap-1.5"><i data-lucide="calendar-days" class="w-3.5 h-3.5"></i><span>${days} ${days > 1 ? 'días' : 'día'}</span></div>
+        <div class="flex items-center gap-1.5"><i data-lucide="repeat" class="w-3.5 h-3.5"></i><span>${totalExercises} ej.</span></div>
+    </div>
+</button>`;
+},
+        routine_createPredefinedCardHTML(routine, theme = {}) {
+            const plan = routine.plan || [];
+            const days = plan.length;
+            const totalExercises = plan.reduce((sum, day) => sum + ((day.exercises || []).length), 0);
+            const totalSets = plan.reduce((sum, day) => sum + (day.exercises || []).reduce((acc, exercise) => acc + (Number(exercise.sets) || 0), 0), 0);
+
+            const cardGradient = theme.cardGradient || 'from-emerald-500/15 via-gray-900 to-gray-900';
+            const iconWrap = theme.cardIconWrap || 'bg-emerald-500/15 text-emerald-200';
+            const overlay = theme.cardOverlay || 'from-emerald-400/25 via-transparent to-transparent';
+            const statAccent = theme.cardStatAccent || 'text-emerald-200';
+
+            return `
+                <button data-action="routine-show-details" data-routine-id="${routine.id}"
+                    class="group relative w-full overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${cardGradient} p-5 text-left shadow-[0_25px_70px_-45px_rgba(16,185,129,0.45)] transition-all duration-500 hover:-translate-y-1 hover:border-emerald-400/60 hover:shadow-[0_35px_90px_-40px_rgba(16,185,129,0.55)]">
+                    <span class="pointer-events-none absolute inset-0 opacity-0 transition duration-500 group-hover:opacity-100 bg-gradient-to-br ${overlay}"></span>
+                    <div class="relative z-10 flex flex-col gap-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-3">
+                                <span class="flex h-12 w-12 items-center justify-center rounded-xl ${iconWrap}"><i data-lucide="${routine.icon || 'activity'}" class="w-5 h-5"></i></span>
+                                <div>
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Programa signature</p>
+                                    <h4 class="text-lg font-bold text-white leading-tight">${routine.name}</h4>
+                                </div>
+                            </div>
+                            <i data-lucide="arrow-up-right" class="h-5 w-5 text-gray-400 transition group-hover:text-white"></i>
+                        </div>
+                        <p class="text-sm text-gray-300 line-clamp-3">${routine.description || 'Sesión curada por expertos, lista para ejecutarse.'}</p>
+                        <div class="flex flex-wrap gap-2 text-xs font-semibold text-gray-300">
+                            <span class="inline-flex items-center gap-1 rounded-full bg-black/40 px-3 py-1"><i data-lucide="calendar" class="h-3.5 w-3.5 ${statAccent}"></i>${days} ${days === 1 ? 'día' : 'días'}</span>
+                            <span class="inline-flex items-center gap-1 rounded-full bg-black/40 px-3 py-1"><i data-lucide="list-checks" class="h-3.5 w-3.5 ${statAccent}"></i>${totalExercises} ejercicios</span>
+                            <span class="inline-flex items-center gap-1 rounded-full bg-black/40 px-3 py-1"><i data-lucide="repeat-2" class="h-3.5 w-3.5 ${statAccent}"></i>${totalSets} sets</span>
+                        </div>
+                    </div>
+                </button>
+            `;
+        },
+
+        routine_showDetails(routineId) {
+            const allRoutines = [...(this.state.userRoutines || []), ...Object.values(this.data.predefinedRoutines).flat()];
+            const routine = allRoutines.find(r => r.id === routineId);
+            if (!routine) return;
+
+            const today = new Date().toISOString().split('T')[0];
+            const todayEntries = Array.isArray(this.state.workoutHistory?.[today]) ? this.state.workoutHistory[today] : [];
+
+            const plan = routine.plan || [];
+            const totalDays = plan.length;
+            const totalExercises = plan.reduce((sum, day) => sum + ((day.exercises || []).length), 0);
+            const totalSets = plan.reduce((sum, day) => sum + (day.exercises || []).reduce((acc, exercise) => acc + (Number(exercise.sets) || 0), 0), 0);
+
+            const heroSectionHTML = `
+                <section class="relative overflow-hidden rounded-3xl border border-white/10 bg-gray-900/70 p-6 lg:p-8 shadow-[0_35px_120px_-70px_rgba(16,185,129,0.75)]">
+                    <div class="pointer-events-none absolute inset-0 bg-gradient-to-br from-emerald-500/25 via-cyan-500/10 to-transparent opacity-80"></div>
+                    <div class="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                        <div class="space-y-5 max-w-3xl">
+                            <div class="flex items-center gap-4">
+                                <span class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 backdrop-blur">
+                                    <i data-lucide="${routine.icon || 'dumbbell'}" class="h-7 w-7 text-emerald-200"></i>
+                                </span>
+                                <div class="space-y-1">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Colección premium</p>
+                                    <h2 class="text-2xl sm:text-3xl font-bold leading-tight text-white">${routine.name}</h2>
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-200/90 max-w-2xl">${routine.description}</p>
+                            <div class="flex flex-wrap gap-3 text-xs font-semibold uppercase tracking-[0.25em] text-gray-300">
+                                <span class="flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2"><i data-lucide="calendar-range" class="h-4 w-4 text-emerald-200"></i>${totalDays} ${totalDays === 1 ? 'día' : 'días'}</span>
+                                <span class="flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2"><i data-lucide="list-ordered" class="h-4 w-4 text-emerald-200"></i>${totalExercises} ejercicios</span>
+                                <span class="flex items-center gap-2 rounded-full border border-white/10 bg-black/30 px-4 py-2"><i data-lucide="hash" class="h-4 w-4 text-emerald-200"></i>${totalSets} sets</span>
+                            </div>
+                        </div>
+                        ${plan.length ? `
+                        <div class="flex flex-col gap-4 rounded-3xl border border-emerald-400/30 bg-emerald-500/10 p-5 text-emerald-100 shadow-[0_25px_70px_-45px_rgba(16,185,129,0.65)]">
+                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Lanzamiento rápido</p>
+                            <p class="text-lg font-semibold text-white leading-snug">Activa el modo inmersivo y deja que la app marque el ritmo.</p>
+                            <button data-action="start-workout" data-routine-id="${routine.id}" data-day-index="0" class="inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 font-semibold text-gray-900 shadow-lg shadow-emerald-500/40 transition hover:bg-emerald-100"><i data-lucide="play" class="h-5 w-5"></i><span>Comenzar Día 1</span></button>
+                        </div>
+                        ` : ''}
+                    </div>
+                </section>
+            `;
+
+            const daysHTML = plan.map((day, dayIndex) => {
+                const latestEntryToday = todayEntries.slice().reverse().find(entry => entry.routineId === routine.id && entry.dayIndex === dayIndex);
+                const isCompletedToday = Boolean(latestEntryToday);
+
+                const exercisesHTML = (day.exercises || []).map((ex, exerciseIndex) => `
+                    <div class="flex items-start justify-between gap-3 rounded-2xl bg-gray-900/60 p-3 lg:p-4">
+                        <div class="flex items-start gap-3">
+                            <span class="mt-0.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-[11px] font-semibold text-gray-400">${String(exerciseIndex + 1).padStart(2, '0')}</span>
+                            <div class="space-y-1">
+                                <button data-action="show-exercise-info" data-exercise-name="${ex.name}" class="flex items-center gap-2 text-left text-sm font-semibold text-white/90 transition hover:text-emerald-200">
+                                    <i data-lucide="info" class="hidden h-4 w-4 text-gray-500 md:block"></i>
+                                    <span>${ex.name}</span>
+                                </button>
+                                <p class="text-xs text-gray-400">Descanso ${ex.rest || '60s'}</p>
+                            </div>
+                        </div>
+                        <span class="rounded-full bg-gray-950/80 px-3 py-1 text-xs font-mono text-gray-300">${ex.sets} x ${ex.reps}</span>
+                    </div>
+                `).join('');
+
+                let actionBlockHTML = '';
+                if (isCompletedToday) {
+                    const totalWeight = latestEntryToday.exerciseDetails
+                        ? latestEntryToday.exerciseDetails.reduce((total, exercise) => total + exercise.weights.reduce((sum, weight) => sum + weight, 0), 0)
+                        : 0;
+                    actionBlockHTML = `
+                        <div class="mt-5 space-y-3 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-sm text-emerald-100">
+                            <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200"><i data-lucide="sparkles" class="h-4 w-4"></i>Logro del día</div>
+                            <div class="grid grid-cols-2 gap-3 text-center text-xs sm:grid-cols-4">
+                                <div class="rounded-xl bg-emerald-500/10 p-3">
+                                    <p class="text-lg font-bold text-white">${totalWeight.toFixed(1)} kg</p>
+                                    <p class="mt-1 text-[10px] uppercase tracking-[0.3em] text-emerald-200/70">Peso total</p>
+                                </div>
+                                <div class="rounded-xl bg-emerald-500/10 p-3">
+                                    <p class="text-lg font-bold text-white">${this.formatTime(latestEntryToday.totalActive)}</p>
+                                    <p class="mt-1 text-[10px] uppercase tracking-[0.3em] text-emerald-200/70">Tiempo activo</p>
+                                </div>
+                                <div class="rounded-xl bg-emerald-500/10 p-3">
+                                    <p class="text-lg font-bold text-white">${this.formatTime(latestEntryToday.totalRest)}</p>
+                                    <p class="mt-1 text-[10px] uppercase tracking-[0.3em] text-emerald-200/70">Descanso</p>
+                                </div>
+                                <div class="rounded-xl bg-emerald-500/10 p-3">
+                                    <p class="text-lg font-bold text-white">${new Intl.NumberFormat('es-ES').format(Math.round(latestEntryToday.totalVolume || 0))}</p>
+                                    <p class="mt-1 text-[10px] uppercase tracking-[0.3em] text-emerald-200/70">Volumen</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    actionBlockHTML = `
+                        <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <p class="text-sm text-gray-400">Prepara tu espacio, conecta el temporizador y lanza la sesión guiada.</p>
+                            <button data-action="start-workout" data-routine-id="${routine.id}" data-day-index="${dayIndex}" class="inline-flex items-center gap-2 rounded-full bg-emerald-500 px-5 py-2.5 font-semibold text-gray-900 shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-400"><i data-lucide="play" class="h-5 w-5"></i><span>Iniciar sesión</span></button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <article class="relative overflow-hidden rounded-3xl border ${isCompletedToday ? 'border-emerald-400/60 bg-emerald-500/5 shadow-[0_35px_100px_-60px_rgba(16,185,129,0.75)]' : 'border-white/10 bg-gray-900/60 hover:border-emerald-400/40 hover:shadow-[0_30px_90px_-60px_rgba(16,185,129,0.55)]'} p-5 lg:p-6 transition-all duration-500">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="space-y-1">
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Sesión ${dayIndex + 1}</p>
+                                <h3 class="text-xl font-bold text-white">${day.day}</h3>
+                            </div>
+                            <span class="inline-flex items-center gap-2 rounded-full ${isCompletedToday ? 'bg-emerald-500/20 text-emerald-200' : 'bg-white/10 text-gray-300'} px-3 py-1 text-xs font-semibold uppercase tracking-[0.25em]">
+                                <i data-lucide="${isCompletedToday ? 'check-circle-2' : 'timer'}" class="h-4 w-4"></i>
+                                ${isCompletedToday ? 'Completado hoy' : 'Listo' }
+                            </span>
+                        </div>
+                        <div class="mt-4 space-y-3">
+                            ${exercisesHTML}
+                        </div>
+                        ${actionBlockHTML}
+                    </article>
+                `;
+            }).join('');
+
+            const isUserRoutine = routine.id.startsWith('manual-');
+            const deleteButtonHTML = isUserRoutine && this.isAsesor()
+                ? `<button data-action="routine-confirm-delete" data-routine-id="${routine.id}" class="text-red-400 hover:text-red-300 p-2 rounded-full hover:bg-red-500/10"><i data-lucide="trash-2" class="w-5 h-5"></i></button>`
+                : '<div class="w-9 h-9"></div>';
+
+            const viewHTML = `
+                <div id="routine-details-view" class="fullscreen-view bg-gray-800 w-full h-full flex flex-col">
+                    <header class="sticky top-0 z-10 flex items-center justify-between border-b border-white/5 bg-gray-900/85 px-4 py-4 backdrop-blur">
+                        <button data-action="routine-close-view" class="rounded-full bg-white/5 p-2 text-gray-200 transition hover:bg-white/10"><i data-lucide="arrow-left"></i></button>
+                        <h3 class="text-lg font-bold text-white truncate px-4">${routine.name}</h3>
+                        ${deleteButtonHTML}
+                    </header>
+                    <div class="flex-grow overflow-y-auto space-y-6 px-4 pb-8 pt-4">
+                        ${heroSectionHTML}
+                        <section class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <h4 class="text-lg font-semibold text-white">Sesiones guiadas</h4>
+                                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-500">${totalDays} ${totalDays === 1 ? 'sesión' : 'sesiones'}</p>
+                            </div>
+                            <div class="space-y-5">
+                                ${daysHTML}
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            `;
+
+            this.routine_openFullscreenView(viewHTML);
+        },
+
+        routine_enterCreator(step) {
+            if (this._boundHandleDrawerResize) {
+                window.removeEventListener('resize', this._boundHandleDrawerResize);
+                this._boundHandleDrawerResize = null;
+            }
+
+            const targetStep = typeof step === 'undefined' ? 1 : step;
+            if (targetStep === 1) {
+                this._tempRoutine = { id: `manual-${Date.now()}`, name: '', description: '', coverImageUrl: null, plan: [{ day: 'Día 1: Mi Rutina', exercises: [] }], currentDayIndex: 0, editingIndex: -1, modalEditingIndex: -1, editingClientId: null, assignedClientId: '', activeExerciseGroup: '', miniWindowCollapsed: false };
+            }
+            const viewHTML = `<div id="routine-creator-view" class="fullscreen-view bg-gray-900 w-full h-full flex flex-col overflow-hidden">${this.routine_getCreatorContent(targetStep)}</div>`;
+            this.routine_openFullscreenView(viewHTML);
+
+            if (targetStep === 1) {
+                document.getElementById('routine-cover-image-input')?.addEventListener('change', (e) => this.routine_handleCoverImageSelect(e));
+            }
+
+            if (targetStep === 2) {
+                this.routine_refreshDayTabs();
+                this.routine_refreshExerciseList();
+                const activeGroup = this._tempRoutine.activeExerciseGroup || Object.keys(this.data.exerciseLibrary)[0];
+                if (activeGroup) {
+                    this.routine_creator_switchGroup(activeGroup);
+                }
+                this.initializeGroupCardImageLoading();
+
+                const panel = document.getElementById('exercise-list-panel');
+                if (panel) {
+                    panel.dataset.mobileVisible = window.innerWidth >= 768 ? 'true' : 'false';
+                }
+
+                this._boundHandleDrawerResize = this.routine_creator_handleDrawerResize.bind(this);
+                window.addEventListener('resize', this._boundHandleDrawerResize);
+                this.routine_creator_handleDrawerResize();
+                if (this.isAsesor()) {
+                    this.admin_setupExerciseCreationForm();
+                }
+            }
+        },
+        routine_getCreatorContent(step) {
+            if (step === 1) {
+                const canUploadCover = this.canManageRoutineCover();
+                const coverDescription = canUploadCover
+                    ? `<p class="mt-2 text-sm text-gray-300">Resalta tu rutina con una portada envolvente para motivar a tus asesorados.</p>`
+                    : `<p class="mt-2 text-sm text-gray-400">El administrador se encargará de la portada visual. Cuida los detalles de tu rutina y nosotros aplicaremos el diseño.</p>`;
+                const coverControl = canUploadCover
+                    ? `<label for="routine-cover-image-input" class="group relative block aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-gray-950/60 transition hover:border-emerald-400/60">
+                            <input type="file" accept="image/*" id="routine-cover-image-input" class="absolute inset-0 h-full w-full cursor-pointer opacity-0">
+                            <div id="cover-image-placeholder" class="flex h-full flex-col items-center justify-center gap-3 text-gray-400">
+                                <span class="grid h-16 w-16 place-items-center rounded-full border border-white/10 bg-white/5 text-white transition group-hover:border-emerald-400/50 group-hover:text-emerald-200">
+                                    <i data-lucide="image"></i>
+                                </span>
+                                <div class="text-center">
+                                    <p class="text-sm font-semibold text-white">Arrastra o selecciona una imagen</p>
+                                    <p class="text-xs text-gray-500">Ideal 1280 × 720 px</p>
+                                </div>
+                            </div>
+                            <img id="routine-cover-preview" class="hidden h-full w-full object-cover" alt="Vista previa de la portada">
+                        </label>`
+                    : `<div class="relative block aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-gray-950/60">
+                            <div class="flex h-full flex-col items-center justify-center gap-3 px-6 text-center text-gray-400">
+                                <span class="inline-flex h-12 w-12 items-center justify-center rounded-full border border-white/15 bg-white/5 text-gray-300">
+                                    <i data-lucide="shield-alert"></i>
+                                </span>
+                                <div class="space-y-1">
+                                    <p class="text-sm text-gray-300">La portada se gestiona desde administración.</p>
+                                    <p class="text-xs text-gray-500">Enfócate en personalizar contenido y narrativa, el arte se adaptará automáticamente.</p>
+                                </div>
+                            </div>
+                        </div>`;
+                const coverProgress = canUploadCover
+                    ? `<div id="cover-upload-progress-container" class="hidden items-center gap-3 rounded-2xl border border-white/10 bg-gray-950/70 px-4 py-3">
+                            <div class="h-2 flex-1 overflow-hidden rounded-full bg-white/10">
+                                <div id="cover-upload-progress-bar" class="h-full w-0 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-300"></div>
+                            </div>
+                            <span id="cover-upload-progress-text" class="text-xs font-semibold text-gray-300"></span>
+                        </div>`
+                    : '';
+                return `
+                    <div class="min-h-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
+                        <header class="sticky top-0 z-10 border-b border-white/5 bg-gray-950/80 backdrop-blur">
+                            <div class="mx-auto flex w-full max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
+                                <button data-action="routine-close-view" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white"><i data-lucide="x"></i></button>
+                                <div class="text-center">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-300/80">Crear Rutina</p>
+                                    <p class="mt-1 text-sm font-semibold text-white">Paso 1 · Detalles principales</p>
+                                </div>
+                                <div class="h-9 w-9"></div>
+                            </div>
+                            <div class="h-1 w-full bg-white/5">
+                                <div class="h-full w-1/2 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400"></div>
+                            </div>
+                        </header>
+                        <div class="flex-1 overflow-y-auto overscroll-contain">
+                            <div class="mx-auto flex w-full max-w-5xl flex-col gap-10 px-4 py-8 sm:px-6 sm:py-10">
+                                <section class="overflow-hidden rounded-3xl border border-white/5 bg-white/5 shadow-[0_35px_120px_-60px_rgba(16,185,129,0.85)]">
+                                    <div class="grid gap-10 p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+                                        <div class="flex flex-col gap-4">
+                                            <div>
+                                                <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Imagen de portada</p>
+                                                ${coverDescription}
+                                            </div>
+                                            ${coverControl}
+                                            ${coverProgress}
+                                        </div>
+                                        <div class="flex flex-col gap-6">
+                                            <div>
+                                                <label for="routine-name-input" class="text-sm font-semibold text-gray-200">Nombre de la rutina</label>
+                                                <input id="routine-name-input" type="text" placeholder="Ej. Fuerza Total" class="mt-2 w-full rounded-2xl border border-white/10 bg-gray-950/60 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400" value="${this._tempRoutine?.name || ''}">
+                                            </div>
+                                            <div class="flex flex-col gap-3">
+                                                <label for="routine-desc-input" class="text-sm font-semibold text-gray-200">Descripción</label>
+                                                <textarea id="routine-desc-input" rows="6" placeholder="Describe objetivos, nivel de intensidad y sensaciones que buscará esta rutina." class="w-full resize-none rounded-2xl border border-white/10 bg-gray-950/60 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">${this._tempRoutine?.description || ''}</textarea>
+                                            </div>
+                                            <div class="flex flex-col gap-4 text-sm text-gray-400 sm:flex-row sm:items-center sm:justify-between">
+                                                <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/80">
+                                                    <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                                                    <span>50% Completado</span>
+                                                </div>
+                                                <button data-action="routine-creator-next" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-6 py-3 font-semibold text-gray-900 transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                                    <span>Siguiente paso</span>
+                                                    <i data-lucide="arrow-right"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (step === 2) {
+                const isAdmin = this.isAsesor();
+                const canEditGroupImages = this.canEditGlobalMedia();
+                const assignedClientId = this._tempRoutine.assignedClientId || this._tempRoutine.editingClientId;
+                const assignedClient = assignedClientId ? (this.state.asesorados || []).find(c => c.id === assignedClientId) : null;
+                const assignmentInfo = assignedClient ? `<p class="mt-1 text-[11px] font-semibold uppercase tracking-[0.25em] text-emerald-200/80">Asignada a ${assignedClient.userName}</p>` : '';
+                const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex] || { day: '', exercises: [] };
+                const dayName = currentDay.day || `Día ${this._tempRoutine.currentDayIndex + 1}`;
+                const totalExercises = currentDay.exercises.length;
+                const dayStatus = !totalExercises
+                    ? 'Aún sin ejercicios'
+                    : totalExercises === 1
+                        ? '1 ejercicio configurado'
+                        : `${totalExercises} ejercicios configurados`;
+                const totalDays = this._tempRoutine.plan.length || 0;
+                const configuredDays = this._tempRoutine.plan.filter(day => (day.exercises || []).length > 0).length;
+                const safeTotalDays = Math.max(totalDays, 1);
+                const completionRate = totalDays ? Math.round((configuredDays / totalDays) * 100) : 0;
+                const completionWidth = Math.min(completionRate, 100);
+                const totalSets = currentDay.exercises.reduce((sum, ex) => {
+                    const setsValue = parseInt(ex.sets, 10);
+                    return sum + (Number.isNaN(setsValue) ? 0 : setsValue);
+                }, 0);
+                const sessionStatusLabel = totalExercises === 0
+                    ? 'Sin ejercicios'
+                    : totalExercises === 1
+                        ? '1 ejercicio'
+                        : `${totalExercises} ejercicios`;
+                const intensityLevel = totalExercises >= 6
+                    ? 'Carga alta'
+                    : totalExercises >= 3
+                        ? 'Carga media'
+                        : totalExercises > 0
+                            ? 'Carga ligera'
+                            : 'Pendiente';
+                const intensityBadgeClass = totalExercises >= 6
+                    ? 'text-rose-200/90 border-rose-400/40 bg-rose-500/10'
+                    : totalExercises >= 3
+                        ? 'text-amber-200/90 border-amber-400/40 bg-amber-500/10'
+                        : totalExercises > 0
+                            ? 'text-sky-200/90 border-sky-400/40 bg-sky-500/10'
+                            : 'text-gray-300 border-white/10 bg-white/5';
+                const groupImages = this.data.exerciseGroupImages || {};
+                const groupKeys = Object.keys(this.data.exerciseLibrary);
+                const firstGroup = groupKeys[0] || '';
+                const activeGroup = this._tempRoutine.activeExerciseGroup || firstGroup;
+                this._tempRoutine.activeExerciseGroup = activeGroup;
+                this.preloadExerciseGroupImages(activeGroup);
+                const groupsNav = `<aside id="exercise-group-nav" class="flex-1 w-full shrink-0 overflow-y-auto border-b border-white/5 bg-gray-950/80 md:w-80 md:flex-none md:border-b-0 md:border-r md:max-h-full md:overflow-y-auto">
+                    <div class="grid grid-cols-1 gap-4 p-5 sm:grid-cols-2 md:grid-cols-1">
+                        ${groupKeys.map(group => {
+                                const rawUrl = groupImages[group] || '';
+                                const sanitizedUrl = rawUrl.replace(/'/g, "\'");
+                                const hasImage = Boolean(rawUrl);
+                                const isActiveGroup = group === activeGroup;
+                                const fetchPriority = isActiveGroup ? 'high' : 'auto';
+                                if (hasImage) {
+                                    this.preloadImage(rawUrl, { priority: fetchPriority });
+                                }
+                                const fallbackClasses = `image-fallback absolute inset-0 ${hasImage ? 'hidden' : 'flex'} items-center justify-center bg-gradient-to-br from-emerald-500/30 via-teal-500/20 to-sky-500/25 text-emerald-100/80 pointer-events-none`;
+                                const imageContent = `
+                                    <div class="group-image-shell relative h-full w-full overflow-hidden">
+                                        ${hasImage ? '<div class="image-loading-placeholder pointer-events-none"></div>' : ''}
+                                        <div class="${fallbackClasses}">
+                                            <i data-lucide="dumbbell" class="h-10 w-10"></i>
+                                        </div>
+                                        ${hasImage ? `<img src="${sanitizedUrl}" alt="Grupo muscular ${group}" class="routine-group-image h-full w-full object-cover opacity-0 transition-opacity duration-500" decoding="async" loading="eager" fetchpriority="${fetchPriority}">` : ''}
+                                    </div>
+                                `;
+                                const editButton = canEditGroupImages
+                                    ? `<button type="button" data-action="routine-creator-edit-group-image" data-group-target="${group}" class="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/15 bg-gray-950/85 text-white shadow-lg transition hover:-translate-y-0.5 hover:border-white/40 hover:bg-white hover:text-gray-900"><i data-lucide="image-up" class="h-5 w-5"></i></button>`
+                                    : '';
+                                const accentConfig = (() => {
+                                    const base = {
+                                        icon: 'dumbbell',
+                                        highlight: 'text-emerald-200',
+                                        badgeLabel: 'Activación total',
+                                        badgeClass: 'border border-emerald-400/40 bg-emerald-500/15 text-emerald-100',
+                                        gradientBorder: 'from-emerald-500/40 via-teal-500/20 to-sky-500/35',
+                                        glowOne: 'bg-emerald-500/30',
+                                        glowTwo: 'bg-sky-500/20',
+                                        tagline: 'Activa y fortalece este grupo muscular con precisión y control.',
+                                        ctaGradient: 'from-emerald-300 via-teal-300 to-sky-300',
+                                        ctaTextClass: 'text-gray-900'
+                                    };
+                                    const key = group.toLowerCase();
+                                    if (key.includes('pecho')) {
+                                        return {
+                                            ...base,
+                                            icon: 'activity',
+                                            highlight: 'text-rose-200',
+                                            badgeLabel: 'Foco torácico',
+                                            badgeClass: 'border border-rose-400/40 bg-rose-500/15 text-rose-100',
+                                            gradientBorder: 'from-rose-500/45 via-fuchsia-500/25 to-amber-400/20',
+                                            glowOne: 'bg-rose-500/30',
+                                            glowTwo: 'bg-amber-400/25',
+                                            tagline: 'Expande la potencia del pecho con ángulos completos y controlados.',
+                                            ctaGradient: 'from-rose-300 via-fuchsia-300 to-amber-200'
+                                        };
+                                    }
+                                    if (key.includes('espalda')) {
+                                        return {
+                                            ...base,
+                                            icon: 'layers',
+                                            highlight: 'text-sky-200',
+                                            badgeLabel: 'Tracción suprema',
+                                            badgeClass: 'border border-sky-400/40 bg-sky-500/15 text-sky-100',
+                                            gradientBorder: 'from-sky-500/45 via-cyan-500/25 to-indigo-400/20',
+                                            glowOne: 'bg-sky-500/30',
+                                            glowTwo: 'bg-indigo-400/25',
+                                            tagline: 'Amplía tu espalda con movimientos de tracción envolventes.',
+                                            ctaGradient: 'from-sky-300 via-cyan-300 to-indigo-200'
+                                        };
+                                    }
+                                    if (key.includes('pierna') || key.includes('glúte') || key.includes('glute')) {
+                                        return {
+                                            ...base,
+                                            icon: 'mountain',
+                                            highlight: 'text-lime-200',
+                                            badgeLabel: 'Potencia inferior',
+                                            badgeClass: 'border border-lime-400/40 bg-lime-500/15 text-lime-100',
+                                            gradientBorder: 'from-lime-400/45 via-emerald-500/25 to-green-400/20',
+                                            glowOne: 'bg-lime-400/30',
+                                            glowTwo: 'bg-emerald-500/25',
+                                            tagline: 'Desarrolla piernas explosivas con secuencias estables y fluidas.',
+                                            ctaGradient: 'from-lime-300 via-emerald-300 to-green-200'
+                                        };
+                                    }
+                                    if (key.includes('hombro') || key.includes('delto')) {
+                                        return {
+                                            ...base,
+                                            icon: 'sun',
+                                            highlight: 'text-amber-200',
+                                            badgeLabel: 'Rotación 360°',
+                                            badgeClass: 'border border-amber-400/40 bg-amber-500/15 text-amber-100',
+                                            gradientBorder: 'from-amber-500/40 via-orange-500/25 to-emerald-400/20',
+                                            glowOne: 'bg-amber-500/30',
+                                            glowTwo: 'bg-orange-400/25',
+                                            tagline: 'Ilumina tus hombros con patrones de rotación controlados.',
+                                            ctaGradient: 'from-amber-300 via-orange-300 to-emerald-200'
+                                        };
+                                    }
+                                    if (key.includes('brazo') || key.includes('bíceps') || key.includes('tríceps') || key.includes('biceps') || key.includes('triceps')) {
+                                        return {
+                                            ...base,
+                                            icon: 'sparkle',
+                                            highlight: 'text-purple-200',
+                                            badgeLabel: 'Fuerza definida',
+                                            badgeClass: 'border border-purple-400/40 bg-purple-500/15 text-purple-100',
+                                            gradientBorder: 'from-purple-500/45 via-violet-500/25 to-indigo-400/20',
+                                            glowOne: 'bg-purple-500/30',
+                                            glowTwo: 'bg-indigo-400/25',
+                                            tagline: 'Moldea brazos definidos con tempos precisos y conectados.',
+                                            ctaGradient: 'from-purple-300 via-violet-300 to-indigo-200'
+                                        };
+                                    }
+                                    if (key.includes('core') || key.includes('abdomen') || key.includes('abdominal')) {
+                                        return {
+                                            ...base,
+                                            icon: 'target',
+                                            highlight: 'text-cyan-200',
+                                            badgeLabel: 'Estabilidad central',
+                                            badgeClass: 'border border-cyan-400/40 bg-cyan-500/15 text-cyan-100',
+                                            gradientBorder: 'from-cyan-500/45 via-sky-500/25 to-blue-400/20',
+                                            glowOne: 'bg-cyan-500/30',
+                                            glowTwo: 'bg-blue-400/25',
+                                            tagline: 'Construye un núcleo firme con respiración consciente y control.',
+                                            ctaGradient: 'from-cyan-300 via-sky-300 to-blue-200'
+                                        };
+                                    }
+                                    return base;
+                                })();
+                                return `
+                                <article role="button" tabindex="0" data-action="routine-creator-switch-group" data-group-target="${group}" data-active="${isActiveGroup}" class="group relative isolate flex h-full cursor-pointer flex-col overflow-hidden rounded-3xl border border-white/10 bg-gray-950/75 text-left shadow-[0_25px_80px_-50px_rgba(20,184,166,0.55)] transition-all duration-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-950 hover:-translate-y-1 hover:border-emerald-300/60 hover:shadow-[0_35px_120px_-60px_rgba(20,184,166,0.7)] data-[active=true]:border-emerald-300 data-[active=true]:shadow-[0_45px_140px_-60px_rgba(16,185,129,0.85)]">
+                                    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+                                        <div class="absolute -inset-px rounded-[28px] bg-gradient-to-br ${accentConfig.gradientBorder} opacity-0 transition duration-500 group-hover:opacity-100 data-[active=true]:opacity-100"></div>
+                                        <div class="absolute inset-x-10 -top-16 h-28 ${accentConfig.glowOne} blur-3xl transition duration-500 group-hover:scale-110 data-[active=true]:scale-110"></div>
+                                        <div class="absolute inset-x-12 bottom-0 h-32 ${accentConfig.glowTwo} blur-[120px] transition duration-500 group-hover:opacity-90"></div>
+                                    </div>
+                                    <div class="relative z-10 flex h-full flex-col">
+                                        <div class="relative aspect-[4/3] w-full overflow-hidden">
+                                            ${imageContent}
+                                            <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent"></div>
+                                            <div class="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
+                                            <div class="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/20 bg-black/60 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/80">
+                                                <i data-lucide="aperture" class="h-3.5 w-3.5"></i>
+                                                Zona clave
+                                            </div>
+                                            ${editButton}
+                                        </div>
+                                        <div class="flex flex-1 flex-col justify-between px-5 pb-5 pt-6">
+                                            <div class="space-y-4">
+                                                <div class="flex items-center gap-3">
+                                                    <span class="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-lg ${accentConfig.highlight}">
+                                                        <i data-lucide="${accentConfig.icon}" class="h-6 w-6"></i>
+                                                    </span>
+                                                    <div class="space-y-1">
+                                                        <p class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Grupo muscular</p>
+                                                        <h3 class="text-2xl font-bold leading-tight text-white">${group}</h3>
+                                                    </div>
+                                                </div>
+                                                <p class="text-sm leading-relaxed text-gray-300">${accentConfig.tagline}</p>
+                                            </div>
+                                            <div class="mt-6 flex items-center justify-between gap-3">
+                                                <span class="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] ${accentConfig.badgeClass}">
+                                                    <i data-lucide="sparkles" class="h-4 w-4"></i>
+                                                    ${accentConfig.badgeLabel}
+                                                </span>
+                                                <span class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${accentConfig.ctaGradient} px-4 py-2 text-xs font-semibold ${accentConfig.ctaTextClass} shadow-[0_18px_45px_-25px_rgba(20,184,166,0.9)] transition group-hover:translate-x-1 group-data-[active=true]:translate-x-1">
+                                                    Explorar
+                                                    <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            `;
+                        }).join('')}
+                    </div>
+                </aside>`;
+                const exercisesPanel = `
+                <section id="exercise-list-panel" data-mobile-visible="false" class="hidden flex-1 flex-col overflow-y-auto bg-gray-950/60 md:flex">
+                    <header class="sticky top-0 z-20 flex items-center justify-between gap-3 border-b border-white/5 bg-gray-950/90 px-4 py-4 md:hidden">
+                        <button data-action="routine-creator-back-to-groups" class="rounded-full bg-white/10 p-2 text-gray-300 transition hover:text-white">
+                            <i data-lucide="arrow-left"></i>
+                        </button>
+                        <div class="min-w-0 flex-1 text-center">
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Ejercicios</p>
+                            <h3 id="active-group-title" class="mt-1 truncate text-base font-semibold text-white">${activeGroup}</h3>
+                        </div>
+                        <div class="h-9 w-9"></div>
+                    </header>
+                    <div class="space-y-8 p-5 sm:p-8">
+                        ${Object.entries(this.data.exerciseLibrary).map(([group, subGroups]) => `
+                            <div data-group-content="${group}" class="${group === activeGroup ? 'space-y-6' : 'hidden space-y-6'}">
+                                ${Object.entries(subGroups).map(([subGroup, exercises]) => `
+                                    <div data-subgroup-content="${subGroup}" class="space-y-4">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <h4 class="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-200/80">${subGroup}</h4>
+                                            ${isAdmin ? `<button data-action="routine-creator-switch-group" data-group-target="${group}" class="hidden"></button>` : ''}
+                                        </div>
+                                        <div class="grid gap-5">
+                                            ${exercises.map((ex, exIndex) => `
+                                                <div class="exercise-item group relative flex flex-col gap-5 rounded-2xl border border-white/5 bg-white/5 p-5 shadow-[0_25px_60px_-45px_rgba(56,189,248,0.55)] transition hover:border-emerald-300/70 sm:flex-row sm:items-center" data-exercise-name="${ex.name}">
+                                                    <button data-action="show-media-viewer" data-media-url="${ex.mediaUrl || ''}" class="relative h-36 w-full overflow-hidden rounded-2xl bg-gray-900/80 sm:h-40 sm:w-48">
+                                                        ${ex.mediaUrl ? `<img src="${ex.mediaUrl}" alt="${ex.name}" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">` : `<div class="flex h-full w-full items-center justify-center text-gray-500"><i data-lucide="image-off" class="h-10 w-10"></i></div>`}
+                                                        <span class="absolute left-3 top-3 rounded-full bg-black/70 px-3 py-1 text-xs font-semibold text-white">${subGroup}</span>
+                                                    </button>
+                                                    <div class="flex flex-1 flex-col gap-4">
+                                                        <div>
+                                                            <p class="text-base font-semibold text-white">${ex.name}</p>
+                                                            <div class="mt-1 flex flex-wrap items-center gap-3 text-xs text-gray-400">
+                                                                ${isAdmin ? `<button data-action="admin-edit-exercise" data-group="${group}" data-subgroup="${subGroup}" data-exercise-index="${exIndex}" class="inline-flex items-center gap-1 text-emerald-300/80 transition hover:text-emerald-100"><i data-lucide="pencil" class="h-3.5 w-3.5"></i>Editar ejercicio</button>` : ''}
+                                                                ${isAdmin ? `<button data-action="admin-edit-media" data-group="${group}" data-subgroup="${subGroup}" data-exercise-index="${exIndex}" class="inline-flex items-center gap-1 text-amber-300/80 transition hover:text-amber-200"><i data-lucide="camera" class="h-3.5 w-3.5"></i>Editar media</button>` : ''}
+                                                                ${isAdmin ? `<button data-action="admin-confirm-delete-exercise" data-group="${group}" data-subgroup="${subGroup}" data-exercise-index="${exIndex}" class="inline-flex items-center gap-1 text-rose-300/80 transition hover:text-rose-200"><i data-lucide="trash-2" class="h-3.5 w-3.5"></i>Eliminar</button>` : ''}
+                                                                <button data-action="show-exercise-info" data-exercise-name="${ex.name}" class="inline-flex items-center gap-1 text-sky-300/80 transition hover:text-sky-200"><i data-lucide="info" class="h-3.5 w-3.5"></i>Instrucciones</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <button data-action="routine-creator-select-exercise" data-exercise-name="${ex.name}" class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 via-teal-400 to-cyan-400 text-gray-900 shadow-lg transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                                        <i data-lucide="plus" class="h-6 w-6"></i>
+                                                    </button>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `).join('')}
+                    </div>
+                </section>`;
+                return `
+                    <div class="min-h-full flex flex-col bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950">
+                        <header class="sticky top-0 z-30 border-b border-white/5 bg-gray-950/80 backdrop-blur">
+                            <div class="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+                                <button data-action="routine-close-view" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white">
+                                    <i data-lucide="arrow-left"></i>
+                                </button>
+                                <div class="min-w-0 flex-1 text-center">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-300/80">Paso 2 · Planifica tu rutina</p>
+                                    <h3 class="mt-1 truncate text-lg font-semibold text-white">${this._tempRoutine.name}</h3>
+                                    ${assignmentInfo}
+                                </div>
+                                <button data-action="routine-creator-save" class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-emerald-400/40 bg-white/5 text-emerald-200 transition hover:border-emerald-300 hover:bg-emerald-400/10 hover:text-emerald-100">
+                                    <i data-lucide="save"></i>
+                                </button>
+                            </div>
+                            <div class="bg-gray-950/60 border-t border-white/5">
+                                <div class="mx-auto w-full max-w-6xl px-4 sm:px-6">
+                                    <div id="routine-day-tabs" class="horizontal-scroll-container flex items-center gap-2 overflow-x-auto py-3"></div>
+                                </div>
+                            </div>
+                        </header>
+                        <div class="flex-1 overflow-y-auto pb-28 sm:pb-12">
+                            <div class="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 sm:py-10">
+
+                                <section class="overflow-hidden rounded-3xl border border-white/5 bg-white/5">
+                                    <div class="flex flex-col gap-6 p-5 sm:p-8">
+                                        <div class="flex flex-col gap-2">
+                                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Planificación del día</p>
+                                        </div>
+                                        <div id="exercise-list-container" class="space-y-4"></div>
+                                    </div>
+                                </section>
+                                <div id="exercise-mini-window" data-collapsed="false" class="pointer-events-none fixed inset-x-0 bottom-0 z-[45] mx-auto hidden w-full max-w-3xl px-3 pb-[calc(env(safe-area-inset-bottom,0px)+0.25rem)] sm:px-4">
+                                    <div class="pointer-events-auto overflow-hidden rounded-t-2xl rounded-b-none border border-white/10 bg-gray-950/95 shadow-[0_16px_40px_-28px_rgba(16,185,129,0.6)] backdrop-blur sm:rounded-t-3xl">
+                                        <div class="flex flex-col">
+                                            <div class="flex items-center justify-between gap-3 px-3 py-2 sm:px-4 sm:py-2.5">
+                                                <div class="space-y-0.5">
+                                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Resumen rápido</p>
+                                                    <p data-mini-count class="text-xs font-semibold text-white">Sin ejercicios añadidos</p>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <button data-action="routine-toggle-mini-window" class="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-semibold text-gray-200 transition hover:border-emerald-300/50 hover:text-white sm:px-3 sm:py-1.5 sm:text-xs">
+                                                        <span data-mini-toggle-label>Plegar</span>
+                                                        <i data-lucide="chevron-down" data-mini-toggle-icon class="h-4 w-4 transition-transform"></i>
+                                                    </button>
+                                                    <button data-action="routine-open-timeline" class="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-500 px-3 py-1 text-[10px] font-semibold text-gray-900 shadow-sm shadow-emerald-500/20 transition hover:border-emerald-300 hover:bg-emerald-400 sm:px-4 sm:py-1.5 sm:text-xs">
+                                                        <i data-lucide="route" class="h-4 w-4"></i>
+                                                        <span>Ver rutina</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="border-t border-white/5 bg-gray-950/85 px-3 pb-2 pt-2 sm:px-4 sm:pt-3" data-mini-content>
+                                                <div data-thumbnail-strip id="exercise-thumbnail-strip" class="thumbnail-strip flex snap-x gap-2.5 overflow-x-auto pb-1.5">
+                                                    <p class="text-[11px] font-medium text-gray-400">Los ejercicios que añadas aparecerán aquí.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="routine-timeline-overlay" class="fixed inset-0 z-50 hidden flex-col justify-end" aria-hidden="true">
+                                    <div data-action="routine-close-timeline" class="sheet-backdrop absolute inset-0 bg-gray-950/60 backdrop-blur-sm"></div>
+                                    <section class="mobile-sheet relative z-10 mt-auto w-full rounded-t-3xl border border-white/10 bg-gray-900/95 shadow-[0_-25px_60px_-35px_rgba(16,185,129,0.65)]">
+                                        <div class="mx-auto h-1 w-12 rounded-full bg-white/10 pt-3"></div>
+                                        <header class="flex items-center justify-between px-6 pt-2 pb-4">
+                                            <div>
+                                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Vista de línea de tiempo</p>
+                                                <h3 class="text-xl font-bold text-white">Rutina planificada</h3>
+                                            </div>
+                                            <button data-action="routine-close-timeline" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400 transition hover:border-emerald-400/60 hover:bg-emerald-500/10 hover:text-white">
+                                                <i data-lucide="x"></i>
+                                            </button>
+                                        </header>
+                                        <div data-role="timeline-content" class="flex max-h-[70vh] flex-col gap-6 overflow-y-auto px-6 pb-6">
+                                            <ul id="routine-timeline-items" class="flex flex-col gap-5"></ul>
+                                            <button data-action="routine-timeline-save" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/20 transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300">
+                                                <i data-lucide="save"></i>
+                                                <span>Guardar rutina</span>
+                                            </button>
+                                        </div>
+                                        <div data-role="timeline-confirmation" class="hidden px-6 pb-8">
+                                            <div class="rounded-3xl border border-emerald-400/30 bg-emerald-500/10 p-6 text-center shadow-inner shadow-emerald-500/20">
+                                                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500 text-gray-900">
+                                                    <i data-lucide="check"></i>
+                                                </div>
+                                                <h4 class="mt-4 text-lg font-semibold text-white">Rutina guardada con éxito</h4>
+                                                <p class="mt-2 text-sm text-emerald-100/80">Decide tu siguiente paso: vincula la rutina con un asesorado o comienza a ejecutarla.</p>
+                                                <div class="mt-6 flex flex-col gap-3">
+                                                    <button data-action="routine-timeline-confirm-link" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-400/40 bg-white/5 px-5 py-3 text-sm font-semibold text-emerald-200 transition hover:border-emerald-300 hover:text-emerald-100">
+                                                        <i data-lucide="users"></i>
+                                                        <span>Vincular con asesorado</span>
+                                                    </button>
+                                                    <button data-action="routine-timeline-confirm-start" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-400">
+                                                        <i data-lucide="zap"></i>
+                                                        <span>Comenzar</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                                <div id="exercise-edit-modal" class="fixed inset-0 z-50 hidden flex-col justify-end" aria-hidden="true">
+                                    <div data-action="routine-close-edit-modal" class="sheet-backdrop absolute inset-0 bg-gray-950/60 backdrop-blur-sm"></div>
+                                    <section class="mobile-sheet relative z-10 mt-auto w-full px-0">
+                                        <div class="flex max-h-[min(92vh,640px)] w-full flex-col overflow-hidden rounded-t-3xl border border-white/10 bg-gray-900/95 shadow-[0_-25px_60px_-35px_rgba(16,185,129,0.65)]">
+                                            <div class="px-6 pt-4">
+                                                <div class="mx-auto mb-4 h-1 w-12 rounded-full bg-white/10"></div>
+                                                <div class="flex items-center justify-between gap-4">
+                                                    <div>
+                                                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Editar ejercicio</p>
+                                                        <h3 id="exercise-modal-name" class="text-lg font-bold text-white"></h3>
+                                                    </div>
+                                                    <button data-action="routine-close-edit-modal" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-400 transition hover:border-emerald-400/60 hover:bg-emerald-500/10 hover:text-white">
+                                                        <i data-lucide="x"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="flex-1 overflow-y-auto px-6 pb-6">
+                                                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                                    <label class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-gray-300">
+                                                        <span class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Series</span>
+                                                        <input id="modal-sets-input" type="number" min="1" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-base font-semibold text-white focus:border-emerald-400 focus:outline-none" />
+                                                    </label>
+                                                    <label class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-gray-300">
+                                                        <span class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Repeticiones</span>
+                                                        <input id="modal-reps-input" type="text" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-base font-semibold text-white focus:border-emerald-400 focus:outline-none" />
+                                                    </label>
+                                                    <label class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-gray-300">
+                                                        <span class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Peso objetivo</span>
+                                                        <input id="modal-weight-input" type="text" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-base font-semibold text-white focus:border-emerald-400 focus:outline-none" placeholder="Ej. 20 kg" />
+                                                    </label>
+                                                    <label class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm text-gray-300">
+                                                        <span class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Descanso</span>
+                                                        <input id="modal-rest-input" type="text" class="w-full rounded-xl border border-white/10 bg-gray-900/70 px-3 py-2 text-base font-semibold text-white focus:border-emerald-400 focus:outline-none" placeholder="Ej. 60 s" />
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="px-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]">
+                                                <div class="flex flex-col gap-3 sm:flex-row">
+                                                    <button data-action="routine-close-edit-modal" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-gray-300 transition hover:border-emerald-400/40 hover:text-white">
+                                                        <span>Cancelar</span>
+                                                    </button>
+                                                    <button data-action="routine-save-exercise-modal" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-400">
+                                                        <i data-lucide="check-circle"></i>
+                                                        <span>Guardar cambios</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="exercise-drawer" class="fixed inset-0 z-40 flex flex-col justify-end bg-gray-950/80 backdrop-blur-lg">
+                        <div class="mx-auto flex h-full w-full max-w-6xl flex-col overflow-hidden border border-white/10 bg-gray-950/95 pt-[env(safe-area-inset-top,0px)] shadow-[0_-35px_80px_-40px_rgba(16,185,129,0.65)] max-h-screen">
+                            <header class="flex items-center gap-3 border-b border-white/5 bg-gray-950/90 px-4 py-4 sm:px-6">
+                                <div class="flex flex-1 flex-col gap-1">
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200/80">Añadir ejercicios</p>
+                                    <div class="relative">
+                                        <i data-lucide="search" class="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-500"></i>
+                                        <input id="exercise-search-input" type="search" placeholder="Busca por nombre, grupo o patrón de movimiento" class="w-full rounded-2xl border border-white/10 bg-gray-900/80 py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-gray-500 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                    </div>
+                                </div>
+                                <button data-action="routine-creator-close-drawer" class="rounded-full bg-white/5 p-2 text-gray-400 transition hover:text-white">
+                                    <i data-lucide="x"></i>
+                                </button>
+                            </header>
+                            <div id="exercise-drawer-content" class="flex flex-1 flex-col overflow-hidden md:flex-row" data-current-group="${activeGroup}">
+                                ${groupsNav}
+                                ${exercisesPanel}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        },
+        // ▼▼▼ CÓDIGO A INSERTAR ▼▼▼
+        routine_handleCoverImageSelect(event) {
+            if (!this.canManageRoutineCover()) {
+                this.showToast('Esta portada solo puede configurarse desde la administración.', 'error');
+                if (event?.target) event.target.value = '';
+                return;
+            }
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const preview = document.getElementById('routine-cover-preview');
+            const placeholder = document.getElementById('cover-image-placeholder');
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            };
+
+            reader.readAsDataURL(file);
+            this.routine_uploadCoverImage(file);
+        },
+
+        async routine_uploadCoverImage(file) {
+            if (!this.canManageRoutineCover()) {
+                this.showToast('Esta portada solo puede configurarse desde la administración.', 'error');
+                return;
+            }
+            if (!file) return;
+
+            const progressContainer = document.getElementById('cover-upload-progress-container');
+            const progressBar = document.getElementById('cover-upload-progress-bar');
+            const progressText = document.getElementById('cover-upload-progress-text');
+
+            progressContainer.style.display = 'flex';
+
+            const filePath = `routine_covers/${this._tempRoutine.id}-${file.name}`;
+            const storageRef = ref(this.storage, filePath);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progressBar.style.width = progress + '%';
+                    progressText.textContent = `Subiendo... ${Math.round(progress)}%`;
+                },
+                (error) => {
+                    console.error("Upload failed:", error);
+                    this.showToast('Error al subir la imagen.', 'error');
+                    progressText.textContent = 'Error en la subida';
+                },
+                async () => {
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    this._tempRoutine.coverImageUrl = downloadURL;
+                    progressText.textContent = '¡Subido con éxito!';
+                    document.getElementById('routine-cover-image-input').disabled = true;
+                    setTimeout(() => { progressContainer.style.display = 'none'; }, 2000);
+                }
+            );
+        },
+        // ▲▲▲ FIN DEL CÓDIGO A INSERTAR ▲▲▲
+
+        routine_handleCreatorNext() {
+            const name = document.getElementById('routine-name-input').value.trim();
+            const desc = document.getElementById('routine-desc-input').value.trim();
+            if (!name) { this.showToast('El nombre es obligatorio', 'error'); return; }
+            this._tempRoutine.name = name;
+            this._tempRoutine.description = desc;
+            this.routine_enterCreator(2);
+        },
+        routine_showAddExerciseDrawer() {
+            const drawer = document.getElementById('exercise-drawer');
+            if (!drawer) return;
+
+            drawer.classList.add('is-active');
+
+            const panel = document.getElementById('exercise-list-panel');
+            if (panel) {
+                panel.dataset.mobileVisible = window.innerWidth >= 768 ? 'true' : 'false';
+            }
+
+            this.routine_creator_handleDrawerResize();
+
+            const searchInput = document.getElementById('exercise-search-input');
+            if (searchInput) searchInput.focus();
+        },
+        routine_closeAddExerciseDrawer() {
+            const drawer = document.getElementById('exercise-drawer');
+            if (drawer) drawer.classList.remove('is-active');
+
+            const panel = document.getElementById('exercise-list-panel');
+            if (panel && window.innerWidth < 768) {
+                panel.dataset.mobileVisible = 'false';
+                this.routine_creator_handleDrawerResize();
+            }
+        },
+        routine_creator_switchGroup(targetGroup) {
+            const navButtons = document.querySelectorAll('#exercise-group-nav [data-action="routine-creator-switch-group"]');
+            navButtons.forEach(btn => {
+                const isActive = btn.dataset.groupTarget === targetGroup;
+                btn.dataset.active = isActive;
+                if (isActive) {
+                    btn.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+                }
+            });
+
+            document.querySelectorAll('#exercise-list-panel [data-group-content]').forEach(panel => {
+                panel.classList.toggle('hidden', panel.dataset.groupContent !== targetGroup);
+            });
+
+            this._tempRoutine.activeExerciseGroup = targetGroup;
+
+            const drawerContent = document.getElementById('exercise-drawer-content');
+            if (drawerContent) {
+                drawerContent.dataset.currentGroup = targetGroup;
+            }
+
+            const panel = document.getElementById('exercise-list-panel');
+            if (panel) {
+                panel.dataset.mobileVisible = 'true';
+                if (window.innerWidth < 768) {
+                    panel.classList.remove('hidden');
+                    panel.classList.add('flex');
+                    panel.scrollTop = 0;
+                }
+            }
+
+            const groupTitle = document.getElementById('active-group-title');
+            if (groupTitle) groupTitle.textContent = targetGroup;
+
+            this.routine_creator_handleDrawerResize();
+        },
+        routine_creator_showGroupList() {
+            const panel = document.getElementById('exercise-list-panel');
+            if (panel) {
+                if (window.innerWidth < 768) {
+                    panel.dataset.mobileVisible = 'false';
+                    panel.scrollTop = 0;
+                } else {
+                    panel.dataset.mobileVisible = 'true';
+                }
+            }
+
+            this.routine_creator_handleDrawerResize();
+        },
+        routine_creator_handleDrawerResize() {
+            const nav = document.getElementById('exercise-group-nav');
+            const panel = document.getElementById('exercise-list-panel');
+            if (!nav || !panel) return;
+
+            if (window.innerWidth >= 768) {
+                nav.classList.remove('hidden');
+                panel.classList.remove('hidden');
+                panel.classList.remove('flex');
+                panel.dataset.mobileVisible = 'true';
+                return;
+            }
+
+            const shouldShowExercises = panel.dataset.mobileVisible === 'true';
+            if (shouldShowExercises) {
+                nav.classList.add('hidden');
+                panel.classList.remove('hidden');
+                panel.classList.add('flex');
+            } else {
+                nav.classList.remove('hidden');
+                panel.classList.add('hidden');
+                panel.classList.remove('flex');
+            }
+        },
+
+        admin_collectExerciseFormElements(form) {
+            if (!form) return {};
+            return {
+                form,
+                nameInput: form.querySelector('[data-field="exercise-name"]'),
+                groupSelect: form.querySelector('[data-field="exercise-group"]'),
+                subgroupSelect: form.querySelector('[data-field="exercise-subgroup"]'),
+                newGroupField: form.querySelector('[data-new-group-field]'),
+                newSubgroupField: form.querySelector('[data-new-subgroup-field]'),
+                newGroupInput: form.querySelector('[data-field="new-group-name"]'),
+                newSubgroupInput: form.querySelector('[data-field="new-subgroup-name"]'),
+                imageInput: form.querySelector('[data-field="exercise-image"]'),
+                previewImage: form.querySelector('[data-field="image-preview"]'),
+                placeholder: form.querySelector('[data-field="image-placeholder"]'),
+                progressContainer: form.querySelector('[data-field="upload-progress-container"]'),
+                progressBar: form.querySelector('[data-field="upload-progress-bar"]'),
+                progressText: form.querySelector('[data-field="upload-progress-text"]'),
+                submitButton: form.querySelector('[data-role="submit-new-exercise"]'),
+                labelElement: form.querySelector('[data-role="submit-new-exercise"] [data-label]')
+            };
+        },
+        admin_populateExerciseFormOptions(form, elements, targetGroup = '', targetSubgroup = '') {
+            if (!form || !elements) return;
+            const { groupSelect, subgroupSelect, newGroupField, newSubgroupField, newGroupInput, newSubgroupInput } = elements;
+            const groups = Object.keys(this.data.exerciseLibrary || {});
+            let selectedGroup = targetGroup || form.dataset.defaultGroup || this._tempRoutine?.activeExerciseGroup || '';
+            if (!selectedGroup && groups.length === 0) {
+                selectedGroup = '__new__';
+            }
+
+            if (groupSelect) {
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.disabled = true;
+                placeholder.textContent = 'Selecciona un grupo muscular';
+                groupSelect.innerHTML = '';
+                groupSelect.appendChild(placeholder);
+
+                groups.forEach(group => {
+                    const option = document.createElement('option');
+                    option.value = group;
+                    option.textContent = group;
+                    if (group === selectedGroup) {
+                        option.selected = true;
+                    }
+                    groupSelect.appendChild(option);
+                });
+
+                const newOption = document.createElement('option');
+                newOption.value = '__new__';
+                newOption.textContent = 'Crear nuevo grupo muscular';
+                if (selectedGroup === '__new__') {
+                    newOption.selected = true;
+                }
+                groupSelect.appendChild(newOption);
+
+                if (!groupSelect.value) {
+                    if (selectedGroup && (selectedGroup === '__new__' || groups.includes(selectedGroup))) {
+                        groupSelect.value = selectedGroup;
+                    } else if (groups.length > 0) {
+                        groupSelect.value = groups[0];
+                    }
+                }
+
+                if (!groupSelect.value && selectedGroup === '__new__') {
+                    groupSelect.value = '__new__';
+                }
+
+                placeholder.selected = !groupSelect.value;
+                selectedGroup = groupSelect.value;
+            }
+
+            if (newGroupField) {
+                const showNewGroup = selectedGroup === '__new__';
+                newGroupField.classList.toggle('hidden', !showNewGroup);
+                if (!showNewGroup && newGroupInput) {
+                    newGroupInput.value = '';
+                }
+            }
+
+            if (subgroupSelect) {
+                const subgroups = selectedGroup && selectedGroup !== '__new__'
+                    ? Object.keys(this.data.exerciseLibrary?.[selectedGroup] || {})
+                    : [];
+
+                const placeholder = document.createElement('option');
+                placeholder.value = '';
+                placeholder.disabled = true;
+                placeholder.textContent = 'Selecciona un subgrupo';
+
+                subgroupSelect.innerHTML = '';
+                subgroupSelect.appendChild(placeholder);
+
+                subgroups.forEach(subgroup => {
+                    const option = document.createElement('option');
+                    option.value = subgroup;
+                    option.textContent = subgroup;
+                    if (subgroup === targetSubgroup) {
+                        option.selected = true;
+                    }
+                    subgroupSelect.appendChild(option);
+                });
+
+                const newOption = document.createElement('option');
+                newOption.value = '__new__';
+                newOption.textContent = 'Crear nuevo subgrupo';
+                subgroupSelect.appendChild(newOption);
+
+                let finalSubgroup = targetSubgroup;
+                if (selectedGroup === '__new__') {
+                    finalSubgroup = '__new__';
+                } else if (finalSubgroup && finalSubgroup !== '__new__' && !subgroups.includes(finalSubgroup)) {
+                    finalSubgroup = subgroups[0] || '__new__';
+                } else if (!finalSubgroup) {
+                    finalSubgroup = subgroups[0] || '__new__';
+                }
+
+                if (finalSubgroup) {
+                    subgroupSelect.value = finalSubgroup;
+                }
+
+                if (!subgroupSelect.value) {
+                    placeholder.selected = true;
+                }
+
+                if (newSubgroupField) {
+                    const showNewSubgroup = subgroupSelect.value === '__new__';
+                    newSubgroupField.classList.toggle('hidden', !showNewSubgroup);
+                    if (!showNewSubgroup && newSubgroupInput) {
+                        newSubgroupInput.value = '';
+                    }
+                }
+            }
+        },
+        admin_resetExerciseCreationForm(form) {
+            if (!form) return;
+            const elements = this.admin_collectExerciseFormElements(form);
+            if (elements.nameInput) {
+                elements.nameInput.value = '';
+            }
+            if (elements.newGroupInput) {
+                elements.newGroupInput.value = '';
+            }
+            if (elements.newSubgroupInput) {
+                elements.newSubgroupInput.value = '';
+            }
+            if (elements.imageInput) {
+                elements.imageInput.value = '';
+            }
+            if (elements.previewImage) {
+                elements.previewImage.classList.add('hidden');
+            }
+            if (elements.placeholder) {
+                elements.placeholder.classList.remove('hidden');
+            }
+            if (elements.progressContainer) {
+                elements.progressContainer.classList.add('hidden');
+            }
+            if (elements.progressBar) {
+                elements.progressBar.style.width = '0%';
+            }
+            if (elements.progressText) {
+                elements.progressText.textContent = '';
+            }
+            if (elements.submitButton) {
+                elements.submitButton.disabled = false;
+                elements.submitButton.classList.remove('opacity-60', 'cursor-not-allowed');
+                if (elements.labelElement) {
+                    const defaultLabel = elements.submitButton.dataset.defaultLabel || 'Guardar ejercicio';
+                    elements.labelElement.textContent = defaultLabel;
+                }
+            }
+
+            const defaultGroup = form.dataset.defaultGroup || this._tempRoutine?.activeExerciseGroup || '';
+            const defaultSubgroup = form.dataset.defaultSubgroup || '';
+            this.admin_populateExerciseFormOptions(form, elements, defaultGroup, defaultSubgroup);
+        },
+        admin_setupExerciseCreationForm(root) {
+            if (!this.isAsesor()) return;
+
+            let forms = [];
+            if (root instanceof HTMLFormElement && root.matches('[data-role="create-exercise-form"]')) {
+                forms = [root];
+            } else {
+                const scope = root || document;
+                forms = Array.from(scope.querySelectorAll('[data-role="create-exercise-form"]'));
+            }
+
+            forms.forEach(form => {
+                if (!form) return;
+                const elements = this.admin_collectExerciseFormElements(form);
+                if (elements.submitButton && !elements.submitButton.dataset.defaultLabel) {
+                    elements.submitButton.dataset.defaultLabel = elements.labelElement?.textContent || 'Guardar ejercicio';
+                }
+
+                if (form.dataset.exerciseFormBound !== 'true') {
+                    form.dataset.exerciseFormBound = 'true';
+
+                    if (elements.groupSelect) {
+                        elements.groupSelect.addEventListener('change', () => {
+                            const nextGroup = elements.groupSelect?.value || '';
+                            const desiredSubgroup = nextGroup === '__new__' ? '__new__' : elements.subgroupSelect?.value || '';
+                            this.admin_populateExerciseFormOptions(form, elements, nextGroup, desiredSubgroup);
+                        });
+                    }
+
+                    if (elements.subgroupSelect) {
+                        elements.subgroupSelect.addEventListener('change', () => {
+                            if (!elements.newSubgroupField || !elements.newSubgroupInput) return;
+                            const show = elements.subgroupSelect.value === '__new__';
+                            elements.newSubgroupField.classList.toggle('hidden', !show);
+                            if (!show) {
+                                elements.newSubgroupInput.value = '';
+                            }
+                        });
+                    }
+
+                    if (elements.imageInput) {
+                        elements.imageInput.addEventListener('change', () => {
+                            const file = elements.imageInput?.files?.[0];
+                            if (!file) {
+                                elements.previewImage?.classList.add('hidden');
+                                elements.placeholder?.classList.remove('hidden');
+                                return;
+                            }
+
+                            const reader = new FileReader();
+                            reader.onload = (e) => {
+                                if (elements.previewImage) {
+                                    elements.previewImage.src = e.target?.result || '';
+                                    elements.previewImage.classList.remove('hidden');
+                                }
+                                elements.placeholder?.classList.add('hidden');
+                            };
+                            reader.readAsDataURL(file);
+                        });
+                    }
+
+                    form.addEventListener('submit', (event) => this.admin_handleExerciseCreation(event));
+                }
+
+                this.admin_resetExerciseCreationForm(form);
+            });
+        },
+        async admin_handleExerciseCreation(event) {
+            event.preventDefault();
+            if (!this.isAsesor()) {
+                this.showToast('Acción no permitida.', 'error');
+                return;
+            }
+
+            const form = event.currentTarget;
+            const context = form?.dataset?.context || 'routine';
+            const elements = this.admin_collectExerciseFormElements(form);
+            const {
+                nameInput,
+                groupSelect,
+                subgroupSelect,
+                newGroupInput,
+                newSubgroupInput,
+                imageInput,
+                progressContainer,
+                progressBar,
+                progressText,
+                submitButton,
+                labelElement
+            } = elements;
+
+            const originalLabel = submitButton?.dataset.defaultLabel || labelElement?.textContent || 'Guardar ejercicio';
+
+            const exerciseName = nameInput?.value.trim();
+            if (!exerciseName) {
+                this.showToast('El nombre del ejercicio es obligatorio.', 'error');
+                nameInput?.focus();
+                return;
+            }
+
+            const groupValue = groupSelect?.value || '';
+            let groupName = groupValue;
+            if (!groupValue) {
+                this.showToast('Selecciona un grupo muscular.', 'error');
+                groupSelect?.focus();
+                return;
+            }
+            if (groupValue === '__new__') {
+                groupName = newGroupInput?.value.trim();
+                if (!groupName) {
+                    this.showToast('Escribe el nombre del nuevo grupo muscular.', 'error');
+                    newGroupInput?.focus();
+                    return;
+                }
+            }
+
+            let subgroupName = subgroupSelect?.value || '';
+            const needsNewSubgroup = groupValue === '__new__' || subgroupSelect?.value === '__new__';
+            if (needsNewSubgroup) {
+                subgroupName = newSubgroupInput?.value.trim();
+                if (!subgroupName) {
+                    this.showToast('Escribe el nombre del nuevo subgrupo.', 'error');
+                    newSubgroupInput?.focus();
+                    return;
+                }
+            } else if (!subgroupName) {
+                this.showToast('Selecciona un subgrupo.', 'error');
+                subgroupSelect?.focus();
+                return;
+            }
+
+            const file = imageInput?.files?.[0];
+            if (!file) {
+                this.showToast('Sube una imagen del ejercicio.', 'error');
+                imageInput?.focus();
+                return;
+            }
+
+            const existingList = this.data.exerciseLibrary[groupName]?.[subgroupName] || [];
+            if (existingList.some(ex => ex.name.toLowerCase() === exerciseName.toLowerCase())) {
+                this.showToast('Ya existe un ejercicio con ese nombre en este subgrupo.', 'error');
+                nameInput?.focus();
+                return;
+            }
+
+            const toggleButtonState = (loading) => {
+                if (!submitButton) return;
+                submitButton.disabled = loading;
+                submitButton.classList.toggle('opacity-60', loading);
+                submitButton.classList.toggle('cursor-not-allowed', loading);
+                if (labelElement) {
+                    labelElement.textContent = loading ? 'Guardando...' : originalLabel;
+                }
+            };
+
+            const showProgress = () => {
+                progressContainer?.classList.remove('hidden');
+                if (progressBar) progressBar.style.width = '0%';
+                if (progressText) progressText.textContent = 'Preparando subida...';
+            };
+
+            const hideProgress = () => {
+                progressContainer?.classList.add('hidden');
+                if (progressBar) progressBar.style.width = '0%';
+                if (progressText) progressText.textContent = '';
+            };
+
+            toggleButtonState(true);
+            showProgress();
+
+            const slugify = (value) => value
+                .toLowerCase()
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '') || 'general';
+
+            const storagePath = `exercise_media/${slugify(groupName)}/${slugify(subgroupName)}-${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
+            const storageRef = ref(this.storage, storagePath);
+
+            try {
+                const downloadURL = await new Promise((resolve, reject) => {
+                    const uploadTask = uploadBytesResumable(storageRef, file);
+                    uploadTask.on('state_changed',
+                        (snapshot) => {
+                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            if (progressBar) progressBar.style.width = `${progress}%`;
+                            if (progressText) progressText.textContent = `Subiendo... ${Math.round(progress)}%`;
+                        },
+                        (error) => reject(error),
+                        async () => {
+                            const url = await getDownloadURL(uploadTask.snapshot.ref);
+                            resolve(url);
+                        }
+                    );
+                });
+
+                if (!this.data.exerciseLibrary[groupName]) {
+                    this.data.exerciseLibrary[groupName] = {};
+                }
+                if (!Array.isArray(this.data.exerciseLibrary[groupName][subgroupName])) {
+                    this.data.exerciseLibrary[groupName][subgroupName] = [];
+                }
+
+                this.data.exerciseLibrary[groupName][subgroupName].push({ name: exerciseName, mediaUrl: downloadURL });
+                this.data.exerciseLibrary[groupName][subgroupName].sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
+
+                const docRef = doc(this.db, 'app_data', 'exercise_library');
+                await setDoc(docRef, this.data.exerciseLibrary);
+
+                form.dataset.defaultGroup = groupName;
+                form.dataset.defaultSubgroup = subgroupName;
+
+                this.showToast('Ejercicio creado correctamente.', 'success');
+
+                if (context === 'routine') {
+                    this._tempRoutine.activeExerciseGroup = groupName;
+                    this.routine_enterCreator(2);
+                } else {
+                    this.admin_resetExerciseCreationForm(form);
+                    this.admin_closeCreateExerciseModal(true);
+                }
+            } catch (error) {
+                console.error('Error creating exercise:', error);
+                this.showToast('No se pudo crear el ejercicio.', 'error');
+            } finally {
+                toggleButtonState(false);
+                hideProgress();
+            }
+        },
+        admin_openCreateExerciseModal() {
+            if (!this.isAsesor()) {
+                this.showToast('Acción no permitida.', 'error');
+                return;
+            }
+            const modal = document.getElementById('create-exercise-modal');
+            if (!modal) return;
+            const form = modal.querySelector('[data-role="create-exercise-form"]');
+            if (form) {
+                form.dataset.defaultGroup = this._tempRoutine?.activeExerciseGroup || form.dataset.defaultGroup || '';
+                form.dataset.defaultSubgroup = form.dataset.defaultSubgroup || '';
+                this.admin_setupExerciseCreationForm(form);
+            }
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => modal.setAttribute('data-open', 'true'));
+            lucide.createIcons();
+        },
+        admin_closeCreateExerciseModal(keepState = false) {
+            const modal = document.getElementById('create-exercise-modal');
+            if (!modal) return;
+            modal.removeAttribute('data-open');
+            const sheet = modal.querySelector('.mobile-sheet');
+            const handleClose = () => {
+                modal.classList.add('hidden');
+                if (!keepState) {
+                    const form = modal.querySelector('[data-role="create-exercise-form"]');
+                    if (form) {
+                        form.dataset.defaultGroup = '';
+                        form.dataset.defaultSubgroup = '';
+                        this.admin_resetExerciseCreationForm(form);
+                    }
+                }
+            };
+            if (sheet) {
+                sheet.addEventListener('transitionend', () => handleClose(), { once: true });
+            } else {
+                handleClose();
+            }
+        },
+        admin_showEditExerciseModal(group, subGroup, exerciseIndex) {
+            if (!this.isAsesor()) return;
+
+            const index = parseInt(exerciseIndex, 10);
+            if (Number.isNaN(index)) return;
+
+            const exercise = this.data.exerciseLibrary?.[group]?.[subGroup]?.[index];
+            if (!exercise) {
+                this.showToast('No se encontró el ejercicio seleccionado.', 'error');
+                return;
+            }
+
+            const groupOptions = Object.keys(this.data.exerciseLibrary || {});
+            if (groupOptions.length === 0) {
+                this.showToast('No hay grupos disponibles para editar.', 'error');
+                return;
+            }
+
+            const initialSubgroups = Object.keys(this.data.exerciseLibrary[group] || {});
+            const safeName = (exercise.name || '').replace(/"/g, '&quot;');
+            const subgroupOptions = initialSubgroups.length
+                ? initialSubgroups.map(sub => `<option value="${sub}" ${sub === subGroup ? 'selected' : ''}>${sub}</option>`).join('')
+                : '<option value="" disabled selected>No hay subgrupos disponibles</option>';
+            const subgroupDisabled = initialSubgroups.length ? '' : 'disabled';
+
+            const body = `
+                <div class="space-y-5">
+                    <div class="flex flex-col gap-2">
+                        <label for="admin-edit-exercise-name" class="text-sm font-semibold text-gray-200">Nombre del ejercicio</label>
+                        <input id="admin-edit-exercise-name" type="text" value="${safeName}" class="rounded-2xl border border-white/10 bg-gray-950/60 px-4 py-3 text-white shadow-inner focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400" placeholder="Ej. Press inclinado con mancuernas">
+                    </div>
+                    <div class="grid gap-4 sm:grid-cols-2">
+                        <div class="flex flex-col gap-2">
+                            <label for="admin-edit-exercise-group" class="text-sm font-semibold text-gray-200">Grupo muscular</label>
+                            <select id="admin-edit-exercise-group" class="rounded-2xl border border-white/10 bg-gray-950/60 px-3 py-3 text-sm font-medium text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400">
+                                ${groupOptions.map(option => `<option value="${option}" ${option === group ? 'selected' : ''}>${option}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label for="admin-edit-exercise-subgroup" class="text-sm font-semibold text-gray-200">Subgrupo</label>
+                            <select id="admin-edit-exercise-subgroup" class="rounded-2xl border border-white/10 bg-gray-950/60 px-3 py-3 text-sm font-medium text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400" ${subgroupDisabled}>
+                                ${subgroupOptions}
+                            </select>
+                            <p id="admin-edit-exercise-subgroup-empty" class="text-xs text-amber-300/80 ${initialSubgroups.length ? 'hidden' : ''}">Crea un subgrupo dentro de este grupo para poder asignar el ejercicio.</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-400">Para actualizar la imagen utiliza la opción <strong>Editar media</strong>.</p>
+                </div>
+            `;
+
+            const footer = [
+                { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                { text: 'Guardar cambios', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'admin-save-exercise', group, subgroup: subGroup, 'exercise-index': exerciseIndex, id: 'admin-save-exercise-btn' }
+            ];
+
+            this.showModal(`Editar ejercicio: ${exercise.name}`, body, footer);
+            lucide.createIcons();
+
+            const groupSelect = document.getElementById('admin-edit-exercise-group');
+            const subgroupSelect = document.getElementById('admin-edit-exercise-subgroup');
+            const emptyHelper = document.getElementById('admin-edit-exercise-subgroup-empty');
+
+            const populateSubgroups = (targetGroup, desiredSubgroup) => {
+                if (!subgroupSelect) return;
+                const subgroups = Object.keys(this.data.exerciseLibrary[targetGroup] || {});
+                if (subgroups.length === 0) {
+                    subgroupSelect.innerHTML = '<option value="" disabled selected>No hay subgrupos disponibles</option>';
+                    subgroupSelect.disabled = true;
+                    emptyHelper?.classList.remove('hidden');
+                    return;
+                }
+
+                subgroupSelect.disabled = false;
+                emptyHelper?.classList.add('hidden');
+                subgroupSelect.innerHTML = subgroups.map(sub => `<option value="${sub}">${sub}</option>`).join('');
+                subgroupSelect.value = desiredSubgroup && subgroups.includes(desiredSubgroup) ? desiredSubgroup : subgroups[0];
+            };
+
+            if (groupSelect) {
+                groupSelect.addEventListener('change', (event) => {
+                    populateSubgroups(event.target.value, '');
+                });
+            }
+
+            populateSubgroups(group, subGroup);
+        },
+        async admin_saveExerciseChanges(group, subGroup, exerciseIndex) {
+            if (!this.isAsesor()) {
+                this.showToast('Acción no permitida.', 'error');
+                return;
+            }
+
+            const originalGroup = group;
+            const originalSubGroup = subGroup;
+            const index = parseInt(exerciseIndex, 10);
+            if (Number.isNaN(index)) return;
+
+            const nameInput = document.getElementById('admin-edit-exercise-name');
+            const groupSelect = document.getElementById('admin-edit-exercise-group');
+            const subgroupSelect = document.getElementById('admin-edit-exercise-subgroup');
+
+            if (!nameInput || !groupSelect || !subgroupSelect) {
+                this.showToast('Formulario incompleto.', 'error');
+                return;
+            }
+
+            const newName = nameInput.value.trim();
+            if (!newName) {
+                this.showToast('El nombre del ejercicio es obligatorio.', 'error');
+                nameInput.focus();
+                return;
+            }
+
+            const targetGroup = groupSelect.value;
+            if (!targetGroup) {
+                this.showToast('Selecciona un grupo muscular.', 'error');
+                groupSelect.focus();
+                return;
+            }
+
+            const targetSubgroup = subgroupSelect.value;
+            if (!targetSubgroup) {
+                this.showToast('Selecciona un subgrupo.', 'error');
+                subgroupSelect.focus();
+                return;
+            }
+
+            const normalizedName = newName.toLowerCase();
+            const targetList = this.data.exerciseLibrary[targetGroup]?.[targetSubgroup] || [];
+            const hasDuplicate = targetList.some((item, idx) => item.name.toLowerCase() === normalizedName && !(targetGroup === originalGroup && targetSubgroup === originalSubGroup && idx === index));
+            if (hasDuplicate) {
+                this.showToast('Ya existe un ejercicio con ese nombre en el subgrupo seleccionado.', 'error');
+                nameInput.focus();
+                return;
+            }
+
+            const footerButtons = document.getElementById('custom-modal-footer')?.querySelectorAll('button');
+            footerButtons?.forEach(btn => btn.disabled = true);
+
+            try {
+                const updatedLibrary = JSON.parse(JSON.stringify(this.data.exerciseLibrary));
+                const originalList = updatedLibrary?.[originalGroup]?.[originalSubGroup];
+                if (!originalList || !originalList[index]) {
+                    this.showToast('No se encontró el ejercicio seleccionado.', 'error');
+                    footerButtons?.forEach(btn => btn.disabled = false);
+                    return;
+                }
+
+                const [exerciseData] = originalList.splice(index, 1);
+                if (originalList.length === 0) {
+                    delete updatedLibrary[originalGroup][originalSubGroup];
+                }
+                if (Object.keys(updatedLibrary[originalGroup] || {}).length === 0) {
+                    delete updatedLibrary[originalGroup];
+                }
+
+                if (!updatedLibrary[targetGroup]) {
+                    updatedLibrary[targetGroup] = {};
+                }
+                if (!Array.isArray(updatedLibrary[targetGroup][targetSubgroup])) {
+                    updatedLibrary[targetGroup][targetSubgroup] = [];
+                }
+
+                updatedLibrary[targetGroup][targetSubgroup].push({ ...exerciseData, name: newName });
+                updatedLibrary[targetGroup][targetSubgroup].sort((a, b) => a.name.localeCompare(b.name, 'es', { sensitivity: 'base' }));
+
+                const docRef = doc(this.db, 'app_data', 'exercise_library');
+                await setDoc(docRef, updatedLibrary);
+
+                this.data.exerciseLibrary = updatedLibrary;
+                this._tempRoutine.activeExerciseGroup = targetGroup;
+
+                this.showToast('Ejercicio actualizado correctamente.', 'success');
+                this.hideModal();
+                this.routine_enterCreator(2);
+            } catch (error) {
+                console.error('Error updating exercise:', error);
+                this.showToast('No se pudo actualizar el ejercicio.', 'error');
+                footerButtons?.forEach(btn => btn.disabled = false);
+            }
+        },
+        admin_confirmDeleteExercise(group, subGroup, exerciseIndex) {
+            if (!this.isAsesor()) return;
+
+            const index = parseInt(exerciseIndex, 10);
+            if (Number.isNaN(index)) return;
+
+            const exercise = this.data.exerciseLibrary?.[group]?.[subGroup]?.[index];
+            if (!exercise) {
+                this.showToast('No se encontró el ejercicio seleccionado.', 'error');
+                return;
+            }
+
+            const body = `
+                <div class="space-y-4">
+                    <p class="text-sm text-gray-300">¿Seguro que deseas eliminar <strong class="text-white">${exercise.name}</strong>? Esta acción no se puede deshacer.</p>
+                    <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-4 text-xs text-gray-400">
+                        <p>Se eliminará del grupo <span class="font-semibold text-emerald-200">${group}</span> y del subgrupo <span class="font-semibold text-emerald-200">${subGroup}</span>.</p>
+                    </div>
+                </div>
+            `;
+
+            const footer = [
+                { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                { text: 'Eliminar', class: 'bg-rose-600 text-white hover:bg-rose-500', action: 'admin-delete-exercise', group, subgroup: subGroup, 'exercise-index': exerciseIndex, id: 'admin-delete-exercise-btn' }
+            ];
+
+            this.showModal(`Eliminar ejercicio`, body, footer);
+            lucide.createIcons();
+        },
+        async admin_deleteExercise(group, subGroup, exerciseIndex) {
+            if (!this.isAsesor()) {
+                this.showToast('Acción no permitida.', 'error');
+                return;
+            }
+
+            const index = parseInt(exerciseIndex, 10);
+            if (Number.isNaN(index)) return;
+
+            const footerButtons = document.getElementById('custom-modal-footer')?.querySelectorAll('button');
+            footerButtons?.forEach(btn => btn.disabled = true);
+
+            try {
+                const updatedLibrary = JSON.parse(JSON.stringify(this.data.exerciseLibrary));
+                const exercises = updatedLibrary?.[group]?.[subGroup];
+                if (!exercises || !exercises[index]) {
+                    this.showToast('No se encontró el ejercicio seleccionado.', 'error');
+                    footerButtons?.forEach(btn => btn.disabled = false);
+                    return;
+                }
+
+                exercises.splice(index, 1);
+                if (exercises.length === 0) {
+                    delete updatedLibrary[group][subGroup];
+                }
+                if (Object.keys(updatedLibrary[group] || {}).length === 0) {
+                    delete updatedLibrary[group];
+                }
+
+                const docRef = doc(this.db, 'app_data', 'exercise_library');
+                await setDoc(docRef, updatedLibrary);
+
+                this.data.exerciseLibrary = updatedLibrary;
+
+                if (!this.data.exerciseLibrary[this._tempRoutine.activeExerciseGroup]) {
+                    this._tempRoutine.activeExerciseGroup = Object.keys(this.data.exerciseLibrary)[0] || '';
+                }
+
+                this.showToast('Ejercicio eliminado correctamente.', 'success');
+                this.hideModal();
+                this.routine_enterCreator(2);
+            } catch (error) {
+                console.error('Error deleting exercise:', error);
+                this.showToast('No se pudo eliminar el ejercicio.', 'error');
+                footerButtons?.forEach(btn => btn.disabled = false);
+            }
+        },
+        routine_creator_showGroupImageModal(group) {
+            if (!this.isAsesor()) return;
+
+            const currentImage = this.data.exerciseGroupImages?.[group] || '';
+            const body = `
+                <div class="space-y-5">
+                    <div class="bg-gray-800/70 border border-gray-700 rounded-2xl p-4">
+                        <p class="text-sm text-gray-300 leading-relaxed">Selecciona una imagen representativa para el grupo muscular <strong>${group}</strong>. Recomendamos un formato horizontal para lograr una mejor cobertura de la tarjeta.</p>
+                        <label for="group-image-file-input" class="mt-4 block cursor-pointer">
+                            <div class="w-full aspect-video rounded-2xl border-2 border-dashed border-gray-600 text-gray-400 flex flex-col items-center justify-center gap-2 hover:border-emerald-400 hover:text-emerald-300 transition">
+                                <i data-lucide="upload-cloud" class="w-10 h-10"></i>
+                                <span class="font-semibold">Seleccionar imagen</span>
+                                <span class="text-xs text-gray-500">Formatos permitidos: JPG, PNG o WEBP</span>
+                            </div>
+                        </label>
+                        <input type="file" id="group-image-file-input" class="hidden" accept="image/*">
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-semibold text-gray-300 mb-2">Vista previa</h4>
+                        <div id="group-image-preview" class="aspect-video rounded-2xl overflow-hidden bg-gray-900/60 flex items-center justify-center">
+                            ${currentImage ? `<img src="${currentImage}" alt="Imagen actual de ${group}" class="w-full h-full object-cover">` : `<span class="text-xs text-gray-500">Aún no hay imagen asignada para este grupo.</span>`}
+                        </div>
+                    </div>
+                    <div id="group-image-upload-progress" class="hidden">
+                        <div class="w-full bg-gray-600 rounded-full h-2">
+                            <div id="group-image-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                        <p id="group-image-progress-text" class="text-xs text-gray-400 mt-2 text-center">Subiendo...</p>
+                    </div>
+                </div>
+            `;
+
+            const footer = [
+                { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                { text: 'Guardar Imagen', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'routine-creator-upload-group-image', 'group-target': group }
+            ];
+
+            this.showModal(`Imagen para ${group}`, body, footer);
+            lucide.createIcons();
+
+            const fileInput = document.getElementById('group-image-file-input');
+            const previewContainer = document.getElementById('group-image-preview');
+
+            if (fileInput) {
+                fileInput.addEventListener('change', () => {
+                    if (fileInput.files.length === 0) {
+                        previewContainer.innerHTML = currentImage
+                            ? `<img src="${currentImage}" alt="Imagen actual de ${group}" class="w-full h-full object-cover">`
+                            : `<span class="text-xs text-gray-500">Aún no hay imagen asignada para este grupo.</span>`;
+                        return;
+                    }
+
+                    const file = fileInput.files[0];
+                    if (!file.type.startsWith('image/')) {
+                        this.showToast('Selecciona un archivo de imagen válido.', 'error');
+                        fileInput.value = '';
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        previewContainer.innerHTML = `<img src="${event.target.result}" alt="Nueva imagen para ${group}" class="w-full h-full object-cover">`;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        },
+        async routine_creator_uploadGroupImage(group) {
+            if (!this.canEditGlobalMedia()) { this.showToast('Solo el administrador puede actualizar estas imágenes.', 'error'); return; }
+
+            const fileInput = document.getElementById('group-image-file-input');
+            if (!fileInput || fileInput.files.length === 0) {
+                this.showToast('Selecciona una imagen para este grupo.', 'error');
+                return;
+            }
+
+            const file = fileInput.files[0];
+            if (!file.type.startsWith('image/')) {
+                this.showToast('El archivo debe ser una imagen.', 'error');
+                return;
+            }
+
+            const progressContainer = document.getElementById('group-image-upload-progress');
+            const progressBar = document.getElementById('group-image-progress-bar');
+            const progressText = document.getElementById('group-image-progress-text');
+            const modalFooter = document.getElementById('custom-modal-footer');
+
+            if (progressContainer) progressContainer.classList.remove('hidden');
+            if (modalFooter) {
+                modalFooter.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            }
+
+            const safeGroupName = group.replace(/\s+/g, '_').toLowerCase();
+            const extension = file.name.split('.').pop();
+            const fileName = `group_covers/${safeGroupName}-${Date.now()}.${extension}`;
+            const storageRef = ref(this.storage, fileName);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    if (!progressBar || !progressText) return;
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progressBar.style.width = `${progress}%`;
+                    progressText.textContent = `Subiendo... ${Math.round(progress)}%`;
+                },
+                (error) => {
+                    console.error('Group image upload failed:', error);
+                    this.showToast('Error en la subida. Inténtalo nuevamente.', 'error');
+                    if (modalFooter) {
+                        modalFooter.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    }
+                },
+                async () => {
+                    try {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        if (!this.data.exerciseGroupImages) this.data.exerciseGroupImages = {};
+                        this.data.exerciseGroupImages[group] = downloadURL;
+                        this.preloadImage(downloadURL, { priority: 'high' });
+
+                        const docRef = doc(this.db, 'app_data', 'exercise_group_images');
+                        await setDoc(docRef, { [group]: downloadURL }, { merge: true });
+
+                        this.showToast('Imagen del grupo actualizada.', 'success');
+                        this.hideModal();
+
+                        const creatorView = document.getElementById('routine-creator-view');
+                        if (creatorView) {
+                            this.routine_enterCreator(2);
+                        }
+                    } catch (error) {
+                        console.error('Error saving group image:', error);
+                        this.showToast('No se pudo guardar la imagen.', 'error');
+                        if (modalFooter) {
+                            modalFooter.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                        }
+                    }
+                }
+            );
+        },
+        routine_filterExerciseLibrary(searchTerm) {
+            const term = searchTerm.toLowerCase().trim();
+            const panel = document.getElementById('exercise-list-panel');
+            const nav = document.getElementById('exercise-group-nav');
+            if (!panel || !nav) return;
+
+            panel.querySelectorAll('.exercise-item').forEach(item => {
+                const name = item.dataset.exerciseName.toLowerCase();
+                item.style.display = name.includes(term) ? 'flex' : 'none';
+            });
+
+            panel.querySelectorAll('[data-subgroup-content]').forEach(subgroup => {
+                const visibleExercises = subgroup.querySelector('.exercise-item[style*="display: flex"]');
+                subgroup.style.display = visibleExercises ? 'block' : 'none';
+            });
+
+            panel.querySelectorAll('[data-group-content]').forEach(groupContent => {
+                const visibleSubgroups = groupContent.querySelector('[data-subgroup-content][style*="display: block"]');
+                const correspondingButton = nav.querySelector(`[data-action="routine-creator-switch-group"][data-group-target="${groupContent.dataset.groupContent}"]`);
+                if (correspondingButton) {
+                    correspondingButton.classList.toggle('hidden', !visibleSubgroups);
+                }
+            });
+        },
+        routine_selectExercise(exerciseName) {
+            const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex];
+            if (!currentDay) return;
+            currentDay.exercises.push({ name: exerciseName, sets: 4, reps: '10', weight: '0 kg', rest: '60 s' });
+            this.showToast(`${exerciseName} añadido`, 'success');
+            this.routine_refreshExerciseList();
+        },
+        routine_editExercise(index) {
+            this.routine_openExerciseEditModal(parseInt(index));
+        },
+        routine_saveExerciseDetails(index) {
+            this._tempRoutine.modalEditingIndex = parseInt(index);
+            this.routine_saveExerciseFromModal();
+        },
+        routine_removeExercise(index) {
+            const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex];
+            if (!currentDay) return;
+            currentDay.exercises.splice(index, 1);
+            this._tempRoutine.modalEditingIndex = -1;
+            this.routine_refreshExerciseList();
+        },
+        routine_refreshExerciseList() {
+            const container = document.getElementById('exercise-list-container');
+            if (!container) return;
+            const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex];
+            if (!currentDay) return;
+            const exercises = currentDay.exercises || [];
+
+            if (exercises.length === 0) {
+                container.innerHTML = `
+                <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gray-900/70 p-10 text-center shadow-[0_30px_80px_-45px_rgba(16,185,129,0.75)]">
+                    <div class="pointer-events-none absolute -top-24 left-6 h-48 w-48 rounded-full bg-emerald-500/25 blur-3xl"></div>
+                    <div class="pointer-events-none absolute -bottom-28 right-10 h-56 w-56 rounded-full bg-cyan-500/15 blur-3xl"></div>
+                    <div class="relative mx-auto flex max-w-md flex-col items-center gap-6">
+                        <span class="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/15 text-emerald-200 shadow-inner shadow-emerald-500/30">
+                            <i data-lucide="calendar-plus" class="h-7 w-7"></i>
+                        </span>
+                        <div class="space-y-2">
+                            <h3 class="text-2xl font-semibold text-white">Tu día de entrenamiento está vacío</h3>
+                            <p class="text-sm text-gray-400">Añade ejercicios para construir bloques personalizados y visualizar tu progreso al instante.</p>
+                        </div>
+                        <div class="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
+                            <button data-action="routine-creator-add-exercise" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500/90 px-5 py-3 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/30 transition hover:bg-emerald-400 sm:w-auto">
+                                <i data-lucide="plus" class="h-5 w-5"></i>
+                                <span>Añadir manualmente</span>
+                            </button>
+                            <button data-action="routine-creator-suggest-ai" class="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-500 via-indigo-500 to-cyan-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-purple-500/30 transition hover:opacity-95 sm:w-auto">
+                                <i data-lucide="sparkles" class="h-5 w-5"></i>
+                                <span>Sugerir con IA</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-gray-300">
+                            <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-200">
+                                <i data-lucide="timeline" class="h-4 w-4"></i>
+                            </span>
+                            <span>Organiza tus bloques y crea secuencias dinámicas para tus asesorados.</span>
+                        </div>
+                    </div>
+                </div>`;
+                this.routine_updateMiniWindow();
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = exercises.map((exercise, index) => {
+                if (!exercise) return '';
+                if (!exercise.sets) exercise.sets = 4;
+                if (!exercise.reps) exercise.reps = '10';
+                if (!exercise.rest) exercise.rest = '60 s';
+                if (!exercise.weight) exercise.weight = '0 kg';
+
+                return `
+                <article class="group relative overflow-hidden rounded-2xl border border-white/10 bg-gray-900/70 p-4 shadow-[0_25px_60px_-35px_rgba(16,185,129,0.65)] section-fade-in" data-exercise-index="${index}">
+                    <div class="flex items-start justify-between gap-3">
+                        <div>
+                            <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Bloque ${index + 1}</p>
+                            <h4 class="text-lg font-semibold text-white">${exercise.name}</h4>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button data-action="routine-open-edit-modal" data-exercise-index="${index}" class="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-200 transition hover:border-emerald-300 hover:bg-emerald-400 hover:text-gray-900">
+                                <i data-lucide="pen-line" class="h-4 w-4"></i>
+                                <span>Editar</span>
+                            </button>
+                            <button data-action="routine-creator-remove-exercise" data-exercise-index="${index}" class="inline-flex h-9 w-9 items-center justify-center rounded-full border border-red-500/40 bg-red-500/10 text-red-400 transition hover:bg-red-500 hover:text-gray-900">
+                                <i data-lucide="trash-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-4 grid grid-cols-2 gap-3 text-sm text-gray-300 sm:grid-cols-4">
+                        <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-200">
+                                <i data-lucide="layers" class="h-4 w-4"></i>
+                            </span>
+                            <div>
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-400">Series</p>
+                                <p class="text-base font-semibold text-white">${exercise.sets}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-sky-500/10 text-sky-200">
+                                <i data-lucide="repeat" class="h-4 w-4"></i>
+                            </span>
+                            <div>
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-400">Reps</p>
+                                <p class="text-base font-semibold text-white">${exercise.reps}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 text-amber-200">
+                                <i data-lucide="dumbbell" class="h-4 w-4"></i>
+                            </span>
+                            <div>
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-400">Peso</p>
+                                <p class="text-base font-semibold text-white">${exercise.weight}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10 text-purple-200">
+                                <i data-lucide="timer" class="h-4 w-4"></i>
+                            </span>
+                            <div>
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-400">Descanso</p>
+                                <p class="text-base font-semibold text-white">${exercise.rest}</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>`;
+            }).join('');
+
+            this.routine_updateMiniWindow();
+            lucide.createIcons();
+        },
+        routine_updateMiniWindow() {
+            const miniWindow = document.getElementById('exercise-mini-window');
+            if (!miniWindow) return;
+            const strip = miniWindow.querySelector('[data-thumbnail-strip]');
+            const counter = miniWindow.querySelector('[data-mini-count]');
+            const content = miniWindow.querySelector('[data-mini-content]');
+            const toggleLabel = miniWindow.querySelector('[data-mini-toggle-label]');
+            const toggleIcon = miniWindow.querySelector('[data-mini-toggle-icon]');
+            const listContainer = document.getElementById('exercise-list-container');
+            const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex];
+            const exercises = currentDay?.exercises || [];
+
+            if (!exercises.length) {
+                if (strip) {
+                strip.innerHTML = '<p class="text-[11px] font-medium text-gray-400">Los ejercicios que añadas aparecerán aquí.</p>';
+                }
+                if (counter) counter.textContent = 'Sin ejercicios añadidos';
+                miniWindow.setAttribute('data-collapsed', 'false');
+                if (content) content.classList.remove('hidden');
+                if (toggleLabel) toggleLabel.textContent = 'Plegar';
+                if (toggleIcon) toggleIcon.classList.remove('rotate-180');
+                if (listContainer) listContainer.style.paddingBottom = '';
+                if (this._tempRoutine) this._tempRoutine.miniWindowCollapsed = false;
+                miniWindow.classList.add('hidden');
+                miniWindow.classList.add('pointer-events-none');
+                return;
+            }
+
+            miniWindow.classList.remove('hidden');
+            miniWindow.classList.remove('pointer-events-none');
+            const isCollapsed = Boolean(this._tempRoutine?.miniWindowCollapsed);
+
+            if (counter) {
+                const label = `${exercises.length} ejercicio${exercises.length === 1 ? '' : 's'} planificado${exercises.length === 1 ? '' : 's'}`;
+                counter.textContent = label;
+            }
+
+            miniWindow.setAttribute('data-collapsed', isCollapsed ? 'true' : 'false');
+            if (content) content.classList.toggle('hidden', isCollapsed);
+            if (toggleLabel) toggleLabel.textContent = isCollapsed ? 'Mostrar' : 'Plegar';
+            if (toggleIcon) toggleIcon.classList.toggle('rotate-180', isCollapsed);
+
+            if (listContainer) {
+                const padding = isCollapsed ? '4.25rem' : '7rem';
+                listContainer.style.paddingBottom = `calc(${padding} + env(safe-area-inset-bottom, 0px))`;
+            }
+
+            if (strip) {
+                const existingThumbs = new Map(Array.from(strip.querySelectorAll('[data-thumb-key]')).map(node => [node.dataset.thumbKey, node]));
+                const fragment = document.createDocumentFragment();
+
+                exercises.forEach((exercise, index) => {
+                    if (!exercise.weight) exercise.weight = '0 kg';
+                    if (!Object.prototype.hasOwnProperty.call(exercise, '__thumbKey')) {
+                        Object.defineProperty(exercise, '__thumbKey', {
+                            value: `thumb-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                            enumerable: false,
+                            writable: true
+                        });
+                    }
+
+                    const key = exercise.__thumbKey;
+                    let card = existingThumbs.get(key);
+                    const libraryExercise = this.getExerciseByName(exercise.name) || {};
+                    const rawUrl = typeof libraryExercise.mediaUrl === 'string' ? libraryExercise.mediaUrl : '';
+                    const hasImage = Boolean(rawUrl);
+                    const initials = exercise.name.split(' ').map(word => word[0] || '').join('').slice(0, 2).toUpperCase() || 'FX';
+
+                    if (!card) {
+                        card = document.createElement('article');
+                        card.className = 'group flex w-20 shrink-0 snap-center flex-col gap-1.5 text-center';
+                        card.dataset.thumbKey = key;
+                        card.innerHTML = `
+                            <div class="relative h-16 w-20 overflow-hidden rounded-xl border border-white/10 bg-gray-900/80 shadow-lg shadow-emerald-500/10">
+                                <span data-thumb-fallback class="flex h-full w-full items-center justify-center bg-gradient-to-br from-emerald-500/25 via-teal-500/20 to-sky-500/30 text-sm font-semibold text-emerald-100"></span>
+                                <img data-thumb-image alt="" class="hidden h-full w-full object-cover transition duration-300" loading="lazy" decoding="async" width="80" height="64">
+                                <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-gray-950/55 via-gray-950/10 to-transparent opacity-0 transition group-hover:opacity-100"></div>
+                                <button data-thumb-remove data-action="routine-creator-remove-exercise" class="pointer-events-auto absolute left-2 top-2 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-gray-950/70 text-rose-200/90 shadow transition hover:border-rose-300 hover:bg-rose-400 hover:text-gray-900" title="Quitar ejercicio">
+                                    <i data-lucide="x" class="h-3.5 w-3.5"></i>
+                                </button>
+                                <button data-thumb-edit data-action="routine-open-edit-modal" class="pointer-events-auto absolute right-2 top-2 inline-flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-gray-950/70 text-emerald-200/90 shadow transition hover:border-emerald-300 hover:bg-emerald-400 hover:text-gray-900" title="Editar ejercicio">
+                                    <i data-lucide="settings-2" class="h-3.5 w-3.5"></i>
+                                </button>
+                            </div>
+                            <p data-thumb-name class="truncate text-[10px] font-semibold text-gray-100"></p>
+                        `;
+                    }
+
+                    card.dataset.thumbKey = key;
+                    const nameEl = card.querySelector('[data-thumb-name]');
+                    if (nameEl) nameEl.textContent = exercise.name;
+
+                    const editBtn = card.querySelector('[data-thumb-edit]');
+                    if (editBtn) editBtn.dataset.exerciseIndex = index;
+
+                    const removeBtn = card.querySelector('[data-thumb-remove]');
+                    if (removeBtn) removeBtn.dataset.exerciseIndex = index;
+
+                    const imageEl = card.querySelector('[data-thumb-image]');
+                    const fallbackEl = card.querySelector('[data-thumb-fallback]');
+
+                    if (imageEl) {
+                        if (hasImage) {
+                            if (imageEl.getAttribute('src') !== rawUrl) {
+                                imageEl.setAttribute('src', rawUrl);
+                            }
+                            imageEl.setAttribute('alt', exercise.name);
+                            imageEl.classList.remove('hidden');
+                        } else {
+                            imageEl.removeAttribute('src');
+                            imageEl.classList.add('hidden');
+                        }
+                    }
+
+                    if (fallbackEl) {
+                        fallbackEl.textContent = initials;
+                        fallbackEl.classList.toggle('hidden', hasImage);
+                    }
+
+                    fragment.appendChild(card);
+                    existingThumbs.delete(key);
+                });
+
+                existingThumbs.forEach(node => node.remove());
+                strip.replaceChildren(fragment);
+            }
+
+            lucide.createIcons();
+        },
+        routine_toggleMiniWindow() {
+            if (!this._tempRoutine) return;
+            if (typeof this._tempRoutine.miniWindowCollapsed !== 'boolean') {
+                this._tempRoutine.miniWindowCollapsed = false;
+            }
+            this._tempRoutine.miniWindowCollapsed = !this._tempRoutine.miniWindowCollapsed;
+            this.routine_updateMiniWindow();
+        },
+        routine_openExerciseEditModal(index) {
+            const modal = document.getElementById('exercise-edit-modal');
+            if (!modal) return;
+            const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex];
+            if (!currentDay) return;
+            const exerciseIndex = Number.isNaN(index) ? -1 : parseInt(index);
+            const exercise = currentDay.exercises?.[exerciseIndex];
+            if (!exercise) return;
+
+            this._tempRoutine.modalEditingIndex = exerciseIndex;
+            const nameEl = document.getElementById('exercise-modal-name');
+            const setsInput = document.getElementById('modal-sets-input');
+            const repsInput = document.getElementById('modal-reps-input');
+            const weightInput = document.getElementById('modal-weight-input');
+            const restInput = document.getElementById('modal-rest-input');
+
+            if (nameEl) nameEl.textContent = exercise.name;
+            if (setsInput) setsInput.value = exercise.sets || 4;
+            if (repsInput) repsInput.value = exercise.reps || '10';
+            if (weightInput) weightInput.value = exercise.weight || '0 kg';
+            if (restInput) restInput.value = exercise.rest || '60 s';
+
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => modal.setAttribute('data-open', 'true'));
+            lucide.createIcons();
+        },
+        routine_closeExerciseEditModal() {
+            const modal = document.getElementById('exercise-edit-modal');
+            if (!modal) return;
+            modal.removeAttribute('data-open');
+            const sheet = modal.querySelector('.mobile-sheet');
+            const handleClose = () => {
+                modal.classList.add('hidden');
+            };
+            if (sheet) {
+                sheet.addEventListener('transitionend', () => handleClose(), { once: true });
+            } else {
+                handleClose();
+            }
+            this._tempRoutine.modalEditingIndex = -1;
+        },
+        routine_saveExerciseFromModal() {
+            const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex];
+            if (!currentDay) return;
+            const index = this._tempRoutine.modalEditingIndex;
+            if (index === -1) {
+                this.routine_closeExerciseEditModal();
+                return;
+            }
+            const exercise = currentDay.exercises?.[index];
+            if (!exercise) {
+                this.routine_closeExerciseEditModal();
+                return;
+            }
+
+            const setsInput = document.getElementById('modal-sets-input');
+            const repsInput = document.getElementById('modal-reps-input');
+            const weightInput = document.getElementById('modal-weight-input');
+            const restInput = document.getElementById('modal-rest-input');
+
+            const setsValue = parseInt(setsInput?.value, 10);
+            if (!Number.isNaN(setsValue) && setsValue > 0) {
+                exercise.sets = setsValue;
+            }
+            if (repsInput && repsInput.value.trim()) {
+                exercise.reps = repsInput.value.trim();
+            }
+            if (weightInput) {
+                const weightText = weightInput.value.trim();
+                exercise.weight = weightText || '0 kg';
+            }
+            if (restInput) {
+                const restText = restInput.value.trim();
+                exercise.rest = restText || '60 s';
+            }
+
+            this._tempRoutine.modalEditingIndex = -1;
+            this.routine_refreshExerciseList();
+            this.routine_closeExerciseEditModal();
+            this.showToast('Ejercicio actualizado', 'success');
+        },
+        routine_openTimelineView() {
+            const overlay = document.getElementById('routine-timeline-overlay');
+            if (!overlay) return;
+            const content = overlay.querySelector('[data-role="timeline-content"]');
+            const confirmation = overlay.querySelector('[data-role="timeline-confirmation"]');
+            if (content) content.classList.remove('hidden');
+            if (confirmation) confirmation.classList.add('hidden');
+            overlay.classList.remove('hidden');
+            requestAnimationFrame(() => overlay.setAttribute('data-open', 'true'));
+            this.routine_renderTimeline();
+            lucide.createIcons();
+        },
+        routine_closeTimelineView() {
+            const overlay = document.getElementById('routine-timeline-overlay');
+            if (!overlay) return;
+            overlay.removeAttribute('data-open');
+            const sheet = overlay.querySelector('.mobile-sheet');
+            const handleClose = () => {
+                overlay.classList.add('hidden');
+            };
+            if (sheet) {
+                sheet.addEventListener('transitionend', () => handleClose(), { once: true });
+            } else {
+                handleClose();
+            }
+        },
+        routine_renderTimeline() {
+            const overlay = document.getElementById('routine-timeline-overlay');
+            if (!overlay) return;
+            const list = overlay.querySelector('#routine-timeline-items');
+            if (!list) return;
+            const currentDay = this._tempRoutine.plan[this._tempRoutine.currentDayIndex];
+            const exercises = currentDay?.exercises || [];
+
+            if (!exercises.length) {
+                list.innerHTML = `<li class="rounded-2xl border border-white/10 bg-white/5 p-5 text-center text-sm text-gray-300">Añade ejercicios para visualizar la línea de tiempo.</li>`;
+                return;
+            }
+
+            list.innerHTML = exercises.map((exercise, index) => {
+                if (!exercise.weight) exercise.weight = '0 kg';
+                return `
+                    <li class="timeline-item">
+                        <span class="absolute left-0 top-0 inline-flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-sm font-bold text-gray-900 shadow-lg">${index + 1}</span>
+                        <div class="rounded-2xl border border-white/10 bg-gray-900/80 p-4 shadow-[0_20px_45px_-30px_rgba(16,185,129,0.6)]">
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/70">Secuencia ${index + 1}</p>
+                                    <h4 class="text-lg font-semibold text-white">${exercise.name}</h4>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-2 text-xs text-gray-300">
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-3 py-1 font-semibold text-emerald-200"><i data-lucide="layers" class="h-3.5 w-3.5"></i>${exercise.sets} series</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-sky-500/10 px-3 py-1 font-semibold text-sky-200"><i data-lucide="repeat" class="h-3.5 w-3.5"></i>${exercise.reps} reps</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-3 py-1 font-semibold text-amber-200"><i data-lucide="dumbbell" class="h-3.5 w-3.5"></i>${exercise.weight}</span>
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-purple-500/10 px-3 py-1 font-semibold text-purple-200"><i data-lucide="timer" class="h-3.5 w-3.5"></i>${exercise.rest}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>`;
+            }).join('');
+        },
+        async routine_handleTimelineSave() {
+            const overlay = document.getElementById('routine-timeline-overlay');
+            if (!overlay) return;
+            const content = overlay.querySelector('[data-role="timeline-content"]');
+            const confirmation = overlay.querySelector('[data-role="timeline-confirmation"]');
+            const saveButton = overlay.querySelector('[data-action="routine-timeline-save"]');
+            const saveLabel = saveButton?.querySelector('span');
+            const originalLabel = saveLabel?.textContent || 'Guardar rutina';
+
+            if (saveButton) {
+                saveButton.disabled = true;
+                saveButton.classList.add('opacity-70');
+                saveButton.setAttribute('aria-busy', 'true');
+                if (saveLabel) saveLabel.textContent = 'Guardando...';
+            }
+
+            const saved = await this.routine_save({ skipClose: true });
+
+            if (saveButton) {
+                saveButton.disabled = false;
+                saveButton.classList.remove('opacity-70');
+                saveButton.removeAttribute('aria-busy');
+                if (saveLabel) saveLabel.textContent = originalLabel;
+            }
+
+            if (!saved) {
+                return;
+            }
+
+            if (content) content.classList.add('hidden');
+            if (confirmation) confirmation.classList.remove('hidden');
+            lucide.createIcons();
+        },
+        routine_handleTimelineLink() {
+            this.showToast('Dirígete a tus asesorados para vincular esta rutina.');
+            this.routine_closeTimelineView();
+        },
+        async routine_handleTimelineStart() {
+            const overlay = document.getElementById('routine-timeline-overlay');
+            const startButton = overlay?.querySelector('[data-action="routine-timeline-confirm-start"]');
+            const startLabel = startButton?.querySelector('span');
+            const originalLabel = startLabel?.textContent || 'Comenzar';
+
+            if (startButton) {
+                startButton.disabled = true;
+                startButton.classList.add('opacity-70');
+                startButton.setAttribute('aria-busy', 'true');
+                if (startLabel) startLabel.textContent = 'Comenzando...';
+            }
+
+            const saved = await this.routine_save({ skipClose: true });
+
+            if (!saved) {
+                if (startButton) {
+                    startButton.disabled = false;
+                    startButton.classList.remove('opacity-70');
+                    startButton.removeAttribute('aria-busy');
+                    if (startLabel) startLabel.textContent = originalLabel;
+                }
+                return;
+            }
+
+            const routineId = this._tempRoutine?.id;
+            const dayIndex = this._tempRoutine?.currentDayIndex || 0;
+
+            this.routine_closeTimelineView();
+            this.routine_closeFullscreenView();
+
+            if (routineId) {
+                this.showToast('¡Rutina lista para comenzar!', 'success');
+                this.startWorkout(routineId, dayIndex);
+            } else {
+                this.showToast('No se pudo iniciar la rutina planificada.', 'error');
+            }
+
+            if (startButton) {
+                startButton.disabled = false;
+                startButton.classList.remove('opacity-70');
+                startButton.removeAttribute('aria-busy');
+                if (startLabel) startLabel.textContent = originalLabel;
+            }
+        },
+
+        renderCommunitySection() {
+            const root = document.getElementById('community-root');
+            if (!root) {
+                return;
+            }
+
+            if (this.state.isCommunityLoading) {
+                root.innerHTML = `
+                    <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-6 text-center text-sm text-gray-400">
+                        <div class="flex flex-col items-center gap-3">
+                            <span class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-300">
+                                <i data-lucide="loader-2" class="h-5 w-5 animate-spin"></i>
+                            </span>
+                            <p>Actualizando estadísticas de la comunidad...</p>
+                        </div>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            const community = this.state.community || {};
+            const isEmpty = Boolean(community.isEmpty);
+            const stats = community.stats || { totalAthletes: 0, totalVolume: 0, totalSessions: 0 };
+            const counters = [
+                { label: 'Atletas activos', description: 'Miembros registrados', icon: 'users', value: stats.totalAthletes },
+                { label: 'Kg registrados (30 días)', description: 'Carga acumulada', icon: 'activity', value: stats.totalVolume },
+                { label: 'Entrenos en 30 días', description: 'Sesiones registradas', icon: 'calendar-check', value: stats.totalSessions }
+            ];
+
+            const countersHtml = counters.map((counter) => {
+                const value = typeof counter.value === 'number' ? counter.value : 0;
+                return `
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                        <div class="flex items-center justify-between gap-3">
+                            <div>
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">${counter.label}</p>
+                                <p class="mt-2 text-3xl font-bold text-white" data-community-counter data-counter-value="${value}" data-animated="false">0</p>
+                            </div>
+                            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-200">
+                                <i data-lucide="${counter.icon}" class="h-5 w-5"></i>
+                            </span>
+                        </div>
+                        <p class="mt-2 text-xs text-gray-400">${counter.description}</p>
+                    </div>
+                `;
+            }).join('');
+
+            const updatedLabel = community.lastUpdated
+                ? `Actualizado ${this.formatRelativeTime(community.lastUpdated)}`
+                : 'Listo para registrar datos';
+
+            const podium = Array.isArray(community.podium) ? community.podium : [];
+            const podiumStyles = [
+                'from-amber-500/20 via-amber-500/10 to-transparent border border-amber-400/40 text-amber-100',
+                'from-slate-500/20 via-slate-500/10 to-transparent border border-slate-400/30 text-slate-100',
+                'from-orange-500/20 via-orange-500/10 to-transparent border border-orange-400/30 text-orange-100'
+            ];
+            const podiumEmojis = ['🥇', '🥈', '🥉'];
+            const podiumHtml = podium.length > 0
+                ? podium.map((entry, index) => `
+                    <div class="rounded-2xl bg-gradient-to-br ${podiumStyles[index] || 'from-gray-700/20 via-gray-800/20 to-transparent border border-white/10 text-gray-200'} p-4 text-center">
+                        <span class="text-2xl">${podiumEmojis[index] || `#${entry.rank}`}</span>
+                        <p class="mt-2 text-sm font-semibold text-white">${entry.name}</p>
+                        <p class="text-xs text-gray-200">${entry.formattedValue}</p>
+                        ${entry.trendLabel ? `<p class="mt-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200">${entry.trendLabel}</p>` : ''}
+                    </div>
+                `).join('')
+                : `<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-4 text-sm text-gray-400">Aún no hay atletas con cargas registradas.</div>`;
+
+            const leaderboardTabs = [
+                { id: 'volume', label: 'Carga total', icon: 'dumbbell' },
+                { id: 'sessions', label: 'Días activos', icon: 'calendar-check' },
+                { id: 'progress', label: 'Progreso', icon: 'trending-up' }
+            ];
+            const activeLeaderboard = community.activeLeaderboard || 'volume';
+            const tabButtons = leaderboardTabs.map(tab => {
+                const isActive = tab.id === activeLeaderboard;
+                return `
+                    <button data-action="community-switch-leaderboard" data-leaderboard="${tab.id}" class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.3em] transition ${isActive ? 'bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 shadow-lg shadow-emerald-500/20' : 'bg-white/5 text-gray-300 border border-white/10 hover:bg-white/10'}">
+                        <i data-lucide="${tab.icon}" class="h-4 w-4"></i>
+                        ${tab.label}
+                    </button>
+                `;
+            }).join('');
+
+            const leaderboardData = community.leaderboards?.[activeLeaderboard] || [];
+            const leaderboardItemsHtml = leaderboardData.length > 0
+                ? `<ul class="space-y-3">
+                    ${leaderboardData.map((entry, index) => {
+                        const rankBadge = index === 0
+                            ? 'bg-amber-500/20 text-amber-300 border border-amber-400/40'
+                            : index === 1
+                                ? 'bg-slate-500/20 text-slate-200 border border-slate-400/30'
+                                : index === 2
+                                    ? 'bg-orange-500/20 text-orange-200 border border-orange-400/30'
+                                    : 'bg-gray-800 text-gray-300 border border-gray-700';
+                        const detailLine = activeLeaderboard === 'volume'
+                            ? entry.bestLiftLabel
+                            : activeLeaderboard === 'progress'
+                                ? entry.weightLabel
+                                : entry.weightLabel;
+                        return `
+                            <li class="rounded-2xl border border-white/10 bg-white/5 p-4 flex items-center justify-between gap-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="flex h-10 w-10 items-center justify-center rounded-full ${rankBadge} text-base font-bold">${entry.rank}</span>
+                                    <div>
+                                        <p class="text-sm font-semibold text-white">${entry.name}</p>
+                                        <p class="text-xs text-gray-400">${entry.subLabel}</p>
+                                        ${entry.trendLabel ? `<p class="text-xs text-emerald-300">${entry.trendLabel}</p>` : ''}
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-lg font-bold text-white">${entry.formattedValue}</p>
+                                    ${detailLine ? `<p class="text-xs text-gray-400">${detailLine}</p>` : ''}
+                                </div>
+                            </li>
+                        `;
+                    }).join('')}
+                </ul>`
+                : `<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-center text-sm text-gray-400">${isEmpty ? 'Sé la primera persona en aparecer registrando tu próximo entrenamiento.' : 'Registra entrenamientos para activar este ranking.'}</div>`;
+
+            const spotlight = community.spotlight;
+            const spotlightHtml = spotlight
+                ? `
+                    <div class="rounded-3xl border border-amber-400/40 bg-gradient-to-br from-amber-500/15 via-amber-500/5 to-transparent p-5 shadow-lg shadow-amber-500/20">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-amber-200">Récord destacado</p>
+                                <h4 class="text-lg font-bold text-white">${spotlight.name}</h4>
+                                <p class="text-sm text-amber-100/80">${spotlight.description}</p>
+                            </div>
+                            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/20 text-amber-200 text-lg font-bold">${spotlight.metric}</span>
+                        </div>
+                        <div class="mt-4 flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-amber-200/80">
+                            ${spotlight.detail ? `<span class="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1"><i data-lucide="trending-up" class="h-4 w-4"></i>${spotlight.detail}</span>` : ''}
+                            ${spotlight.streak ? `<span class="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1"><i data-lucide="flame" class="h-4 w-4"></i>${spotlight.streak} días de racha</span>` : ''}
+                        </div>
+                    </div>
+                `
+                : `<div class="rounded-3xl border border-white/10 bg-white/5 p-5 text-sm text-gray-400">Registra tus pesos máximos para destacar los nuevos récords de la comunidad.</div>`;
+
+            const highlights = Array.isArray(community.highlights) ? community.highlights : [];
+            const highlightsHtml = highlights.length > 0
+                ? highlights.map(item => `
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+                        <div class="flex items-start justify-between gap-3">
+                            <div>
+                                <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200">${item.badge}</span>
+                                <p class="mt-2 text-sm font-semibold text-white">${item.title}</p>
+                                <p class="text-xs text-gray-400">${item.detail}</p>
+                            </div>
+                            <p class="text-lg font-bold text-emerald-300">${item.metric}</p>
+                        </div>
+                    </div>
+                `).join('')
+                : `<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-4 text-sm text-gray-400">Cuando la comunidad registre entrenamientos verás aquí a los protagonistas.</div>`;
+
+            const feed = Array.isArray(community.feed) ? community.feed : [];
+            const feedHtml = feed.length > 0
+                ? feed.map(item => `
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 flex items-center justify-between gap-4">
+                        <div class="flex items-center gap-3">
+                            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200 font-bold">${item.initials}</span>
+                            <div>
+                                <p class="text-sm font-semibold text-white">${item.name}</p>
+                                <p class="text-xs text-gray-400">${item.routineName}</p>
+                            </div>
+                        </div>
+                        <div class="text-right text-xs text-gray-400">
+                            <p>${this.formatRelativeTime(item.completedAt)}</p>
+                            <p>${this.formatNumberCompact(item.volume || 0)} kg · ${this.formatTime(Math.round(item.duration || 0))}</p>
+                        </div>
+                    </div>
+                `).join('')
+                : `<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-gray-400 text-center">Cuando registres entrenamientos aparecerán aquí los últimos movimientos.</div>`;
+
+            const challenges = Array.isArray(community.challenges) ? community.challenges : [];
+            const challengesHtml = challenges.length > 0
+                ? challenges.map(challenge => {
+                    const progress = Math.round(Math.min(100, challenge.progress || 0));
+                    return `
+                        <div class="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-3">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200">${challenge.title}</p>
+                                    <p class="text-sm text-gray-300">${challenge.description}</p>
+                                </div>
+                                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-200">
+                                    <i data-lucide="${challenge.icon}" class="h-5 w-5"></i>
+                                </span>
+                            </div>
+                            <div class="h-2.5 w-full rounded-full bg-gray-800">
+                                <div class="h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="flex items-center justify-between text-xs text-gray-400">
+                                <span>${challenge.status}</span>
+                                <span class="font-semibold text-emerald-200">${progress}%</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('')
+                : `<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-6 text-sm text-gray-400 text-center">Activa retos comunitarios compartiendo tus entrenamientos.</div>`;
+
+            const emptyBannerHtml = isEmpty
+                ? `<div class="rounded-2xl border border-dashed border-emerald-400/40 bg-emerald-500/5 p-4 text-sm text-emerald-100">
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-200">
+                                    <i data-lucide="sparkles" class="h-5 w-5"></i>
+                                </span>
+                                <div>
+                                    <p class="font-semibold text-emerald-100">Activa el ranking registrando tus sesiones</p>
+                                    <p class="text-xs text-emerald-100/80">Completa un entrenamiento o carga tus métricas de peso para desbloquear la tabla.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80">
+                                <i data-lucide="cloud" class="h-4 w-4"></i>
+                                Datos en vivo desde Firebase
+                            </div>
+                        </div>
+                    </div>`
+                : '';
+
+            root.innerHTML = `
+                <div class="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-gray-900 p-6 sm:p-8 shadow-xl shadow-emerald-500/20">
+                    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(6,182,212,0.25),transparent_55%)]"></div>
+                    <div class="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                        <div class="flex-1 space-y-6">
+                            <div class="space-y-3">
+                                <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200">Ranking en vivo</span>
+                                <h2 class="text-3xl font-bold text-white sm:text-4xl">Comunidad FitTrack</h2>
+                                <p class="max-w-xl text-sm text-emerald-50/80 sm:text-base">Inspírate con los atletas que rompen récords y suma tus datos para aparecer en el top global.</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-100/80">
+                                <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1">
+                                    <i data-lucide="clock-3" class="h-4 w-4"></i>
+                                    ${updatedLabel}
+                                </span>
+                                <button data-action="community-refresh" class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-3 py-1 text-emerald-200 hover:bg-emerald-400/20">
+                                    <i data-lucide="refresh-cw" class="h-4 w-4"></i>
+                                    Actualizar
+                                </button>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-3">
+                                ${countersHtml}
+                            </div>
+                            ${emptyBannerHtml}
+                        </div>
+                        <div class="flex-1 rounded-3xl border border-white/10 bg-gray-900/60 p-4 shadow-inner shadow-emerald-500/10">
+                            <h3 class="text-sm font-semibold uppercase tracking-[0.35em] text-gray-400">Top cargas (30 días)</h3>
+                            <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                ${podiumHtml}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid gap-6 xl:grid-cols-[2fr,1fr]">
+                    <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-5 sm:p-6 space-y-4">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Tabla general</p>
+                                <h3 class="text-xl font-bold text-white">Leaderboard global</h3>
+                            </div>
+                            <div class="flex flex-wrap gap-2">${tabButtons}</div>
+                        </div>
+                        ${leaderboardItemsHtml}
+                    </div>
+                    <div class="space-y-4">
+                        ${spotlightHtml}
+                        <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-5 space-y-3">
+                            <h3 class="text-sm font-semibold uppercase tracking-[0.35em] text-gray-400">Logros destacados</h3>
+                            ${highlightsHtml}
+                        </div>
+                    </div>
+                </div>
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-5 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-white">Actividad en vivo</h3>
+                            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Últimos registros</span>
+                        </div>
+                        ${feedHtml}
+                    </div>
+                    <div class="rounded-3xl border border-white/10 bg-gray-900/60 p-5 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-bold text-white">Retos comunitarios</h3>
+                            <span class="text-xs font-semibold uppercase tracking-[0.3em] text-gray-400">Progreso en tiempo real</span>
+                        </div>
+                        ${challengesHtml}
+                    </div>
+                </div>
+            `;
+
+            lucide.createIcons();
+            if (this.state.currentSection === 'comunidad' && !this.state.isCommunityLoading) {
+                this.animateCommunityCounters();
+            }
+        },
+
+        routine_addDay() {
+            const dayCount = this._tempRoutine.plan.length + 1;
+            this._tempRoutine.plan.push({ day: `Día ${dayCount}`, exercises: [] });
+            this._tempRoutine.currentDayIndex = dayCount - 1;
+            this.routine_refreshDayTabs();
+            this.routine_refreshExerciseList();
+        },
+        routine_switchDay(index) {
+            this._tempRoutine.currentDayIndex = index;
+            this.routine_refreshDayTabs();
+            this.routine_refreshExerciseList();
+        },
+        routine_refreshDayTabs() {
+            const container = document.getElementById('routine-day-tabs');
+            if (!container) return;
+
+            const tabsHtml = this._tempRoutine.plan.map((day, index) => {
+                const isActive = index === this._tempRoutine.currentDayIndex;
+                const statusLabel = isActive ? 'Día activo' : 'Día planificado';
+                const labelClass = isActive ? 'text-emerald-200/80' : 'text-gray-400/80';
+                const cardClasses = isActive
+                    ? 'border-emerald-400/60 bg-emerald-500/10 text-emerald-100 shadow-[0_18px_45px_-35px_rgba(16,185,129,0.9)]'
+                    : 'border-white/10 bg-white/5 text-gray-300 hover:border-emerald-400/40 hover:text-emerald-100';
+
+                return `
+                    <div class="group relative flex-shrink-0">
+                        <button type="button" data-action="routine-creator-switch-day" data-day-index="${index}" class="flex min-h-[3.25rem] items-center gap-3 rounded-2xl border px-4 py-3 transition ${cardClasses}">
+                            <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-sm font-semibold text-emerald-200 shadow-inner shadow-emerald-500/20">${String(index + 1).padStart(2, '0')}</span>
+                            <div class="text-left">
+                                <span class="text-[10px] font-semibold uppercase tracking-[0.3em] ${labelClass}">${statusLabel}</span>
+                                <p class="text-sm font-semibold text-white">${day.day}</p>
+                            </div>
+                            <span class="ml-auto hidden text-emerald-200 sm:inline-flex">
+                                <i data-lucide="chevron-right" class="h-4 w-4"></i>
+                            </span>
+                        </button>
+                        <div class="pointer-events-none absolute right-2 top-2 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 ${isActive ? 'opacity-100' : ''}">
+                            <button type="button" data-action="routine-creator-rename-day" data-day-index="${index}" class="pointer-events-auto inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-gray-950/80 text-gray-300 transition hover:border-emerald-400/50 hover:bg-emerald-500/10 hover:text-emerald-100">
+                                <i data-lucide="pen-line" class="h-3.5 w-3.5"></i>
+                            </button>
+                            <button type="button" data-action="routine-creator-confirm-delete-day" data-day-index="${index}" class="pointer-events-auto inline-flex h-8 w-8 items-center justify-center rounded-full border border-white/10 bg-gray-950/80 text-gray-300 transition hover:border-red-500/60 hover:bg-red-500/10 hover:text-red-300">
+                                <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const addButton = `
+                <button type="button" data-action="routine-creator-add-day" class="flex min-h-[3.25rem] flex-shrink-0 items-center gap-3 rounded-2xl border border-dashed border-white/20 bg-white/5 px-4 py-3 text-left text-sm font-semibold text-gray-300 transition hover:border-emerald-400/40 hover:text-emerald-100">
+                    <span class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-200">
+                        <i data-lucide="plus" class="h-5 w-5"></i>
+                    </span>
+                    <div>
+                        <span class="text-[10px] font-semibold uppercase tracking-[0.3em] text-gray-500/80">Agregar</span>
+                        <p class="text-sm font-semibold text-white">Nuevo día</p>
+                    </div>
+                </button>
+            `;
+
+            container.innerHTML = tabsHtml + addButton;
+            lucide.createIcons();
+            container.scrollLeft = container.scrollWidth;
+        },
+
+        renderGamificationSection() {
+            const section = document.getElementById('premios');
+            if (!section) {
+                return;
+            }
+
+            const gamification = this.normalizeGamificationState(this.state?.gamification || {});
+            this.state.gamification = gamification;
+
+            const configureButton = document.querySelector('[data-action="gamification-configure"]');
+            if (configureButton) {
+                const isAdmin = this.isAdmin();
+                configureButton.classList.toggle('hidden', !isAdmin);
+                configureButton.setAttribute('aria-hidden', (!isAdmin).toString());
+                configureButton.toggleAttribute('disabled', !isAdmin);
+            }
+
+            const points = gamification.points || 0;
+            const pointsLabel = this.formatPoints(points);
+            const totalSessions = Array.isArray(gamification.history) ? gamification.history.length : 0;
+            const pointsPerSession = gamification.pointsPerSession || 0;
+            const nextReward = this.getNextGamificationReward(points);
+            const highestReward = gamification.rewards.reduce((max, reward) => Math.max(max, reward.pointsRequired || 0), 0);
+            const targetPoints = nextReward ? nextReward.pointsRequired : (highestReward || Math.max(pointsPerSession, 1));
+            const progressPercent = targetPoints ? Math.min(100, Math.round((points / targetPoints) * 100)) : 100;
+            const cooldownInfo = this.getGamificationCooldownInfo();
+
+            const pointsEl = document.getElementById('gamification-points');
+            if (pointsEl) pointsEl.textContent = pointsLabel;
+
+            const totalSessionsEl = document.getElementById('gamification-total-sessions');
+            if (totalSessionsEl) totalSessionsEl.textContent = `Sesiones verificadas: ${this.formatPoints(totalSessions)}`;
+
+            const perSessionEl = document.getElementById('gamification-points-per-session');
+            if (perSessionEl) perSessionEl.textContent = `+${this.formatPoints(pointsPerSession)} pts / sesión`;
+
+            const nextRewardEl = document.getElementById('gamification-next-reward-label');
+            if (nextRewardEl) {
+                nextRewardEl.textContent = nextReward
+                    ? `Próximo premio (${nextReward.pointsRequired} pts): ${nextReward.name}`
+                    : '¡Has desbloqueado todos los premios disponibles!';
+            }
+
+            const summaryHelperEl = document.getElementById('gamification-summary-helper');
+            if (summaryHelperEl) {
+                if (nextReward) {
+                    const remaining = Math.max(0, nextReward.pointsRequired - points);
+                    summaryHelperEl.textContent = `Te faltan ${this.formatPoints(remaining)} puntos para ${nextReward.name}. Sube una foto al terminar cada sesión y suma ${pointsPerSession} pts automáticos.`;
+                } else {
+                    summaryHelperEl.textContent = 'Has desbloqueado todos los premios actuales. Mantén tu constancia y prepárate para nuevas recompensas.';
+                }
+            }
+
+            const progressBarEl = document.getElementById('gamification-progress-bar');
+            if (progressBarEl) progressBarEl.style.width = `${progressPercent}%`;
+
+            const progressLabelEl = document.getElementById('gamification-progress-label');
+            if (progressLabelEl) {
+                const targetLabel = nextReward ? `${points}/${nextReward.pointsRequired}` : `${points}`;
+                progressLabelEl.textContent = `${targetLabel} pts para el próximo logro`;
+            }
+
+            const cooldownLabelEl = document.getElementById('gamification-cooldown-label');
+            if (cooldownLabelEl) {
+                const hours = Math.max(0, Number(gamification.cooldownHours || 0));
+                cooldownLabelEl.textContent = hours
+                    ? `Máx. 1 sesión con puntos cada ${hours}h`
+                    : 'Sin intervalo de espera configurado';
+            }
+
+            const cooldownHintEl = document.getElementById('gamification-cooldown-hint');
+            if (cooldownHintEl) {
+                if (cooldownInfo.inCooldown && cooldownInfo.nextAvailable) {
+                    const nextLabel = cooldownInfo.nextAvailable.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
+                    cooldownHintEl.textContent = `Podrás registrar otra sesión con puntos a partir de ${nextLabel}.`;
+                } else {
+                    cooldownHintEl.textContent = 'Entrena con constancia y acumula puntos cada vez que verifiques tu sesión.';
+                }
+            }
+
+            const pendingCard = document.getElementById('gamification-pending-card');
+            if (pendingCard) {
+                const pendingSummary = this.pendingGamificationSummary;
+                const alreadyRecorded = pendingSummary
+                    ? gamification.history.some(entry => entry.sessionId === pendingSummary.id)
+                    : false;
+                if (pendingSummary && !alreadyRecorded) {
+                    pendingCard.classList.remove('hidden');
+                    const titleEl = document.getElementById('gamification-pending-title');
+                    if (titleEl) {
+                        const routine = pendingSummary.routineName ? this.escapeHtml(pendingSummary.routineName) : 'Entrenamiento en vivo';
+                        const durationLabel = typeof pendingSummary.totalDuration === 'number'
+                            ? this.formatTime(pendingSummary.totalDuration)
+                            : '';
+                        titleEl.innerHTML = `${routine}${durationLabel ? ` · ${durationLabel}` : ''}`;
+                    }
+                    const helperEl = document.getElementById('gamification-pending-helper');
+                    if (helperEl) {
+                        if (cooldownInfo.inCooldown && cooldownInfo.nextAvailable) {
+                            helperEl.textContent = 'Tu sesión está lista, pero debes esperar a que termine el intervalo de descanso para sumar puntos.';
+                        } else {
+                            helperEl.textContent = 'Captura una foto con sello automático de hora para validar tu esfuerzo.';
+                        }
+                    }
+                    const uploadButton = pendingCard.querySelector('[data-action="gamification-open-upload"]');
+                    if (uploadButton) {
+                        uploadButton.disabled = Boolean(cooldownInfo.inCooldown);
+                        uploadButton.classList.toggle('opacity-60', Boolean(cooldownInfo.inCooldown));
+                        uploadButton.setAttribute('aria-disabled', cooldownInfo.inCooldown ? 'true' : 'false');
+                        uploadButton.textContent = cooldownInfo.inCooldown
+                            ? 'Espera a que termine el intervalo'
+                            : 'Sube tu foto y gana tus puntos';
+                    }
+                } else {
+                    pendingCard.classList.add('hidden');
+                }
+            }
+
+            const historyContainer = document.getElementById('gamification-history-list');
+            if (historyContainer) {
+                if (gamification.history.length === 0) {
+                    historyContainer.innerHTML = `<div class="rounded-2xl border border-dashed border-white/10 bg-white/5 p-5 text-sm text-gray-400">Verifica tu próximo entrenamiento para ver aquí la foto con sello de hora y los puntos obtenidos.</div>`;
+                } else {
+                    const historyHtml = gamification.history.map(record => {
+                        const date = record.awardedAt ? new Date(record.awardedAt) : null;
+                        const absolute = date ? date.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' }) : 'Fecha no disponible';
+                        const relative = record.awardedAt ? this.formatRelativeTime(record.awardedAt) : '';
+                        const routine = this.escapeHtml(record.routineName || 'Sesión');
+                        const pointsEarned = this.formatPoints(record.pointsAwarded || pointsPerSession);
+                        const durationLabel = record.duration ? this.formatTime(record.duration) : '—';
+                        const timestampLabel = record.timestampLabel ? this.escapeHtml(record.timestampLabel) : 'Sello automático generado';
+                        const sessionType = record.sessionType ? this.escapeHtml(record.sessionType) : '';
+                        const subtitleParts = [absolute];
+                        if (relative) subtitleParts.push(relative);
+                        if (sessionType && sessionType !== routine) subtitleParts.push(sessionType);
+                        const subtitle = subtitleParts.join(' · ');
+                        const sessionTypeChip = sessionType && sessionType !== routine
+                            ? `<span class="inline-flex items-center gap-1 rounded-full border border-purple-400/40 bg-purple-500/10 px-2.5 py-1 text-purple-100"><i data-lucide="dumbbell" class="h-3.5 w-3.5"></i>${sessionType}</span>`
+                            : '';
+                        const photoHtml = record.photoDataUrl
+                            ? `<img src="${record.photoDataUrl}" alt="Foto verificada" class="h-20 w-20 rounded-xl object-cover border border-white/10">`
+                            : `<div class="grid h-20 w-20 place-items-center rounded-xl border border-dashed border-white/15 bg-white/5 text-[11px] text-gray-400">Foto eliminada</div>`;
+                        const removeButton = record.photoDataUrl
+                            ? `<button data-action="gamification-remove-photo" data-record-id="${record.id}" class="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-200 transition hover:border-rose-400/60 hover:text-rose-200"><i data-lucide="trash-2" class="h-3.5 w-3.5"></i>Eliminar foto</button>`
+                            : `<span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/30 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-emerald-200"><i data-lucide="shield-check" class="h-3.5 w-3.5"></i>Registro conservado</span>`;
+                        return `
+                            <article class="flex flex-col gap-4 rounded-2xl border border-white/10 bg-gray-900/70 p-4 sm:flex-row sm:items-center sm:justify-between">
+                                <div class="flex items-center gap-4">
+                                    ${photoHtml}
+                                    <div class="space-y-1">
+                                        <p class="text-sm font-semibold text-white">${routine}</p>
+                                        <p class="text-xs text-gray-400">${subtitle}</p>
+                                        <p class="text-xs text-emerald-200/80">${timestampLabel}</p>
+                                        <div class="flex flex-wrap gap-2 text-[11px] text-gray-300">
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-1 text-emerald-100"><i data-lucide="plus-circle" class="h-3.5 w-3.5"></i>${pointsEarned} pts</span>
+                                            <span class="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/10 px-2.5 py-1 text-sky-100"><i data-lucide="timer" class="h-3.5 w-3.5"></i>${durationLabel}</span>
+                                            ${sessionTypeChip}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-start gap-2 sm:items-end">
+                                    ${removeButton}
+                                </div>
+                            </article>
+                        `;
+                    }).join('');
+                    historyContainer.innerHTML = historyHtml;
+                }
+            }
+
+            const rewardsContainer = document.getElementById('gamification-rewards-grid');
+            if (rewardsContainer) {
+                const rewardsHtml = gamification.rewards.map(reward => {
+                    const status = reward.status || 'locked';
+                    const icon = reward.icon || 'gift';
+                    const requiredPoints = Math.max(1, Number(reward.pointsRequired) || 0);
+                    const progressPercent = Math.min(100, Math.round((points / requiredPoints) * 100));
+                    const remainingPoints = Math.max(0, requiredPoints - points);
+                    const coverImage = reward.coverImage || '';
+                    const badge = status === 'claimed'
+                        ? { text: 'Canjeado', classes: 'bg-emerald-400/90 text-emerald-950' }
+                        : status === 'unlocked'
+                            ? { text: 'Desbloqueado', classes: 'bg-sky-400/90 text-sky-950' }
+                            : { text: 'Bloqueado', classes: 'bg-slate-900/70 text-emerald-100 border border-emerald-400/50 backdrop-blur' };
+                    const progressLabel = status === 'claimed'
+                        ? 'Canjeaste este premio'
+                        : status === 'unlocked'
+                            ? '¡Listo para canjear!'
+                            : `Te faltan ${this.formatPoints(remainingPoints)} pts`;
+                    const actionHtml = status === 'unlocked'
+                        ? `<button data-action="gamification-claim-reward" data-reward-id="${reward.id}" class="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 px-4 py-2 text-xs font-semibold uppercase tracking-[0.35em] text-gray-900 shadow-[0_12px_30px_-15px_rgba(16,185,129,0.75)] transition hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-300"><i data-lucide="check-circle" class="h-3.5 w-3.5"></i>Canjear ahora</button>`
+                        : '';
+                    const cover = coverImage
+                        ? `<img src="${coverImage}" alt="Portada de ${this.escapeHtml(reward.name || 'premio')}" class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]">`
+                        : `<div class="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-emerald-500/20 via-teal-500/15 to-sky-500/20 text-emerald-100"><span class="grid h-12 w-12 place-items-center rounded-full border border-emerald-300/40 bg-emerald-500/20"><i data-lucide="${icon}" class="h-6 w-6"></i></span><p class="text-xs font-semibold text-center px-6">Añade una portada desde la configuración</p></div>`;
+                    return `
+                        <article class="group overflow-hidden rounded-[1.75rem] border border-white/10 bg-gray-900/60 shadow-[0_25px_80px_-45px_rgba(16,185,129,0.6)] transition hover:border-emerald-400/40">
+                            <div class="relative h-44 w-full overflow-hidden">
+                                ${cover}
+                                <div class="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/20 to-transparent"></div>
+                                <span class="absolute left-4 top-4 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] ${badge.classes}">
+                                    <i data-lucide="${status === 'claimed' ? 'crown' : status === 'unlocked' ? 'stars' : 'lock'}" class="h-3.5 w-3.5"></i>
+                                    ${badge.text}
+                                </span>
+                                <span class="absolute right-4 top-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.35em] text-white/90">${this.formatPoints(requiredPoints)} pts</span>
+                            </div>
+                            <div class="space-y-4 p-5">
+                                <div class="space-y-2">
+                                    <h3 class="text-lg font-semibold text-white">${this.escapeHtml(reward.name || 'Premio sin título')}</h3>
+                                    <p class="text-sm text-gray-300/90">${this.escapeHtml(reward.description || 'Añade una breve descripción desde la configuración.')}</p>
+                                </div>
+                                <div class="space-y-2">
+                                    <div class="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                                        <span class="block h-full rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-300" style="width: ${status === 'claimed' ? 100 : progressPercent}%"></span>
+                                    </div>
+                                    <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80">${progressLabel}</p>
+                                </div>
+                                ${actionHtml ? `<div class="flex justify-end">${actionHtml}</div>` : ''}
+                            </div>
+                        </article>
+                    `;
+                }).join('');
+                rewardsContainer.innerHTML = rewardsHtml;
+            }
+        },
+
+        buildGamificationSummarySection(summary) {
+            const gamification = this.state?.gamification || this.normalizeGamificationState();
+            const totalPoints = gamification.points || 0;
+            const pointsPerSession = gamification.pointsPerSession || 0;
+            const existingRecord = Array.isArray(gamification.history)
+                ? gamification.history.find(record => record.sessionId === summary.id)
+                : null;
+            const nextReward = this.getNextGamificationReward(totalPoints);
+            const highestReward = gamification.rewards.reduce((max, reward) => Math.max(max, reward.pointsRequired || 0), 0);
+            const targetPoints = nextReward ? nextReward.pointsRequired : (highestReward || Math.max(pointsPerSession, 1));
+            const progressPercent = targetPoints ? Math.min(100, Math.round((totalPoints / targetPoints) * 100)) : 100;
+            const cooldownInfo = this.getGamificationCooldownInfo();
+            const inCooldown = cooldownInfo.inCooldown && !existingRecord;
+            const cooldownLabel = inCooldown && cooldownInfo.nextAvailable
+                ? `Podrás registrar otra sesión a partir de ${cooldownInfo.nextAvailable.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })}.`
+                : `Cada sesión verificada suma ${pointsPerSession} puntos.`;
+
+            const existingPreview = existingRecord
+                ? `<div class="flex gap-3 rounded-2xl border border-emerald-400/40 bg-emerald-500/10 p-3">
+                        <div class="flex-shrink-0">
+                            ${existingRecord.photoDataUrl
+                                ? `<img src="${existingRecord.photoDataUrl}" alt="Foto verificada" class="h-16 w-16 rounded-xl object-cover border border-white/20">`
+                                : `<div class="grid h-16 w-16 place-items-center rounded-xl border border-dashed border-white/25 bg-white/10 text-[11px] text-emerald-100">Foto eliminada</div>`}
+                        </div>
+                        <div class="space-y-1 text-emerald-100">
+                            <p class="text-sm font-semibold">Sesión verificada</p>
+                            <p class="text-xs">${existingRecord.timestampLabel || 'Sello generado automáticamente'}</p>
+                            <p class="text-xs">Puntos otorgados: <strong>${this.formatPoints(existingRecord.pointsAwarded || pointsPerSession)}</strong></p>
+                        </div>
+                    </div>`
+                : '';
+
+            const actionArea = existingRecord
+                ? `<div class="flex flex-wrap items-center justify-between gap-3 text-xs text-gray-300">
+                        <span class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-3 py-1 font-semibold uppercase tracking-[0.3em] text-emerald-100"><i data-lucide="shield-check" class="h-3.5 w-3.5"></i>Puntos acreditados</span>
+                        <button data-action="gamification-go-section" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 font-semibold text-white transition hover:border-emerald-400/60 hover:text-emerald-100"><i data-lucide="gift" class="h-3.5 w-3.5"></i>Ver premios</button>
+                    </div>`
+                : (() => {
+                    const uploadButtonClass = inCooldown
+                        ? 'inline-flex items-center gap-2 rounded-full bg-emerald-500/60 px-4 py-2 text-sm font-semibold text-gray-900/70 shadow-lg shadow-emerald-500/25'
+                        : 'inline-flex items-center gap-2 rounded-full bg-emerald-500 px-4 py-2 text-sm font-semibold text-gray-900 shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-400';
+                    const uploadAttrs = inCooldown ? 'disabled aria-disabled="true"' : '';
+                    return `<div data-gamification-area="modal" class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div class="space-y-1 text-sm text-gray-300">
+                            <p>${inCooldown ? 'Estás dentro del intervalo de espera. Sube tu foto cuando el temporizador lo permita.' : 'Sube una foto con sello automático de hora para sumar tus puntos.'}</p>
+                            <p class="text-xs text-gray-400">${cooldownLabel}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button data-action="gamification-open-upload" class="${uploadButtonClass}" ${uploadAttrs}>
+                                <i data-lucide="camera"></i>
+                                ${inCooldown ? 'Espera a que termine el intervalo' : 'Sube tu foto y gana tus puntos'}
+                            </button>
+                            <button data-action="gamification-go-section" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-semibold text-white transition hover:border-emerald-400/60 hover:text-emerald-100">
+                                <i data-lucide="gift"></i>
+                                Ver premios
+                            </button>
+                        </div>
+                        <input type="file" accept="image/*" capture="environment" data-gamification-proof-input class="hidden">
+                    </div>`;
+                })();
+
+            return `
+                <section class="rounded-3xl border border-white/10 bg-white/5 p-5 space-y-4">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-xs font-semibold uppercase tracking-[0.35em] text-gray-400">Premios por entrenar</p>
+                            <h4 class="text-lg font-semibold text-white">${existingRecord ? 'Sesión verificada' : 'Verifica tu entrenamiento para sumar puntos'}</h4>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-xs text-gray-400">Total acumulado</p>
+                            <p class="text-xl font-bold text-emerald-300">${this.formatPoints(totalPoints)} pts</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="header-progress-bar">
+                            <span style="width: ${progressPercent}%"></span>
+                        </div>
+                        <p class="text-xs text-gray-400">${nextReward ? `${totalPoints}/${nextReward.pointsRequired} pts · Próximo premio: ${nextReward.name}` : 'Todos los premios actuales están desbloqueados.'}</p>
+                    </div>
+                    ${existingPreview}
+                    ${actionArea}
+                </section>
+            `;
+        },
+
+        openGamificationUpload(button) {
+            const pendingSummary = this.pendingGamificationSummary;
+            if (!pendingSummary) {
+                this.showToast('Completa un entrenamiento en vivo para subir tu foto y sumar puntos.', 'error');
+                return;
+            }
+            const area = button?.closest('[data-gamification-area]') || document;
+            const input = area.querySelector('[data-gamification-proof-input]') || document.querySelector('[data-gamification-proof-input]');
+            if (!input) {
+                this.showToast('No se encontró el selector de fotos.', 'error');
+                return;
+            }
+            input.click();
+        },
+
+
+        openGamificationConfigModal() {
+            if (!this.isAdmin()) {
+                this.showToast('Solo un administrador puede ajustar los premios.', 'error');
+                return;
+            }
+
+            const gamification = this.state?.gamification || this.normalizeGamificationState();
+            const pointsPerSession = gamification.pointsPerSession || 10;
+            const cooldownHours = gamification.cooldownHours || 0;
+            const rewards = Array.isArray(gamification.rewards) && gamification.rewards.length
+                ? gamification.rewards
+                : this.getDefaultRewardsConfig();
+
+            const body = `
+                <form id="gamification-config-form" class="space-y-6 text-left">
+                    <section class="space-y-4">
+                        <p class="text-sm text-gray-300">Define cuántos puntos otorgas por sesión verificada y el intervalo mínimo entre acreditaciones para evitar abusos.</p>
+                        <div class="grid gap-4 sm:grid-cols-2">
+                            <label class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-gray-900/70 p-4 text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                <span>Puntos por sesión</span>
+                                <input type="number" min="1" step="1" name="points-per-session" value="${pointsPerSession}" class="w-full rounded-lg border border-white/5 bg-gray-900/70 px-3 py-2 text-base font-semibold text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40" required>
+                                <span class="text-[11px] font-normal normal-case text-gray-400">Elige cuántos puntos gana cada verificación.</span>
+                            </label>
+                            <label class="flex flex-col gap-2 rounded-2xl border border-white/10 bg-gray-900/70 p-4 text-xs font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                <span>Intervalo (horas)</span>
+                                <input type="number" min="0" step="1" name="cooldown-hours" value="${cooldownHours}" class="w-full rounded-lg border border-white/5 bg-gray-900/70 px-3 py-2 text-base font-semibold text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40" required>
+                                <span class="text-[11px] font-normal normal-case text-gray-400">Configura 0 para permitir varias sesiones seguidas.</span>
+                            </label>
+                        </div>
+                    </section>
+                    <section class="space-y-4">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Catálogo de premios</p>
+                                <p class="text-xs text-gray-500">Personaliza cada recompensa, agrega portadas llamativas o elimina las que no necesites.</p>
+                            </div>
+                            <button type="button" data-action="gamification-add-reward" class="inline-flex items-center gap-2 rounded-full border border-emerald-400/40 bg-emerald-500/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-emerald-200 transition hover:border-emerald-300 hover:bg-emerald-500/20">
+                                <i data-lucide="plus" class="h-3.5 w-3.5"></i>
+                                Nuevo premio
+                            </button>
+                        </div>
+                        <div data-rewards-list class="space-y-4">
+                            ${rewards.map(reward => this.buildGamificationRewardFormItem(reward)).join('')}
+                        </div>
+                    </section>
+                </form>
+            `;
+
+            const footer = [
+                { text: 'Cancelar', class: 'bg-white/5 text-gray-300 border border-white/10 hover:text-white', action: 'hide-modal' },
+                { text: 'Guardar cambios', class: 'bg-emerald-500 text-gray-900 hover:bg-emerald-400', action: 'save-gamification-config' }
+            ];
+            this.showModal('Configurar premios por entrenar', body, footer);
+            this.updateGamificationRewardsEmptyState();
+            lucide.createIcons();
+        },
+
+
+        buildGamificationRewardFormItem(reward = {}) {
+            const id = reward.id || this.generateLocalId('reward');
+            const name = this.escapeHtml(reward.name || '');
+            const description = this.escapeHtml(reward.description || '');
+            const pointsRequired = Math.max(1, Math.round(Number(reward.pointsRequired) || 100));
+            const coverImage = typeof reward.coverImage === 'string' ? reward.coverImage : '';
+            const placeholderClass = coverImage ? 'hidden' : '';
+            const previewClass = coverImage ? '' : 'hidden';
+            return `
+                <article class="space-y-4 rounded-3xl border border-white/10 bg-gray-900/70 p-4" data-reward-item data-reward-id="${id}">
+                    <input type="hidden" data-field="reward-id" value="${id}">
+                    <input type="hidden" data-field="reward-cover" value="${coverImage}">
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <label class="flex-1 space-y-2">
+                            <span class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Nombre del premio</span>
+                            <input type="text" name="reward-name" value="${name}" placeholder="Ej. Entrada VIP" class="w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm font-semibold text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                        </label>
+                        <button type="button" data-action="gamification-remove-reward" data-reward-id="${id}" class="inline-flex items-center gap-2 self-end rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.3em] text-gray-300 transition hover:border-rose-400/60 hover:text-rose-200">
+                            <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                            Quitar
+                        </button>
+                    </div>
+                    <div class="grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+                        <label class="space-y-2">
+                            <span class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Descripción</span>
+                            <textarea name="reward-description" rows="3" class="w-full resize-none rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm text-gray-200 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40" placeholder="Cuenta brevemente qué obtiene el atleta">${description}</textarea>
+                        </label>
+                        <label class="space-y-2">
+                            <span class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Puntos para desbloquear</span>
+                            <input type="number" min="1" step="1" name="reward-points" value="${pointsRequired}" class="w-full rounded-2xl border border-white/10 bg-gray-900/60 px-3 py-2 text-sm font-semibold text-white focus:border-transparent focus:outline-none focus:ring-2 focus:ring-emerald-400/40">
+                            <span class="block text-[11px] text-gray-500">Se mostrará junto al premio.</span>
+                        </label>
+                    </div>
+                    <div class="space-y-3">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Portada del premio</p>
+                        <div class="group relative h-44 overflow-hidden rounded-2xl border border-dashed border-emerald-400/40 bg-emerald-500/5">
+                            <input type="file" accept="image/*" class="absolute inset-0 h-full w-full cursor-pointer opacity-0" data-gamification-reward-cover data-reward-id="${id}">
+                            <div data-field="reward-cover-placeholder" class="flex h-full flex-col items-center justify-center gap-2 text-emerald-200/80 ${placeholderClass}">
+                                <span class="grid h-12 w-12 place-items-center rounded-full border border-emerald-400/40 bg-emerald-500/15">
+                                    <i data-lucide="image" class="h-5 w-5"></i>
+                                </span>
+                                <p class="text-xs font-semibold">Sube una imagen panorámica</p>
+                                <p class="text-[11px] text-emerald-100/70">Formato horizontal recomendado</p>
+                            </div>
+                            <img data-field="reward-cover-preview" src="${coverImage}" class="${previewClass} h-full w-full object-cover transition duration-500 group-hover:scale-[1.02]" alt="Portada del premio">
+                        </div>
+                        <div class="flex items-center justify-between text-[11px] text-gray-400">
+                            <span>Ideal 1200 × 600 px.</span>
+                            <button type="button" data-action="gamification-clear-reward-cover" data-reward-id="${id}" data-field="reward-cover-clear" class="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1 font-semibold uppercase tracking-[0.3em] text-gray-300 transition hover:border-rose-400/60 hover:text-rose-200 ${coverImage ? '' : 'hidden'}">
+                                <i data-lucide="x" class="h-3.5 w-3.5"></i>
+                                Quitar portada
+                            </button>
+                        </div>
+                    </div>
+                </article>
+            `;
+        },
+
+        updateGamificationRewardsEmptyState() {
+            const form = document.getElementById('gamification-config-form');
+            if (!form) {
+                return;
+            }
+            const list = form.querySelector('[data-rewards-list]');
+            if (!list) {
+                return;
+            }
+            const placeholder = list.querySelector('[data-reward-empty]');
+            const hasItems = !!list.querySelector('[data-reward-item]');
+            if (hasItems && placeholder) {
+                placeholder.remove();
+            } else if (!hasItems && !placeholder) {
+                const empty = document.createElement('div');
+                empty.dataset.rewardEmpty = 'true';
+                empty.className = 'rounded-2xl border border-dashed border-white/10 bg-white/5 p-4 text-center text-xs text-gray-400';
+                empty.textContent = 'Añade tu primer premio para iniciar la tabla de recompensas.';
+                list.appendChild(empty);
+            }
+        },
+
+        addGamificationReward() {
+            if (!this.isAdmin()) {
+                this.showToast('Solo un administrador puede crear premios.', 'error');
+                return;
+            }
+            const form = document.getElementById('gamification-config-form');
+            if (!form) {
+                return;
+            }
+            const list = form.querySelector('[data-rewards-list]');
+            if (!list) {
+                return;
+            }
+            this.updateGamificationRewardsEmptyState();
+            const currentPoints = Array.from(list.querySelectorAll('[data-reward-item] input[name="reward-points"]'))
+                .map(input => Number(input.value))
+                .filter(value => Number.isFinite(value) && value > 0);
+            const suggestedPoints = currentPoints.length ? Math.max(...currentPoints) + 50 : 100;
+            const newReward = {
+                id: this.generateLocalId('reward'),
+                name: '',
+                description: '',
+                pointsRequired: suggestedPoints,
+                icon: 'gift',
+                coverImage: '',
+                status: 'locked',
+                unlockedAt: null,
+                claimedAt: null
+            };
+            const template = document.createElement('template');
+            template.innerHTML = this.buildGamificationRewardFormItem(newReward).trim();
+            const element = template.content.firstElementChild;
+            if (element) {
+                list.appendChild(element);
+                this.updateGamificationRewardsEmptyState();
+                const nameInput = element.querySelector('input[name="reward-name"]');
+                nameInput?.focus();
+                lucide.createIcons();
+            }
+        },
+
+        removeGamificationReward(rewardId) {
+            if (!this.isAdmin()) {
+                this.showToast('Solo un administrador puede eliminar premios.', 'error');
+                return;
+            }
+            if (!rewardId) {
+                return;
+            }
+            const form = document.getElementById('gamification-config-form');
+            if (!form) {
+                return;
+            }
+            const item = form.querySelector(`[data-reward-item][data-reward-id="${rewardId}"]`);
+            if (item) {
+                item.remove();
+                this.updateGamificationRewardsEmptyState();
+                lucide.createIcons();
+            }
+        },
+
+        clearGamificationRewardCover(rewardId) {
+            if (!this.isAdmin()) {
+                this.showToast('Solo un administrador puede editar portadas.', 'error');
+                return;
+            }
+            if (!rewardId) {
+                return;
+            }
+            const form = document.getElementById('gamification-config-form');
+            if (!form) {
+                return;
+            }
+            const item = form.querySelector(`[data-reward-item][data-reward-id="${rewardId}"]`);
+            if (!item) {
+                return;
+            }
+            const coverInput = item.querySelector('[data-field="reward-cover"]');
+            const preview = item.querySelector('[data-field="reward-cover-preview"]');
+            const placeholder = item.querySelector('[data-field="reward-cover-placeholder"]');
+            const clearButton = item.querySelector('[data-field="reward-cover-clear"]');
+            if (coverInput) coverInput.value = '';
+            if (preview) {
+                preview.setAttribute('src', '');
+                preview.classList.add('hidden');
+            }
+            placeholder?.classList.remove('hidden');
+            clearButton?.classList.add('hidden');
+            lucide.createIcons();
+        },
+
+        handleGamificationRewardCoverSelection(input, file) {
+            if (!this.isAdmin()) {
+                this.showToast('Solo un administrador puede editar portadas.', 'error');
+                return;
+            }
+            if (!input || !file) {
+                return;
+            }
+            const item = input.closest('[data-reward-item]');
+            if (!item) {
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => {
+                const dataUrl = typeof reader.result === 'string' ? reader.result : '';
+                const coverInput = item.querySelector('[data-field="reward-cover"]');
+                const preview = item.querySelector('[data-field="reward-cover-preview"]');
+                const placeholder = item.querySelector('[data-field="reward-cover-placeholder"]');
+                const clearButton = item.querySelector('[data-field="reward-cover-clear"]');
+                if (coverInput) coverInput.value = dataUrl;
+                if (preview && dataUrl) {
+                    preview.src = dataUrl;
+                    preview.classList.remove('hidden');
+                }
+                placeholder?.classList.add('hidden');
+                clearButton?.classList.remove('hidden');
+                lucide.createIcons();
+            };
+            reader.readAsDataURL(file);
+        },
+
+        async saveGamificationConfig() {
+            if (!this.isAdmin()) {
+                this.showToast('Solo un administrador puede guardar cambios.', 'error');
+                this.hideModal();
+                return;
+            }
+
+            const form = document.getElementById('gamification-config-form');
+            if (!form) {
+                this.hideModal();
+                return;
+            }
+            const pointsInput = form.querySelector('input[name="points-per-session"]');
+            const cooldownInput = form.querySelector('input[name="cooldown-hours"]');
+            const rawPoints = Number(pointsInput?.value);
+            const rawCooldown = Number(cooldownInput?.value);
+            if (!Number.isFinite(rawPoints) || rawPoints <= 0) {
+                this.showToast('Ingresa un valor válido de puntos por sesión.', 'error');
+                return;
+            }
+            if (!Number.isFinite(rawCooldown) || rawCooldown < 0) {
+                this.showToast('Ingresa un intervalo válido en horas.', 'error');
+                return;
+            }
+            const pointsPerSession = Math.max(1, Math.round(rawPoints));
+            const cooldownHours = Math.max(0, Math.round(rawCooldown));
+            if (pointsInput) pointsInput.value = pointsPerSession;
+            if (cooldownInput) cooldownInput.value = cooldownHours;
+
+            const rewardItems = Array.from(form.querySelectorAll('[data-reward-item]'));
+            if (!rewardItems.length) {
+                this.showToast('Agrega al menos un premio para guardar la configuración.', 'error');
+                return;
+            }
+
+            const existingRewards = new Map((this.state?.gamification?.rewards || []).map(reward => [reward.id, reward]));
+            const updatedRewards = [];
+            for (const item of rewardItems) {
+                if (!(item instanceof HTMLElement)) {
+                    continue;
+                }
+                const idInput = item.querySelector('[data-field="reward-id"]');
+                const nameInput = item.querySelector('input[name="reward-name"]');
+                const descriptionInput = item.querySelector('textarea[name="reward-description"]');
+                const pointsField = item.querySelector('input[name="reward-points"]');
+                const coverInput = item.querySelector('[data-field="reward-cover"]');
+
+                let rewardId = idInput?.value?.trim();
+                if (!rewardId) {
+                    rewardId = this.generateLocalId('reward');
+                    if (idInput) idInput.value = rewardId;
+                }
+                const rewardName = nameInput?.value?.trim() || '';
+                if (!rewardName) {
+                    this.showToast('Cada premio necesita un nombre.', 'error');
+                    nameInput?.focus();
+                    return;
+                }
+                const rewardDescription = descriptionInput?.value?.trim() || '';
+                const parsedPoints = Number(pointsField?.value);
+                if (!Number.isFinite(parsedPoints) || parsedPoints <= 0) {
+                    this.showToast('Define puntos válidos para cada premio.', 'error');
+                    pointsField?.focus();
+                    return;
+                }
+                const pointsRequired = Math.max(1, Math.round(parsedPoints));
+                if (pointsField) pointsField.value = pointsRequired;
+                const coverImage = coverInput?.value || '';
+                const existing = existingRewards.get(rewardId) || {};
+                updatedRewards.push({
+                    id: rewardId,
+                    name: rewardName,
+                    description: rewardDescription,
+                    pointsRequired,
+                    icon: existing.icon || 'gift',
+                    coverImage,
+                    status: existing.status || 'locked',
+                    unlockedAt: existing.unlockedAt || null,
+                    claimedAt: existing.claimedAt || null
+                });
+            }
+
+            const gamification = this.state.gamification || this.normalizeGamificationState();
+            gamification.pointsPerSession = pointsPerSession;
+            gamification.cooldownHours = cooldownHours;
+            gamification.rewards = updatedRewards;
+            this.state.gamification = this.normalizeGamificationState({ ...gamification, rewards: updatedRewards });
+            this.updateGamificationRewards(new Date());
+            await this.saveDataToFirestore();
+            this.renderGamificationSection();
+            lucide.createIcons();
+            this.hideModal();
+            this.showToast('Configuración actualizada.', 'success');
+        },
+        async handleGamificationProofSelected(file) {
+            if (!file) {
+                return;
+            }
+            const summary = this.pendingGamificationSummary;
+            if (!summary) {
+                this.showToast('No hay una sesión pendiente de verificación.', 'error');
+                return;
+            }
+            if (this.isProcessingGamificationProof) {
+                return;
+            }
+            const gamification = this.state.gamification || this.normalizeGamificationState();
+            const existingRecord = Array.isArray(gamification.history)
+                ? gamification.history.find(entry => entry.sessionId === summary.id)
+                : null;
+            if (existingRecord) {
+                this.showToast('Esta sesión ya tiene puntos asignados.', 'error');
+                this.renderGamificationSection();
+                lucide.createIcons();
+                return;
+            }
+
+            const cooldownInfo = this.getGamificationCooldownInfo();
+            if (cooldownInfo.inCooldown) {
+                this.showToast('Debes esperar a que finalice el intervalo antes de sumar puntos a otra sesión.', 'error');
+                return;
+            }
+
+            this.isProcessingGamificationProof = true;
+            try {
+                const processedPhoto = await this.generateTimestampedProof(file);
+                const now = new Date();
+                const pointsPerSession = gamification.pointsPerSession || 0;
+                const userId = this.state?.currentUser?.uid || this.auth?.currentUser?.uid || null;
+                const sessionType = summary.sessionType || summary.dayName || summary.routineType || summary.routineName || 'Sesión';
+                const record = {
+                    id: `proof-${Date.now()}`,
+                    sessionId: summary.id,
+                    routineName: summary.routineName || 'Sesión',
+                    dayName: summary.dayName || '',
+                    sessionType,
+                    userId,
+                    duration: summary.totalDuration || 0,
+                    pointsAwarded: pointsPerSession,
+                    awardedAt: now.toISOString(),
+                    photoDataUrl: processedPhoto.dataUrl,
+                    timestampLabel: processedPhoto.timestampLabel,
+                    photoDeletedAt: null
+                };
+                gamification.history.unshift(record);
+                gamification.points = (gamification.points || 0) + pointsPerSession;
+                gamification.lastAwardedAt = record.awardedAt;
+                this.state.gamification = gamification;
+                this.updateGamificationRewards(now);
+                this.pendingGamificationSummary = null;
+                await this.saveDataToFirestore();
+                this.renderGamificationSection();
+                lucide.createIcons();
+                this.showToast('¡Sesión verificada! Puntos asignados.', 'success');
+                this.showWorkoutSummaryModal(summary);
+            } catch (error) {
+                console.error('Error procesando la foto de verificación:', error);
+                this.showToast('No se pudo procesar la foto. Inténtalo nuevamente.', 'error');
+            } finally {
+                this.isProcessingGamificationProof = false;
+            }
+        },
+
+        generateTimestampedProof(file) {
+            return new Promise((resolve, reject) => {
+                const image = new Image();
+                const url = URL.createObjectURL(file);
+                image.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = image.width;
+                        canvas.height = image.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+                        const timestamp = new Date();
+                        const timestampLabel = timestamp.toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
+                        const padding = Math.max(canvas.width, canvas.height) * 0.02;
+                        const fontSize = Math.max(18, Math.round(canvas.width * 0.035));
+                        ctx.font = `${fontSize}px 'Inter', sans-serif`;
+                        ctx.textBaseline = 'bottom';
+                        const textWidth = ctx.measureText(timestampLabel).width;
+                        const boxWidth = textWidth + padding * 2;
+                        const boxHeight = fontSize + padding * 2;
+                        const x = canvas.width - boxWidth - padding;
+                        const y = canvas.height - boxHeight - padding;
+                        ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+                        ctx.fillRect(x, y, boxWidth, boxHeight);
+                        ctx.fillStyle = 'rgba(240, 253, 244, 0.95)';
+                        ctx.fillText(timestampLabel, x + padding, y + boxHeight - padding * 0.75);
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                        URL.revokeObjectURL(url);
+                        resolve({ dataUrl, timestampLabel });
+                    } catch (error) {
+                        URL.revokeObjectURL(url);
+                        reject(error);
+                    }
+                };
+                image.onerror = (error) => {
+                    URL.revokeObjectURL(url);
+                    reject(error);
+                };
+                image.src = url;
+            });
+        },
+
+        updateGamificationRewards(referenceDate = new Date()) {
+            const gamification = this.state.gamification || this.normalizeGamificationState();
+            const totalPoints = gamification.points || 0;
+            const newlyUnlocked = [];
+            gamification.rewards.forEach(reward => {
+                if (reward.status === 'claimed') {
+                    return;
+                }
+                if (totalPoints >= reward.pointsRequired) {
+                    if (reward.status !== 'unlocked') {
+                        reward.status = 'unlocked';
+                        reward.unlockedAt = reward.unlockedAt || referenceDate.toISOString();
+                        newlyUnlocked.push(reward);
+                    }
+                } else {
+                    reward.status = 'locked';
+                    reward.unlockedAt = null;
+                }
+            });
+            if (newlyUnlocked.length) {
+                const first = newlyUnlocked[0];
+                this.showToast(`¡Nuevo premio desbloqueado: ${first.name}!`, 'success');
+            }
+            this.state.gamification = gamification;
+        },
+
+        async removeGamificationPhoto(recordId) {
+            if (!recordId) {
+                return;
+            }
+            const gamification = this.state.gamification || this.normalizeGamificationState();
+            const record = Array.isArray(gamification.history)
+                ? gamification.history.find(entry => entry.id === recordId)
+                : null;
+            if (!record) {
+                this.showToast('No encontramos ese registro.', 'error');
+                return;
+            }
+            if (!record.photoDataUrl) {
+                this.showToast('La foto ya fue eliminada.', 'error');
+                return;
+            }
+            record.photoDataUrl = null;
+            record.photoDeletedAt = new Date().toISOString();
+            this.state.gamification = gamification;
+            await this.saveDataToFirestore();
+            this.renderGamificationSection();
+            lucide.createIcons();
+            this.showToast('Foto eliminada. Tus puntos se mantienen.', 'success');
+        },
+
+        async claimGamificationReward(rewardId) {
+            if (!rewardId) {
+                return;
+            }
+            const gamification = this.state.gamification || this.normalizeGamificationState();
+            const reward = gamification.rewards.find(item => item.id === rewardId);
+            if (!reward) {
+                this.showToast('No encontramos ese premio.', 'error');
+                return;
+            }
+            if (reward.status !== 'unlocked') {
+                this.showToast('Aún no puedes canjear este premio.', 'error');
+                return;
+            }
+            reward.status = 'claimed';
+            reward.claimedAt = new Date().toISOString();
+            this.state.gamification = gamification;
+            await this.saveDataToFirestore();
+            this.renderGamificationSection();
+            lucide.createIcons();
+            this.showToast('¡Premio marcado como canjeado!', 'success');
+        },
+        routine_showRenameDayModal(index) {
+            const currentName = this._tempRoutine.plan[index].day;
+            const body = `<div class="space-y-4"><label class="flex flex-col gap-2 text-left"><span class="text-xs font-semibold uppercase tracking-[0.3em] text-emerald-200/70">Nombre del día</span><input type="text" id="rename-day-input" value="${currentName}" class="w-full rounded-2xl border border-white/10 bg-gray-900/70 px-3 py-2 text-base font-semibold text-white focus:border-emerald-400 focus:outline-none" /></label></div>`;
+            const footer = [
+                { text: 'Cancelar', class: 'bg-white/5 text-gray-300 border border-white/10 hover:text-white', action: 'hide-modal' },
+                { text: 'Guardar', class: 'bg-emerald-500 text-gray-900 hover:bg-emerald-400', action: 'none' }
+            ];
+            this.showModal(`Renombrar ${currentName}`, body, footer);
+            const saveButton = document.querySelector('#custom-modal-footer button[data-action="none"]');
+            if (saveButton) {
+                saveButton.onclick = () => {
+                    const newName = document.getElementById('rename-day-input').value.trim();
+                    if (newName) {
+                        this._tempRoutine.plan[index].day = newName;
+                        this.routine_refreshDayTabs();
+                        this.hideModal();
+                    } else {
+                        this.showToast('El nombre no puede estar vacío', 'error');
+                    }
+                };
+            }
+        },
+        routine_confirmDeleteDay(dayIndex) {
+            if (this._tempRoutine.plan.length <= 1) {
+                this.showToast('No puedes eliminar el único día de la rutina.', 'error');
+                return;
+            }
+            const dayName = this._tempRoutine.plan[dayIndex].day;
+            this.showModal('Eliminar día', `¿Seguro que quieres eliminar "${dayName}"?`, [
+                { text: 'Cancelar', class: 'bg-white/5 text-gray-300 border border-white/10 hover:text-white', action: 'hide-modal' },
+                { text: 'Eliminar', class: 'bg-red-500 text-gray-50 hover:bg-red-400', action: 'routine-creator-delete-day', 'day-index': dayIndex }
+            ]);
+        },
+        routine_deleteDay(dayIndex) {
+            this._tempRoutine.plan.splice(dayIndex, 1);
+            this._tempRoutine.currentDayIndex = Math.max(0, dayIndex - 1);
+            this.routine_refreshDayTabs();
+            this.routine_refreshExerciseList();
+            this.hideModal();
+        },
+
+        async routine_save(options = {}) {
+            const { skipClose = false } = options || {};
+            if (this._tempRoutine.plan.some(d => d.exercises.length === 0)) {
+                this.showToast('Asegúrate de que cada día tenga al menos un ejercicio.', 'error');
+                return false;
+            }
+            this._tempRoutine.editingIndex = -1;
+            this._tempRoutine.modalEditingIndex = -1;
+
+            const editingClientId = this._tempRoutine.editingClientId;
+            const assignedClientId = this._tempRoutine.assignedClientId || '';
+            const routinePayload = JSON.parse(JSON.stringify(this._tempRoutine));
+            delete routinePayload.editingClientId;
+            delete routinePayload.activeExerciseGroup;
+            if (!assignedClientId) delete routinePayload.assignedClientId;
+
+            try {
+                if (editingClientId) {
+                    const clientRef = doc(this.db, "users", editingClientId);
+                    const clientData = (this.state.asesorados || []).find(c => c.id === editingClientId);
+                    const existingRoutines = Array.isArray(clientData?.userRoutines) ? [...clientData.userRoutines] : [];
+                    const routineIndex = existingRoutines.findIndex(r => r.id === routinePayload.id);
+                    if (routineIndex >= 0) {
+                        existingRoutines[routineIndex] = routinePayload;
+                    } else {
+                        existingRoutines.push(routinePayload);
+                    }
+                    await updateDoc(clientRef, { userRoutines: existingRoutines });
+                    this.showToast('Rutina del cliente guardada con éxito');
+                    await this.fetchAsesorados();
+                    if (!Array.isArray(this.state.userRoutines)) {
+                        this.state.userRoutines = [];
+                    }
+                    const localIndex = this.state.userRoutines.findIndex(r => r.id === routinePayload.id);
+                    if (localIndex >= 0) {
+                        this.state.userRoutines[localIndex] = routinePayload;
+                    } else {
+                        this.state.userRoutines.unshift(routinePayload);
+                    }
+                    await this.saveDataToFirestore();
+                    this.renderRoutinesSection();
+                } else if (assignedClientId) {
+                    const clientRef = doc(this.db, "users", assignedClientId);
+                    const clientData = (this.state.asesorados || []).find(c => c.id === assignedClientId);
+                    const existingRoutines = Array.isArray(clientData?.userRoutines) ? [...clientData.userRoutines] : [];
+                    existingRoutines.push(routinePayload);
+                    await updateDoc(clientRef, { userRoutines: existingRoutines });
+                    this.showToast('Rutina asignada al asesorado con éxito');
+                    await this.fetchAsesorados();
+
+                    if (!this.state.userRoutines) this.state.userRoutines = [];
+                    this.state.userRoutines.unshift(routinePayload);
+                    await this.saveDataToFirestore();
+                    this.renderRoutinesSection();
+                } else {
+                    if (!this.state.userRoutines) this.state.userRoutines = [];
+                    this.state.userRoutines.unshift(routinePayload);
+                    await this.saveDataToFirestore();
+                    this.showToast('Rutina guardada con éxito');
+                    this.renderRoutinesSection();
+                }
+
+                if (!skipClose) {
+                    this.routine_closeFullscreenView();
+                }
+                return true;
+            } catch (error) {
+                console.error('Error saving routine:', error);
+                const isClientAction = Boolean(editingClientId || assignedClientId);
+                this.showToast(isClientAction ? 'Error al guardar la rutina del cliente.' : 'Error al guardar la rutina.', 'error');
+                return false;
+            }
+        },
+
+        routine_confirmDelete(routineId) { this.showModal('Eliminar Rutina', '¿Estás seguro? Esta acción no se puede deshacer.', [ {text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal'}, {text: 'Eliminar', class: 'bg-red-600 hover:bg-red-500', action: 'routine-delete', 'routine-id': routineId} ]); },
+        async routine_delete(routineId) { this.state.userRoutines = this.state.userRoutines.filter(r => r.id !== routineId); await this.saveDataToFirestore(); this.hideModal(); this.routine_closeFullscreenView(); this.renderRoutinesSection(); this.showToast('Rutina eliminada', 'error'); },
+        routine_openFullscreenView(html) {
+            const container = document.getElementById('fullscreen-view-container');
+            if (typeof this._bodyOverflowBackup === 'undefined') {
+                this._bodyOverflowBackup = document.body.style.overflow;
+            }
+            document.body.style.overflow = 'hidden';
+            container.innerHTML = html;
+            container.classList.remove('pointer-events-none');
+            container.classList.remove('opacity-0');
+            container.style.opacity = '1';
+            setTimeout(() => {
+                const view = container.querySelector('.fullscreen-view');
+                if (view) view.classList.add('is-active');
+                lucide.createIcons();
+                if (typeof this.initializeGroupCardImageLoading === 'function') {
+                    this.initializeGroupCardImageLoading(container);
+                }
+            }, 10);
+        },
+        routine_closeFullscreenView() {
+            if (this._boundHandleDrawerResize) {
+                window.removeEventListener('resize', this._boundHandleDrawerResize);
+                this._boundHandleDrawerResize = null;
+            }
+
+            const container = document.getElementById('fullscreen-view-container');
+            const view = container.querySelector('.fullscreen-view');
+            if (view) {
+                view.classList.remove('is-active');
+                container.style.opacity = '0';
+                container.classList.add('opacity-0');
+                view.addEventListener('transitionend', () => {
+                    container.innerHTML = '';
+                    container.classList.add('pointer-events-none');
+                    if (typeof this._bodyOverflowBackup !== 'undefined') {
+                        document.body.style.overflow = this._bodyOverflowBackup;
+                        delete this._bodyOverflowBackup;
+                    }
+                    this.renderAsesoradosSection();
+                }, { once: true });
+            } else if (typeof this._bodyOverflowBackup !== 'undefined') {
+                document.body.style.overflow = this._bodyOverflowBackup;
+                delete this._bodyOverflowBackup;
+            }
+        },
+
+        showMediaViewer(url) {
+            if (!url) {
+                this.showToast('No hay multimedia para este ejercicio.', 'error');
+                return;
+            }
+            const modal = document.getElementById('image-viewer-modal');
+            const contentContainer = document.getElementById('image-viewer-content');
+            contentContainer.innerHTML = '';
+
+            const isVideo = url.includes('.mp4') || url.includes('.webm');
+            let mediaElement;
+            if (isVideo) {
+                mediaElement = document.createElement('video');
+                mediaElement.autoplay = true;
+                mediaElement.loop = true;
+                mediaElement.muted = true;
+                mediaElement.playsInline = true;
+            } else {
+                mediaElement = document.createElement('img');
+            }
+            mediaElement.src = url;
+            mediaElement.className = 'rounded-lg max-h-[90vh]';
+
+            contentContainer.appendChild(mediaElement);
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        },
+
+        admin_showEditMediaModal(group, subGroup, exerciseIndex) {
+            if (!this.isAsesor()) return;
+            const exercise = this.data.exerciseLibrary[group][subGroup][exerciseIndex];
+            const body = `
+                <p class="text-sm text-gray-400 mb-4">Sube un nuevo GIF, imagen o video para este ejercicio. El archivo anterior será reemplazado.</p>
+                <div>
+                    <label for="media-file-input" class="w-full cursor-pointer bg-gray-700 hover:bg-gray-600 border-2 border-dashed border-gray-500 rounded-lg p-6 text-center transition">
+                        <i data-lucide="upload-cloud" class="w-10 h-10 mx-auto text-gray-400"></i>
+                        <span id="file-name-display" class="mt-2 block text-sm font-semibold text-gray-300">Seleccionar archivo</span>
+                    </label>
+                    <input type="file" id="media-file-input" class="hidden" accept="image/*,video/*">
+                </div>
+                <div id="media-preview-container" class="mt-4 hidden max-h-48 overflow-hidden rounded-lg bg-gray-900 flex justify-center items-center"></div>
+                <div id="upload-progress-container" class="mt-4 hidden">
+                    <div class="w-full bg-gray-600 rounded-full h-2.5">
+                        <div id="upload-progress-bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <p id="upload-progress-text" class="text-center text-xs text-gray-400 mt-1">Subiendo...</p>
+                </div>
+            `;
+            const footer = [
+                { text: 'Cancelar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+                { text: 'Subir y Guardar', class: 'bg-emerald-600 text-gray-900 hover:bg-emerald-500', action: 'admin-upload-media', group: group, subgroup: subGroup, 'exercise-index': exerciseIndex, id: 'admin-upload-btn' }
+            ];
+            this.showModal(`Editar Media: ${exercise.name}`, body, footer);
+            lucide.createIcons();
+
+            const fileInput = document.getElementById('media-file-input');
+            const fileNameDisplay = document.getElementById('file-name-display');
+            const previewContainer = document.getElementById('media-preview-container');
+
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    fileNameDisplay.textContent = file.name;
+                    previewContainer.innerHTML = '';
+                    previewContainer.classList.remove('hidden');
+
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        let previewElement;
+                        if (file.type.startsWith('image/')) {
+                            previewElement = document.createElement('img');
+                        } else if (file.type.startsWith('video/')) {
+                            previewElement = document.createElement('video');
+                            previewElement.muted = true;
+                            previewElement.autoplay = true;
+                            previewElement.loop = true;
+                            previewElement.playsInline = true;
+                        }
+                        if (previewElement) {
+                            previewElement.src = e.target.result;
+                            previewElement.className = 'w-full h-auto object-contain max-h-48';
+                            previewContainer.appendChild(previewElement);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    fileNameDisplay.textContent = 'Seleccionar archivo';
+                    previewContainer.classList.add('hidden');
+                    previewContainer.innerHTML = '';
+                }
+            });
+        },
+
+        async admin_uploadAndSaveMedia(group, subGroup, exerciseIndex) {
+            if (!this.isAsesor()) { this.showToast('Acción no permitida.', 'error'); return; }
+
+            const fileInput = document.getElementById('media-file-input');
+            if (fileInput.files.length === 0) {
+                this.showToast('Por favor, selecciona un archivo para subir.', 'error');
+                return;
+            }
+            const file = fileInput.files[0];
+
+            const progressContainer = document.getElementById('upload-progress-container');
+            const progressBar = document.getElementById('upload-progress-bar');
+            const progressText = document.getElementById('upload-progress-text');
+            const modalFooter = document.getElementById('custom-modal-footer');
+
+            modalFooter.querySelectorAll('button').forEach(btn => btn.disabled = true);
+            progressContainer.classList.remove('hidden');
+
+            const exerciseName = this.data.exerciseLibrary[group][subGroup][exerciseIndex].name.replace(/\s+/g, '_');
+            const fileName = `exercise_media/${exerciseName}-${Date.now()}.${file.name.split('.').pop()}`;
+            const storageRef = ref(this.storage, fileName);
+            const uploadTask = uploadBytesResumable(storageRef, file);
+
+            uploadTask.on('state_changed',
+                (snapshot) => {
+                    const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                    progressBar.style.width = `${progress}%`;
+                    progressText.textContent = `Subiendo... ${Math.round(progress)}%`;
+                },
+                (error) => {
+                    console.error("Upload failed:", error);
+                    this.showToast('Error en la subida. Revisa las reglas de Storage.', 'error');
+                    modalFooter.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                },
+                async () => {
+                    try {
+                        const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                        this.data.exerciseLibrary[group][subGroup][exerciseIndex].mediaUrl = downloadURL;
+
+                        const docRef = doc(this.db, "app_data", "exercise_library");
+                        await setDoc(docRef, this.data.exerciseLibrary);
+
+                        this.showToast('¡Recurso subido y guardado!', 'success');
+                        this.hideModal();
+
+                        const creatorView = document.getElementById('routine-creator-view');
+                        if (creatorView) {
+                           this.routine_enterCreator(2);
+                        }
+
+                    } catch(error) {
+                        console.error("Error saving data after upload: ", error);
+                        this.showToast('Error al guardar la nueva URL.', 'error');
+                        modalFooter.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                    }
+                }
+            );
+        },
+
+        startWorkout(routineId, dayIndex) { let routine = [...(this.state.userRoutines || []), ...Object.values(this.data.predefinedRoutines).flat()].find(r => r.id === routineId); if (!routine || !routine.plan || !routine.plan[dayIndex]) { this.showToast("No se pudo iniciar la rutina.", "error"); return; } const workoutDay = routine.plan[dayIndex]; this.state.activeWorkout = { routineId, dayIndex, routineName: routine.name, dayName: workoutDay.day, exercises: JSON.parse(JSON.stringify(workoutDay.exercises.map(ex => ({...ex, log: []})))), currentExerciseIndex: 0, currentSet: 1, workoutStartTime: Date.now(), totalRestTime: 0, workoutTimerIntervalId: null, }; this.state.timer = { status: 'idle', timeLeft: 0, intervalId: null }; this.state.activeWorkout.workoutTimerIntervalId = setInterval(() => this.updateWorkoutTimerDisplay(), 1000); this.renderLiveWorkoutView(); },
+        updateWeightInput(amount) { const input = document.getElementById('weight-input'); if (input) { let currentValue = parseFloat(input.value) || 0; input.value = Math.max(0, currentValue + amount); } },
+
+        renderLiveWorkoutView() {
+            const overlay = document.getElementById('live-workout-overlay');
+            if (!this.state.activeWorkout) {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+                return;
+            }
+
+            const { exercises, currentExerciseIndex, currentSet, routineName, dayName } = this.state.activeWorkout;
+            const exercise = exercises[currentExerciseIndex];
+            if (!exercise) {
+                this.finishWorkout(false);
+                return;
+            }
+
+            const totalExercises = Math.max(1, exercises.length);
+            const timerStatus = this.state.timer.status;
+            const workoutProgress = ((currentExerciseIndex + 1) / totalExercises) * 100;
+            const progressRounded = Math.min(100, Math.max(0, workoutProgress));
+            const totalSets = Math.max(1, Number(exercise.sets) || 1);
+            const normalizedSet = Math.min(currentSet, totalSets);
+            const restTarget = exercise.rest || '60s';
+            const nextExercise = exercises[currentExerciseIndex + 1] || null;
+
+            const libraryExercise = this.getExerciseByName(exercise.name) || {};
+            const mediaUrl = exercise.mediaUrl || libraryExercise.mediaUrl || '';
+            const isVideoMedia = mediaUrl ? (/\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(mediaUrl) || mediaUrl.includes('video')) : false;
+
+            const mediaContent = mediaUrl
+                ? `
+                    <div class="relative aspect-video w-full overflow-hidden rounded-3xl border border-white/10 bg-black/40 shadow-[0_25px_70px_-45px_rgba(56,189,248,0.65)]">
+                        ${isVideoMedia
+                            ? `<video src="${mediaUrl}" autoplay loop muted playsinline class="h-full w-full object-cover"></video>`
+                            : `<img src="${mediaUrl}" alt="Demostración de ${exercise.name}" class="h-full w-full object-cover" loading="lazy">`
+                        }
+                        <div class="absolute inset-x-3 bottom-3 flex items-center justify-between rounded-full bg-black/55 px-3 py-2 text-[10px] font-semibold uppercase tracking-[0.35em] text-white/80">
+                            <span class="inline-flex items-center gap-2 text-white">
+                                <i data-lucide="${isVideoMedia ? 'play-circle' : 'image'}" class="h-4 w-4"></i>
+                                ${isVideoMedia ? 'Video' : 'Imagen'} de referencia
+                            </span>
+                            <button data-action="show-media-viewer" data-media-url="${mediaUrl}" class="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-[10px] font-bold tracking-[0.4em] text-white transition hover:bg-white/30">
+                                Ver grande
+                                <i data-lucide="expand" class="h-4 w-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                `
+                : `
+                    <div class="relative overflow-hidden rounded-3xl border border-dashed border-white/15 bg-white/5 px-4 py-12 text-center sm:px-6">
+                        <i data-lucide="image-off" class="mx-auto mb-4 h-10 w-10 text-gray-500"></i>
+                        <p class="text-sm font-semibold text-gray-300">Aún no hay media asociada a este ejercicio.</p>
+                        <p class="mt-2 text-xs text-gray-500">Sube una imagen o video desde el creador de rutinas para enriquecer esta vista.</p>
+                    </div>
+                `;
+
+            let setIndicators = '';
+            for (let i = 1; i <= totalSets; i++) {
+                const isCompleted = exercise.log?.[i - 1] !== undefined;
+                const isActive = i === normalizedSet && !['resting', 'exercise_complete', 'workout_complete'].includes(timerStatus);
+                let barClass = 'bg-white/10';
+                if (isCompleted) {
+                    barClass = 'bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 shadow-[0_0_25px_-12px_rgba(45,212,191,0.7)]';
+                } else if (isActive) {
+                    barClass = 'bg-amber-400/80 animate-pulse shadow-[0_0_35px_-18px_rgba(251,191,36,0.85)]';
+                }
+                setIndicators += `<span class="h-2 flex-1 rounded-full transition-all duration-500 ${barClass}"></span>`;
+            }
+
+            const statusPresets = {
+                idle: { label: 'Listo para iniciar', badgeClass: 'bg-emerald-400/10 border border-emerald-300/40 text-emerald-200' },
+                active: { label: 'En progreso', badgeClass: 'bg-amber-400/10 border border-amber-300/40 text-amber-200' },
+                logging_weight: { label: 'Registra el peso', badgeClass: 'bg-sky-400/10 border border-sky-300/40 text-sky-200' },
+                resting: { label: 'Descansando', badgeClass: 'bg-purple-400/10 border border-purple-300/40 text-purple-200' },
+                exercise_complete: { label: 'Ejercicio completado', badgeClass: 'bg-indigo-400/10 border border-indigo-300/40 text-indigo-200' },
+                workout_complete: { label: 'Rutina completada', badgeClass: 'bg-emerald-400/20 border border-emerald-300/40 text-emerald-100' }
+            };
+            const statusInfo = statusPresets[timerStatus] || statusPresets.idle;
+
+            let mainDisplayHtml = '';
+            switch (timerStatus) {
+                case 'resting': {
+                    const radius = 88;
+                    const circumference = 2 * Math.PI * radius;
+                    const progressFraction = this.state.timer.initialRestTime > 0
+                        ? Math.max(0, this.state.timer.timeLeft) / this.state.timer.initialRestTime
+                        : 0;
+                    const offset = circumference - progressFraction * circumference;
+                    const upcomingName = (currentSet > totalSets && nextExercise)
+                        ? nextExercise.name
+                        : exercise.name;
+                    mainDisplayHtml = `
+                        <div class="flex flex-col items-center gap-6 text-center">
+                            <div class="relative mx-auto h-48 w-48">
+                                <svg class="h-full w-full -rotate-90" viewBox="0 0 ${radius * 2 + 40} ${radius * 2 + 40}">
+                                    <circle class="text-white/10" stroke-width="12" stroke="currentColor" fill="transparent" r="${radius}" cx="${radius + 20}" cy="${radius + 20}"></circle>
+                                    <circle id="rest-progress-circle" data-circumference="${circumference}" class="text-emerald-400 drop-shadow-[0_0_20px_rgba(45,212,191,0.45)]" stroke-width="12" stroke-dasharray="${circumference}"
+                                        stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="${radius}" cx="${radius + 20}" cy="${radius + 20}"></circle>
+                                </svg>
+                                <div class="absolute inset-0 grid place-items-center">
+                                    <div class="text-center">
+                                        <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-emerald-200/80">Tiempo de descanso</p>
+                                        <p id="rest-timer-display" class="mt-1 text-5xl font-black font-mono tracking-tight text-white">${this.formatTime(this.state.timer.timeLeft)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <span class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-200">
+                                    <i data-lucide="clock" class="h-4 w-4"></i>
+                                    Recupera energías
+                                </span>
+                                <p class="text-sm font-semibold text-white">${nextExercise ? 'Próximo: ' + upcomingName : 'Último bloque completado'}</p>
+                                <p class="text-xs text-gray-400">Respira profundo y prepara la técnica.</p>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                }
+                case 'logging_weight': {
+                    const lastWeight = exercise.log?.[currentSet - 2] ?? '';
+                    mainDisplayHtml = `
+                        <div class="mx-auto w-full max-w-md space-y-6 text-center">
+                            <div>
+                                <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-sky-200/80">Registra el peso</p>
+                                <p class="mt-2 text-sm text-gray-300">Serie ${Math.max(currentSet - 1, 1)} completada</p>
+                            </div>
+                            <div class="flex items-center justify-center gap-4">
+                                <button type="button" onclick="app.updateWeightInput(-2.5)" class="h-14 w-14 rounded-full border border-white/15 bg-white/10 text-3xl font-bold text-white transition hover:border-emerald-300/60 hover:bg-emerald-300/10">-</button>
+                                <div class="relative w-44">
+                                    <input type="number" id="weight-input" inputmode="decimal"
+                                        class="w-full rounded-2xl border border-white/10 bg-black/60 py-3 text-center text-5xl font-black text-white focus:border-emerald-400 focus:outline-none"
+                                        placeholder="0" value="${lastWeight}">
+                                    <span class="pointer-events-none absolute inset-x-0 -bottom-6 text-xs uppercase tracking-[0.4em] text-gray-400">kg</span>
+                                </div>
+                                <button type="button" onclick="app.updateWeightInput(2.5)" class="h-14 w-14 rounded-full border border-white/15 bg-white/10 text-3xl font-bold text-white transition hover:border-emerald-300/60 hover:bg-emerald-300/10">+</button>
+                            </div>
+                            <p class="text-xs text-gray-400">Guarda el peso utilizado para mantener tu progreso controlado.</p>
+                        </div>
+                    `;
+                    break;
+                }
+                case 'exercise_complete':
+                    mainDisplayHtml = `
+                        <div class="flex flex-col items-center gap-4 text-center">
+                            <span class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300">
+                                <i data-lucide="check" class="h-10 w-10"></i>
+                            </span>
+                            <p class="text-2xl font-semibold text-white">¡Ejercicio completado!</p>
+                            <p class="text-sm text-gray-400">Respira profundo y prepárate para el siguiente desafío.</p>
+                        </div>
+                    `;
+                    break;
+                case 'workout_complete':
+                    mainDisplayHtml = `
+                        <div class="flex flex-col items-center gap-4 text-center">
+                            <span class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-emerald-400/15 text-emerald-200">
+                                <i data-lucide="sparkles" class="h-10 w-10"></i>
+                            </span>
+                            <p class="text-3xl font-semibold text-white">¡Entrenamiento finalizado!</p>
+                            <p class="text-sm text-gray-400">Excelente trabajo. Registra sensaciones y estira para cerrar con broche de oro.</p>
+                        </div>
+                    `;
+                    break;
+                default:
+                    mainDisplayHtml = `
+                        <div class="flex flex-col items-center gap-5 text-center">
+                            <div class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-300">
+                                Serie ${normalizedSet} / ${totalSets}
+                            </div>
+                            <p class="text-7xl font-black tracking-tight text-white">${exercise.reps}</p>
+                            <p class="text-sm text-gray-400">Repeticiones objetivo · Mantén la técnica bajo control.</p>
+                        </div>
+                    `;
+                    break;
+            }
+
+            const buttonMap = {
+                idle: { text: `Comenzar serie ${normalizedSet}`, gradient: 'from-emerald-400 via-teal-400 to-cyan-400', textClass: 'text-gray-900', icon: 'play', hoverShadow: 'hover:shadow-[0_35px_70px_-40px_rgba(45,212,191,0.75)]' },
+                active: { text: 'Finalizar serie', gradient: 'from-amber-400 via-orange-400 to-pink-500', textClass: 'text-gray-900', icon: 'flag-checkered', hoverShadow: 'hover:shadow-[0_35px_70px_-40px_rgba(251,191,36,0.75)]' },
+                logging_weight: { text: 'Guardar y descansar', gradient: 'from-sky-400 via-blue-500 to-indigo-500', textClass: 'text-white', icon: 'save', hoverShadow: 'hover:shadow-[0_35px_70px_-40px_rgba(59,130,246,0.75)]' },
+                resting: { text: 'Descansando...', gradient: 'from-slate-600 via-slate-700 to-slate-800', textClass: 'text-gray-200', icon: 'timer', hoverShadow: '', disabled: true },
+                exercise_complete: { text: 'Siguiente ejercicio', gradient: 'from-purple-500 via-indigo-500 to-blue-500', textClass: 'text-white', icon: 'arrow-right', hoverShadow: 'hover:shadow-[0_35px_70px_-40px_rgba(129,140,248,0.75)]' },
+                workout_complete: { text: '¡Rutina completada!', gradient: 'from-emerald-400 via-green-500 to-teal-500', textClass: 'text-gray-900', icon: 'sparkles', hoverShadow: 'hover:shadow-[0_45px_90px_-50px_rgba(16,185,129,0.85)]' }
+            };
+            const buttonState = buttonMap[timerStatus] || buttonMap.idle;
+            const mainButtonHtml = `
+                <button data-action="handle-workout-action" class="group relative w-full overflow-hidden rounded-full bg-gradient-to-r ${buttonState.gradient} px-5 py-3 text-base font-semibold sm:flex-1 sm:px-7 sm:py-3.5 sm:text-lg ${buttonState.textClass} transition duration-200 ${buttonState.disabled ? 'cursor-not-allowed opacity-70' : 'hover:scale-[1.01]'} ${buttonState.hoverShadow}" ${buttonState.disabled ? 'disabled' : ''}>
+                    <span class="flex items-center justify-center gap-3">
+                        ${buttonState.text}
+                        <i data-lucide="${buttonState.icon}" class="h-5 w-5"></i>
+                    </span>
+                </button>
+            `;
+
+            const exitRoutineButtonHtml = `
+                <button data-action="confirm-cancel-workout" class="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold uppercase tracking-[0.35em] text-gray-200 transition hover:border-rose-400/60 hover:bg-rose-500/10 hover:text-white sm:w-auto sm:px-6">
+                    <i data-lucide="log-out" class="h-4 w-4"></i>
+                    <span>Finalizar rutina</span>
+                </button>
+            `;
+
+            const restControlsSection = timerStatus === 'resting'
+                ? `
+                    <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+                        <button data-action="add-rest-time" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.35em] text-white transition hover:border-emerald-300/60 hover:bg-emerald-300/10 sm:px-4 sm:py-2">
+                            <i data-lucide="plus" class="h-4 w-4"></i>
+                            +15s
+                        </button>
+                        <button data-action="skip-rest" class="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.35em] text-white transition hover:border-rose-300/60 hover:bg-rose-300/10 sm:px-4 sm:py-2">
+                            <i data-lucide="skip-forward" class="h-4 w-4"></i>
+                            Saltar descanso
+                        </button>
+                    </div>
+                `
+                : '';
+
+            const upcomingHtml = `
+                <div class="rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl shadow-[0_25px_70px_-55px_rgba(59,130,246,0.45)] sm:p-6">
+                    <div class="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-300">
+                        <span>${nextExercise ? 'Siguiente ejercicio' : 'Último esfuerzo'}</span>
+                        <span class="inline-flex items-center gap-2 text-emerald-200"><i data-lucide="activity" class="h-4 w-4"></i>${Math.round(progressRounded)}%</span>
+                    </div>
+                    <p class="mt-3 text-lg font-semibold text-white sm:text-xl">${nextExercise ? nextExercise.name : 'Cool down & estiramientos'}</p>
+                    <p class="mt-2 text-sm text-gray-400">${nextExercise ? `${nextExercise.sets || '—'} series · ${nextExercise.reps || '—'} reps` : 'Aprovecha para bajar pulsaciones y evaluar sensaciones.'}</p>
+                </div>
+            `;
+
+            const statsHtml = `
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="rounded-2xl border border-white/10 bg-white/5 py-3 text-center">
+                        <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-gray-400">Serie</p>
+                        <p class="mt-1 text-lg font-semibold text-white">${normalizedSet}/${totalSets}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 py-3 text-center">
+                        <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-gray-400">Reps</p>
+                        <p class="mt-1 text-lg font-semibold text-white">${exercise.reps || '—'}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 py-3 text-center">
+                        <p class="text-[10px] font-semibold uppercase tracking-[0.4em] text-gray-400">Descanso</p>
+                        <p class="mt-1 text-lg font-semibold text-white">${restTarget}</p>
+                    </div>
+                </div>
+            `;
+
+            overlay.innerHTML = `
+                <div class="flex min-h-full flex-col bg-gradient-to-b from-gray-950 via-gray-950 to-gray-900 text-white">
+                    <header class="sticky top-0 z-10 border-b border-white/5 bg-gray-950/95 px-4 py-4 backdrop-blur-sm sm:px-6">
+                        <div class="mx-auto flex w-full max-w-5xl flex-col gap-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="space-y-1">
+                                    <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-gray-400">${routineName || 'Rutina personalizada'}</p>
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <h1 class="text-xl font-semibold text-white">${dayName || 'Sesión en curso'}</h1>
+                                        <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.35em] ${statusInfo.badgeClass}">
+                                            <span class="h-2 w-2 rounded-full bg-current"></span>
+                                            ${statusInfo.label}
+                                        </span>
+                                    </div>
+                                </div>
+                                <button data-action="confirm-cancel-workout" title="Salir de la rutina" aria-label="Salir de la rutina" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-rose-400/60 hover:bg-rose-500/10 hover:text-white">
+                                    <span class="sr-only">Salir de la rutina</span>
+                                    <i data-lucide="x" class="h-5 w-5"></i>
+                                </button>
+                            </div>
+                            <div class="grid gap-3 sm:grid-cols-[auto,1fr] sm:items-center">
+                                <div class="flex items-center gap-3">
+                                    <div id="main-workout-timer" class="rounded-full bg-black/40 px-4 py-2 text-2xl font-mono font-semibold tracking-widest text-white shadow-inner">00:00</div>
+                                    <span class="text-xs text-gray-400">Duración de la sesión</span>
+                                </div>
+                                <div class="w-full">
+                                    <div class="overflow-hidden rounded-full border border-white/10 bg-white/5">
+                                        <div class="h-2 rounded-full bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 transition-[width] duration-500" style="width: ${progressRounded}%"></div>
+                                    </div>
+                                    <p class="mt-1 text-xs text-gray-400">Ejercicio ${currentExerciseIndex + 1} de ${totalExercises}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main class="flex-1 overflow-y-auto px-4 pb-28 pt-6 sm:px-6">
+                        <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 lg:flex-row">
+                            <section class="flex w-full flex-col gap-4 lg:w-5/12">
+                                ${mediaContent}
+                                ${upcomingHtml}
+                            </section>
+
+                            <section class="flex flex-1">
+                                <div class="flex w-full flex-col gap-5 rounded-3xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl shadow-[0_25px_70px_-55px_rgba(15,118,110,0.5)] sm:p-6">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <p class="text-[10px] font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Ejercicio en curso</p>
+                                            <h2 class="mt-1 text-2xl font-semibold leading-tight text-white">${exercise.name}</h2>
+                                        </div>
+                                        <button data-action="show-exercise-info" data-exercise-name="${exercise.name}" class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-gray-300 transition hover:border-sky-400/60 hover:bg-sky-500/10 hover:text-white">
+                                            <i data-lucide="info" class="h-5 w-5"></i>
+                                        </button>
+                                    </div>
+
+                                    <div class="space-y-3">
+                                        <div class="flex items-center gap-2">
+                                            ${setIndicators}
+                                        </div>
+                                        ${statsHtml}
+                                    </div>
+
+                                    <div class="flex flex-1 items-center justify-center">
+                                        <div class="live-workout-display w-full">
+                                            ${mainDisplayHtml}
+                                        </div>
+                                    </div>
+
+                                    ${timerStatus === 'resting' ? '' : '<p class="text-center text-xs text-gray-400">Mantén la buena forma y controla la respiración.</p>'}
+                                </div>
+                            </section>
+                        </div>
+                    </main>
+
+                    <footer class="fixed inset-x-0 bottom-0 border-t border-white/5 bg-gray-950/95 px-4 py-4 backdrop-blur-sm sm:px-6">
+                        <div class="mx-auto flex w-full max-w-5xl flex-col gap-3">
+                            ${restControlsSection}
+                            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                ${exitRoutineButtonHtml}
+                                ${mainButtonHtml}
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            `;
+
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+
+            if (timerStatus === 'logging_weight') {
+                const weightInput = document.getElementById('weight-input');
+                if (weightInput) {
+                    weightInput.focus();
+                    weightInput.select();
+                }
+            }
+
+            lucide.createIcons();
+            if (timerStatus === 'resting') {
+                this.updateRestTimerVisuals();
+            }
+        },
+
+    updateWorkoutTimerDisplay() {
+        if (!this.state.activeWorkout || !this.state.activeWorkout.workoutStartTime) {
+            return;
+        }
+        const timerElement = document.getElementById('main-workout-timer');
+        if (timerElement) {
+            const elapsedSeconds = Math.floor((Date.now() - this.state.activeWorkout.workoutStartTime) / 1000);
+            timerElement.textContent = this.formatTime(elapsedSeconds);
+        }
+    },
+    updateRestTimerVisuals() {
+        if (!this.state.timer || this.state.timer.status !== 'resting') {
+            return;
+        }
+        const timeLeft = Math.max(0, this.state.timer.timeLeft);
+        const displayElement = document.getElementById('rest-timer-display');
+        if (displayElement) {
+            displayElement.textContent = this.formatTime(timeLeft);
+        }
+        const circleElement = document.getElementById('rest-progress-circle');
+        if (circleElement) {
+            const circumference = parseFloat(circleElement.getAttribute('data-circumference')) || 0;
+            const initialRest = this.state.timer.initialRestTime || 0;
+            if (circumference > 0 && initialRest > 0) {
+                const fraction = Math.min(1, Math.max(0, timeLeft / initialRest));
+                circleElement.style.strokeDashoffset = `${circumference - fraction * circumference}`;
+            }
+        }
+    },
+    handleWorkoutAction() { const status = this.state.timer.status; if (status === 'idle') { this.state.timer.status = 'active'; } else if (status === 'active') { this.state.timer.status = 'logging_weight'; } else if (status === 'logging_weight') { const weightInput = document.getElementById('weight-input'); const weightValue = parseFloat(weightInput.value); const weightToLog = !isNaN(weightValue) && weightValue >= 0 ? weightValue : 0; const { exercises, currentExerciseIndex, currentSet } = this.state.activeWorkout; exercises[currentExerciseIndex].log[currentSet - 1] = weightToLog; this.state.activeWorkout.currentSet++; if (this.state.activeWorkout.currentSet <= exercises[currentExerciseIndex].sets) { this.startRestTimer(); } else { if (this.state.activeWorkout.currentExerciseIndex >= this.state.activeWorkout.exercises.length - 1) { this.state.timer.status = 'workout_complete'; } else { this.state.timer.status = 'exercise_complete'; } } } else if (status === 'exercise_complete') { this.startRestTimer(true); this.state.activeWorkout.currentExerciseIndex++; this.state.activeWorkout.currentSet = 1; this.state.timer.status = 'resting'; } else if (status === 'workout_complete') { this.finishWorkout(true); return; } this.renderLiveWorkoutView(); },
+    startRestTimer(isBetweenExercises) {
+        clearInterval(this.state.timer.intervalId);
+        const { exercises, currentExerciseIndex } = this.state.activeWorkout;
+        const betweenExercises = Boolean(isBetweenExercises);
+
+        let restSeconds;
+        if (betweenExercises) {
+            restSeconds = 90;
+        } else {
+            const restString = exercises[currentExerciseIndex].rest || '60s';
+            restSeconds = parseInt(restString.match(/\d+/)[0] || 60);
+        }
+
+        this.state.activeWorkout.totalRestTime += restSeconds;
+        this.state.timer = { ...this.state.timer, status: 'resting', timeLeft: restSeconds, initialRestTime: restSeconds };
+        this.playSound('start');
+
+        this.state.timer.intervalId = setInterval(() => {
+            if (!this.state.timer) {
+                return clearInterval(this.state.timer.intervalId);
+            }
+
+            this.state.timer.timeLeft--;
+            if (this.state.timer.timeLeft <= 0) {
+                this.playSound('end');
+                this.skipRest();
+            } else {
+                this.updateRestTimerVisuals();
+            }
+        }, 1000);
+    },
+    addRestTime() { if (this.state.timer.status === 'resting') { this.state.timer.timeLeft += 15; this.state.timer.initialRestTime += 15; this.state.activeWorkout.totalRestTime += 15; this.showToast("+15 segundos añadidos"); this.updateRestTimerVisuals(); } },
+    skipRest() { if (this.state.timer.status === 'resting') { clearInterval(this.state.timer.intervalId); this.state.timer.status = 'idle'; this.renderLiveWorkoutView(); } },
+    confirmCancelWorkout() {
+        const hasActiveWorkout = Boolean(this.state.activeWorkout);
+        const hasLoggedProgress = hasActiveWorkout && Array.isArray(this.state.activeWorkout.exercises)
+            && this.state.activeWorkout.exercises.some(exercise => Array.isArray(exercise.log) && exercise.log.length > 0);
+        const hasAdvancedExercise = hasActiveWorkout && (
+            (this.state.activeWorkout.currentExerciseIndex ?? 0) > 0
+            || (this.state.activeWorkout.currentSet ?? 1) > 1
+        );
+        const hasMeaningfulProgress = hasLoggedProgress || hasAdvancedExercise;
+
+        const description = hasMeaningfulProgress
+            ? '<p class="text-sm text-gray-300">¿Deseas salir de la rutina en vivo? Puedes guardar tus avances registrados hasta el momento o salir sin conservarlos.</p>'
+            : '<p class="text-sm text-gray-300">¿Deseas salir de la rutina en vivo? Aún no registras progreso, por lo que puedes abandonar ahora sin guardar datos.</p>';
+
+        const helper = hasMeaningfulProgress
+            ? '<p class="text-xs text-gray-500">Elige "Salir y guardar" para conservar series, pesos y tiempos anotados hasta ahora.</p>'
+            : '<p class="text-xs text-gray-500">Si prefieres guardar, podrás registrar el estado actual de todos modos.</p>';
+
+        this.showModal('Salir de la rutina', `<div class="space-y-3 text-left">${description}${helper}</div>`, [
+            { text: 'Seguir entrenando', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+            { text: 'Salir sin guardar', class: 'bg-rose-600 hover:bg-rose-500', action: 'exit-without-saving' },
+            { text: 'Salir y guardar', class: 'bg-emerald-500 text-gray-900 hover:bg-emerald-400', action: 'exit-and-save' }
+        ]);
+    },
+    async finishWorkout(completed) {
+        const isCompleted = typeof completed === 'undefined' ? true : Boolean(completed);
+        const overlay = document.getElementById('live-workout-overlay');
+
+        if (!this.state.activeWorkout) {
+            if (overlay) {
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            }
+            this.hideModal();
+            return;
+        }
+
+        clearInterval(this.state.activeWorkout.workoutTimerIntervalId);
+        if (this.state.timer?.intervalId) {
+            clearInterval(this.state.timer.intervalId);
+        }
+
+        const totalDuration = Math.floor((Date.now() - this.state.activeWorkout.workoutStartTime) / 1000);
+        const totalRest = this.state.activeWorkout.totalRestTime || 0;
+        const totalActive = Math.max(0, totalDuration - totalRest);
+
+        if (isCompleted) {
+            const today = new Date();
+            const dateString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            const baseLog = this.state.activeWorkout.exercises.map(ex => ({ name: ex.name, sets: ex.sets, reps: ex.reps, log: ex.log }));
+            const exerciseDetails = baseLog.map(exercise => {
+                const reps = this.parseRepsValue(exercise.reps);
+                const weights = (exercise.log || []).filter(value => typeof value === 'number' && !Number.isNaN(value));
+                const completedSets = weights.length;
+                const bestWeight = weights.length ? Math.max(...weights) : 0;
+                const volume = weights.reduce((sum, weight) => sum + (weight * (reps || 1)), 0);
+                const estimated1RM = this.estimateOneRepMax(bestWeight, exercise.reps || reps);
+                return { ...exercise, weights, completedSets, bestWeight, volume, estimated1RM };
+            });
+            const totalVolume = exerciseDetails.reduce((sum, ex) => sum + ex.volume, 0);
+            const totalSetsCompleted = exerciseDetails.reduce((sum, ex) => sum + ex.completedSets, 0);
+            const peakOneRepMax = exerciseDetails.reduce((max, ex) => Math.max(max, ex.estimated1RM || 0), 0);
+
+            const summary = {
+                id: `workout-${Date.now()}`,
+                date: dateString,
+                completedAt: today.toISOString(),
+                routineId: this.state.activeWorkout.routineId,
+                dayIndex: this.state.activeWorkout.dayIndex,
+                routineName: this.state.activeWorkout.routineName,
+                dayName: this.state.activeWorkout.dayName,
+                totalDuration,
+                totalActive,
+                totalRest,
+                totalVolume,
+                totalSetsCompleted,
+                peakOneRepMax,
+                log: baseLog,
+                exerciseDetails
+            };
+
+            if (!this.state.workoutHistory) this.state.workoutHistory = {};
+            if (!Array.isArray(this.state.workoutHistory[dateString])) {
+                this.state.workoutHistory[dateString] = [];
+            }
+            this.state.workoutHistory[dateString].push(summary);
+            this.state.workoutHistory[dateString].sort((a, b) => new Date(a.completedAt) - new Date(b.completedAt));
+            this.pendingGamificationSummary = summary;
+            this.showWorkoutSummaryModal(summary);
+        } else {
+            this.pendingGamificationSummary = null;
+            this.hideModal();
+        }
+
+        this.state.activeWorkout = null;
+        this.state.timer = null;
+        await this.saveDataToFirestore();
+        if (overlay) {
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+        }
+        this.renderAll();
+    },
+    showWorkoutSummaryModal(summary) {
+        const intlFormatter = new Intl.NumberFormat('es-ES');
+        const formattedDateTime = summary.completedAt
+            ? new Date(summary.completedAt).toLocaleString('es-ES', { dateStyle: 'long', timeStyle: 'short' })
+            : new Date(`${summary.date}T00:00:00`).toLocaleDateString('es-ES', { dateStyle: 'long' });
+        const formattedVolume = intlFormatter.format(Math.round(summary.totalVolume || 0));
+        const formattedSets = intlFormatter.format(summary.totalSetsCompleted || 0);
+        const exerciseSections = summary.exerciseDetails && summary.exerciseDetails.length > 0
+            ? summary.exerciseDetails.map(exercise => {
+                const totalSets = parseInt(exercise.sets, 10) || exercise.log.length || 0;
+                const setBadges = Array.from({ length: totalSets }).map((_, index) => {
+                    const weight = exercise.log?.[index];
+                    const isCompleted = typeof weight === 'number' && !Number.isNaN(weight);
+                    return `<span class="rounded-full border ${isCompleted ? 'border-emerald-400/40 bg-emerald-500/15 text-emerald-100' : 'border-white/10 bg-white/5 text-gray-400'} px-3 py-1 text-[11px] font-semibold">S${index + 1}: ${isCompleted ? `${weight} kg` : 'Pendiente'}</span>`;
+                }).join('');
+                return `
+                    <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-4">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <p class="text-sm font-semibold text-white">${exercise.name}</p>
+                                <p class="text-xs text-gray-400">${exercise.completedSets}/${exercise.sets || exercise.log.length} series registradas · ${exercise.reps || '—'} reps objetivo</p>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs text-emerald-200">
+                                <i data-lucide="bar-chart" class="h-4 w-4"></i>
+                                Volumen: ${intlFormatter.format(Math.round(exercise.volume || 0))} kg·reps
+                            </div>
+                        </div>
+                        <div class="mt-3 flex flex-wrap gap-2 text-[11px] text-gray-300">
+                            <span class="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/10 px-3 py-1 font-semibold text-sky-100">
+                                <i data-lucide="weight" class="h-3.5 w-3.5"></i>
+                                Máx: ${exercise.bestWeight ? `${exercise.bestWeight} kg` : '—'}
+                            </span>
+                            <span class="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-500/10 px-3 py-1 font-semibold text-amber-100">
+                                <i data-lucide="repeat-2" class="h-3.5 w-3.5"></i>
+                                Series completadas: ${exercise.completedSets}
+                            </span>
+                            <span class="inline-flex items-center gap-1 rounded-full border border-purple-400/40 bg-purple-500/10 px-3 py-1 font-semibold text-purple-100">
+                                <i data-lucide="line-chart" class="h-3.5 w-3.5"></i>
+                                1RM: ${exercise.estimated1RM ? `${exercise.estimated1RM.toFixed(1)} kg` : '—'}
+                            </span>
+                        </div>
+                        <div class="mt-4 flex flex-wrap gap-2">
+                            ${setBadges}
+                        </div>
+                    </div>
+                `;
+            }).join('')
+            : '<p class="text-gray-500 text-sm p-3 bg-gray-900/60 rounded-2xl text-center">No se registraron pesos en esta sesión.</p>';
+
+        const logString = encodeURIComponent(JSON.stringify(summary.log));
+        const gamificationSection = this.buildGamificationSummarySection(summary);
+        const body = `
+            <div class="space-y-6 text-left">
+                <div class="rounded-3xl bg-gradient-to-br from-emerald-500/20 via-teal-500/10 to-cyan-500/20 border border-emerald-400/20 p-5 text-emerald-100">
+                    <div class="flex flex-col gap-1">
+                        <p class="text-xs font-semibold uppercase tracking-[0.35em] text-emerald-200/80">Resumen de progreso</p>
+                        <h3 class="text-xl font-semibold text-white">${summary.routineName}</h3>
+                        <p class="text-sm text-emerald-100/80">${formattedDateTime}</p>
+                    </div>
+                </div>
+                <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-white">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Duración total</p>
+                        <p class="mt-2 text-2xl font-bold">${this.formatTime(summary.totalDuration)}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-white">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Tiempo activo</p>
+                        <p class="mt-2 text-2xl font-bold">${this.formatTime(summary.totalActive)}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-white">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Descanso acumulado</p>
+                        <p class="mt-2 text-2xl font-bold">${this.formatTime(summary.totalRest)}</p>
+                    </div>
+                    <div class="rounded-2xl border border-white/10 bg-white/5 p-4 text-white">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Volumen (kg·reps)</p>
+                        <p class="mt-2 text-2xl font-bold">${formattedVolume}</p>
+                        <p class="text-xs text-gray-400 mt-1">${formattedSets} series registradas</p>
+                        <p class="text-xs text-gray-400">1RM máximo: ${summary.peakOneRepMax ? `${summary.peakOneRepMax.toFixed(1)} kg` : '—'}</p>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-semibold text-gray-200 uppercase tracking-[0.35em]">Detalle por ejercicio</h4>
+                        <span class="text-xs text-gray-400">Analiza tus pesos serie a serie</span>
+                    </div>
+                    <div class="space-y-3 max-h-60 overflow-y-auto pr-2">
+                        ${exerciseSections}
+                    </div>
+                </div>
+                ${gamificationSection}
+                <div id="ai-analysis-container" class="space-y-2"></div>
+            </div>
+        `;
+
+        const footerButtons = [
+            { text: 'Cerrar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' },
+            { text: 'Ver historial', class: 'bg-sky-500 text-gray-900 hover:bg-sky-400', action: 'show-workout-history', 'history-date': summary.date },
+            { text: '✨ Analizar', class: 'bg-gradient-to-r from-purple-500 to-indigo-600', action: 'analyze-workout-performance', 'log-data': logString }
+        ];
+
+        this.showModal('Resumen del entrenamiento', body, footerButtons);
+        lucide.createIcons();
+    },
+    _normalizeWorkoutEntry(entry, dateKey) {
+        if (!entry || typeof entry !== 'object') {
+            return {
+                id: `workout-${Date.now()}`,
+                date: dateKey,
+                completedAt: new Date(`${dateKey}T00:00:00`).toISOString(),
+                routineId: '',
+                dayIndex: 0,
+                routineName: 'Sesión',
+                dayName: '',
+                totalDuration: 0,
+                totalRest: 0,
+                totalActive: 0,
+                totalVolume: 0,
+                totalSetsCompleted: 0,
+                log: [],
+                exerciseDetails: []
+            };
+        }
+
+        const baseLog = Array.isArray(entry.log)
+            ? entry.log.map(ex => ({
+                name: ex.name,
+                sets: ex.sets,
+                reps: ex.reps,
+                log: Array.isArray(ex.log) ? ex.log : []
+            }))
+            : [];
+
+        const deriveDetails = (source) => {
+            const reps = this.parseRepsValue(source.reps);
+            const weights = (source.log || []).filter(value => typeof value === 'number' && !Number.isNaN(value));
+            const completedSets = weights.length;
+            const bestWeight = weights.length ? Math.max(...weights) : 0;
+            const volume = weights.reduce((sum, weight) => sum + weight * (reps || 1), 0);
+            return {
+                name: source.name,
+                sets: source.sets,
+                reps: source.reps,
+                log: source.log || [],
+                weights,
+                completedSets,
+                bestWeight,
+                volume,
+                estimated1RM: this.estimateOneRepMax(bestWeight, source.reps || reps)
+            };
+        };
+
+        const exerciseDetails = Array.isArray(entry.exerciseDetails) && entry.exerciseDetails.length > 0
+            ? entry.exerciseDetails.map(detail => {
+                const base = baseLog.find(ex => ex.name === detail.name) || detail;
+                const normalizedLog = Array.isArray(detail.log) ? detail.log : (base.log || []);
+                const weights = Array.isArray(detail.weights) ? detail.weights : normalizedLog.filter(value => typeof value === 'number' && !Number.isNaN(value));
+                const reps = this.parseRepsValue(detail.reps ?? base.reps);
+                const completedSets = typeof detail.completedSets === 'number' ? detail.completedSets : weights.length;
+                const bestWeight = typeof detail.bestWeight === 'number' ? detail.bestWeight : (weights.length ? Math.max(...weights) : 0);
+                const volume = typeof detail.volume === 'number' ? detail.volume : weights.reduce((sum, weight) => sum + weight * (reps || 1), 0);
+                return {
+                    name: detail.name || base.name,
+                    sets: detail.sets ?? base.sets,
+                    reps: detail.reps ?? base.reps,
+                    log: normalizedLog,
+                    weights,
+                    completedSets,
+                    bestWeight,
+                    volume,
+                    estimated1RM: typeof detail.estimated1RM === 'number' ? detail.estimated1RM : this.estimateOneRepMax(bestWeight, detail.reps ?? base.reps)
+                };
+            })
+            : baseLog.map(deriveDetails);
+
+        const totalDuration = entry.totalDuration || 0;
+        const totalRest = entry.totalRest || 0;
+        const totalActive = entry.totalActive || Math.max(0, totalDuration - totalRest);
+        const totalVolume = typeof entry.totalVolume === 'number' ? entry.totalVolume : exerciseDetails.reduce((sum, ex) => sum + (ex.volume || 0), 0);
+        const totalSetsCompleted = typeof entry.totalSetsCompleted === 'number' ? entry.totalSetsCompleted : exerciseDetails.reduce((sum, ex) => sum + (ex.completedSets || 0), 0);
+        const peakOneRepMax = typeof entry.peakOneRepMax === 'number' ? entry.peakOneRepMax : exerciseDetails.reduce((max, ex) => Math.max(max, ex.estimated1RM || 0), 0);
+
+        return {
+            id: entry.id || `workout-${Date.parse(entry.completedAt || `${dateKey}T00:00:00`) || Date.now()}`,
+            date: entry.date || dateKey,
+            completedAt: entry.completedAt || new Date(`${dateKey}T00:00:00`).toISOString(),
+            routineId: entry.routineId || '',
+            dayIndex: typeof entry.dayIndex === 'number' ? entry.dayIndex : 0,
+            routineName: entry.routineName || 'Sesión',
+            dayName: entry.dayName || '',
+            totalDuration,
+            totalRest,
+            totalActive,
+            totalVolume,
+            totalSetsCompleted,
+            peakOneRepMax,
+            log: baseLog,
+            exerciseDetails
+        };
+    },
+    getWorkoutHistoryEntries() {
+        if (!this.state.workoutHistory) return [];
+        const entries = [];
+        Object.entries(this.state.workoutHistory).forEach(([date, records]) => {
+            if (Array.isArray(records)) {
+                records.forEach(record => entries.push({ ...record, date }));
+            }
+        });
+        return entries.sort((a, b) => {
+            const aDate = new Date(a.completedAt || `${a.date}T00:00:00`);
+            const bDate = new Date(b.completedAt || `${b.date}T00:00:00`);
+            return bDate - aDate;
+        });
+    },
+    openWorkoutHistoryModal(targetDate) {
+        if (!this.state.workoutHistory || Object.keys(this.state.workoutHistory).length === 0) {
+            this.showModal('Historial de entrenamientos', '<p class="text-sm text-gray-300">Registra tu primera rutina para comenzar a visualizar estadísticas.</p>', [
+                { text: 'Cerrar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }
+            ]);
+            return;
+        }
+
+        const entriesByDate = Object.entries(this.state.workoutHistory)
+            .filter(([, records]) => Array.isArray(records) && records.length > 0)
+            .sort((a, b) => new Date(b[0]) - new Date(a[0]));
+
+        if (entriesByDate.length === 0) {
+            this.showModal('Historial de entrenamientos', '<p class="text-sm text-gray-300">Aún no hay sesiones registradas.</p>', [
+                { text: 'Cerrar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }
+            ]);
+            return;
+        }
+
+        const intlFormatter = new Intl.NumberFormat('es-ES');
+        const selectedDate = targetDate && this.state.workoutHistory[targetDate] && this.state.workoutHistory[targetDate].length > 0
+            ? targetDate
+            : entriesByDate[0][0];
+
+        const selectedEntries = this.state.workoutHistory[selectedDate]
+            .slice()
+            .sort((a, b) => new Date(b.completedAt || 0) - new Date(a.completedAt || 0));
+
+        const totalSessions = entriesByDate.reduce((sum, [, list]) => sum + list.length, 0);
+        const totalActiveSeconds = entriesByDate.reduce((sum, [, list]) => sum + list.reduce((acc, entry) => acc + (entry.totalActive || 0), 0), 0);
+        const totalVolume = entriesByDate.reduce((sum, [, list]) => sum + list.reduce((acc, entry) => acc + (entry.totalVolume || 0), 0), 0);
+        const averageActive = totalSessions ? Math.round(totalActiveSeconds / totalSessions) : 0;
+
+        const dateListHtml = entriesByDate.map(([dateKey, list]) => {
+            const formattedDay = new Date(`${dateKey}T00:00:00`).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' });
+            const dayVolume = list.reduce((acc, entry) => acc + (entry.totalVolume || 0), 0);
+            const isActive = dateKey === selectedDate;
+            return `
+                <button data-action="show-workout-history" data-history-date="${dateKey}" class="w-full rounded-2xl border ${isActive ? 'border-emerald-400/40 bg-emerald-500/15 text-emerald-100' : 'border-white/10 bg-white/5 text-gray-300 hover:border-emerald-300/40 hover:text-white'} px-4 py-3 text-left transition">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-semibold capitalize">${formattedDay}</p>
+                            <p class="text-xs text-gray-400">${list.length} sesiones · ${intlFormatter.format(Math.round(dayVolume))} kg·reps</p>
+                        </div>
+                        <i data-lucide="chevron-right" class="h-4 w-4"></i>
+                    </div>
+                </button>
+            `;
+        }).join('');
+
+        const selectedDateLabel = new Date(`${selectedDate}T00:00:00`).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+
+        const selectedEntriesHtml = selectedEntries.map(entry => {
+            const timeLabel = entry.completedAt
+                ? new Date(entry.completedAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+                : '';
+            const entryVolume = intlFormatter.format(Math.round(entry.totalVolume || 0));
+            const topExercises = (entry.exerciseDetails || []).slice(0, 3).map(ex => {
+                const bestWeightLabel = ex.bestWeight ? `${ex.bestWeight} kg` : '—';
+                const oneRmLabel = ex.estimated1RM ? `${ex.estimated1RM.toFixed(1)} kg` : '—';
+                return `
+                    <div class="flex items-center justify-between gap-2 text-xs text-gray-300">
+                        <span class="truncate pr-2">${ex.name}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-2.5 py-0.5 text-emerald-100"><i data-lucide="dumbbell" class="h-3.5 w-3.5"></i>${bestWeightLabel}</span>
+                            <span class="inline-flex items-center gap-1 rounded-full border border-purple-400/40 bg-purple-500/10 px-2.5 py-0.5 text-purple-100"><i data-lucide="line-chart" class="h-3.5 w-3.5"></i>${oneRmLabel}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            return `
+                <div class="rounded-2xl border border-white/10 bg-gray-900/70 p-4">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <p class="text-base font-semibold text-white">${entry.routineName}</p>
+                            <p class="text-xs text-gray-400">${entry.dayName || 'Sesión'} ${timeLabel ? `· ${timeLabel}` : ''}</p>
+                        </div>
+                        <div class="flex flex-wrap gap-3 text-xs text-gray-300">
+                            <span class="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1"><i data-lucide="timer" class="h-3.5 w-3.5"></i>${this.formatTime(entry.totalDuration)}</span>
+                            <span class="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-3 py-1 text-emerald-100"><i data-lucide="flame" class="h-3.5 w-3.5"></i>${this.formatTime(entry.totalActive)}</span>
+                            <span class="inline-flex items-center gap-1 rounded-full border border-sky-400/40 bg-sky-500/10 px-3 py-1 text-sky-100"><i data-lucide="bar-chart" class="h-3.5 w-3.5"></i>${entryVolume} kg·reps</span>
+                        </div>
+                    </div>
+                    <div class="mt-3 space-y-1">
+                        ${topExercises || '<p class="text-xs text-gray-500">Añade pesos para ver más detalles.</p>'}
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const body = `
+            <div class="flex flex-col gap-6 lg:flex-row">
+                <aside class="space-y-4 lg:w-1/3">
+                    <div class="rounded-3xl border border-white/10 bg-white/5 p-5 text-white">
+                        <p class="text-[11px] font-semibold uppercase tracking-[0.35em] text-gray-400">Resumen general</p>
+                        <div class="mt-4 space-y-3 text-sm">
+                            <div class="flex items-center justify-between">
+                                <span>Sesiones registradas</span>
+                                <strong>${intlFormatter.format(totalSessions)}</strong>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Volumen total</span>
+                                <strong>${intlFormatter.format(Math.round(totalVolume))} kg·reps</strong>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Tiempo activo promedio</span>
+                                <strong>${this.formatTime(averageActive)}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                        ${dateListHtml}
+                    </div>
+                </aside>
+                <section class="flex-1 space-y-4">
+                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <h3 class="text-lg font-semibold text-white capitalize">${selectedDateLabel}</h3>
+                        <p class="text-xs text-gray-400">${selectedEntries.length} sesiones registradas</p>
+                    </div>
+                    <div class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                        ${selectedEntriesHtml || '<p class="text-sm text-gray-400">No hay entrenamientos registrados en esta fecha.</p>'}
+                    </div>
+                </section>
+            </div>
+        `;
+
+        this.showModal('Historial de entrenamientos', body, [
+            { text: 'Cerrar', class: 'bg-gray-600 hover:bg-gray-500', action: 'hide-modal' }
+        ]);
+        lucide.createIcons();
+    },
+};
+    window.app = app;
+    app.init();
+    initHeaderFadeEffect();
+};
+
+if (document.readyState === 'loading') {
+    const onceHandler = () => {
+        document.removeEventListener('DOMContentLoaded', onceHandler);
+        bootstrapApp();
+    };
+    document.addEventListener('DOMContentLoaded', onceHandler);
+} else {
+    bootstrapApp();
+}
