@@ -984,7 +984,7 @@
                             </div>
                             <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                         </div>
-                        <div class="flex flex-col gap-4 border-t border-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                        <div class="flex flex-col gap-4 border-t border-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6" data-admin-cover-details>
                             <div class="space-y-1">
                                 <h3 class="text-lg font-semibold text-white">Portada promocional</h3>
                                 <p class="text-sm text-gray-300" data-hide-coach-cover>Sube un banner alargado para destacar promociones, retos o anuncios importantes.</p>
@@ -1261,7 +1261,7 @@
                         </div>
                         <div class="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/65 via-black/20 to-transparent"></div>
                     </div>
-                        <div class="flex flex-col gap-4 border-t border-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+                        <div class="flex flex-col gap-4 border-t border-white/5 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6" data-admin-cover-details>
                             <div class="space-y-1">
                                 <h3 class="text-lg font-semibold text-white">Banner destacado para rutinas</h3>
                                 <p class="text-sm text-gray-300" data-hide-coach-cover>Formato recomendado 21:9 (ej. 2100×900 px) optimizado para verse sin parpadeos.</p>
@@ -3647,13 +3647,18 @@
                 applyRoleBasedCoverVisibility() {
                     const hideCoachInstructions = this.isCoach();
                     const hideGlobalUploads = !this.canEditGlobalMedia();
+                    const showAdminCoverNotes = this.isAdmin();
 
                     document.querySelectorAll('[data-hide-coach-cover]').forEach(element => {
                         element.classList.toggle('hidden', hideCoachInstructions);
                     });
 
                     document.querySelectorAll('[data-coach-cover-note]').forEach(element => {
-                        element.classList.toggle('hidden', !hideCoachInstructions);
+                        element.classList.toggle('hidden', !showAdminCoverNotes);
+                    });
+
+                    document.querySelectorAll('[data-admin-cover-details]').forEach(element => {
+                        element.classList.toggle('hidden', !showAdminCoverNotes);
                     });
 
                     document.querySelectorAll('.diet-panel-cover-upload').forEach(label => {
@@ -4586,6 +4591,7 @@
                 },
                 applyProfilePhotoToAvatar(element, options = {}) {
                     if (!element) return;
+
                     const photoUrl = this.state?.profilePhoto?.url || '';
                     const span = element.querySelector('span');
                     const img = element.querySelector('img');
@@ -4593,50 +4599,7 @@
                     const currentUrl = element.dataset.currentPhotoUrl || '';
                     const { priority = 'auto', loading = 'lazy' } = options;
 
-                    if (photoUrl) {
-                        if (currentUrl === photoUrl && element.classList.contains('has-photo')) {
-                            return;
-                        }
-
-                        element.classList.add('loading-shimmer');
-                        this.preloadImage(photoUrl, { priority }).then((success) => {
-                            element.classList.remove('loading-shimmer');
-                            if (success) {
-                                element.dataset.currentPhotoUrl = photoUrl;
-                                element.classList.add('has-photo');
-                                element.style.backgroundImage = '';
-                                if (img) {
-                                    try {
-                                        if ('fetchPriority' in img) {
-                                            img.fetchPriority = priority;
-                                        }
-                                    } catch (error) {
-                                        /* noop */
-                                    }
-                                    img.loading = loading;
-                                    img.decoding = 'async';
-                                    if (img.src !== photoUrl) {
-                                        img.src = photoUrl;
-                                    }
-                                } else {
-                                    element.style.backgroundImage = `url('${photoUrl}')`;
-                                }
-                                if (span) {
-                                    span.textContent = '';
-                                }
-                            } else if (!currentUrl) {
-                                element.dataset.currentPhotoUrl = '';
-                                element.classList.remove('has-photo');
-                                element.style.backgroundImage = '';
-                                if (img) {
-                                    img.removeAttribute('src');
-                                }
-                                if (span) {
-                                    span.textContent = initial;
-                                }
-                            }
-                        });
-                    } else {
+                    const applyInitialState = () => {
                         element.dataset.currentPhotoUrl = '';
                         element.classList.remove('loading-shimmer');
                         element.classList.remove('has-photo');
@@ -4647,6 +4610,84 @@
                         if (span) {
                             span.textContent = initial;
                         }
+                    };
+
+                    const finalizeWithPhoto = () => {
+                        element.dataset.currentPhotoUrl = photoUrl;
+                        element.classList.add('has-photo');
+                        element.classList.remove('loading-shimmer');
+                        element.style.backgroundImage = '';
+                        if (span) {
+                            span.textContent = '';
+                        }
+                    };
+
+                    if (!photoUrl) {
+                        applyInitialState();
+                        return;
+                    }
+
+                    if (currentUrl === photoUrl && element.classList.contains('has-photo')) {
+                        if (span) {
+                            span.textContent = '';
+                        }
+                        return;
+                    }
+
+                    const handleError = () => {
+                        applyInitialState();
+                    };
+
+                    if (img) {
+                        try {
+                            if ('fetchPriority' in img) {
+                                img.fetchPriority = priority;
+                            }
+                        } catch (error) {
+                            /* noop */
+                        }
+
+                        img.loading = loading;
+                        img.decoding = 'async';
+
+                        const assignHandlers = () => {
+                            img.onload = () => {
+                                finalizeWithPhoto();
+                                img.onload = null;
+                                img.onerror = null;
+                            };
+                            img.onerror = () => {
+                                img.onload = null;
+                                img.onerror = null;
+                                handleError();
+                            };
+                        };
+
+                        if (!img.complete || img.naturalWidth === 0 || img.src !== photoUrl) {
+                            element.classList.add('loading-shimmer');
+                            assignHandlers();
+                            if (img.src !== photoUrl || img.naturalWidth === 0) {
+                                img.src = photoUrl;
+                            }
+                        }
+
+                        if (img.complete && img.naturalWidth > 0) {
+                            finalizeWithPhoto();
+                            img.onload = null;
+                            img.onerror = null;
+                        }
+
+                        this.preloadImage(photoUrl, { priority });
+                    } else {
+                        element.classList.add('loading-shimmer');
+                        this.preloadImage(photoUrl, { priority }).then((success) => {
+                            if (success) {
+                                element.style.backgroundImage = `url('${photoUrl}')`;
+                                finalizeWithPhoto();
+                            } else {
+                                handleError();
+                            }
+                        });
                     }
                 },
                 openUserMenu() {
